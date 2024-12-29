@@ -5,7 +5,7 @@ using System.Linq.Expressions;
 
 namespace Core.Persistence.Repositories;
 
-public interface IAsyncRepository<T> : IQuery<T> where T : Entity
+public interface IAsyncRepository<T, TId> : IQuery<T> where T : Entity<TId>
 {
     /// <summary>
     /// Tek bir varlık getirir.
@@ -28,54 +28,60 @@ public interface IAsyncRepository<T> : IQuery<T> where T : Entity
     /// Dinamik sorgularla bir liste döner.
     /// </summary>
     Task<IPaginate<T>> GetListByDynamicAsync(Dynamic.Dynamic dynamic,
+                                             Expression<Func<T, bool>>? predicate = null,
                                              Func<IQueryable<T>, IIncludableQueryable<T, object>>[]? includes = null,
                                              int index = 0, int size = 10, bool enableTracking = true,
                                              CancellationToken cancellationToken = default);
 
+    Task<bool> AnyAsync(
+                        Expression<Func<T, bool>>? predicate = null,
+                        Func<IQueryable<T>, IIncludableQueryable<T, object>>? include = null,
+                        bool enableTracking = false,
+                        CancellationToken cancellationToken = default);
 
-    Task<T?> GetByIdAsync(int id);
+    Task<T?> GetByIdAsync(int id, CancellationToken cancellationToken = default);
     Task<int> CountAsync(Expression<Func<T, bool>>? predicate = null);
 
     /// <summary>
     /// Yeni bir varlık ekler ve eklenen varlığı döner.
     /// </summary>
-    Task<T> AddAsync(T entity);
+    Task<T> AddAsync(T entity, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Birden fazla varlık ekler.
     /// </summary>
-    Task<IEnumerable<T>> AddRangeAsync(IEnumerable<T> entities);
+    Task<IEnumerable<T>> AddRangeAsync(IEnumerable<T> entities, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Bir varlığı günceller.
     /// </summary>
-    Task UpdateAsync(T entity);
+    Task UpdateAsync(T entity, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Tekil veya birden fazla alanı günceller.
     /// </summary>
-    Task<T> UpdatePartialAsync(T entity, params Expression<Func<T, object>>[] properties);
+    Task<T> UpdatePartialAsync(T entity, CancellationToken cancellationToken = default, params Expression<Func<T, object>>[] properties);
 
     /// <summary>
     /// Toplu güncellemeler için kullanılır
     /// </summary>
-    Task BulkUpdateAsync(Expression<Func<T, bool>> predicate, params (Expression<Func<T, object>> Property, object Value)[] updates);
+    Task BulkUpdateAsync(Expression<Func<T, bool>> predicate, CancellationToken cancellationToken = default, params (Expression<Func<T, object>> Property, object Value)[] updates);
 
     /// <summary>
     /// Birden fazla varlığı günceller.
     /// </summary>
-    Task UpdateRangeAsync(IEnumerable<T> entities);
+    Task UpdateRangeAsync(IEnumerable<T> entities, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Bir varlığı siler.
     /// </summary>
-    Task<T> DeleteAsync(T entity);
+    Task<T> DeleteAsync(T entity, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Birden fazla varlığı siler.
     /// </summary>
-    Task DeleteRangeAsync(IEnumerable<T> entities);
+    Task DeleteRangeAsync(IEnumerable<T> entities, CancellationToken cancellationToken = default);
 
-    Task<T> SoftDeleteAsync(T entity);
-    Task SoftDeleteRangeAsync(IEnumerable<T> entities);
+    Task<T> SoftDeleteAsync(T entity, CancellationToken cancellationToken = default);
+    Task SoftDeleteRangeAsync(IEnumerable<T> entities, CancellationToken cancellationToken = default);
 }

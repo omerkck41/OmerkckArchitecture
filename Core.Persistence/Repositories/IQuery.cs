@@ -1,4 +1,6 @@
-﻿namespace Core.Persistence.Repositories;
+﻿using System.Linq.Expressions;
+
+namespace Core.Persistence.Repositories;
 
 public interface IQuery<T>
 {
@@ -6,5 +8,5 @@ public interface IQuery<T>
     /// Veritabanında sorgulama yapmak için IQueryable döner.
     /// </summary>
     /// <returns>IQueryable</returns>
-    IQueryable<T> Query();
+    IQueryable<T> Query(Expression<Func<T, bool>>? filter = null, Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null);
 }

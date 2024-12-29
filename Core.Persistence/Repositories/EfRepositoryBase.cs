@@ -8,7 +8,7 @@ using System.Linq.Expressions;
 
 namespace Core.Persistence.Repositories;
 
-public class EfRepositoryBase<TEntity, TContext> : IAsyncRepository<TEntity> where TEntity : Entity where TContext : DbContext
+public class EfRepositoryBase<TEntity, TId, TContext> : IAsyncRepository<TEntity, TId> where TEntity : Entity<TId> where TContext : DbContext
 {
     protected readonly TContext _context;
     private readonly DbSet<TEntity> _dbSet;
@@ -19,10 +19,20 @@ public class EfRepositoryBase<TEntity, TContext> : IAsyncRepository<TEntity> whe
         _dbSet = _context.Set<TEntity>();
     }
 
-    public IQueryable<TEntity> Query()
+    public IQueryable<TEntity> Query(Expression<Func<TEntity, bool>>? filter = null, Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>>? orderBy = null)
     {
-        return _dbSet.AsQueryable().Where(e => !e.IsDeleted);
+        IQueryable<TEntity> query = _dbSet.AsQueryable();
+
+        if (filter != null)
+            query = query.Where(filter);
+
+        if (orderBy != null)
+            query = orderBy(query);
+
+        return query;
     }
+
+
 
     public async Task<TEntity?> GetAsync(Expression<Func<TEntity, bool>> predicate,
                                             Func<IQueryable<TEntity>, IIncludableQueryable<TEntity, object>>[]? includes = null,
@@ -65,6 +75,7 @@ public class EfRepositoryBase<TEntity, TContext> : IAsyncRepository<TEntity> whe
     }
 
     public async Task<IPaginate<TEntity>> GetListByDynamicAsync(Dynamic.Dynamic dynamic,
+                                                                Expression<Func<TEntity, bool>>? predicate = null,
                                                                 Func<IQueryable<TEntity>, IIncludableQueryable<TEntity, object>>[]? includes = null,
                                                                 int index = 0, int size = 10,
                                                                 bool enableTracking = true,
@@ -72,6 +83,9 @@ public class EfRepositoryBase<TEntity, TContext> : IAsyncRepository<TEntity> whe
     {
         // Başlangıç sorgusu: Tracking durumu kontrol ediliyor
         IQueryable<TEntity> query = enableTracking ? Query() : Query().AsNoTracking();
+
+        // Predicate varsa, sorguya ekleniyor
+        if (predicate != null) query = query.Where(predicate);
 
         // Dinamik sorgu uygulanıyor
         query = query.ToDynamic(dynamic);
@@ -113,16 +127,42 @@ public class EfRepositoryBase<TEntity, TContext> : IAsyncRepository<TEntity> whe
         return await query.ToPaginateAsync(index, size, 0, cancellationToken);
     }
 
-
-    public async Task<TEntity?> GetByIdAsync(int id)
+    /// <summary>
+    /// Verilen koşula göre bir kaydın var olup olmadığını kontrol eder.
+    /// </summary>
+    /// <param name="predicate">Kontrol edilecek koşul.</param>
+    /// <param name="include">Eager loading için kullanılacak ilişkiler.</param>
+    /// <param name="enableTracking">EF Core'un tracking davranışını kontrol eder.</param>
+    /// <param name="cancellationToken">İptal belirteci.</param>
+    /// <returns>Kayıt varsa true, yoksa false.</returns>
+    public async Task<bool> AnyAsync(Expression<Func<TEntity, bool>>? predicate = null,
+                                    Func<IQueryable<TEntity>, IIncludableQueryable<TEntity, object>>? include = null,
+                                    bool enableTracking = false,
+                                    CancellationToken cancellationToken = default)
     {
-        var entity = await _dbSet.FindAsync(id);
+        IQueryable<TEntity> query = enableTracking ? Query() : Query().IgnoreQueryFilters();
+
+        if (include != null)
+            query = include(query);
+
+        if (predicate != null)
+            query = query.Where(predicate);
+        return await query.AnyAsync(cancellationToken);
+    }
+
+    public async Task<TEntity?> GetByIdAsync(int id, CancellationToken cancellationToken = default)
+    {
+        var entity = await _dbSet.AsQueryable()
+                                 .Where(e => e.Id != null && e.Id.Equals(id))
+                                 .FirstOrDefaultAsync(cancellationToken);
+
         return entity switch
         {
             null => throw new KeyNotFoundException($"{typeof(TEntity).Name} with id {id} was not found."),
             _ => entity,
         };
     }
+
 
     public async Task<int> CountAsync(Expression<Func<TEntity, bool>>? predicate = null)
     {
@@ -131,19 +171,28 @@ public class EfRepositoryBase<TEntity, TContext> : IAsyncRepository<TEntity> whe
             : await _dbSet.CountAsync(predicate);
     }
 
-    public async Task<TEntity> AddAsync(TEntity entity)
+    public async Task<TEntity> AddAsync(TEntity entity, CancellationToken cancellationToken = default)
     {
-        var entry = await _dbSet.AddAsync(entity);
+        var entry = await _dbSet.AddAsync(entity, cancellationToken);
         return entry.Entity;
     }
-
-    public Task UpdateAsync(TEntity entity)
+    public async Task<IEnumerable<TEntity>> AddRangeAsync(IEnumerable<TEntity> entities, CancellationToken cancellationToken = default)
     {
-        _dbSet.Update(entity);
-        return Task.CompletedTask;
+        await _dbSet.AddRangeAsync(entities, cancellationToken);
+        return entities;
     }
 
-    public Task<TEntity> UpdatePartialAsync(TEntity entity, params Expression<Func<TEntity, object>>[] properties)
+    public async Task UpdateAsync(TEntity entity, CancellationToken cancellationToken = default)
+    {
+        _dbSet.Update(entity);
+        await _context.SaveChangesAsync(cancellationToken);
+    }
+    public async Task UpdateRangeAsync(IEnumerable<TEntity> entities, CancellationToken cancellationToken = default)
+    {
+        _dbSet.UpdateRange(entities);
+        await _context.SaveChangesAsync(cancellationToken);
+    }
+    public async Task<TEntity> UpdatePartialAsync(TEntity entity, CancellationToken cancellationToken = default, params Expression<Func<TEntity, object>>[] properties)
     {
         // Entity'yi takip altına al
         //_dbSet.Attach(entity);
@@ -155,13 +204,13 @@ public class EfRepositoryBase<TEntity, TContext> : IAsyncRepository<TEntity> whe
             _context.Entry(entity).Property(propertyName).IsModified = true;
         }
 
-        // UnitOfWork tarafından SaveChanges çağrılacak, burada yalnızca Entity döndürülür
-        return Task.FromResult(entity);
+        await _context.SaveChangesAsync(cancellationToken);
+        return entity;
     }
-
-    public async Task BulkUpdateAsync(Expression<Func<TEntity, bool>> predicate, params (Expression<Func<TEntity, object>> Property, object Value)[] updates)
+    public async Task BulkUpdateAsync(Expression<Func<TEntity, bool>> predicate, CancellationToken cancellationToken = default,
+                                      params (Expression<Func<TEntity, object>> Property, object Value)[] updates)
     {
-        var entities = await _dbSet.Where(predicate).ToListAsync();
+        var entities = await _dbSet.Where(predicate).ToListAsync(cancellationToken);
 
         foreach (var entity in entities)
         {
@@ -174,42 +223,39 @@ public class EfRepositoryBase<TEntity, TContext> : IAsyncRepository<TEntity> whe
                 _context.Entry(entity).Property(propertyName).IsModified = true;
             }
         }
+
+        await _context.SaveChangesAsync(cancellationToken);
     }
 
-    public Task<TEntity> DeleteAsync(TEntity entity)
+    public async Task<TEntity> DeleteAsync(TEntity entity, CancellationToken cancellationToken = default)
     {
         _dbSet.Remove(entity);
-        return Task.FromResult(entity);
+        await _context.SaveChangesAsync(cancellationToken);
+        return entity;
     }
-    public async Task<TEntity> DeleteAsync(int id)
+    public async Task<TEntity> DeleteAsync(int id, CancellationToken cancellationToken = default)
     {
-        var entity = await _dbSet.FindAsync(id) ?? throw new KeyNotFoundException($"{typeof(TEntity).Name} with id {id} was not found.");
+        // CancellationToken destekleyen bir LINQ sorgusu ile entity aranır
+        var entity = await _dbSet.AsQueryable()
+                                 .Where(e => e.Id != null && e.Id.Equals(id))
+                                 .FirstOrDefaultAsync(cancellationToken)
+                                 ?? throw new KeyNotFoundException($"{typeof(TEntity).Name} with id {id} was not found.");
 
+        // Entity veritabanından kaldırılır
         _dbSet.Remove(entity);
-        return await Task.FromResult(entity);
+
+        // Asenkron olarak kaldırılan entity döndürülür
+        await _context.SaveChangesAsync(cancellationToken);
+        return entity;
     }
-
-
-    public async Task<IEnumerable<TEntity>> AddRangeAsync(IEnumerable<TEntity> entities)
-    {
-        await _dbSet.AddRangeAsync(entities);
-        return entities;
-    }
-
-    public Task UpdateRangeAsync(IEnumerable<TEntity> entities)
-    {
-        _dbSet.UpdateRange(entities);
-        return Task.CompletedTask;
-    }
-
-    public Task DeleteRangeAsync(IEnumerable<TEntity> entities)
+    public async Task DeleteRangeAsync(IEnumerable<TEntity> entities, CancellationToken cancellationToken = default)
     {
         _dbSet.RemoveRange(entities);
-        return Task.CompletedTask;
+        await _context.SaveChangesAsync(cancellationToken);
     }
 
 
-    public Task<TEntity> SoftDeleteAsync(TEntity entity)
+    public async Task<TEntity> SoftDeleteAsync(TEntity entity, CancellationToken cancellationToken = default)
     {
         if (entity == null)
             throw new ArgumentNullException(nameof(entity), $"{typeof(TEntity).Name} entity cannot be null.");
@@ -218,9 +264,10 @@ public class EfRepositoryBase<TEntity, TContext> : IAsyncRepository<TEntity> whe
         entity.DeletedDate = DateTime.UtcNow;
         _dbSet.Update(entity); // Entity'nin değişiklikleri takip ediliyor
 
-        return Task.FromResult(entity); // Task döndürmek için CompletedTask kullanılır
+        await _context.SaveChangesAsync(cancellationToken);
+        return entity;
     }
-    public Task<TEntity> SoftDeleteAsync(TEntity entity, string deletedBy)
+    public async Task<TEntity> SoftDeleteAsync(TEntity entity, string deletedBy = "System", CancellationToken cancellationToken = default)
     {
         if (entity == null)
             throw new ArgumentNullException(nameof(entity), $"{typeof(TEntity).Name} entity cannot be null.");
@@ -228,46 +275,51 @@ public class EfRepositoryBase<TEntity, TContext> : IAsyncRepository<TEntity> whe
         entity.IsDeleted = true;
         entity.DeletedDate = DateTime.UtcNow;
         entity.DeletedBy = deletedBy; // Silen kullanıcının bilgisi eklenebilir
-        _dbSet.Update(entity);
+        _dbSet.Update(entity); // Entity'nin değişiklikleri takip ediliyor
 
-        return Task.FromResult(entity);
+        await _context.SaveChangesAsync(cancellationToken);
+        return entity;
     }
-
-    public async Task<TEntity> SoftDeleteAsync(int id)
+    public async Task<TEntity> SoftDeleteAsync(int id, CancellationToken cancellationToken = default)
     {
-        var entity = await _dbSet.FindAsync(id)
-                 ?? throw new KeyNotFoundException($"{typeof(TEntity).Name} with id {id} was not found.");
+        var entity = await _dbSet.AsQueryable()
+                                 .Where(e => e.Id != null && e.Id.Equals(id))
+                                 .FirstOrDefaultAsync(cancellationToken)
+                                 ?? throw new KeyNotFoundException($"{typeof(TEntity).Name} with id {id} was not found.");
 
         entity.IsDeleted = true;
         entity.DeletedDate = DateTime.UtcNow;
 
         _dbSet.Update(entity); // Değişiklik izleme
-        return await Task.FromResult(entity); // Geri dönüş olarak güncellenmiş entity
+        await _context.SaveChangesAsync(cancellationToken); // Veritabanına kaydet
+        return entity; // Geri dönüş olarak güncellenmiş entity
     }
-    public async Task<TEntity> SoftDeleteAsync(int id, string deletedBy)
+    public async Task<TEntity> SoftDeleteAsync(int id, string deletedBy = "System", CancellationToken cancellationToken = default)
     {
-        var entity = await _dbSet.FindAsync(id)
-                 ?? throw new KeyNotFoundException($"{typeof(TEntity).Name} with id {id} was not found.");
+        var entity = await _dbSet.AsQueryable()
+                                 .Where(e => e.Id != null && e.Id.Equals(id))
+                                 .FirstOrDefaultAsync(cancellationToken)
+                                 ?? throw new KeyNotFoundException($"{typeof(TEntity).Name} with id {id} was not found.");
 
         entity.IsDeleted = true;
         entity.DeletedDate = DateTime.UtcNow;
         entity.DeletedBy = deletedBy; // Silen kullanıcı bilgisi eklenebilir
+
         _dbSet.Update(entity);
-
-        return await Task.FromResult(entity);
+        await _context.SaveChangesAsync(cancellationToken); // Veritabanına kaydet
+        return entity;
     }
-
-    public Task SoftDeleteRangeAsync(IEnumerable<TEntity> entities)
+    public async Task SoftDeleteRangeAsync(IEnumerable<TEntity> entities, CancellationToken cancellationToken = default)
     {
         foreach (var entity in entities)
         {
             entity.IsDeleted = true; // Soft Delete işlemi
             entity.DeletedDate = DateTime.UtcNow;
         }
-        _dbSet.UpdateRange(entities); // Toplu güncelleme
-        return Task.CompletedTask;
+        _dbSet.UpdateRange(entities);
+        await _context.SaveChangesAsync(cancellationToken);
     }
-    public Task SoftDeleteRangeAsync(IEnumerable<TEntity> entities, string deletedBy)
+    public async Task SoftDeleteRangeAsync(IEnumerable<TEntity> entities, string deletedBy = "System", CancellationToken cancellationToken = default)
     {
         foreach (var entity in entities)
         {
@@ -276,8 +328,6 @@ public class EfRepositoryBase<TEntity, TContext> : IAsyncRepository<TEntity> whe
             entity.DeletedBy = deletedBy;
         }
         _dbSet.UpdateRange(entities);
-        return Task.CompletedTask;
+        await _context.SaveChangesAsync(cancellationToken);
     }
-
-
 }

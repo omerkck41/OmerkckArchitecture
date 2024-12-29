@@ -28,6 +28,6 @@ public interface IUnitOfWork : IDisposable
     /// <summary>
     /// İlgili repository'yi döner.
     /// </summary>
-    IAsyncRepository<T> Repository<T>() where T : Entity;
+    IAsyncRepository<T, TId> Repository<T, TId>() where T : Entity<TId>;
     new void Dispose();
 }

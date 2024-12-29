@@ -13,6 +13,7 @@ Bu kılavuz, Core.Persistence kütüphanesini projelere nasıl entegre edeceğin
 3. **Dinamik Sorgular**: Dinamik filtreleme ve sıralama desteği.
 4. **Sayfalama**: Büyük veri kümelerinde performanslı sayfalama.
 5. **Soft Delete**: Silinen kayıtların fiziksel olarak değil, mantıksal olarak silinmesi.
+6. **Multi-DbContext Desteği**: Birden fazla veritabanı bağlamını yönetebilme.
 
 ---
 
@@ -57,11 +58,11 @@ public class AppDbContext : DbContext
 DI (Dependency Injection) ile repository ve UnitOfWork yapılarını sisteme dahil edin:
 
 ```csharp
-services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-services.AddScoped(typeof(IAsyncRepository<>), typeof(EfRepositoryBase<,>));
-services.AddScoped<IUnitOfWork, UnitOfWork>();
+builder.Services.AddScoped(typeof(IAsyncRepository<,>), typeof(EfRepositoryBase<,,>));
+builder.Services.AddScoped<IUnitOfWork<AppDbContext>, UnitOfWork<AppDbContext>>();
 ```
 
 ---
@@ -166,14 +167,37 @@ var result = await _userRepository.GetListByDynamicAsync(dynamic);
 
 ---
 
-### 3.4 Sayfalama
-
-Sayfalama, büyük veri setlerini yönetmek için kullanılır.
-
-#### Örnek:
+### 3.4 Çoklu DbContext Desteği
 
 ```csharp
-var paginatedUsers = await _userRepository.GetListAsync(predicate: user => user.IsActive, index: 0, size: 20);
+builder.Services.AddDbContext<OtherDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("OtherConnection")));
+
+builder.Services.AddScoped<IUnitOfWork<OtherDbContext>, UnitOfWork<OtherDbContext>>();
+
+// Kullanım:
+private readonly IUnitOfWork<AppDbContext> _appUnitOfWork;
+private readonly IUnitOfWork<OtherDbContext> _otherUnitOfWork;
+
+public MultiContextController(
+    IUnitOfWork<AppDbContext> appUnitOfWork,
+    IUnitOfWork<OtherDbContext> otherUnitOfWork)
+{
+    _appUnitOfWork = appUnitOfWork;
+    _otherUnitOfWork = otherUnitOfWork;
+}
+
+[HttpPost("cross-db")]
+public async Task<IActionResult> AddToBothDbContexts()
+{
+    await _appUnitOfWork.Repository<User>().AddAsync(new User { Name = "From AppDb" });
+    await _otherUnitOfWork.Repository<OtherEntity>().AddAsync(new OtherEntity { Title = "From OtherDb" });
+
+    await _appUnitOfWork.SaveChangesAsync();
+    await _otherUnitOfWork.SaveChangesAsync();
+
+    return Ok("İşlemler tamamlandı.");
+}
 ```
 
 ---
@@ -188,4 +212,5 @@ var paginatedUsers = await _userRepository.GetListAsync(predicate: user => user.
 
 ## **5. Sonuç**
 
-Core.Persistence, veri erişim operasyonlarınızı düzenlemek, performansı artırmak ve kodunuzu daha temiz hale getirmek için tasarlanmıştır. Bu rehberde yer alan örnekler ve açıklamalarla, kütüphaneyi projelerinize kolayca entegre edebilir ve kullanmaya başlayabilirsiniz.
+Core.Persistence, veri erişim operasyonlarınızı düzenlemek, performansı artırmak ve kodunuzu daha temiz hale getirmek için tasarlanmıştır.
+Bu rehberde yer alan örnekler ve açıklamalarla, kütüphaneyi projelerinize kolayca entegre edebilir ve kullanmaya başlayabilirsiniz.

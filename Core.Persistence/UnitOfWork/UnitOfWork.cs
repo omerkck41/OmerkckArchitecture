@@ -24,7 +24,15 @@ public class UnitOfWork<TContext>(TContext context) : IUnitOfWork where TContext
         // Transaction varsa otomatik commit yapılır
         if (_transaction != null)
         {
-            await CommitAsync();
+            try
+            {
+                await CommitAsync();
+            }
+            catch
+            {
+                await RollbackAsync();
+                throw;
+            }
         }
 
         return result;
@@ -58,23 +66,23 @@ public class UnitOfWork<TContext>(TContext context) : IUnitOfWork where TContext
         _transaction = null;
     }
 
-    public IAsyncRepository<TEntity> Repository<TEntity>() where TEntity : Entity
+    public IAsyncRepository<TEntity, TId> Repository<TEntity, TId>() where TEntity : Entity<TId>
     {
         var type = typeof(TEntity);
 
         if (!_repositories.ContainsKey(type))
         {
             // Farklı bir repository türü gerekiyorsa burada kontrol edilebilir
-            var repository = CreateRepository<TEntity>();
+            var repository = CreateRepository<TEntity, TId>();
             _repositories.TryAdd(type, repository);
         }
 
-        return (IAsyncRepository<TEntity>)_repositories[type];
+        return (IAsyncRepository<TEntity, TId>)_repositories[type];
     }
 
-    private EfRepositoryBase<TEntity, TContext> CreateRepository<TEntity>() where TEntity : Entity
+    private EfRepositoryBase<TEntity, TId, TContext> CreateRepository<TEntity, TId>() where TEntity : Entity<TId>
     {
-        return new EfRepositoryBase<TEntity, TContext>(_context);
+        return new EfRepositoryBase<TEntity, TId, TContext>(_context);
     }
 
 
