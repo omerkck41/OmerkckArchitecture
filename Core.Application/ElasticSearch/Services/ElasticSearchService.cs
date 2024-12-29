@@ -139,7 +139,7 @@ public class ElasticSearchService : IElasticSearchService
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error deleting index {IndexName}");
+            _logger.LogError(ex, "Error deleting index {IndexName}", indexName);
             return false;
         }
     }
