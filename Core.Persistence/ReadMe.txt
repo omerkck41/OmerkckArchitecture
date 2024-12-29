@@ -1,4 +1,4 @@
-# Core.Persistence - README
+# Core.Persistence
 
 **Core.Persistence**, modern yazılım geliştirme ihtiyaçlarını karşılamak için tasarlanmış, esnek, ölçeklenebilir ve güçlü bir veri erişim kütüphanesidir. Repository ve UnitOfWork tasarım desenlerini destekler, dinamik sorgular, sayfalama ve soft delete gibi özellikler sunar.
 
