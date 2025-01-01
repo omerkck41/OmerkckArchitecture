@@ -5,7 +5,7 @@ using System.Security.Claims;
 
 namespace Core.Security.JWT;
 
-public class JwtTokenService
+public class JwtTokenService<TId, TOperationClaimId>
 {
     private readonly TokenOptions _tokenOptions;
 
@@ -14,7 +14,7 @@ public class JwtTokenService
         _tokenOptions = tokenOptions;
     }
 
-    public async Task<AccessToken> GenerateAccessTokenAsync(User user, IList<OperationClaim> claims)
+    public async Task<AccessToken> GenerateAccessTokenAsync(User<TId> user, IList<OperationClaim<TOperationClaimId>> claims)
     {
         var securityKey = SecurityKeyHelper.CreateSecurityKey(_tokenOptions.SecurityKey!);
         var signingCredentials = SigningCredentialsHelper.CreateSigningCredentials(securityKey);
@@ -34,12 +34,12 @@ public class JwtTokenService
         });
     }
 
-    private IEnumerable<Claim> SetClaims(User user, IList<OperationClaim> operationClaims)
+    private IEnumerable<Claim> SetClaims(User<TId> user, IList<OperationClaim<TOperationClaimId>> operationClaims)
     {
         var claims = new List<Claim>
         {
             new(ClaimTypes.NameIdentifier, user.Id.ToString()),
-            new(ClaimTypes.Email, user.Email!),
+            new(ClaimTypes.Email, user.Email),
             new(ClaimTypes.Name, $"{user.FirstName} {user.LastName}")
         };
 

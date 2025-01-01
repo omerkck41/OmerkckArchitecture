@@ -1,10 +1,9 @@
 ﻿using Core.Persistence.Entities;
 using Core.Security.Enums;
-using Core.Security.JWT;
 
 namespace Core.Security.Entities;
 
-public class User : Entity<int>
+public class User<TId> : Entity<TId>
 {
     public string? FirstName { get; set; }
     public string? LastName { get; set; }
@@ -14,16 +13,14 @@ public class User : Entity<int>
     public bool Status { get; set; }
     public AuthenticatorType AuthenticatorType { get; set; }
 
-    public virtual ICollection<UserOperationClaim> UserOperationClaims { get; set; }
-    public virtual ICollection<RefreshToken> RefreshTokens { get; set; }
-
     public User()
     {
-        UserOperationClaims = [];
-        RefreshTokens = [];
+        Email = string.Empty;
+        PasswordHash = Array.Empty<byte>();
+        PasswordSalt = Array.Empty<byte>();
     }
 
-    public User(int id, string firstName, string lastName, string email, byte[] passwordSalt, byte[] passwordHash,
+    public User(TId id, string firstName, string lastName, string email, byte[] passwordSalt, byte[] passwordHash,
                 bool status, AuthenticatorType authenticatorType) : this()
     {
         Id = id;

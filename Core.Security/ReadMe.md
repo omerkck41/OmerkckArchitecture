@@ -190,4 +190,5 @@ string apiKey = secretsManager.GetSecret("ApiKey");
 ---
 
 ## **Sonuç**
-Bu rehber ile Core.Security modülünü eksiksiz bir şekilde projeye ekleyebilir, gerekli NuGet paketlerini yükleyip yapılandırmaları tamamlayarak tüm güvenlik özelliklerini kullanabilirsiniz. Core.Security, modüler ve genişletilebilir yapısıyla büyük projelerde tüm güvenlik ihtiyaçlarınızı karşılayacaktır.
+Bu rehber ile Core.Security modülünü eksiksiz bir şekilde projeye ekleyebilir, gerekli NuGet paketlerini yükleyip yapılandırmaları tamamlayarak tüm güvenlik özelliklerini kullanabilirsiniz.
+Core.Security, modüler ve genişletilebilir yapısıyla büyük projelerde tüm güvenlik ihtiyaçlarınızı karşılayacaktır.

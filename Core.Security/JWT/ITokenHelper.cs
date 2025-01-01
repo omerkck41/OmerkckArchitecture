@@ -2,8 +2,8 @@
 
 namespace Core.Security.JWT;
 
-public interface ITokenHelper
+public interface ITokenHelper<TUserId, TOperationClaimId, TRefreshTokenId>
 {
-    Task<AccessToken> CreateTokenAsync(User user, IList<OperationClaim> operationClaims);
-    Task<RefreshToken> CreateRefreshTokenAsync(User user, string ipAddress);
+    Task<AccessToken> CreateTokenAsync(User<TUserId> user, IList<OperationClaim<TOperationClaimId>> operationClaims);
+    Task<RefreshToken<TRefreshTokenId, TUserId>> CreateRefreshTokenAsync(User<TUserId> user, string ipAddress);
 }

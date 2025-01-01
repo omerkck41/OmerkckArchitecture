@@ -7,7 +7,7 @@ using System.Security.Cryptography;
 
 namespace Core.Security.JWT;
 
-public class JwtHelper : ITokenHelper
+public class JwtHelper<TUserId, TOperationClaimId, TRefreshTokenId> : ITokenHelper<TUserId, TOperationClaimId, TRefreshTokenId>
 {
     private readonly TokenOptions _tokenOptions;
     private DateTime _accessTokenExpiration;
@@ -20,7 +20,7 @@ public class JwtHelper : ITokenHelper
         _tokenOptions.SecurityKey ??= "DefaultSecurityKey";
     }
 
-    public async Task<AccessToken> CreateTokenAsync(User user, IList<OperationClaim> operationClaims)
+    public async Task<AccessToken> CreateTokenAsync(User<TUserId> user, IList<OperationClaim<TOperationClaimId>> operationClaims)
     {
         _accessTokenExpiration = DateTime.UtcNow.AddMinutes(_tokenOptions.AccessTokenExpiration);
         var securityKey = SecurityKeyHelper.CreateSecurityKey(_tokenOptions.SecurityKey!);
@@ -41,13 +41,13 @@ public class JwtHelper : ITokenHelper
         });
     }
 
-    public async Task<RefreshToken> CreateRefreshTokenAsync(User user, string ipAddress)
+    public async Task<RefreshToken<TRefreshTokenId, TUserId>> CreateRefreshTokenAsync(User<TUserId> user, string ipAddress)
     {
         var randomBytes = new byte[64];
         using var rng = RandomNumberGenerator.Create();
         rng.GetBytes(randomBytes);
 
-        return await Task.FromResult(new RefreshToken
+        return await Task.FromResult(new RefreshToken<TRefreshTokenId, TUserId>
         {
             Token = Convert.ToBase64String(randomBytes),
             Expires = DateTime.UtcNow.AddDays(_tokenOptions.RefreshTokenTTL),
@@ -57,12 +57,12 @@ public class JwtHelper : ITokenHelper
         });
     }
 
-    private IEnumerable<Claim> SetClaims(User user, IList<OperationClaim> operationClaims)
+    private IEnumerable<Claim> SetClaims(User<TUserId> user, IList<OperationClaim<TOperationClaimId>> operationClaims)
     {
         var claims = new List<Claim>
         {
             new(ClaimTypes.NameIdentifier, user.Id.ToString()),
-            new(ClaimTypes.Email, user.Email!),
+            new(ClaimTypes.Email, user.Email),
             new(ClaimTypes.Name, $"{user.FirstName} {user.LastName}")
         };
 
