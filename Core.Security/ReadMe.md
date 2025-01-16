@@ -149,9 +149,16 @@ var signingCredentials = SigningCredentialsHelper.CreateSigningCredentials(secur
 
 ### **5.4. Hashing Kullanımı**
 ```csharp
-var passwordHasher = new PasswordHasher();
-var (hash, salt) = await passwordHasher.CreatePasswordHashAsync("Password123!");
-bool isVerified = await passwordHasher.VerifyPasswordHashAsync("Password123!", hash, salt);
+        // Example 1: Create Password Hash and Salt
+        string password = "MySecurePassword123!";
+        var (passwordHash, passwordSalt) = await CreatePasswordHashAsync(password);
+
+        Console.WriteLine("Password Hash: " + Convert.ToBase64String(passwordHash));
+        Console.WriteLine("Password Salt: " + Convert.ToBase64String(passwordSalt));
+
+        // Example 2: Verify Password Hash
+        bool isVerified = await VerifyPasswordHashAsync(password, passwordHash, passwordSalt);
+        Console.WriteLine("Password Verified: " + isVerified);
 ```
 
 ### **5.5. JWT Kullanımı**
