@@ -6,22 +6,26 @@ namespace Core.Security.Hashing;
 public static class HashingHelper
 {
     /// <summary>
-    /// Creates a password hash and salt using HMACSHA512.
+    /// Creates a password hash and salt using HMACSHA512 asynchronously.
     /// </summary>
-    public static void CreatePasswordHash(string password, out byte[] passwordHash, out byte[] passwordSalt)
+    public static async Task<(byte[] PasswordHash, byte[] PasswordSalt)> CreatePasswordHashAsync(string password)
     {
         if (string.IsNullOrWhiteSpace(password))
             throw new ArgumentException("Password cannot be empty or null.", nameof(password));
 
-        using var hmac = new HMACSHA512();
-        passwordSalt = hmac.Key;
-        passwordHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(password));
+        return await Task.Run(() =>
+        {
+            using var hmac = new HMACSHA512();
+            var passwordSalt = hmac.Key;
+            var passwordHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(password));
+            return (passwordHash, passwordSalt);
+        });
     }
 
     /// <summary>
-    /// Verifies the given password against the hash and salt.
+    /// Verifies the given password against the hash and salt asynchronously.
     /// </summary>
-    public static bool VerifyPasswordHash(string password, byte[] passwordHash, byte[] passwordSalt)
+    public static async Task<bool> VerifyPasswordHashAsync(string password, byte[] passwordHash, byte[] passwordSalt)
     {
         if (string.IsNullOrWhiteSpace(password))
             throw new ArgumentException("Password cannot be empty or null.", nameof(password));
@@ -30,36 +34,42 @@ public static class HashingHelper
         if (passwordSalt == null || passwordSalt.Length == 0)
             throw new ArgumentException("Invalid password salt.", nameof(passwordSalt));
 
-        using var hmac = new HMACSHA512(passwordSalt);
-        var computedHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(password));
-        return computedHash.SequenceEqual(passwordHash);
+        return await Task.Run(() =>
+        {
+            using var hmac = new HMACSHA512(passwordSalt);
+            var computedHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(password));
+            return computedHash.SequenceEqual(passwordHash);
+        });
     }
 
     /// <summary>
-    /// Computes a SHA256 hash for the given input.
+    /// Computes a SHA256 hash for the given input asynchronously.
     /// </summary>
-    public static string ComputeHash(string input)
+    public static async Task<string> ComputeHashAsync(string input)
     {
         if (string.IsNullOrWhiteSpace(input))
             throw new ArgumentException("Input cannot be empty or null.", nameof(input));
 
-        using var sha256 = SHA256.Create();
-        var bytes = Encoding.UTF8.GetBytes(input);
-        var hash = sha256.ComputeHash(bytes);
-        return Convert.ToBase64String(hash);
+        return await Task.Run(() =>
+        {
+            using var sha256 = SHA256.Create();
+            var bytes = Encoding.UTF8.GetBytes(input);
+            var hash = sha256.ComputeHash(bytes);
+            return Convert.ToBase64String(hash);
+        });
     }
 
     /// <summary>
-    /// Verifies a SHA256 hash against the input.
+    /// Verifies a SHA256 hash against the input asynchronously.
     /// </summary>
-    public static bool VerifyHash(string input, string hash)
+    public static async Task<bool> VerifyHashAsync(string input, string hash)
     {
         if (string.IsNullOrWhiteSpace(input))
             throw new ArgumentException("Input cannot be empty or null.", nameof(input));
         if (string.IsNullOrWhiteSpace(hash))
             throw new ArgumentException("Hash cannot be empty or null.", nameof(hash));
 
-        var computedHash = ComputeHash(input);
+        var computedHash = await ComputeHashAsync(input);
         return computedHash == hash;
     }
 }
