@@ -5,7 +5,7 @@ namespace Core.Security.MFA;
 
 public class TotpService
 {
-    public async Task<string> GenerateTotpCodeAsync(string secretKey)
+    public static async Task<string> GenerateTotpCodeAsync(string secretKey)
     {
         try
         {

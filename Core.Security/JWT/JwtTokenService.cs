@@ -30,7 +30,7 @@ public class JwtTokenService<TId, TOperationClaimId>
         return await Task.FromResult(new AccessToken
         {
             Token = new JwtSecurityTokenHandler().WriteToken(jwt),
-            Expiration = DateTime.UtcNow.AddMinutes(_tokenOptions.AccessTokenExpiration)
+            ExpirationDate = DateTime.UtcNow.AddMinutes(_tokenOptions.AccessTokenExpiration)
         });
     }
 
@@ -38,7 +38,7 @@ public class JwtTokenService<TId, TOperationClaimId>
     {
         var claims = new List<Claim>
         {
-            new(ClaimTypes.NameIdentifier, user.Id.ToString()),
+            new(ClaimTypes.NameIdentifier, user.Id!.ToString()!),
             new(ClaimTypes.Email, user.Email),
             new(ClaimTypes.Name, $"{user.FirstName} {user.LastName}")
         };

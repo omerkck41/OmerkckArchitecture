@@ -20,10 +20,21 @@ public class User<TId> : Entity<TId>
         PasswordSalt = Array.Empty<byte>();
     }
 
-    public User(TId id, string firstName, string lastName, string email, byte[] passwordSalt, byte[] passwordHash,
-                bool status, AuthenticatorType authenticatorType) : this()
+    public User(string firstName, string lastName, string email, byte[] passwordSalt, byte[] passwordHash,
+                bool status, AuthenticatorType authenticatorType)
     {
-        Id = id;
+        FirstName = firstName;
+        LastName = lastName;
+        Email = email;
+        PasswordSalt = passwordSalt;
+        PasswordHash = passwordHash;
+        Status = status;
+        AuthenticatorType = authenticatorType;
+    }
+
+    public User(TId id, string firstName, string lastName, string email, byte[] passwordSalt, byte[] passwordHash,
+                bool status, AuthenticatorType authenticatorType) : base(id)
+    {
         FirstName = firstName;
         LastName = lastName;
         Email = email;

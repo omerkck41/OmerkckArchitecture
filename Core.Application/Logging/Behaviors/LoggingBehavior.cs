@@ -4,8 +4,7 @@ using System.Diagnostics;
 
 namespace Core.Application.Logging.Behaviors;
 
-public class LoggingBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
-        where TRequest : ILoggableRequest
+public class LoggingBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse> where TRequest : ILoggableRequest
 {
     private readonly ILogger<LoggingBehavior<TRequest, TResponse>> _logger;
 

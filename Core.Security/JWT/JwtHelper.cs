@@ -37,21 +37,24 @@ public class JwtHelper<TUserId, TOperationClaimId, TRefreshTokenId> : ITokenHelp
         return await Task.FromResult(new AccessToken
         {
             Token = new JwtSecurityTokenHandler().WriteToken(jwt),
-            Expiration = _accessTokenExpiration
+            ExpirationDate = _accessTokenExpiration
         });
     }
 
+    private string randomRefreshToken()
+    {
+        byte[] numberByte = new byte[32];
+        using var random = RandomNumberGenerator.Create();
+        random.GetBytes(numberByte);
+        return Convert.ToBase64String(numberByte);
+    }
     public async Task<RefreshToken<TRefreshTokenId, TUserId>> CreateRefreshTokenAsync(User<TUserId> user, string ipAddress)
     {
-        var randomBytes = new byte[64];
-        using var rng = RandomNumberGenerator.Create();
-        rng.GetBytes(randomBytes);
-
         return await Task.FromResult(new RefreshToken<TRefreshTokenId, TUserId>
         {
-            Token = Convert.ToBase64String(randomBytes),
-            Expires = DateTime.UtcNow.AddDays(_tokenOptions.RefreshTokenTTL),
-            Created = DateTime.UtcNow,
+            Token = randomRefreshToken(),
+            ExpirationDate = DateTime.UtcNow.AddDays(_tokenOptions.RefreshTokenTTL),
+            RevokedDate = DateTime.UtcNow,
             CreatedByIp = ipAddress,
             UserId = user.Id
         });
@@ -61,7 +64,7 @@ public class JwtHelper<TUserId, TOperationClaimId, TRefreshTokenId> : ITokenHelp
     {
         var claims = new List<Claim>
         {
-            new(ClaimTypes.NameIdentifier, user.Id.ToString()),
+            new(ClaimTypes.NameIdentifier, user.Id!.ToString()!),
             new(ClaimTypes.Email, user.Email),
             new(ClaimTypes.Name, $"{user.FirstName} {user.LastName}")
         };

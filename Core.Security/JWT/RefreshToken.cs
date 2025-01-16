@@ -4,11 +4,15 @@ namespace Core.Security.JWT;
 
 public class RefreshToken<TId, TUserId> : Entity<TId>
 {
-    public string? Token { get; set; }
-    public DateTime Expires { get; set; }
-    public DateTime Created { get; set; }
-    public string? CreatedByIp { get; set; }
     public TUserId UserId { get; set; }
+    public string Token { get; set; }
+    public DateTime ExpirationDate { get; set; }
+    public string CreatedByIp { get; set; }
+    public DateTime? RevokedDate { get; set; }
+    public string? RevokedByIp { get; set; }
+    public string? ReplacedByToken { get; set; }
+    public string? ReasonRevoked { get; set; }
+
 
     public RefreshToken()
     {
@@ -21,7 +25,7 @@ public class RefreshToken<TId, TUserId> : Entity<TId>
     {
         UserId = userId;
         Token = token;
-        Expires = expirationDate;
+        ExpirationDate = expirationDate;
         CreatedByIp = createdByIp;
     }
 
@@ -30,7 +34,7 @@ public class RefreshToken<TId, TUserId> : Entity<TId>
     {
         UserId = userId;
         Token = token;
-        Expires = expirationDate;
+        ExpirationDate = expirationDate;
         CreatedByIp = createdByIp;
     }
 }

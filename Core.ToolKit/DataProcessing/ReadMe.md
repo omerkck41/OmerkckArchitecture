@@ -67,6 +67,107 @@ await CsvHelper.WriteCsvAsync(data, filePath);
 
 ---
 
+# Core.Toolkit DataMasker Module
+
+## **1. Masking Sensitive Data**
+
+### **Açıklama**
+Hassas verilerin belirli bölümlerini maskeleyerek yalnızca başlangıç ve bitiş karakterlerinin görünmesini sağlar.
+
+### **Kullanım**
+
+#### **Genel Veri Maskeleme**
+```csharp
+using Core.Toolkit.Utilities;
+
+string maskedData = DataMasker.MaskSensitiveData("SensitiveInformation", 3, 3);
+Console.WriteLine(maskedData); // Output: Sen**********ion
+```
+
+#### **E-posta Maskeleme**
+```csharp
+using Core.Toolkit.Utilities;
+
+string maskedEmail = DataMasker.MaskEmail("user@example.com");
+Console.WriteLine(maskedEmail); // Output: us****@example.com
+```
+
+#### **Telefon Numarası Maskeleme**
+```csharp
+using Core.Toolkit.Utilities;
+
+string maskedPhone = DataMasker.MaskPhoneNumber("1234567890");
+Console.WriteLine(maskedPhone); // Output: ******7890
+```
+
+---
+
+## **2. Encrypting and Decrypting Data**
+
+### **Açıklama**
+AES algoritması ile veri şifreleme ve çözme işlemlerini gerçekleştirir. Şifrelenmiş veri Base64 formatında döner.
+
+### **Kullanım**
+
+#### **Veri Şifreleme**
+```csharp
+using Core.Toolkit.Utilities;
+
+string key = "mysecretkey12345";
+string encryptedText = DataMasker.Encrypt("SensitiveData", key);
+Console.WriteLine(encryptedText); // Output: Base64 şifrelenmiş metin
+```
+
+#### **Veri Çözme**
+```csharp
+using Core.Toolkit.Utilities;
+
+string decryptedText = DataMasker.Decrypt(encryptedText, key);
+Console.WriteLine(decryptedText); // Output: SensitiveData
+```
+
+---
+
+## **Özellikler ve Avantajlar**
+
+- **Veri Maskeleme**:
+  - E-posta, telefon numarası ve genel hassas veriler için özelleştirilebilir maskeleme desteği.
+
+- **AES Şifreleme ve Çözme**:
+  - Yüksek güvenlikli şifreleme algoritması kullanımı.
+  - Şifreleme anahtarını özelleştirebilme.
+
+- **Performans**:
+  - Büyük veri setlerinde hızlı ve güvenilir işlem yapma.
+
+- **Esneklik**:
+  - Parametrelerle özelleştirilebilir maskeleme ve şifreleme.
+
+---
+
+## **Pratik Örnekler**
+
+### **Örnek 1: Bir Kullanıcının E-posta Adresini Maskeleme**
+```csharp
+string email = "user@example.com";
+string maskedEmail = DataMasker.MaskEmail(email);
+Console.WriteLine(maskedEmail); // Output: us****@example.com
+```
+
+### **Örnek 2: Bir Kullanıcı Şifresini Şifreleme ve Çözme**
+```csharp
+string password = "UserPassword123";
+string key = "strongencryptionkey";
+
+string encryptedPassword = DataMasker.Encrypt(password, key);
+Console.WriteLine(encryptedPassword);
+
+string decryptedPassword = DataMasker.Decrypt(encryptedPassword, key);
+Console.WriteLine(decryptedPassword); // Output: UserPassword123
+```
+
+
+
 ## **3. DataTable İşlemleri (DataTableHelper)**
 
 ### **Açıklama**

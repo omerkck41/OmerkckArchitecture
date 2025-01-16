@@ -4,7 +4,7 @@ public abstract class Entity<TId> : IEntity<TId>
 {
     public Entity() { Id = default!; }
 
-    public Entity(TId id) : this()
+    public Entity(TId id)
     {
         Id = id;
     }
