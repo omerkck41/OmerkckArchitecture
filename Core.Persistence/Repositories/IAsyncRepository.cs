@@ -55,7 +55,7 @@ public interface IAsyncRepository<T, TId> : IQuery<T> where T : Entity<TId>
     /// <summary>
     /// Bir varlığı günceller.
     /// </summary>
-    Task UpdateAsync(T entity, CancellationToken cancellationToken = default);
+    Task<T> UpdateAsync(T entity, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Tekil veya birden fazla alanı günceller.

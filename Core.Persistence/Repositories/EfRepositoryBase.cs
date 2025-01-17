@@ -182,10 +182,11 @@ public class EfRepositoryBase<TEntity, TId, TContext> : IAsyncRepository<TEntity
         return entities;
     }
 
-    public async Task UpdateAsync(TEntity entity, CancellationToken cancellationToken = default)
+    public async Task<TEntity> UpdateAsync(TEntity entity, CancellationToken cancellationToken = default)
     {
         _dbSet.Update(entity);
         await _context.SaveChangesAsync(cancellationToken);
+        return entity;
     }
     public async Task UpdateRangeAsync(IEnumerable<TEntity> entities, CancellationToken cancellationToken = default)
     {
