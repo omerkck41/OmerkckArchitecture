@@ -7,6 +7,8 @@ public class UserOperationClaim<TId, TUserId, TOperationClaimId> : Entity<TId>
     public TUserId UserId { get; set; }
     public TOperationClaimId OperationClaimId { get; set; }
 
+    public virtual User<TId> User { get; set; }
+    public virtual OperationClaim<TId> OperationClaim { get; set; }
 
     public UserOperationClaim()
     {
