@@ -21,14 +21,26 @@ public class SmtpMailService : IMailService
             IsBodyHtml = emailMessage.IsHtml
         };
 
-        emailMessage.To.ForEach(to => mailMessage.To.Add(to));
-        emailMessage.Cc.ForEach(cc => mailMessage.CC.Add(cc));
-        emailMessage.Bcc.ForEach(bcc => mailMessage.Bcc.Add(bcc));
+        // Recipients'i uygun şekilde filtreleme
+        emailMessage.Recipients
+            .Where(r => r.Type == RecipientType.To)
+            .ToList()
+            .ForEach(r => mailMessage.To.Add(new MailAddress(r.Email, r.Name)));
+
+        emailMessage.Recipients
+            .Where(r => r.Type == RecipientType.Cc)
+            .ToList()
+            .ForEach(r => mailMessage.CC.Add(new MailAddress(r.Email, r.Name)));
+
+        emailMessage.Recipients
+            .Where(r => r.Type == RecipientType.Bcc)
+            .ToList()
+            .ForEach(r => mailMessage.Bcc.Add(new MailAddress(r.Email, r.Name)));
+
         emailMessage.Attachments.ForEach(attachment => mailMessage.Attachments.Add(attachment));
 
         if (emailMessage.IsImportant)
             mailMessage.Priority = MailPriority.High;
-
 
         await _smtpClient.SendMailAsync(mailMessage);
     }
