@@ -1,4 +1,5 @@
 ﻿using System.Net.Mail;
+using System.Text.RegularExpressions;
 
 namespace Core.Application.Mailing.Services;
 
@@ -11,28 +12,22 @@ public class EmailMessageBuilder
         if (string.IsNullOrWhiteSpace(address))
             throw new ArgumentException("From address cannot be empty.", nameof(address));
 
+        if (!IsValidEmail(address))
+            throw new FormatException("Invalid email format.");
+
         _emailMessage.From = address;
         return this;
     }
 
-    public EmailMessageBuilder AddTo(string address)
+    public EmailMessageBuilder AddRecipient(string name, string email, RecipientType type)
     {
-        if (string.IsNullOrWhiteSpace(address))
-            throw new ArgumentException("To address cannot be empty.", nameof(address));
+        if (string.IsNullOrWhiteSpace(email))
+            throw new ArgumentException("Email cannot be empty.", nameof(email));
 
-        _emailMessage.To.Add(address);
-        return this;
-    }
+        if (!IsValidEmail(email))
+            throw new FormatException("Invalid email format.");
 
-    public EmailMessageBuilder AddCc(string address)
-    {
-        _emailMessage.Cc.Add(address);
-        return this;
-    }
-
-    public EmailMessageBuilder AddBcc(string address)
-    {
-        _emailMessage.Bcc.Add(address);
+        _emailMessage.Recipients.Add(new EmailRecipient { Name = name, Email = email, Type = type });
         return this;
     }
 
@@ -65,4 +60,10 @@ public class EmailMessageBuilder
     }
 
     public EmailMessage Build() => _emailMessage;
+
+    private bool IsValidEmail(string email)
+    {
+        var emailRegex = new Regex(@"^[^@\s]+@[^@\s]+\.[^@\s]+$");
+        return emailRegex.IsMatch(email);
+    }
 }

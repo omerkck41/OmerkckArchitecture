@@ -1,164 +1,209 @@
-﻿# Core.Application.Mailing Kullanım Kılavuzu
+﻿# Gelişmiş E-posta Servisi Kullanım Rehberi
 
-## Genel Bakış
-`Core.Application.Mailing` modülü, uygulamanız için sağlam, genişletilebilir ve ölçeklenebilir bir e-posta gönderim çerçevesi sunar. Hem **Davranış Tabanlı (Behavior-based)** hem de **Servis Tabanlı (Service-based)** kullanım için destek sağlar, böylece geliştiriciler ihtiyaçlarına en uygun entegrasyon yöntemini seçebilirler.
-
-### Temel Özellikler
-- **Davranış Tabanlı Entegrasyon**: MediatR pipeline desteği ile otomatik e-posta işlemleri.
-- **Servis Tabanlı Entegrasyon**: Manuel e-posta işlemleri için IMailService.
-- **SMTP İstemci Yönetimi**: Performansı artırmak için hız sınırlamalı SMTP istemci seçimi.
-- **E-posta Oluşturucu**: `EmailMessageBuilder` ile basitleştirilmiş e-posta oluşturma.
-- **Loglama ve Hata Yönetimi**: ILogger ile yerleşik loglama desteği.
-- **Öncelik Desteği**: E-postaları önemli olarak işaretleme.
-
-### Avantajlar
-- **Esneklik**: Hem Davranış hem de Servis kullanımı ile sorunsuz çalışır.
-- **Ölçeklenebilirlik**: Hız sınırlamalı birden fazla SMTP istemcisini destekler.
-- **Özelleştirilebilirlik**: Çeşitli proje gereksinimleri için genişletilebilir mimari.
-- **En İyi Uygulamalar**: Clean code prensipleri ve sorumlulukların ayrılması.
+Bu döküman, geliştirilen e-posta servisi yapısının nasıl kullanılacağını ve temel bileşenlerini açıklamaktadır. Bu yapı, birden fazla sağlayıcı desteği (SMTP, SendGrid vb.) sunar ve büyük ölçekli projelerde kolay entegrasyon sağlar. **Behavior** ve **Service** olarak kullanım örneklerini içerir.
 
 ---
 
-## Entegrasyon
+## 1. Proje Yapısı
 
-### Mailing Modülünü Projeye Ekleme
-1. **Referans Ekleyin**: Projenizde `Core.Application.Mailing` modülünü referans olarak ekleyin.
-2. **Gerekli Bağımlılıkları Yükleyin**:
-   - Davranış tabanlı kullanım için MediatR ekleyin.
-   - Loglama için bir kütüphane (örn. Serilog, NLog) ekleyin.
-
-3. **Konfigürasyon Ayarları**:
-   `appsettings.json` dosyanıza SMTP ayarlarını ekleyin:
-   ```json
-   {
-     "SmtpSettings": {
-       "Host": "smtp.example.com",
-       "Port": 587,
-       "Username": "your_username",
-       "Password": "your_password",
-       "EnableSsl": true
-     }
-   }
-   ```
-
-4. **Bağımlılıkları DI Konteynerine Kaydedin**:
-   `Program.cs` veya `Startup.cs` dosyanıza şu kodları ekleyin:
-   ```csharp
-   services.AddTransient<IMailService, SmtpMailService>();
-   services.AddSingleton<ISmtpClientSelector, RateLimitingSmtpClientSelector>();
-   services.AddTransient<IPipelineBehavior<,>, EmailSendingBehavior<,>>();
-   services.AddTransient<IPipelineBehavior<,>, EmailLoggingBehavior<,>>();
-
-   services.Configure<SmtpClientOptions>(configuration.GetSection("SmtpSettings"));
-   services.AddSingleton<SmtpClient>(sp => {
-       var options = sp.GetRequiredService<IOptions<SmtpClientOptions>>().Value;
-       return new SmtpClient
-       {
-           Host = options.Host,
-           Port = options.Port,
-           Credentials = new NetworkCredential(options.Username, options.Password),
-           EnableSsl = options.EnableSsl
-       };
-   });
-   ```
+- **EmailMessage**: E-posta verilerini içeren temel model.
+- **EmailMessageBuilder**: EmailMessage sınıfını oluşturmak için kullanılan yapılandırıcı sınıf.
+- **EmailRecipient**: Alıcıların bilgilerini tutan model.
+- **RecipientType**: Alıcı türlerini (To, Cc, Bcc) tanımlar.
+- **IMailService**: E-posta gönderim servisi için arayüz.
+- **IEmailProvider**: E-posta sağlayıcıları için ortak bir arayüz.
+- **SmtpEmailProvider** ve **SendGridEmailProvider**: SMTP ve SendGrid üzerinden e-posta göndermek için kullanılan sağlayıcılar.
+- **EmailSendingService**: Sağlayıcıları sırayla deneyerek e-posta gönderen servis.
+- **Behavior Sınıfları**:
+  - **EmailLoggingBehavior**: E-posta işlemlerini loglar.
+  - **EmailSendingBehavior**: E-posta gönderimini MediatR pipeline'a dahil eder.
 
 ---
 
-## Kullanım
+## 2. Projeye Entegrasyon
 
-### Davranış Tabanlı Kullanım
-Davranış tabanlı entegrasyon, MediatR pipeline sırasında e-posta gönderimini otomatik olarak işler.
+### 2.1 Gerekli Bağımlılıkların Yüklenmesi
 
-1. **MediatR Komutu Oluşturun**:
-   ```csharp
-   public class SendNotificationCommand : IRequest
-   {
-       public string Recipient { get; set; }
-       public string Subject { get; set; }
-       public string Message { get; set; }
-   }
-   ```
-
-2. **Komutu Bir Handler'da Kullanın**:
-   ```csharp
-   public class SendNotificationHandler : IRequestHandler<SendNotificationCommand>
-   {
-       public async Task<Unit> Handle(SendNotificationCommand request, CancellationToken cancellationToken)
-       {
-           var emailMessage = new EmailMessageBuilder()
-               .AddFrom("noreply@example.com")
-               .AddTo(request.Recipient)
-               .AddSubject(request.Subject)
-               .AddBody(request.Message)
-               .Build();
-
-           // EmailSendingBehavior bunu otomatik olarak işleyecektir
-           return Unit.Value;
-       }
-   }
-   ```
-
-### Servis Tabanlı Kullanım
-Manuel kontrol için IMailService doğrudan kullanılabilir.
-
-1. **IMailService'i Enjekte Edin**:
-   ```csharp
-   public class EmailController : ControllerBase
-   {
-       private readonly IMailService _mailService;
-
-       public EmailController(IMailService mailService)
-       {
-           _mailService = mailService;
-       }
-
-       [HttpPost("send-email")]
-       public async Task<IActionResult> SendEmail([FromBody] EmailRequest emailRequest)
-       {
-           var emailMessage = new EmailMessageBuilder()
-               .AddFrom("noreply@example.com")
-               .AddTo(emailRequest.To)
-               .AddSubject(emailRequest.Subject)
-               .AddBody(emailRequest.Body)
-               .MarkAsImportant()
-               .Build();
-
-           await _mailService.SendEmailAsync(emailMessage);
-           return Ok("Email başarıyla gönderildi.");
-       }
-   }
-   ```
-
-2. **EmailRequest DTO**:
-   ```csharp
-   public class EmailRequest
-   {
-       public string To { get; set; }
-       public string Subject { get; set; }
-       public string Body { get; set; }
-   }
-   ```
+```bash
+# SMTP ve diğer sağlayıcılar için
+Install-Package MailKit
+Install-Package SendGrid
+Install-Package Microsoft.Extensions.DependencyInjection
+Install-Package MediatR.Extensions.Microsoft.DependencyInjection
+```
 
 ---
 
-## Gelişmiş Özellikler
+### 2.2 Dependency Injection Yapılandırması
 
-### SMTP Hız Sınırlandırma
-Birden fazla SMTP istemcisini verimli bir şekilde yönetmek için `RateLimitingSmtpClientSelector` kullanılır. Bu, yüksek hacimli e-posta gönderen uygulamalar için idealdir.
+Projenizdeki `Startup.cs` ya da `Program.cs` dosyasına aşağıdaki kodları ekleyin:
 
-1. **Birden Fazla SMTP İstemcisi Yapılandırın**:
-   ```csharp
-   services.AddSingleton<ISmtpClientSelector>(sp => new RateLimitingSmtpClientSelector(new List<SmtpClient>
-   {
-       new SmtpClient("smtp1.example.com", 587),
-       new SmtpClient("smtp2.example.com", 587)
-   }, maxSendsPerClient: 100));
-   ```
+```csharp
+using Core.Application.Mailing.Services;
 
-2. **Özelleştirilmiş Mantık**:
-   Ek seçim kriterleri gerekiyorsa `ISmtpClientSelector` genişletilebilir.
+// SMTP Client Selector yapılandırması
+services.AddSingleton<ISmtpClientSelector, RateLimitingSmtpClientSelector>(provider =>
+{
+    var smtpClients = new List<SmtpClient>
+    {
+        new SmtpClient("smtp.gmail.com", 587)
+        {
+            Credentials = new NetworkCredential("user@gmail.com", "password"),
+            EnableSsl = true
+        },
+        new SmtpClient("smtp.office365.com", 587)
+        {
+            Credentials = new NetworkCredential("user@outlook.com", "password"),
+            EnableSsl = true
+        }
+    };
+
+    return new RateLimitingSmtpClientSelector(smtpClients);
+});
+
+// Sağlayıcıların kaydedilmesi
+services.AddSingleton<IEmailProvider, SmtpEmailProvider>();
+services.AddSingleton<IEmailProvider, SendGridEmailProvider>();
+
+// Ana e-posta gönderim servisi
+services.AddSingleton<IMailService, EmailSendingService>();
+
+// Behavior'ların eklenmesi
+services.AddTransient(typeof(IPipelineBehavior<,>), typeof(EmailLoggingBehavior<,>));
+services.AddTransient(typeof(IPipelineBehavior<,>), typeof(EmailSendingBehavior<,>));
+```
 
 ---
 
-## Özet
-`Core.Application.Mailing` modülü, temiz ve ölçeklenebilir bir şekilde e-posta işlemlerini yönetmek için esnek ve güçlü bir çerçeve sunar. Davranış tabanlı otomasyon veya servis tabanlı manuel kontrol tercihinize bağlı olarak bu kütüphane ihtiyaçlarınızı karşılamak için tasarlanmıştır.
+## 3. Kullanım Örnekleri
+
+### 3.1 E-posta Mesajı Hazırlama
+
+```csharp
+var emailMessage = new EmailMessageBuilder()
+    .AddFrom("noreply@mydomain.com")
+    .AddRecipient("John Doe", "johndoe@example.com", RecipientType.To)
+    .AddRecipient("Support Team", "support@mydomain.com", RecipientType.Cc)
+    .AddSubject("Hoş Geldiniz!")
+    .AddBody("<p>Merhaba John, hesabınız başarıyla oluşturuldu.</p>", isHtml: true)
+    .MarkAsImportant()
+    .Build();
+```
+
+### 3.2 E-posta Gönderimi
+
+```csharp
+public class NotificationService
+{
+    private readonly IMailService _mailService;
+
+    public NotificationService(IMailService mailService)
+    {
+        _mailService = mailService;
+    }
+
+    public async Task SendWelcomeEmailAsync(string recipientEmail, string recipientName)
+    {
+        var emailMessage = new EmailMessageBuilder()
+            .AddFrom("noreply@mydomain.com")
+            .AddRecipient(recipientName, recipientEmail, RecipientType.To)
+            .AddSubject("Hoş Geldiniz!")
+            .AddBody("<p>Merhaba, hesabınız başarıyla oluşturuldu.</p>", isHtml: true)
+            .Build();
+
+        await _mailService.SendEmailAsync(emailMessage);
+    }
+}
+```
+
+### 3.3 Behavior Kullanımı
+
+Behavior sınıfları MediatR pipeline'ında otomatik olarak çalışır. Aşağıda **EmailLoggingBehavior** ve **EmailSendingBehavior** örneklerini görebilirsiniz:
+
+#### EmailLoggingBehavior
+
+```csharp
+public class EmailLoggingBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
+    where TRequest : notnull
+{
+    private readonly ILogger<EmailLoggingBehavior<TRequest, TResponse>> _logger;
+
+    public EmailLoggingBehavior(ILogger<EmailLoggingBehavior<TRequest, TResponse>> logger)
+    {
+        _logger = logger;
+    }
+
+    public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
+    {
+        _logger.LogInformation("Handling request: {Request}", request);
+        var response = await next();
+        _logger.LogInformation("Handled request: {Response}", response);
+        return response;
+    }
+}
+```
+
+#### EmailSendingBehavior
+
+```csharp
+public class EmailSendingBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
+    where TRequest : notnull
+{
+    private readonly IMailService _mailService;
+
+    public EmailSendingBehavior(IMailService mailService)
+    {
+        _mailService = mailService;
+    }
+
+    public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
+    {
+        var response = await next();
+
+        if (request is EmailMessage emailMessage)
+        {
+            await _mailService.SendEmailAsync(emailMessage);
+        }
+
+        return response;
+    }
+}
+```
+
+---
+
+## 4. Sağlayıcıların Çalışma Sırası
+
+- **EmailSendingService**, tanımlanan sağlayıcıları sırayla dener. Eğer bir sağlayıcı hata verirse bir sonrakine geçer.
+- Sağlayıcılar başarısız olursa, `InvalidOperationException` fırlatılır.
+
+---
+
+## 5. Yeni Sağlayıcı Ekleme
+
+Yeni bir sağlayıcı eklemek için aşağıdaki adımları izleyin:
+
+1. `IEmailProvider` arayüzünü implement edin.
+2. Sağlayıcıyı DI container'a ekleyin.
+3. Örnek:
+
+```csharp
+public class AmazonSesEmailProvider : IEmailProvider
+{
+    private readonly ILogger<AmazonSesEmailProvider> _logger;
+
+    public AmazonSesEmailProvider(ILogger<AmazonSesEmailProvider> logger)
+    {
+        _logger = logger;
+    }
+
+    public Task SendAsync(EmailMessage emailMessage)
+    {
+        // Amazon SES API entegrasyonu
+        _logger.LogInformation("Amazon SES üzerinden e-posta gönderiliyor...");
+        return Task.CompletedTask;
+    }
+}
+```
+
+---
