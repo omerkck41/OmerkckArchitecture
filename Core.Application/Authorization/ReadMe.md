@@ -1,155 +1,121 @@
-﻿# Authorization Module - Kullanım Rehberi
+﻿# Yetkilendirme Sistemi (Authorization Behavior ve Service)
 
-## **1. Authorization Modülüne Genel Bakış**
-
-Authorization modülü, kullanıcının rollerine veya taleplerine (claims) dayalı olarak erişim kontrolü sağlar. Bu yapı hem **Role-Based Authorization** hem de **Policy-Based Authorization** yeteneklerini içerir ve esnek, genişletilebilir bir mimari sunar.
-
-### **Kullanılan Teknolojiler**
-- **Microsoft.AspNetCore.Authorization**: ASP.NET Core'un yerleşik yetkilendirme altyapısı.
-- **Dependency Injection (DI)**: Yetkilendirme kurallarını merkezi bir şekilde tanımlamak ve uygulamak için kullanılır.
-- **Clean Code ve Best Practices**: Modüler, okunabilir ve test edilebilir bir yapı sağlar.
-
-### **Desteklenen Yetkilendirme Türleri**
-1. **Role-Based Authorization**: Kullanıcının belirli bir rol (örneğin "Admin") içerisinde olup olmadığını kontrol eder.
-2. **Policy-Based Authorization**: Kullanıcının belirli bir talebi (örneğin "CustomClaim") sağlayıp sağlamadığını kontrol eder.
+Bu doküman, MediatR pipeline için tasarlanan **AuthorizationBehavior** ve bağımsız bir servis olarak kullanılabilen **AuthorizationService** yapısını tanıtır. Yetkilendirme süreçlerini nasıl yapılandıracağınızı, projeye nasıl entegre edeceğinizi ve örnek kullanım senaryolarını açıklar.
 
 ---
 
-## **2. Modülü Başka Bir Projede Kullanma**
+## Teknolojiler ve Kullanılan Yapılar
 
-### **Adım 1: Gerekli Paketlerin Yüklenmesi**
-Projenize aşağıdaki NuGet paketlerini ekleyin:
+- **.NET 9.0**: En güncel framework sürümü.
+- **MediatR**: CQRS ve pipeline tabanlı istek/yanıt modelini uygulamak için.
+- **ASP.NET Core**: HTTP tabanlı middleware entegrasyonu için.
+- **Dependency Injection**: Modüler ve test edilebilir bir yapı sağlamak için.
+
+---
+
+## Yapının Genel Tanımı
+
+### 1. **AuthorizationBehavior**
+MediatR pipeline içerisinde çalışarak isteklerin yetkilendirme kontrolünü otomatik olarak yapar. Role ve claim bazlı yetkilendirme desteklenir.
+
+### 2. **AuthorizationService**
+Yetkilendirme işlemlerini bağımsız bir servis olarak sunar. API endpoint'leri veya başka iş akışlarında manuel olarak kullanılabilir.
+
+---
+
+## Yapıyı Projeye Ekleme
+
+### 1. Gereksinimler
+- **.NET 9.0 SDK**
+- `MediatR` ve `MediatR.Extensions.Microsoft.DependencyInjection` NuGet paketleri
+
+### 2. NuGet Paketlerini Yükleyin
 
 ```bash
-Install-Package Microsoft.AspNetCore.Authorization
-Install-Package Microsoft.AspNetCore.Authentication
-Install-Package Microsoft.AspNetCore.Authorization.Policy
+Install-Package MediatR
+Install-Package MediatR.Extensions.Microsoft.DependencyInjection
 ```
 
-### **Adım 2: Dependency Injection ile Yapılandırma**
-`Program.cs` dosyasında Authorization modülünü yapılandırın:
+### 3. Servisleri Kaydetme
+`Program.cs` veya `Startup.cs` dosyanıza aşağıdaki kodu ekleyin:
 
 ```csharp
-using Core.Application.Authorization.Behaviors;
-using Core.Application.Authorization.Services;
-
 var builder = WebApplication.CreateBuilder(args);
 
-// Role-Based Policies
-AuthorizationPolicyService.AddRolePolicies(builder.Services);
-
-// Claim-Based Policies
-AuthorizationPolicyService.AddClaimPolicies(builder.Services);
+// Authorization Pipeline ve Service Kaydı
+builder.Services.AddAuthorizationPipeline();
+builder.Services.AddScoped<IAuthorizationService, AuthorizationService>();
 
 var app = builder.Build();
 
-app.UseAuthentication();
-app.UseAuthorization();
+app.UseAuthorizationMiddleware();
+app.MapControllers();
 
 app.Run();
 ```
 
-### **Adım 3: Policy Tanımları**
-Policy'lerin `AuthorizationPolicyService` içerisinde merkezi olarak tanımlandığından emin olun:
+---
+
+## Ayarlar
+
+### GeneralOperationClaims
+Rolleri ve genel yetkilendirme ayarlarını yönetmek için kullanılan statik sınıf:
 
 ```csharp
-public static class AuthorizationPolicyService
+public static class GeneralOperationClaims
 {
-    public static void AddRolePolicies(IServiceCollection services)
-    {
-        services.AddAuthorization(options =>
-        {
-            options.AddPolicy("AdminPolicy", policy =>
-                policy.Requirements.Add(new RolesRequirement(new[] { "Admin" })));
-        });
-
-        services.AddSingleton<IAuthorizationHandler, RoleAuthorizationBehavior>();
-    }
-
-    public static void AddClaimPolicies(IServiceCollection services)
-    {
-        services.AddAuthorization(options =>
-        {
-            options.AddPolicy("CustomClaimPolicy", policy =>
-                policy.Requirements.Add(new ClaimRequirement("CustomClaim", "Allowed")));
-        });
-
-        services.AddSingleton<IAuthorizationHandler, ClaimAuthorizationBehavior>();
-    }
+    public const string Admin = "Admin";
+    public const string Manager = "Manager";
+    public const string User = "User";
 }
 ```
 
-### **Adım 4: Controller veya Endpoint Kullanımı**
-Controller seviyesinde yetkilendirme politikalarını şu şekilde uygulayabilirsiniz:
+Bu sınıf, yetkilendirme gereksinimlerinize göre genişletilebilir.
+
+---
+
+## Kullanım
+
+### 1. **AuthorizationBehavior** Kullanımı
+MediatR pipeline'da otomatik yetkilendirme kontrolü yapmak için:
+
+#### Örnek İstek
 
 ```csharp
-using Microsoft.AspNetCore.Authorization;
-
-[Authorize(Policy = "AdminPolicy")]
-[ApiController]
-[Route("api/[controller]")]
-public class AdminController : ControllerBase
+public class GetOrdersQuery : IRequest<List<string>>, ISecuredRequest
 {
-    [HttpGet("dashboard")]
-    public IActionResult GetAdminDashboard()
-    {
-        return Ok("Access granted for Admins");
-    }
+    public string[] Roles => new[] { GeneralOperationClaims.Admin, GeneralOperationClaims.Manager };
+    public Dictionary<string, string> Claims => new Dictionary<string, string> { { "Permission", "ViewOrders" } };
 }
+```
 
-[Authorize(Policy = "CustomClaimPolicy")]
-[ApiController]
-[Route("api/[controller]")]
-public class CustomClaimController : ControllerBase
+Yetkilendirme kontrolü otomatik olarak yapılır. Roller ve claim'ler isteğe özel olarak belirtilir.
+
+### 2. **AuthorizationService** Kullanımı
+Bağımsız bir servis olarak manuel yetkilendirme yapmak için:
+
+#### Örnek Kullanım
+
+```csharp
+[HttpGet]
+public IActionResult GetOrders([FromServices] IAuthorizationService authorizationService)
 {
-    [HttpGet("custom-claim-data")]
-    public IActionResult GetCustomClaimData()
-    {
-        return Ok("Access granted for users with CustomClaim");
-    }
+    var user = HttpContext.User;
+
+    // Gerekli roller ve claim'ler
+    var requiredRoles = new[] { GeneralOperationClaims.Manager };
+    var requiredClaims = new Dictionary<string, string> { { "Permission", "ViewOrders" } };
+
+    // Yetkilendirme kontrolü
+    authorizationService.Authorize(user, requiredRoles, requiredClaims);
+
+    return Ok(new { Orders = "List of orders" });
 }
 ```
 
 ---
 
-## **3. Avantajları ve Faydaları**
+## Özet
 
-### **3.1. Modüler ve Esnek Mimari**
-- Yeni roller veya talepler kolayca tanımlanabilir.
-- Yetkilendirme kuralları merkezi olarak yönetilir ve değiştirilebilir.
-
-### **3.2. Temiz Kod ve Test Edilebilirlik**
-- Yetkilendirme kuralları ayrı katmanlarda tanımlandığı için test edilebilir.
-- İş mantığı ve yetkilendirme kodları birbirinden ayrılır.
-
-### **3.3. Güvenlik ve Kontrol**
-- Hassas verilere yalnızca yetkili kullanıcıların erişimini sağlar.
-- Kullanıcı bazlı veya talep bazlı erişim kontrolü sağlar.
-
----
-
-## **4. Örnek Senaryo: Kullanıcı Rolleri ile Yetkilendirme**
-Bir "E-Ticaret Yönetim Paneli" için yetkilendirme:
-
-### Kullanıcı Rolleri:
-- **Admin**: Siparişleri ve kullanıcı bilgilerini görüntüleyebilir.
-- **Manager**: Yalnızca sipariş bilgilerini görüntüleyebilir.
-
-### Adım 1: Role Policies Tanımlama
-```csharp
-AuthorizationPolicyService.AddRolePolicies(builder.Services);
-```
-### Adım 2: Controller Seviyesi Yetkilendirme
-```csharp
-[Authorize(Policy = "AdminPolicy")]
-public IActionResult ViewOrders()
-{
-    return Ok("Orders displayed for Admin.");
-}
-
-[Authorize(Policy = "ManagerPolicy")]
-public IActionResult ViewBasicOrders()
-{
-    return Ok("Basic orders displayed for Manager.");
-}
-```
+Bu yapı, hem MediatR pipeline ile otomatik yetkilendirme kontrolü yapmak hem de bağımsız bir servis olarak manuel yetkilendirme sağlamak için tasarlanmıştır.
+Modüler, esnek ve genişletilebilir bir çözüm sunar.
