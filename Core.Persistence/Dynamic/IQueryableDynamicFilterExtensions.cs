@@ -1,36 +1,43 @@
-﻿using System.Linq.Dynamic.Core;
+﻿using System.Linq.Expressions;
 
 namespace Core.Persistence.Dynamic;
 
 public static class IQueryableDynamicFilterExtensions
 {
-    // Operatörler için sabit bir dictionary
-    private static readonly Dictionary<string, Func<string, string>> Operators = new()
+    private static Expression<Func<T, object>> CreateOrderExpression<T>(string field)
     {
-        { "eq", field => $"{field} == @" },
-        { "neq", field => $"{field} != @" },
-        { "lt", field => $"{field} < @" },
-        { "lte", field => $"{field} <= @" },
-        { "gt", field => $"{field} > @" },
-        { "gte", field => $"{field} >= @" },
-        { "isnull", field => $"{field} == null" },
-        { "isnotnull", field => $"{field} != null" },
-        { "startswith", field => $"{field}.StartsWith(@" },
-        { "endswith", field => $"{field}.EndsWith(@" },
-        { "contains", field => $"{field}.Contains(@" },
-        { "doesnotcontain", field => $"!{field}.Contains(@" }
-    };
+        var parameter = Expression.Parameter(typeof(T), "x");
+        var property = Expression.Property(parameter, field);
+        var conversion = Expression.Convert(property, typeof(object));
+        return Expression.Lambda<Func<T, object>>(conversion, parameter);
+    }
+    private static Expression? BuildExpression<T>(ParameterExpression parameter, Filter filter)
+    {
+        var property = Expression.Property(parameter, filter.Field);
+        var value = Expression.Constant(filter.GetValue<object>());
+
+        return filter.Operator switch
+        {
+            "eq" => Expression.Equal(property, value),
+            "neq" => Expression.NotEqual(property, value),
+            "lt" => Expression.LessThan(property, value),
+            "lte" => Expression.LessThanOrEqual(property, value),
+            "gt" => Expression.GreaterThan(property, value),
+            "gte" => Expression.GreaterThanOrEqual(property, value),
+            "contains" => Expression.Call(property, typeof(string).GetMethod("Contains", [typeof(string)]), value),
+            "startswith" => Expression.Call(property, typeof(string).GetMethod("StartsWith", [typeof(string)]), value),
+            "endswith" => Expression.Call(property, typeof(string).GetMethod("EndsWith", [typeof(string)]), value),
+            "isnull" => Expression.Equal(property, Expression.Constant(null)),
+            "isnotnull" => Expression.NotEqual(property, Expression.Constant(null)),
+            _ => throw new NotSupportedException($"Operator '{filter.Operator}' is not supported.")
+        };
+    }
 
     /// <summary>
     /// Dinamik sorguları filtre ve sıralamayı uygulayarak oluşturur.
     /// </summary>
     public static IQueryable<T> ToDynamic<T>(this IQueryable<T> query, Dynamic dynamic)
     {
-        var filterValidator = new FilterValidator();
-
-        if (dynamic.Filter is not null && !filterValidator.Validate(dynamic.Filter))
-            throw new ArgumentException("Invalid filter provided.");
-
         if (dynamic.Filter is not null)
             query = ApplyFilter(query, dynamic.Filter);
 
@@ -45,11 +52,14 @@ public static class IQueryableDynamicFilterExtensions
     /// </summary>
     private static IQueryable<T> ApplyFilter<T>(IQueryable<T> query, Filter filter)
     {
-        var filters = ExtractFilters(filter);
-        string whereClause = CreateWhereClause(filter, filters);
-        object?[] values = filters.Select(f => f.Value).ToArray();
+        var parameter = Expression.Parameter(typeof(T), "x");
+        var expression = BuildExpression<T>(parameter, filter);
 
-        return query.Where(whereClause, values);
+        if (expression == null)
+            return query;
+
+        var lambda = Expression.Lambda<Func<T, bool>>(expression, parameter);
+        return query.Where(lambda);
     }
 
     /// <summary>
@@ -57,50 +67,21 @@ public static class IQueryableDynamicFilterExtensions
     /// </summary>
     private static IQueryable<T> ApplySort<T>(IQueryable<T> query, IEnumerable<Sort> sort)
     {
-        string orderByClause = string.Join(", ", sort.OrderBy(s => s.Priority).Select(s => $"{s.Field} {s.Dir}"));
-        return query.OrderBy(orderByClause);
-    }
+        if (!sort.Any())
+            return query;
 
-    private static List<Filter> ExtractFilters(Filter filter)
-    {
-        var filters = new List<Filter> { filter };
+        var firstSort = sort.First();
+        var orderedQuery = firstSort.Dir == "asc"
+            ? query.OrderBy(CreateOrderExpression<T>(firstSort.Field))
+            : query.OrderByDescending(CreateOrderExpression<T>(firstSort.Field));
 
-        if (filter.Filters != null && filter.Filters.Any())
+        foreach (var nextSort in sort.Skip(1))
         {
-            foreach (var nestedFilter in filter.Filters)
-                filters.AddRange(ExtractFilters(nestedFilter));
+            orderedQuery = nextSort.Dir == "asc"
+                ? ((IOrderedQueryable<T>)orderedQuery).ThenBy(CreateOrderExpression<T>(nextSort.Field))
+                : ((IOrderedQueryable<T>)orderedQuery).ThenByDescending(CreateOrderExpression<T>(nextSort.Field));
         }
 
-        return filters;
-    }
-
-    /// <summary>
-    /// Tüm filtreleri iç içe döngüden çıkarır.
-    /// </summary>
-    public static IList<Filter> ExtractAllFilters(Filter filter)
-    {
-        List<Filter> filters = [];
-        CollectFilters(filter, filters);
-        return filters;
-    }
-
-    private static void CollectFilters(Filter filter, IList<Filter> filters)
-    {
-        filters.Add(filter);
-
-        if (filter.Filters == null || !filter.Filters.Any()) return;
-
-        foreach (var nestedFilter in filter.Filters)
-            CollectFilters(nestedFilter, filters);
-    }
-
-    /// <summary>
-    /// Tüm filtreleri kullanarak WHERE ifadesi oluşturur.
-    /// </summary>
-    private static string CreateWhereClause(Filter filter, List<Filter> filters)
-    {
-        int index = filters.IndexOf(filter);
-        string comparison = Operators[filter.Operator](filter.Field);
-        return $"{comparison}{index}";
+        return orderedQuery;
     }
 }

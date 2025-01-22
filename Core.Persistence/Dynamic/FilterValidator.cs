@@ -2,7 +2,7 @@
 
 public class FilterValidator
 {
-    public bool Validate(Filter filter)
+    public static bool Validate(Filter filter)
     {
         // Örnek doğrulama
         return !string.IsNullOrWhiteSpace(filter.Field) &&
