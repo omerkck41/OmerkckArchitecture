@@ -19,7 +19,7 @@ public class EmailMessageBuilder
         return this;
     }
 
-    public EmailMessageBuilder AddRecipient(string name, string email, RecipientType type)
+    public EmailMessageBuilder AddRecipient(string email, RecipientType type, string name = null)
     {
         if (string.IsNullOrWhiteSpace(email))
             throw new ArgumentException("Email cannot be empty.", nameof(email));
@@ -47,15 +47,15 @@ public class EmailMessageBuilder
         return this;
     }
 
-    public EmailMessageBuilder MarkAsImportant()
+    public EmailMessageBuilder MarkAsImportant(bool isImportant = true)
     {
-        _emailMessage.IsImportant = true;
+        _emailMessage.IsImportant = isImportant;
         return this;
     }
 
-    public EmailMessageBuilder AddAttachment(Attachment attachment)
+    public EmailMessageBuilder AddAttachment(List<Attachment> attachments)
     {
-        _emailMessage.Attachments.Add(attachment);
+        _emailMessage.Attachments.AddRange(attachments);
         return this;
     }
 

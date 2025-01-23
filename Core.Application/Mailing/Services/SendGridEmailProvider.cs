@@ -1,20 +1,37 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Configuration;
+using SendGrid;
+using SendGrid.Helpers.Mail;
 
 namespace Core.Application.Mailing.Services;
 
 public class SendGridEmailProvider : IEmailProvider
 {
-    private readonly ILogger<SendGridEmailProvider> _logger;
+    private readonly SendGridClient _client;
 
-    public SendGridEmailProvider(ILogger<SendGridEmailProvider> logger)
+    public SendGridEmailProvider(IConfiguration configuration)
     {
-        _logger = logger;
+        var apiKey = configuration["EmailSettings:SendGridApiKey"];
+        _client = new SendGridClient(apiKey);
     }
 
-    public Task SendAsync(EmailMessage emailMessage)
+    public async Task SendAsync(EmailMessage emailMessage)
     {
-        // SendGrid API implementation goes here
-        _logger.LogInformation("Sending email via SendGrid...");
-        return Task.CompletedTask;
+        var from = new EmailAddress(emailMessage.From);
+        var subject = emailMessage.Subject;
+        var to = emailMessage.Recipients
+            .Where(r => r.Type == RecipientType.To)
+            .Select(r => new EmailAddress(r.Email, r.Name))
+            .ToList();
+
+        var htmlContent = emailMessage.IsHtml ? emailMessage.Body : null;
+        var plainTextContent = emailMessage.IsHtml ? null : emailMessage.Body;
+
+        var msg = MailHelper.CreateSingleEmailToMultipleRecipients(from, to, subject, plainTextContent, htmlContent);
+        var response = await _client.SendEmailAsync(msg);
+
+        if (response.StatusCode != System.Net.HttpStatusCode.Accepted)
+        {
+            throw new Exception("Failed to send email via SendGrid.");
+        }
     }
 }

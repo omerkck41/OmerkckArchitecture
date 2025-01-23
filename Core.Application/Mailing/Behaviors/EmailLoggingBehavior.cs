@@ -15,9 +15,17 @@ public class EmailLoggingBehavior<TRequest, TResponse> : IPipelineBehavior<TRequ
     public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
     {
         _logger.LogInformation("Handling email request: {Request}", request);
-        var response = await next();
-        _logger.LogInformation("Handled email request: {Response}", response);
 
-        return response;
+        try
+        {
+            var response = await next();
+            _logger.LogInformation("Successfully handled email request. Response: {Response}", response);
+            return response;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "An error occurred while handling the email request: {Request}", request);
+            throw; // Hata yeniden fırlatılıyor, böylece diğer behavior'lar veya handler'lar da bu hatayı işleyebilir.
+        }
     }
 }
