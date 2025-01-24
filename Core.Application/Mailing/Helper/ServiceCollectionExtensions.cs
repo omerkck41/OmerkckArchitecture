@@ -37,9 +37,14 @@ public static class ServiceCollectionExtensions
         // SMTP ve SendGrid gibi e-posta sağlayıcılarını kaydet
         services.AddTransient<IEmailProvider, SmtpEmailProvider>();
         services.AddTransient<IEmailProvider, SendGridEmailProvider>();
+        services.AddTransient<IEmailProvider, AmazonSesEmailProvider>();
 
         // E-posta gönderme servisini kaydet
-        services.AddTransient<IMailService, EmailSendingService>();
+        services.AddTransient<IMailService, EmailSendingService>(provider =>
+        {
+            var emailProviders = provider.GetServices<IEmailProvider>();
+            return new EmailSendingService(emailProviders, emailSettings);
+        });
 
         // SMTP istemci seçiciyi kaydet (örnek olarak RateLimitingSmtpClientSelector kullanıyoruz)
         services.AddSingleton<ISmtpClientSelector, RateLimitingSmtpClientSelector>(provider =>
