@@ -1,4 +1,5 @@
 ﻿using Core.Application.Authorization.Behaviors;
+using Core.Application.Authorization.Models;
 using Core.Security.Extensions;
 using System.Security.Claims;
 

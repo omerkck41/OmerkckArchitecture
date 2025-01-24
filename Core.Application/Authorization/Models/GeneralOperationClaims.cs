@@ -1,4 +1,4 @@
-﻿namespace Core.Application.Authorization.Behaviors;
+﻿namespace Core.Application.Authorization.Models;
 
 public static class GeneralOperationClaims
 {

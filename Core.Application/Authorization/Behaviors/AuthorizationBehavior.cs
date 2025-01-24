@@ -1,4 +1,5 @@
-﻿using Core.Security.Extensions;
+﻿using Core.Application.Authorization.Models;
+using Core.Security.Extensions;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 

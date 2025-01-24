@@ -1,7 +1,7 @@
-﻿namespace Core.Application.Authorization.Behaviors;
+﻿namespace Core.Application.Authorization.Models;
 
 public interface ISecuredRequest
 {
-    string[] Roles { get; }
+    public string[] Roles { get; }
     Dictionary<string, string> Claims { get; } // Key: ClaimType, Value: ClaimValue
 }

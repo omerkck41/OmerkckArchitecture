@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 
-namespace Core.Application.Authorization.Behaviors;
+namespace Core.Application.Authorization.Middleware;
 
 public class HttpAuthorizationMiddleware
 {
@@ -13,7 +13,7 @@ public class HttpAuthorizationMiddleware
 
     public async Task InvokeAsync(HttpContext context)
     {
-        if (context.User == null || !context.User.Identity.IsAuthenticated)
+        if (context.User == null || !context.User.Identity!.IsAuthenticated)
         {
             context.Response.StatusCode = 401; // Unauthorized
             await context.Response.WriteAsync("Authentication is required.");
