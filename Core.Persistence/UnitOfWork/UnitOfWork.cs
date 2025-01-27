@@ -17,12 +17,11 @@ public class UnitOfWork<TContext>(TContext context) : IUnitOfWork where TContext
         _transaction ??= await _context.Database.BeginTransactionAsync();
     }
 
-    public async Task<int> SaveChangesAsync()
+    public async Task<int> SaveChangesAsync(bool autoCommitTransaction = false)
     {
         var result = await _context.SaveChangesAsync();
 
-        // Transaction varsa otomatik commit yapılır
-        if (_transaction != null)
+        if (autoCommitTransaction && _transaction != null)
         {
             try
             {

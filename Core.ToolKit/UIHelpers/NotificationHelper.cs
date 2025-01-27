@@ -76,15 +76,27 @@ public static class NotificationHelper
         return builder.ToString();
     }
 
-    /// <summary>
-    /// Logs a notification message to the console.
-    /// </summary>
-    /// <param name="message">The notification message.</param>
-    public static void Log(string message)
+    public static async Task LogAsync(string message, LogLevel level = LogLevel.Info, string? details = null)
     {
         if (string.IsNullOrWhiteSpace(message))
             throw new ArgumentException("Message cannot be null or empty.", nameof(message));
 
-        Console.WriteLine($"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] {message}");
+        var logMessage = $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] [{level}] {message}";
+        if (!string.IsNullOrWhiteSpace(details))
+        {
+            logMessage += $"\nDetails: {details}";
+        }
+
+        await Task.Run(() => Console.WriteLine(logMessage));
+        // Burada log mesajını dosyaya, veritabanına veya harici bir servise gönderme işlemi yapılabilir.
+    }
+
+    public enum LogLevel
+    {
+        Debug,
+        Info,
+        Warning,
+        Error,
+        Critical
     }
 }

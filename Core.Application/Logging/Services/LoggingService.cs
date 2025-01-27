@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 
 namespace Core.Application.Logging.Services;
 
@@ -11,23 +12,43 @@ public class LoggingService : ILoggingService
         _logger = logger;
     }
 
-    public void LogInfo(string message, object? data = null)
+    private string SerializeData(object? data)
     {
-        _logger.LogInformation("{Message} - Data: {@Data}", message, data);
+        if (data == null)
+            return string.Empty;
+
+        try
+        {
+            return JsonConvert.SerializeObject(data, Formatting.Indented);
+        }
+        catch
+        {
+            return "Failed to serialize data.";
+        }
     }
 
-    public void LogWarning(string message, object? data = null)
+    public void LogInfo(string message, object? data = null, EventId? eventId = null)
     {
-        _logger.LogWarning("{Message} - Data: {@Data}", message, data);
+        _logger.LogInformation(eventId ?? default, "{Message} - Data: {Data}", message, SerializeData(data));
     }
 
-    public void LogError(string message, Exception exception, object? data = null)
+    public void LogWarning(string message, object? data = null, EventId? eventId = null)
     {
-        _logger.LogError(exception, "{Message} - Data: {@Data}", message, data);
+        _logger.LogWarning(eventId ?? default, "{Message} - Data: {Data}", message, SerializeData(data));
     }
 
-    public void LogDebug(string message, object? data = null)
+    public void LogError(string message, Exception exception, object? data = null, EventId? eventId = null)
     {
-        _logger.LogDebug("{Message} - Data: {@Data}", message, data);
+        _logger.LogError(eventId ?? default, exception, "{Message} - Data: {Data}", message, SerializeData(data));
+    }
+
+    public void LogDebug(string message, object? data = null, EventId? eventId = null)
+    {
+        _logger.LogDebug(eventId ?? default, "{Message} - Data: {Data}", message, SerializeData(data));
+    }
+
+    public void LogTrace(string message, object? data = null, EventId? eventId = null)
+    {
+        _logger.LogTrace(eventId ?? default, "{Message} - Data: {Data}", message, SerializeData(data));
     }
 }

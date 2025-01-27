@@ -1,205 +1,198 @@
-﻿# Core.Application.Caching
-
-Core.Application.Caching, modern yazılım projelerinde cache yönetimi için esnek, performanslı ve geliştirilebilir bir yapı sunar.
-Bu sistem iki ana kullanım yöntemini destekler:
-1. **Behavior Tabanlı Kullanım**: MediatR pipeline entegrasyonu.
-2. **Service Tabanlı Kullanım**: Manuel cache yönetimi.
-
-## Şema
-```
-Core.Application
-└── Caching
-    ├── Behavior
-    │   ├── CachingBehavior.cs
-    │   ├── CacheRemovingBehavior.cs
-    │   ├── ICachableRequest.cs
-    │   └── ICacheRemoverRequest.cs
-    ├── Services
-    │   ├── ICacheService.cs
-    │   ├── InMemoryCacheService.cs
-    │   └── DistributedCacheService.cs
-    ├── CacheExtensions.cs
-    ├── CacheKeyHelper.cs
-    └── CacheSettings.cs
-```
+﻿Aşağıda, projeniz için detaylı bir `README.md` dosyası örneği bulacaksınız. Bu dosya, projenin ne yaptığını, hangi teknolojilerin kullanıldığını, nasıl entegre edileceğini ve kullanım örneklerini içerir.
 
 ---
 
-## Bileşenler ve Kullanım
+# Core Caching Library
 
-### 1. Behavior Tabanlı Kullanım
-Behavior yapısı, MediatR ile pipeline entegrasyonu sağlar. Cache ekleme veya temizleme otomatik olarak yönetilir.
+Bu proje, .NET 9.0 mimarisinde geliştirilmiş bir caching (önbellekleme) kütüphanesidir. Büyük ölçekli projelerde kullanılabilecek şekilde tasarlanmıştır ve **In-Memory** ve **Distributed** cache yöntemlerini destekler. MediatR pipeline'ına entegre edilerek, cache işlemlerini otomatikleştirir.
 
-#### 1.1 CachingBehavior
-**CachingBehavior**, istek yanıtlandıktan sonra yanıtı cache'e ekler.
+## Özellikler
 
-- **ICachableRequest**: Cache kullanımı için isteklerin implement etmesi gereken arayüz.
+- **In-Memory Cache**: Bellek içi önbellekleme için `IMemoryCache` kullanır.
+- **Distributed Cache**: Dağıtık önbellekleme için `IDistributedCache` kullanır (Redis, SQL Server, vs.).
+- **MediatR Pipeline Entegrasyonu**: Cache işlemleri otomatik olarak MediatR pipeline'ına entegre edilir.
+- **Esnek Yapı**: Cache anahtarı oluşturma, cache süresi belirleme ve cache temizleme işlemleri kolayca yönetilebilir.
+- **Best Practices**: Clean Code ve SOLID prensiplerine uygun olarak geliştirilmiştir.
+
+## Kullanılan Teknolojiler
+
+- **.NET 9.0**: Proje .NET 9.0 mimarisinde geliştirilmiştir.
+- **MediatR**: CQRS pattern'ini uygulamak ve pipeline davranışlarını yönetmek için kullanılır.
+- **Microsoft.Extensions.Caching.Memory**: In-Memory cache işlemleri için kullanılır.
+- **Microsoft.Extensions.Caching.Distributed**: Distributed cache işlemleri için kullanılır.
+- **System.Text.Json**: JSON serileştirme ve deserileştirme işlemleri için kullanılır.
+
+## Projeye Entegrasyon
+
+### 1. **Program.cs Ayarları**
+
+Projeye caching servislerini eklemek için `Program.cs` dosyasında aşağıdaki ayarları yapın:
+
+```csharp
+using Core.Application.Caching;
+using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Caching.Distributed;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+
+var builder = WebApplication.CreateBuilder(args);
+
+// Cache ayarlarını yapılandır
+builder.Services.AddCachingServices(settings =>
+{
+    settings.Provider = CacheProvider.InMemory; // Veya CacheProvider.Distributed
+    settings.DefaultExpiration = TimeSpan.FromMinutes(30);
+});
+
+// Distributed cache için Redis kullanılacaksa:
+// builder.Services.AddStackExchangeRedisCache(options =>
+// {
+//     options.Configuration = builder.Configuration.GetConnectionString("Redis");
+// });
+
+var app = builder.Build();
+
+app.Run();
+```
+
+### 2. **appsettings.json Ayarları**
+
+`appsettings.json` dosyasında cache ayarlarını yapılandırabilirsiniz:
+
+```json
+{
+  "CacheSettings": {
+    "Provider": "InMemory", // "Distributed" olarak da ayarlanabilir
+    "DefaultExpiration": "00:30:00" // 30 dakika
+  },
+  "ConnectionStrings": {
+    "Redis": "localhost:6379" // Distributed cache için Redis bağlantı dizesi
+  }
+}
+```
+
+### 3. **Cache Key Oluşturma**
+
+Cache anahtarı oluşturmak için `CacheKeyHelper` sınıfını kullanabilirsiniz:
+
+```csharp
+var cacheKey = CacheKeyHelper.GenerateKey("user", userId.ToString());
+```
+
+### 4. **MediatR Pipeline Entegrasyonu**
+
+Cache işlemleri otomatik olarak MediatR pipeline'ına entegre edilir. Örneğin, bir query için cache kullanmak istiyorsanız:
 
 ```csharp
 public class GetUserQuery : IRequest<User>, ICachableRequest
 {
     public int UserId { get; set; }
+
     public bool UseCache => true;
-    public string CacheKey => CacheKeyHelper.GenerateKey("GetUser", UserId.ToString());
+    public string CacheKey => CacheKeyHelper.GenerateKey("user", UserId.ToString());
     public TimeSpan? CacheExpiration => TimeSpan.FromMinutes(10);
 }
 ```
 
-**CachingBehavior.cs**:
-```csharp
-public class CachingBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
-    where TRequest : ICachableRequest
-{
-    private readonly ICacheService _cacheService;
+### 5. **Cache Temizleme**
 
-    public CachingBehavior(ICacheService cacheService)
-    {
-        _cacheService = cacheService;
-    }
-
-    public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
-    {
-        if (!request.UseCache)
-            return await next();
-
-        var cacheKey = request.CacheKey;
-        if (await _cacheService.ExistsAsync(cacheKey, cancellationToken))
-            return await _cacheService.GetAsync<TResponse>(cacheKey, cancellationToken);
-
-        var response = await next();
-        await _cacheService.SetAsync(cacheKey, response, request.CacheExpiration ?? TimeSpan.FromMinutes(30), cancellationToken);
-        return response;
-    }
-}
-```
-
-#### 1.2 CacheRemovingBehavior
-**CacheRemovingBehavior**, istek tamamlandığında ilgili cache'i temizler.
-
-- **ICacheRemoverRequest**: Cache temizleme için isteklerin implement etmesi gereken arayüz.
+Cache temizleme işlemi için `ICacheRemoverRequest` arayüzünü uygulayın:
 
 ```csharp
-public class DeleteUserCommand : IRequest, ICacheRemoverRequest
+public class UpdateUserCommand : IRequest, ICacheRemoverRequest
 {
     public int UserId { get; set; }
-    public string CacheKey => CacheKeyHelper.GenerateKey("GetUser", UserId.ToString());
+
+    public string CacheKey => CacheKeyHelper.GenerateKey("user", UserId.ToString());
+    public bool RemoveCache => true;
 }
 ```
 
-**CacheRemovingBehavior.cs**:
-```csharp
-public class CacheRemovingBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
-    where TRequest : ICacheRemoverRequest
-{
-    private readonly ICacheService _cacheService;
+## Kullanım Örnekleri
 
-    public CacheRemovingBehavior(ICacheService cacheService)
-    {
-        _cacheService = cacheService;
-    }
-
-    public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
-    {
-        var response = await next();
-        if (!string.IsNullOrEmpty(request.CacheKey))
-            await _cacheService.RemoveAsync(request.CacheKey, cancellationToken);
-
-        return response;
-    }
-}
-```
-
----
-
-### 2. Service Tabanlı Kullanım
-Service tabanlı yaklaşım, MediatR olmadan manuel cache yönetimi sunar.
-
-#### ICacheService
-ICacheService, cache operasyonlarını soyutlayan temel arayüzdür.
-```csharp
-public interface ICacheService
-{
-    Task<T?> GetAsync<T>(string key, CancellationToken cancellationToken = default);
-    Task SetAsync<T>(string key, T value, TimeSpan expiration, CancellationToken cancellationToken = default);
-    Task RemoveAsync(string key, CancellationToken cancellationToken = default);
-    Task<bool> ExistsAsync(string key, CancellationToken cancellationToken = default);
-}
-```
-
-#### Kullanım Örneği:
+### 1. **In-Memory Cache Kullanımı**
 
 ```csharp
-public class UserService
+public class GetUserQueryHandler : IRequestHandler<GetUserQuery, User>
 {
-    private readonly ICacheService _cacheService;
+    private readonly IUserRepository _userRepository;
 
-    public UserService(ICacheService cacheService)
+    public GetUserQueryHandler(IUserRepository userRepository)
     {
-        _cacheService = cacheService;
+        _userRepository = userRepository;
     }
 
-    public async Task<User> GetUserAsync(int id)
+    public async Task<User> Handle(GetUserQuery request, CancellationToken cancellationToken)
     {
-        string cacheKey = CacheKeyHelper.GenerateKey("User", id.ToString());
-
-        if (await _cacheService.ExistsAsync(cacheKey))
-            return await _cacheService.GetAsync<User>(cacheKey);
-
-        var user = new User { Id = id, Name = "John Doe" };
-        await _cacheService.SetAsync(cacheKey, user, TimeSpan.FromMinutes(10));
-
-        return user;
+        // Veritabanından kullanıcıyı getir
+        return await _userRepository.GetUserByIdAsync(request.UserId);
     }
 }
 ```
 
----
+### 2. **Distributed Cache (Redis) Kullanımı**
 
-### 3. Proje Entegrasyonu
-**CacheExtensions**, Dependency Injection ile cache servislerini projenize ekler.
-
-#### Program.cs
 ```csharp
-var builder = WebApplication.CreateBuilder(args);
-
-// Cache ayarları
-var cacheSettings = new CacheSettings { Provider = "InMemory", DefaultExpiration = TimeSpan.FromMinutes(30) };
-builder.Services.AddCacheServices(cacheSettings);
-
-// MediatR Behaviors
-builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(CachingBehavior<,>));
-builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(CacheRemovingBehavior<,>));
-
-var app = builder.Build();
-app.Run();
-```
-
----
-
-### 4. Yardımcı Sınıflar
-
-#### CacheKeyHelper
-Cache anahtarlarını standartlaştırmak için kullanılır.
-```csharp
-public static string GenerateKey(params string[] parts)
+public class GetProductQuery : IRequest<Product>, ICachableRequest
 {
-    return string.Join(":", parts);
+    public int ProductId { get; set; }
+
+    public bool UseCache => true;
+    public string CacheKey => CacheKeyHelper.GenerateKey("product", ProductId.ToString());
+    public TimeSpan? CacheExpiration => TimeSpan.FromMinutes(15);
+}
+
+public class GetProductQueryHandler : IRequestHandler<GetProductQuery, Product>
+{
+    private readonly IProductRepository _productRepository;
+
+    public GetProductQueryHandler(IProductRepository productRepository)
+    {
+        _productRepository = productRepository;
+    }
+
+    public async Task<Product> Handle(GetProductQuery request, CancellationToken cancellationToken)
+    {
+        // Veritabanından ürünü getir
+        return await _productRepository.GetProductByIdAsync(request.ProductId);
+    }
 }
 ```
 
-#### CacheSettings
-Cache sağlayıcılarının ve varsayılan ayarların tanımlanması.
+### 3. **Cache Temizleme Örneği**
+
 ```csharp
-public class CacheSettings
+public class UpdateProductCommand : IRequest, ICacheRemoverRequest
 {
-    public string Provider { get; set; } = "InMemory";
-    public TimeSpan DefaultExpiration { get; set; } = TimeSpan.FromMinutes(30);
+    public int ProductId { get; set; }
+    public string Name { get; set; }
+
+    public string CacheKey => CacheKeyHelper.GenerateKey("product", ProductId.ToString());
+    public bool RemoveCache => true;
+}
+
+public class UpdateProductCommandHandler : IRequestHandler<UpdateProductCommand>
+{
+    private readonly IProductRepository _productRepository;
+
+    public UpdateProductCommandHandler(IProductRepository productRepository)
+    {
+        _productRepository = productRepository;
+    }
+
+    public async Task Handle(UpdateProductCommand request, CancellationToken cancellationToken)
+    {
+        // Ürünü güncelle
+        await _productRepository.UpdateProductAsync(request.ProductId, request.Name);
+    }
 }
 ```
 
+## Faydalar
+
+- **Performans Artışı**: Sık erişilen veriler önbelleğe alınarak, veritabanı sorguları azaltılır ve uygulama performansı artar.
+- **Esneklik**: Hem In-Memory hem de Distributed cache yöntemleri desteklenir.
+- **Otomasyon**: MediatR pipeline'ına entegre edilerek, cache işlemleri otomatikleştirilir.
+- **Kolay Entegrasyon**: Basit yapılandırma ve kullanım örnekleri ile kolayca projeye entegre edilebilir.
+
 ---
-
-## Sonuç
-Bu yapı hem MediatR pipeline üzerinden hem de manuel servis bazlı olarak esnek bir cache yönetimi sunar.
-Projelerinizde kolayca entegre ederek performansı artırabilir ve dinamik cache yönetimi sağlayabilirsiniz.
-

@@ -2,13 +2,15 @@
 
 public class CustomEventArgs : EventArgs
 {
-    /// <summary>
-    /// Message associated with the event.
-    /// </summary>
-    public string Message { get; }
+    public string Message { get; set; }
 
     public CustomEventArgs(string message)
     {
         Message = message ?? throw new ArgumentNullException(nameof(message));
+    }
+
+    public override string ToString()
+    {
+        return $"Message: {Message}";
     }
 }

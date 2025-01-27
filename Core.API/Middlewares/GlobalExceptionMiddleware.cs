@@ -27,7 +27,12 @@ public class GlobalExceptionMiddleware
             context.Response.ContentType = "application/json";
             context.Response.StatusCode = 500;
 
-            var errorResponse = new { success = false, message = "An error occurred while processing your request." };
+            var errorResponse = new
+            {
+                success = false,
+                message = "An error occurred while processing your request.",
+                detail = ex.Message // Hata detayını ekledik
+            };
             await context.Response.WriteAsync(JsonSerializer.Serialize(errorResponse));
         }
     }

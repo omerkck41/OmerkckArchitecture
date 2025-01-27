@@ -1,131 +1,197 @@
-﻿# Core.Toolkit Dosya Yönetimi Modülü
+﻿# Core.ToolKit.FileManagement
 
-**Dosya Yönetimi Modülü**, Core.Toolkit kütüphanesinde dosya ve dizin işlemlerini kolaylaştıran araçlar sunar. Bu araçlar dosya formatı dönüştürme, byte dizisi işlemleri ve dosya meta bilgilerini alma gibi işlemleri destekler. Aşağıda her yardımcı sınıfın açıklamaları ve kullanım örnekleri bulunmaktadır.
+**Core.ToolKit.FileManagement**, dosya yönetimi ile ilgili işlemleri kolaylaştırmak için geliştirilmiş bir .NET kütüphanesidir. Bu kütüphane, dosya okuma/yazma, byte array dönüşümleri, Base64 dönüşümleri, dosya meta verileri okuma ve path işlemleri gibi yaygın dosya yönetimi işlemlerini basit ve etkili bir şekilde gerçekleştirmek için kullanılır.
 
----
+## **Nedir?**
 
-## **1. FileConverter**
+Core.ToolKit.FileManagement, .NET projelerinde dosya işlemlerini kolaylaştırmak için geliştirilmiş bir araç setidir. Bu kütüphane, dosya okuma/yazma, byte array dönüşümleri, Base64 dönüşümleri, dosya meta verileri okuma ve path işlemleri gibi yaygın işlemleri tek bir çatı altında toplar. Bu sayede, geliştiriciler dosya yönetimi işlemlerini daha hızlı ve hatasız bir şekilde gerçekleştirebilir.
 
-### **Açıklama**
-Dosyaları Base64 string’ine ve Base64 string’inden dosyaya dönüştürme işlemlerini sağlar.
+## **Neden Kullanılır?**
 
-### **Kullanım**
-```csharp
-using Core.Toolkit.FileManagement;
+- **Kolay Kullanım:** Dosya işlemleri için tekrar eden kod yazmak yerine, bu kütüphane ile hazır metotları kullanabilirsiniz.
+- **Performans:** Büyük dosyalar için `Stream` tabanlı işlemlerle performans artışı sağlar.
+- **Tutarlılık:** Tüm dosya işlemleri için tutarlı bir API sunar.
+- **Genişletilebilirlik:** İhtiyaçlarınıza göre yeni metotlar ekleyerek kütüphaneyi genişletebilirsiniz.
 
-// Dosyayı Base64 string’ine dönüştürme
-string filePath = "dosya/yolu/ornek.txt";
-string base64String = await FileConverter.ToBase64Async(filePath);
+## **Avantajları**
 
-// Base64 string’ini dosyaya dönüştürme
-string outputPath = "dosya/yolu/cikti.txt";
-await FileConverter.FromBase64Async(base64String, outputPath);
-```
+- **Async Destek:** Tüm metotlar async olarak yazılmıştır, bu sayede büyük dosyalarla çalışırken uygulamanızın performansı artar.
+- **Hata Yönetimi:** Dosya bulunamaması, geçersiz path gibi durumlar için özel hata mesajları ve exception'lar sunar.
+- **Genişletilebilir:** Yeni metotlar ekleyerek kütüphaneyi projenizin ihtiyaçlarına göre özelleştirebilirsiniz.
+- **Clean Code:** Metotlar clean code prensiplerine uygun olarak yazılmıştır.
 
 ---
 
-## **2. ByteArrayConverter**
+## **Kurulum ve Projeye Ekleme**
 
-### **Açıklama**
-Dosyaları byte dizisine ve byte dizisinden dosyaya dönüştürme işlemlerini sağlar.
+### 1. **Projeye Ekleme**
 
-### **Kullanım**
-```csharp
-using Core.Toolkit.FileManagement;
+Kütüphaneyi projenize eklemek için aşağıdaki adımları izleyin:
 
-// Dosyayı byte dizisine dönüştürme
-string filePath = "dosya/yolu/ornek.jpg";
-byte[] fileBytes = await ByteArrayConverter.ToByteArrayAsync(filePath);
+1. **NuGet Paketi Olarak Yayınlama:**
+   - Eğer bu kütüphaneyi bir NuGet paketi olarak yayınlamak istiyorsanız, `.nuspec` dosyası oluşturup NuGet'e yükleyebilirsiniz.
+   - NuGet paketi olarak yayınlandıktan sonra, projenize NuGet üzerinden ekleyebilirsiniz.
 
-// Byte dizisini dosyaya yazma
-string outputPath = "dosya/yolu/cikti.jpg";
-await ByteArrayConverter.FromByteArrayAsync(fileBytes, outputPath);
-```
+2. **DLL Olarak Ekleme:**
+   - Kütüphaneyi bir DLL olarak derleyip, projenizin `References` kısmına ekleyebilirsiniz.
 
----
+3. **Projeye Doğrudan Ekleme:**
+   - Eğer kütüphaneyi doğrudan projenize eklemek istiyorsanız, `Core.ToolKit.FileManagement` klasörünü projenize kopyalayıp, gerekli referansları ekleyebilirsiniz.
 
-## **3. PathHelper**
+### 2. **Program.cs ve AppSettings.json Ayarları**
 
-### **Açıklama**
-Dosya ve dizin yollarıyla ilgili işlemleri kolaylaştırır.
+Kütüphaneyi kullanmak için herhangi bir özel ayar yapmanıza gerek yoktur. Ancak, dosya yolları veya dosya boyutu limitleri gibi ayarları `appsettings.json` dosyasında tutabilirsiniz.
 
-### **Kullanım**
-```csharp
-using Core.Toolkit.FileManagement;
+#### **appsettings.json Örneği:**
 
-// Yolları birleştirme
-string combinedPath = PathHelper.Combine("C:\\Klasor1", "AltKlasor", "dosya.txt");
-
-// Yolun geçerli olup olmadığını doğrulama
-bool isValid = PathHelper.IsValidPath(combinedPath);
-
-// Dosya uzantısını kontrol etme
-bool hasTxtExtension = PathHelper.HasExtension(combinedPath, ".txt");
-
-// Belirli bir uzantıya sahip tüm dosya yollarını alma
-string directoryPath = "C:\\Klasor1";
-var filePaths = PathHelper.GetFilePaths(directoryPath, "*.txt", SearchOption.AllDirectories);
-
-// Alt dizin yollarını alma
-var directoryPaths = PathHelper.GetDirectoryPaths(directoryPath, SearchOption.TopDirectoryOnly);
-```
-
----
-
-## **4. FileMetadataReader**
-
-### **Açıklama**
-Dosya hakkında boyut, oluşturulma tarihi ve son değiştirilme tarihi gibi meta bilgileri alır.
-
-### **Kullanım**
-```csharp
-using Core.Toolkit.FileManagement;
-
-// Dosya boyutunu alma
-string filePath = "dosya/yolu/ornek.txt";
-long fileSize = FileMetadataReader.GetFileSize(filePath);
-
-// Dosyanın oluşturulma tarihini alma
-DateTime creationDate = FileMetadataReader.GetCreationDate(filePath);
-
-// Dosyanın son değiştirilme tarihini alma
-DateTime lastModifiedDate = FileMetadataReader.GetLastModifiedDate(filePath);
-```
-
----
-
-## **5. Pratik Örnekler**
-
-### **Örnek 1: Bir Dosyayı Yedekleme**
-```csharp
-string sourceFilePath = "dosya/yolu/orijinal.txt";
-string backupFilePath = "dosya/yolu/yedek.txt";
-
-// Dosyayı Base64 string’e dönüştürme
-string base64Data = await FileConverter.ToBase64Async(sourceFilePath);
-
-// Base64 string’inden dosyayı geri yükleme
-await FileConverter.FromBase64Async(base64Data, backupFilePath);
-```
-
-### **Örnek 2: Belirli Uzantıya Sahip Dosyaları Listeleme**
-```csharp
-string directoryPath = "dosya/yolu/klasor";
-var imagePaths = PathHelper.GetFilePaths(directoryPath, "*.jpg", SearchOption.AllDirectories);
-
-foreach (var imagePath in imagePaths)
+```json
 {
-    Console.WriteLine(imagePath);
+  "FileSettings": {
+    "MaxFileSizeInBytes": 104857600, // 100 MB
+    "DefaultOutputPath": "C:\\OutputFiles"
+  }
+}
+```
+
+#### **Program.cs Örneği:**
+
+```csharp
+using Core.ToolKit.FileManagement;
+using Microsoft.Extensions.Configuration;
+using System.IO;
+using System.Threading.Tasks;
+
+class Program
+{
+    static async Task Main(string[] args)
+    {
+        // Config dosyasını yükle
+        var config = new ConfigurationBuilder()
+            .SetBasePath(Directory.GetCurrentDirectory())
+            .AddJsonFile("appsettings.json")
+            .Build();
+
+        // Ayarları oku
+        long maxFileSize = config.GetValue<long>("FileSettings:MaxFileSizeInBytes");
+        string outputPath = config.GetValue<string>("FileSettings:DefaultOutputPath");
+
+        // ByteArrayConverter kullanımı
+        string filePath = "C:\\ExampleFiles\\example.txt";
+        byte[] fileBytes = await ByteArrayConverter.ToByteArrayAsync(filePath, maxFileSize);
+        await ByteArrayConverter.FromByteArrayAsync(fileBytes, Path.Combine(outputPath, "output.txt"));
+
+        // FileConverter kullanımı
+        string base64String = await FileConverter.ToBase64Async(filePath);
+        await FileConverter.FromBase64Async(base64String, Path.Combine(outputPath, "output_base64.txt"));
+
+        // FileMetadataReader kullanımı
+        long fileSize = FileMetadataReader.GetFileSize(filePath);
+        DateTime creationDate = FileMetadataReader.GetCreationDate(filePath);
+        DateTime lastModifiedDate = FileMetadataReader.GetLastModifiedDate(filePath);
+
+        // PathHelper kullanımı
+        bool isValidPath = PathHelper.IsValidPath(filePath);
+        bool hasTxtExtension = PathHelper.HasExtension(filePath, ".txt");
+    }
 }
 ```
 
 ---
 
-## **Özellikler ve Avantajlar**
+## **Detaylı Kullanım Örnekleri**
 
-- **Asenkron Metotlar**: Tüm dosya işlemleri async/await ile optimize edilmiştir.
-- **Modüler Tasarım**: Her yardımcı sınıf bağımsız ve tekrar kullanılabilir şekilde tasarlanmıştır.
-- **Hata Yönetimi**: Çalışma zamanı hatalarını önlemek için kapsamlı hata kontrolü.
-- **Genişletilebilirlik**: İhtiyaç duyulduğunda ek özellikler kolayca entegre edilebilir.
+### 1. **ByteArrayConverter Kullanımı**
+
+#### **Dosyayı Byte Array'e Dönüştürme:**
+
+```csharp
+string filePath = "C:\\ExampleFiles\\example.txt";
+byte[] fileBytes = await ByteArrayConverter.ToByteArrayAsync(filePath);
+```
+
+#### **Byte Array'i Dosyaya Yazma:**
+
+```csharp
+string outputPath = "C:\\OutputFiles\\output.txt";
+await ByteArrayConverter.FromByteArrayAsync(fileBytes, outputPath);
+```
+
+#### **Stream ile Byte Array'e Dönüştürme:**
+
+```csharp
+using (var stream = new FileStream(filePath, FileMode.Open))
+{
+    byte[] fileBytes = await ByteArrayConverter.StreamToByteArrayAsync(stream);
+}
+```
+
+---
+
+### 2. **FileConverter Kullanımı**
+
+#### **Dosyayı Base64'e Dönüştürme:**
+
+```csharp
+string base64String = await FileConverter.ToBase64Async(filePath);
+```
+
+#### **Base64'ten Dosya Oluşturma:**
+
+```csharp
+await FileConverter.FromBase64Async(base64String, outputPath);
+```
+
+#### **Stream ile Base64'e Dönüştürme:**
+
+```csharp
+using (var stream = new FileStream(filePath, FileMode.Open))
+{
+    string base64String = await FileConverter.StreamToBase64Async(stream);
+}
+```
+
+---
+
+### 3. **FileMetadataReader Kullanımı**
+
+#### **Dosya Boyutunu Okuma:**
+
+```csharp
+long fileSize = FileMetadataReader.GetFileSize(filePath);
+```
+
+#### **Dosya Oluşturma Tarihini Okuma:**
+
+```csharp
+DateTime creationDate = FileMetadataReader.GetCreationDate(filePath);
+```
+
+#### **Dosya Özniteliklerini Okuma:**
+
+```csharp
+FileAttributes attributes = FileMetadataReader.GetFileAttributes(filePath);
+```
+
+---
+
+### 4. **PathHelper Kullanımı**
+
+#### **Path Birleştirme:**
+
+```csharp
+string combinedPath = PathHelper.Combine("C:\\ExampleFiles", "subfolder", "example.txt");
+```
+
+#### **Path Validasyonu:**
+
+```csharp
+bool isValid = PathHelper.IsValidPath("C:\\ExampleFiles\\example.txt");
+```
+
+#### **Dosya Uzantısı Kontrolü:**
+
+```csharp
+bool hasTxtExtension = PathHelper.HasExtension("C:\\ExampleFiles\\example.txt", ".txt");
+```
 
 ---

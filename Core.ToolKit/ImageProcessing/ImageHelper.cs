@@ -64,6 +64,56 @@ public static class ImageHelper
         }
     }
 
+    public static async Task RotateAsync(string inputPath, string outputPath, float degrees)
+    {
+        if (!File.Exists(inputPath))
+            throw new FileNotFoundException($"Input image not found at path: {inputPath}");
+
+        try
+        {
+            using var image = await Image.LoadAsync(inputPath);
+            image.Mutate(x => x.Rotate(degrees));
+            await image.SaveAsync(outputPath);
+        }
+        catch (Exception ex)
+        {
+            throw new InvalidOperationException("Error occurred while rotating the image.", ex);
+        }
+    }
+
+    public static async Task ApplyFilterAsync(string inputPath, string outputPath, Action<IImageProcessingContext> filter)
+    {
+        if (!File.Exists(inputPath))
+            throw new FileNotFoundException($"Input image not found at path: {inputPath}");
+
+        try
+        {
+            using var image = await Image.LoadAsync(inputPath);
+            image.Mutate(filter);
+            await image.SaveAsync(outputPath);
+        }
+        catch (Exception ex)
+        {
+            throw new InvalidOperationException("Error occurred while applying filter to the image.", ex);
+        }
+    }
+
+    public static async Task<(int Width, int Height)> GetImageDimensionsAsync(string inputPath)
+    {
+        if (!File.Exists(inputPath))
+            throw new FileNotFoundException($"Input image not found at path: {inputPath}");
+
+        try
+        {
+            using var image = await Image.LoadAsync(inputPath);
+            return (image.Width, image.Height);
+        }
+        catch (Exception ex)
+        {
+            throw new InvalidOperationException("Error occurred while getting image dimensions.", ex);
+        }
+    }
+
     /// <summary>
     /// Converts an image to a specified format (e.g., PNG, JPEG) with high-quality processing.
     /// </summary>

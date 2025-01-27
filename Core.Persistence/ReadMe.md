@@ -1,216 +1,217 @@
-# Core.Persistence
-
-**Core.Persistence**, modern yazılım geliştirme ihtiyaçlarını karşılamak için tasarlanmış, esnek, ölçeklenebilir ve güçlü bir veri erişim kütüphanesidir. Repository ve UnitOfWork tasarım desenlerini destekler, dinamik sorgular, sayfalama ve soft delete gibi özellikler sunar.
-
-Bu kılavuz, Core.Persistence kütüphanesini projelere nasıl entegre edeceğinizi ve kullanacağınızı adım adım açıklamaktadır.
+Aşağıda, projeniz için detaylı bir **README.md** dosyası örneği bulabilirsiniz. Bu dosya, projenin mimarisini, nasıl kurulacağını, nasıl kullanılacağını ve örnek metotları içermektedir.
 
 ---
 
-## **1. Özellikler**
+# Core.Persistence Library
 
-1. **Repository Pattern**: Veri erişimini soyutlayarak düzenli ve temiz bir mimari sunar.
-2. **UnitOfWork**: Transaction yönetimini kolaylaştırır.
-3. **Dinamik Sorgular**: Dinamik filtreleme ve sıralama desteği.
-4. **Sayfalama**: Büyük veri kümelerinde performanslı sayfalama.
-5. **Soft Delete**: Silinen kayıtların fiziksel olarak değil, mantıksal olarak silinmesi.
-6. **Multi-DbContext Desteği**: Birden fazla veritabanı bağlamını yönetebilme.
+**Core.Persistence**, .NET projelerinde kullanılmak üzere geliştirilmiş bir persistence (kalıcılık) katmanıdır. Bu kütüphane, generic repository pattern, unit of work pattern, dinamik sorgulama, sayfalama ve soft delete gibi özellikleri destekler. Entity Framework Core ile entegre çalışır ve .NET 9.0 üzerinde geliştirilmiştir.
 
 ---
 
-## **2. Projeye Entegrasyon**
+## Teknolojiler ve Mimari
 
-### 2.1 NuGet Paketleri
+### Kullanılan Teknolojiler
+- **.NET 9.0**: Proje, .NET 9.0 üzerinde geliştirilmiştir.
+- **Entity Framework Core**: Veritabanı işlemleri için EF Core kullanılmıştır.
+- **Generic Repository Pattern**: Veritabanı işlemleri için genel bir repository yapısı sunar.
+- **Unit of Work Pattern**: Transaction yönetimi ve repository'lerin yaşam döngüsünü yönetir.
+- **Dynamic Query**: Dinamik filtreleme ve sıralama işlemlerini destekler.
+- **Pagination**: Sayfalama işlemleri için güçlü bir yapı sunar.
+- **Soft Delete**: Veritabanından silinen kayıtları fiziksel olarak silmek yerine işaretleyerek saklar.
 
-Core.Persistence ile çalışmak için aşağıdaki NuGet paketlerini yüklemeniz gereklidir:
+---
 
-- `Microsoft.EntityFrameworkCore`
-- `Microsoft.EntityFrameworkCore.Tools`
-- `System.Linq.Dynamic.Core`
+## Projeye Nasıl Eklenir?
 
-```bash
-Install-Package Microsoft.EntityFrameworkCore
-Install-Package Microsoft.EntityFrameworkCore.Tools
-Install-Package System.Linq.Dynamic.Core
+### 1. **Projeye Ekleme**
+- **Core.Persistence** kütüphanesini projenize eklemek için, proje dosyanıza (`csproj`) aşağıdaki paket referanslarını ekleyin:
+
+```xml
+<ItemGroup>
+  <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.1" />
+</ItemGroup>
+```
+
+- **Core.Persistence** katmanını projenize referans olarak ekleyin.
+
+---
+
+### 2. **Program.cs Ayarları**
+- **Program.cs** dosyasında, Entity Framework Core ve UnitOfWork yapılandırmasını yapın:
+
+```csharp
+var builder = WebApplication.CreateBuilder(args);
+
+// DbContext ve UnitOfWork yapılandırması
+builder.Services.AddDbContext<YourDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork<YourDbContext>>();
+
+var app = builder.Build();
 ```
 
 ---
 
-### 2.2 Proje Yapılandırması
+### 3. **appsettings.json Ayarları**
+- **appsettings.json** dosyasında, veritabanı bağlantı dizesini ekleyin:
 
-#### DbContext Tanımı
+```json
+{
+  "ConnectionStrings": {
+    "DefaultConnection": "Server=your_server;Database=your_database;User Id=your_user;Password=your_password;"
+  }
+}
+```
 
-Projede kullanılacak DbContext sınıfını oluşturun:
+---
+
+## Nasıl Kullanılır?
+
+### 1. **Repository ve UnitOfWork Kullanımı**
+- **UnitOfWork** ve **Repository** yapısını kullanarak veritabanı işlemlerini gerçekleştirebilirsiniz.
 
 ```csharp
-public class AppDbContext : DbContext
+public class ProductService
 {
-    public DbSet<User> Users { get; set; } = null!;
+    private readonly IUnitOfWork _unitOfWork;
 
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    public ProductService(IUnitOfWork unitOfWork)
     {
-        optionsBuilder.UseSqlServer("YourConnectionString");
+        _unitOfWork = unitOfWork;
+    }
+
+    public async Task<Product> GetProductByIdAsync(int id)
+    {
+        var repository = _unitOfWork.Repository<Product, int>();
+        return await repository.GetByIdAsync(id);
+    }
+
+    public async Task AddProductAsync(Product product)
+    {
+        var repository = _unitOfWork.Repository<Product, int>();
+        await repository.AddAsync(product);
+        await _unitOfWork.SaveChangesAsync();
     }
 }
 ```
 
-#### Program.cs
+---
 
-DI (Dependency Injection) ile repository ve UnitOfWork yapılarını sisteme dahil edin:
+### 2. **Dinamik Sorgulama ve Sayfalama**
+- **Dynamic** sınıfı ile dinamik filtreleme ve sıralama işlemleri yapabilirsiniz.
 
 ```csharp
-builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+public async Task<IPaginate<Product>> GetProductsAsync(string filterField, string filterValue, string sortField, string sortDir)
+{
+    var repository = _unitOfWork.Repository<Product, int>();
 
-builder.Services.AddScoped(typeof(IAsyncRepository<,>), typeof(EfRepositoryBase<,,>));
-builder.Services.AddScoped<IUnitOfWork<AppDbContext>, UnitOfWork<AppDbContext>>();
+    var dynamic = new Dynamic(
+        sort: new List<Sort> { new Sort { Field = sortField, Dir = sortDir } },
+        filter: new Filter { Field = filterField, Operator = "eq", Value = filterValue }
+    );
+
+    return await repository.GetListByDynamicAsync(dynamic);
+}
 ```
 
 ---
 
-## **3. Kullanım**
-
-### 3.1 Repository Kullanımı
-
-**Repository**, veri erişim işlemlerini soyutlamak için kullanılır. Aşağıda bazı örnekler verilmiştir.
-
-#### 3.1.1 Tekil Veri Erişimi
+### 3. **Soft Delete İşlemleri**
+- **SoftDeleteAsync** metodu ile kayıtları fiziksel olarak silmek yerine işaretleyebilirsiniz.
 
 ```csharp
-var user = await _userRepository.GetAsync(u => u.Id == 1);
-```
-
-#### 3.1.2 Listeleme ve Sayfalama
-
-```csharp
-var users = await _userRepository.GetListAsync(
-    predicate: u => !u.IsDeleted,
-    orderBy: q => q.OrderBy(u => u.Name),
-    index: 0,
-    size: 10);
-```
-
-#### 3.1.3 Dinamik Sorgular
-
-```csharp
-var dynamic = new Dynamic
+public async Task SoftDeleteProductAsync(int id)
 {
-    Filter = new Filter("Name", "contains", "John"),
-    Sort = new List<Sort> { new Sort("Age", "desc") }
-};
+    var repository = _unitOfWork.Repository<Product, int>();
+    var product = await repository.GetByIdAsync(id);
 
-var users = await _userRepository.GetListByDynamicAsync(dynamic);
-```
-
-#### 3.1.4 Veri Ekleme
-
-```csharp
-var newUser = new User { Name = "Jane Doe", Age = 30 };
-await _userRepository.AddAsync(newUser);
-await _unitOfWork.SaveChangesAsync();
-```
-
-#### 3.1.5 Güncelleme
-
-```csharp
-var user = await _userRepository.GetAsync(u => u.Id == 1);
-user.Name = "Updated Name";
-await _userRepository.UpdateAsync(user);
-await _unitOfWork.SaveChangesAsync();
-```
-
-#### 3.1.6 Soft Delete
-
-```csharp
-await _userRepository.SoftDeleteAsync(1);
-await _unitOfWork.SaveChangesAsync();
+    if (product != null)
+    {
+        await repository.SoftDeleteAsync(product);
+        await _unitOfWork.SaveChangesAsync();
+    }
+}
 ```
 
 ---
 
-### 3.2 UnitOfWork Kullanımı
-
-**UnitOfWork**, birden fazla repository ile çalışırken transaction yönetimini kolaylaştırır.
-
-#### Örnek Kullanım:
+### 4. **Toplu Güncelleme İşlemleri**
+- **BulkUpdateAsync** metodu ile toplu güncelleme işlemleri yapabilirsiniz.
 
 ```csharp
-using (var unitOfWork = _unitOfWork.BeginTransactionAsync())
+public async Task BulkUpdateProductPricesAsync(decimal newPrice)
 {
-    var user = new User { Name = "New User" };
-    await _userRepository.AddAsync(user);
+    var repository = _unitOfWork.Repository<Product, int>();
 
-    var anotherUser = new User { Name = "Another User" };
-    await _userRepository.AddAsync(anotherUser);
+    await repository.BulkUpdateAsync(
+        predicate: p => p.Price < newPrice,
+        updates: new[] { (p => p.Price, newPrice) }
+    );
 
     await _unitOfWork.SaveChangesAsync();
-    await unitOfWork.CommitAsync();
 }
 ```
 
 ---
 
-### 3.3 Dinamik Filtreleme ve Sıralama
-
-Dinamik sorgular, kullanıcıdan gelen kriterlere göre sorgular oluşturmanıza olanak tanır.
-
-#### Örnek:
+### 5. **Sayfalama İşlemleri**
+- **ToPaginateAsync** metodu ile sayfalama işlemleri yapabilirsiniz.
 
 ```csharp
-var dynamic = new Dynamic
+public async Task<IPaginate<Product>> GetProductsPaginatedAsync(int pageIndex, int pageSize)
 {
-    Filter = new Filter("Name", "eq", "John"),
-    Sort = new List<Sort> { new Sort("Age", "asc") }
-};
-
-var result = await _userRepository.GetListByDynamicAsync(dynamic);
+    var repository = _unitOfWork.Repository<Product, int>();
+    return await repository.GetListAsync(index: pageIndex, size: pageSize);
+}
 ```
 
 ---
 
-### 3.4 Çoklu DbContext Desteği
+## Metot Örnekleri
 
+### 1. **GetByIdAsync**
 ```csharp
-builder.Services.AddDbContext<OtherDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("OtherConnection")));
+var product = await repository.GetByIdAsync(1);
+```
 
-builder.Services.AddScoped<IUnitOfWork<OtherDbContext>, UnitOfWork<OtherDbContext>>();
+### 2. **AddAsync**
+```csharp
+var product = new Product { Name = "New Product", Price = 100 };
+await repository.AddAsync(product);
+await _unitOfWork.SaveChangesAsync();
+```
 
-// Kullanım:
-private readonly IUnitOfWork<AppDbContext> _appUnitOfWork;
-private readonly IUnitOfWork<OtherDbContext> _otherUnitOfWork;
+### 3. **UpdateAsync**
+```csharp
+var product = await repository.GetByIdAsync(1);
+product.Price = 200;
+await repository.UpdateAsync(product);
+await _unitOfWork.SaveChangesAsync();
+```
 
-public MultiContextController(
-    IUnitOfWork<AppDbContext> appUnitOfWork,
-    IUnitOfWork<OtherDbContext> otherUnitOfWork)
-{
-    _appUnitOfWork = appUnitOfWork;
-    _otherUnitOfWork = otherUnitOfWork;
-}
+### 4. **DeleteAsync**
+```csharp
+var product = await repository.GetByIdAsync(1);
+await repository.DeleteAsync(product);
+await _unitOfWork.SaveChangesAsync();
+```
 
-[HttpPost("cross-db")]
-public async Task<IActionResult> AddToBothDbContexts()
-{
-    await _appUnitOfWork.Repository<User>().AddAsync(new User { Name = "From AppDb" });
-    await _otherUnitOfWork.Repository<OtherEntity>().AddAsync(new OtherEntity { Title = "From OtherDb" });
+### 5. **SoftDeleteAsync**
+```csharp
+var product = await repository.GetByIdAsync(1);
+await repository.SoftDeleteAsync(product, deletedBy: "Admin");
+await _unitOfWork.SaveChangesAsync();
+```
 
-    await _appUnitOfWork.SaveChangesAsync();
-    await _otherUnitOfWork.SaveChangesAsync();
+### 6. **GetListByDynamicAsync**
+```csharp
+var dynamic = new Dynamic(
+    sort: new List<Sort> { new Sort { Field = "Name", Dir = "asc" } },
+    filter: new Filter { Field = "Price", Operator = "gt", Value = 100 }
+);
 
-    return Ok("İşlemler tamamlandı.");
-}
+var products = await repository.GetListByDynamicAsync(dynamic);
 ```
 
 ---
-
-## **4. Geliştirme İpuçları**
-
-- **Performans**: Gereksiz sorgu çalıştırmamak için yalnızca gerekli alanları sorgulayan filtreleri kullanın.
-- **Test Edilebilirlik**: Mock DbContext kullanarak repositorylerinizi kolayca test edebilirsiniz.
-- **Genişletilebilirlik**: Gereksinimlerinize göre `IAsyncRepository` ve `EfRepositoryBase` sınıflarını genişletebilirsiniz.
-
----
-
-## **5. Sonuç**
-
-Core.Persistence, veri erişim operasyonlarınızı düzenlemek, performansı artırmak ve kodunuzu daha temiz hale getirmek için tasarlanmıştır.
-Bu rehberde yer alan örnekler ve açıklamalarla, kütüphaneyi projelerinize kolayca entegre edebilir ve kullanmaya başlayabilirsiniz.

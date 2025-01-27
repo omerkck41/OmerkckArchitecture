@@ -39,7 +39,7 @@ public interface IAsyncRepository<T, TId> : IQuery<T> where T : Entity<TId>
                         bool enableTracking = false,
                         CancellationToken cancellationToken = default);
 
-    Task<T?> GetByIdAsync(int id, CancellationToken cancellationToken = default);
+    Task<T?> GetByIdAsync(TId id, CancellationToken cancellationToken = default);
     Task<int> CountAsync(Expression<Func<T, bool>>? predicate = null);
 
     /// <summary>
@@ -82,6 +82,5 @@ public interface IAsyncRepository<T, TId> : IQuery<T> where T : Entity<TId>
     /// </summary>
     Task DeleteRangeAsync(IEnumerable<T> entities, CancellationToken cancellationToken = default);
 
-    Task<T> SoftDeleteAsync(T entity, CancellationToken cancellationToken = default);
     Task SoftDeleteRangeAsync(IEnumerable<T> entities, CancellationToken cancellationToken = default);
 }

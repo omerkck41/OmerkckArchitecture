@@ -43,4 +43,22 @@ public static class FileMetadataReader
         var fileInfo = new FileInfo(filePath);
         return fileInfo.LastWriteTime;
     }
+
+    public static FileAttributes GetFileAttributes(string filePath)
+    {
+        if (!File.Exists(filePath))
+            throw new FileNotFoundException($"File not found at path: {filePath}");
+
+        return File.GetAttributes(filePath);
+    }
+
+    public static string GetFileOwner(string filePath)
+    {
+        if (!File.Exists(filePath))
+            throw new FileNotFoundException($"File not found at path: {filePath}");
+
+        var fileInfo = new FileInfo(filePath);
+        var fileSecurity = fileInfo.GetAccessControl();
+        return fileSecurity.GetOwner(typeof(System.Security.Principal.NTAccount)).ToString();
+    }
 }

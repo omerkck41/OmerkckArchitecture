@@ -8,7 +8,12 @@ public class HangfireJobScheduler : IJobScheduler
 {
     public async Task ScheduleRecurringJob<T>(string jobId, string cronExpression) where T : IJob
     {
-        RecurringJob.AddOrUpdate<T>(jobId, job => job.Execute(null!), cronExpression); // null! operatörü ile null olduğu belirtiliyor
+        if (string.IsNullOrEmpty(jobId))
+            throw new ArgumentException("Job ID cannot be null or empty.", nameof(jobId));
+        if (string.IsNullOrEmpty(cronExpression))
+            throw new ArgumentException("Cron expression cannot be null or empty.", nameof(cronExpression));
+
+        RecurringJob.AddOrUpdate<T>(jobId, job => job.Execute(null!), cronExpression);
         await Task.CompletedTask;
     }
 

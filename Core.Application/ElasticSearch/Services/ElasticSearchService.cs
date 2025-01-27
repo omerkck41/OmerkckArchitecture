@@ -1,78 +1,163 @@
 ﻿using Core.Application.ElasticSearch.Interfaces;
 using Elastic.Clients.Elasticsearch;
+using Elastic.Transport;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 
 namespace Core.Application.ElasticSearch.Services;
 
 public class ElasticSearchService : IElasticSearchService
 {
     private readonly ElasticsearchClient _client;
+    private readonly ILogger<ElasticSearchService> _logger;
 
-    public ElasticSearchService(IConfiguration configuration)
+    public ElasticSearchService(IConfiguration configuration, ILogger<ElasticSearchService> logger)
     {
+        _logger = logger;
+
         var settings = configuration.GetSection("ElasticSearchSettings").Get<ElasticSearchSettings>()
                       ?? throw new InvalidOperationException("ElasticSearch settings are not configured.");
 
         var clientSettings = new ElasticsearchClientSettings(new Uri(settings.ConnectionString))
-            .DefaultIndex(settings.DefaultIndex);
+            .DefaultIndex(settings.DefaultIndex)
+            .Authentication(new BasicAuthentication(settings.Username, settings.Password));
 
         _client = new ElasticsearchClient(clientSettings);
     }
 
     public async Task<bool> CreateIndexAsync(string indexName, int numberOfShards, int numberOfReplicas)
     {
-        var response = await _client.Indices.CreateAsync(indexName, c => c
+        try
+        {
+            var response = await _client.Indices.CreateAsync(indexName, c => c
                 .Settings(s => s
                     .NumberOfShards(numberOfShards)
                     .NumberOfReplicas(numberOfReplicas)));
 
-        return response.Acknowledged;
+            return response.Acknowledged;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error creating index {IndexName}", indexName);
+            throw;
+        }
+    }
+
+    public async Task<bool> CreateIndexIfNotExistsAsync(string indexName, int numberOfShards, int numberOfReplicas)
+    {
+        var existsResponse = await _client.Indices.ExistsAsync(indexName);
+        if (!existsResponse.Exists)
+        {
+            return await CreateIndexAsync(indexName, numberOfShards, numberOfReplicas);
+        }
+        return true;
     }
 
     public async Task<bool> InsertDocumentAsync<T>(string indexName, string documentId, T document) where T : class
     {
-        var response = await _client.IndexAsync(document, i => i.Index(indexName).Id(documentId));
-        return response.IsValidResponse;
+        try
+        {
+            var response = await _client.IndexAsync(document, i => i.Index(indexName).Id(documentId));
+            return response.IsValidResponse;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error inserting document {DocumentId} in index {IndexName}", documentId, indexName);
+            throw;
+        }
     }
 
     public async Task<bool> UpdateDocumentAsync<T>(string indexName, string documentId, T document) where T : class
     {
-        var response = await _client.UpdateAsync(new UpdateRequest<T, T>(indexName, documentId) { Doc = document });
-        return response.IsValidResponse;
+        try
+        {
+            var response = await _client.UpdateAsync<T, T>(indexName, documentId, u => u.Doc(document));
+            return response.IsValidResponse;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error updating document {DocumentId} in index {IndexName}", documentId, indexName);
+            throw;
+        }
     }
 
     public async Task<bool> DeleteDocumentAsync(string indexName, string documentId)
     {
-        var response = await _client.DeleteAsync(new DeleteRequest(indexName, documentId));
-        return response.IsValidResponse;
+        try
+        {
+            var response = await _client.DeleteAsync<object>(indexName, documentId);
+            return response.IsValidResponse;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error deleting document {DocumentId} from index {IndexName}", documentId, indexName);
+            throw;
+        }
     }
 
     public async Task<T?> GetDocumentByIdAsync<T>(string indexName, string documentId) where T : class
     {
-        var response = await _client.GetAsync<T>(documentId, g => g.Index(indexName));
-        return response.Found ? response.Source : null;
+        try
+        {
+            var response = await _client.GetAsync<T>(indexName, documentId);
+            return response.Found ? response.Source : null;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error getting document {DocumentId} from index {IndexName}", documentId, indexName);
+            throw;
+        }
     }
 
-    public async Task<List<T>> SearchDocumentsAsync<T>(string indexName, string query, int from, int size) where T : class
+    public async Task<List<T>> SearchDocumentsAsync<T>(string indexName, string query, int from, int size, string? sortField = null, bool isAscending = true) where T : class
     {
-        var response = await _client.SearchAsync<T>(s => s
-                .Index(indexName)
+        try
+        {
+            var searchDescriptor = new SearchRequestDescriptor<T>(indexName)
                 .From(from)
                 .Size(size)
-                .Query(q => q.QueryString(d => d.Query(query))));
+                .Query(q => q.QueryString(qs => qs.Query(query)));
 
-        return response.Documents.ToList();
+            if (!string.IsNullOrEmpty(sortField))
+            {
+                searchDescriptor.Sort(s => s.Field(sortField, new FieldSort { Order = isAscending ? SortOrder.Asc : SortOrder.Desc }));
+            }
+
+            var response = await _client.SearchAsync<T>(searchDescriptor);
+            return response.Documents.ToList();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error searching documents in index {IndexName}", indexName);
+            throw;
+        }
     }
 
     public async Task<bool> BulkInsertAsync<T>(string indexName, List<T> documents) where T : class
     {
-        var response = await _client.BulkAsync(b => b.Index(indexName).IndexMany(documents));
-        return response.IsValidResponse;
+        try
+        {
+            var response = await _client.BulkAsync(b => b.Index(indexName).IndexMany(documents));
+            return response.IsValidResponse;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error bulk inserting documents in index {IndexName}", indexName);
+            throw;
+        }
     }
 
     public async Task<bool> DeleteIndexAsync(string indexName)
     {
-        var response = await _client.Indices.DeleteAsync(indexName);
-        return response.Acknowledged;
+        try
+        {
+            var response = await _client.Indices.DeleteAsync(indexName);
+            return response.Acknowledged;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error deleting index {IndexName}", indexName);
+            throw;
+        }
     }
 }

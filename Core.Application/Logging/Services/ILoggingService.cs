@@ -1,9 +1,12 @@
-﻿namespace Core.Application.Logging.Services;
+﻿using Microsoft.Extensions.Logging;
+
+namespace Core.Application.Logging.Services;
 
 public interface ILoggingService
 {
-    void LogInfo(string message, object? data = null);
-    void LogWarning(string message, object? data = null);
-    void LogError(string message, Exception exception, object? data = null);
-    void LogDebug(string message, object? data = null);
+    void LogInfo(string message, object? data = null, EventId? eventId = null);
+    void LogWarning(string message, object? data = null, EventId? eventId = null);
+    void LogError(string message, Exception exception, object? data = null, EventId? eventId = null);
+    void LogDebug(string message, object? data = null, EventId? eventId = null);
+    void LogTrace(string message, object? data = null, EventId? eventId = null);
 }

@@ -8,16 +8,16 @@ public abstract class BaseApiController : ControllerBase
 {
     protected IActionResult ApiResponse<T>(T data, string message = "Success")
     {
-        return Ok(new { success = true, data, message });
+        return Ok(new { data, message });
     }
 
     protected IActionResult ApiError(string message, int statusCode = 400)
     {
-        return StatusCode(statusCode, new { success = false, message });
+        return StatusCode(statusCode, new { message });
     }
 
     protected IActionResult ApiValidationError(IEnumerable<string> errors)
     {
-        return BadRequest(new { success = false, errors });
+        return BadRequest(new { errors });
     }
 }

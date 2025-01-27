@@ -4,6 +4,9 @@ public static class CacheKeyHelper
 {
     public static string GenerateKey(params string[] parts)
     {
-        return string.Join(":", parts);
+        if (parts == null || parts.Length == 0)
+            throw new ArgumentException("Key parts cannot be null or empty.", nameof(parts));
+
+        return string.Join(":", parts.Where(p => !string.IsNullOrEmpty(p)));
     }
 }

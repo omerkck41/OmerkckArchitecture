@@ -1,148 +1,193 @@
-﻿# Core.BackgroundJobs - Kullanım ve Entegrasyon Rehberi
-
-## **Nedir?**
-Core.BackgroundJobs modülü, Hangfire ve Quartz.NET gibi güçlü kütüphaneleri kullanarak arka planda çalışacak görevlerin planlanması ve yönetilmesi için tasarlanmış bir altyapıdır. Zamanlanmış, gecikmeli veya kuyruk tabanlı işler bu modül ile kolayca uygulanabilir.
+﻿### **Core.BackgroundJobs - Readme**
 
 ---
 
-## **Neden Kullanılır?**
-Core.BackgroundJobs modülü, uygulamalarınızda zamanlanmış görevlerin ve uzun süren işlemlerin güvenilir bir şekilde arka planda çalışmasını sağlar. Örneğin:
-- Belirli zamanlarda otomatik rapor oluşturma.
-- Kullanıcılara hatırlatma e-postaları gönderme.
-- Veritabanı temizlik işlemlerini belirli aralıklarla çalıştırma.
-- Yoğun iş yükünü kullanıcı etkileşiminden bağımsız olarak arka planda gerçekleştirme.
+## **Core.BackgroundJobs Nedir?**
+`Core.BackgroundJobs`, .NET uygulamalarında arka plan işlerini (background jobs) yönetmek için geliştirilmiş bir kütüphanedir. Bu kütüphane, **Hangfire** ve **Quartz.NET** gibi popüler arka plan işlem kütüphanelerini entegre ederek, tekrarlayan (recurring), gecikmeli (delayed) ve anında (immediate) işlerin kolayca planlanmasını ve yönetilmesini sağlar.
+
+Bu proje, modern .NET uygulamalarında arka plan işlerini yönetmek için esnek ve genişletilebilir bir çözüm sunar.
 
 ---
 
-## **Avantajları**
-1. **Modüler Yapı**:
-   - Hem **Hangfire** hem de **Quartz.NET** entegrasyon desteği.
-   - İhtiyaca göre uygun kütüphane seçimi.
-
-2. **Esnek Görev Planlama**:
-   - Zamanlanmış (Cron tabanlı) görevler.
-   - Gecikmeli ve anında çalıştırılabilir işler.
-
-3. **Kolay Entegrasyon**:
-   - Program.cs ve appsettings.json üzerinden hızlı yapılandırma.
-
-4. **Gelişmiş Yönetim**:
-   - Hangfire Dashboard gibi görsel araçlarla işlerin durumu ve geçmişi takip edilebilir.
-
-5. **Çoklu Veritabanı Desteği**:
-   - SQL Server ve MySQL gibi farklı veritabanı seçenekleri ile uyumluluk.
+## **Neler Kullanıldı?**
+- **Hangfire**: Arka plan işlerini yönetmek için kullanılan popüler bir kütüphane. SQL Server veya MySQL gibi veritabanları üzerinde işlerin durumunu takip eder.
+- **Quartz.NET**: Zamanlanmış işler (scheduled jobs) için kullanılan bir kütüphane. Cron tabanlı zamanlama desteği sunar.
+- **Dependency Injection (DI)**: Servislerin bağımlılıklarını yönetmek için .NET Core'un yerleşik DI mekanizması kullanıldı.
+- **Logging**: İşlemlerin izlenmesi ve hata ayıklama için `ILogger` mekanizması entegre edildi.
 
 ---
 
-## **Projeye Entegrasyon**
+## **Ne İşe Yarar?**
+- **Tekrarlayan İşler**: Belirli bir zaman aralığında (cron ifadesi ile) tekrarlanması gereken işleri planlar (örneğin, her gün saat 10:00'da veritabanı temizleme).
+- **Gecikmeli İşler**: Belirli bir süre sonra çalıştırılacak işleri planlar (örneğin, 5 dakika sonra e-posta gönderme).
+- **Anında İşler**: Hemen çalıştırılması gereken işleri kuyruğa alır (örneğin, kullanıcı kaydı tamamlandığında hoş geldin e-postası gönderme).
 
-### **1. Gerekli NuGet Paketlerinin Kurulumu**
+---
+
+## **Projeye Nasıl Eklenir?**
+
+### 1. **Projeye Paketlerin Eklenmesi**
 Projenize aşağıdaki NuGet paketlerini ekleyin:
 
-#### Hangfire için:
 ```bash
-Install-Package Hangfire
-Install-Package Hangfire.SqlServer
-Install-Package Hangfire.MySql
-```
-
-#### Quartz.NET için:
-```bash
-Install-Package Quartz
+dotnet add package Hangfire
+dotnet add package Hangfire.MySqlStorage
+dotnet add package Quartz
+dotnet add package Microsoft.Extensions.Configuration
+dotnet add package Microsoft.Extensions.DependencyInjection
+dotnet add package Microsoft.Extensions.Logging
 ```
 
 ---
 
-### **2. Program.cs Yapılandırması**
-Core.BackgroundJobs modülünü projenize eklemek için aşağıdaki servis kayıtlarını kullanın:
+### 2. **Program.cs Ayarları**
+`Program.cs` dosyasında `Core.BackgroundJobs` kütüphanesini kullanmak için gerekli servisleri ekleyin.
 
-#### **Hangfire Ayarları**:
+#### Örnek:
 ```csharp
 using Core.BackgroundJobs.Extensions;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 
-var builder = WebApplication.CreateBuilder(args);
+var builder = Host.CreateApplicationBuilder(args);
 
-// Hangfire Servis Yapılandırması
-builder.Services.AddHangfireJobs(builder.Configuration);
-```
+// Configuration dosyasını yükle
+builder.Configuration.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
 
-#### **Quartz.NET Ayarları**:
-```csharp
-// Quartz.NET Servis Yapılandırması
-builder.Services.AddQuartzJobs();
+// Hangfire veya Quartz servislerini ekle
+builder.Services.AddHangfireJobs(builder.Configuration); // Hangfire kullanmak için
+// builder.Services.AddQuartzJobs(); // Quartz kullanmak için
 
-var app = builder.Build();
-
-// Örnek İşlerin Planlanması
-var jobScheduler = app.Services.GetRequiredService<IJobScheduler>();
-jobScheduler.ScheduleRecurringJob<EmailReminderJob>("email-reminder-job", Cron.Daily);
-jobScheduler.ScheduleDelayedJob<DatabaseCleanupJob>("database-cleanup-job", TimeSpan.FromMinutes(5));
-
-app.Run();
+var host = builder.Build();
+host.Run();
 ```
 
 ---
 
-### **3. appsettings.json Yapılandırması**
-`appsettings.json` dosyasına Hangfire için gerekli bağlantı ayarlarını ekleyin:
+### 3. **appsettings.json Ayarları**
+`appsettings.json` dosyasında Hangfire ve Quartz için gerekli yapılandırmaları ekleyin.
 
+#### Örnek:
 ```json
 {
+  "ConnectionStrings": {
+    "HangfireConnection": "Server=your_server;Database=your_database;User Id=your_user;Password=your_password;"
+  },
   "Hangfire": {
-    "StorageType": "MySql", // SqlServer veya MySql olarak seçilebilir
-    "ConnectionStrings": {
-      "HangfireConnection": "Server=localhost;Database=hangfire_db;User=root;Password=yourpassword;"
-    }
+    "StorageType": "MySql" // veya "SqlServer"
   }
 }
 ```
 
-- **StorageType**: Veritabanı türünü seçin (`SqlServer` veya `MySql`).
-- **ConnectionStrings**: Kullanmak istediğiniz veritabanının bağlantı bilgilerini ekleyin.
+---
+
+## **Kullanım Örnekleri**
+
+### 1. **Tekrarlayan İş Planlama (Recurring Job)**
+Her gün saat 10:00'da çalışacak bir iş planlamak için:
+
+```csharp
+public class DatabaseCleanupJob : IJob
+{
+    private readonly ILogger<DatabaseCleanupJob> _logger;
+
+    public DatabaseCleanupJob(ILogger<DatabaseCleanupJob> logger)
+    {
+        _logger = logger;
+    }
+
+    public async Task Execute(IJobExecutionContext context)
+    {
+        _logger.LogInformation("Database cleanup job started.");
+        // Veritabanı temizleme işlemleri
+        await Task.Delay(1000); // Simüle edilmiş işlem
+        _logger.LogInformation("Database cleanup job completed.");
+    }
+}
+
+// Program.cs veya başka bir yerde işi planlama
+var jobScheduler = host.Services.GetRequiredService<IJobScheduler>();
+await jobScheduler.ScheduleRecurringJob<DatabaseCleanupJob>("DatabaseCleanup", "0 0 10 * * ?");
+```
 
 ---
 
-## **Detaylı Kullanım Örnekleri**
+### 2. **Gecikmeli İş Planlama (Delayed Job)**
+5 dakika sonra çalışacak bir iş planlamak için:
 
-### **1. Zamanlanmış Görev Oluşturma**
-Belirli aralıklarla çalışacak görevler için:
 ```csharp
-var jobScheduler = app.Services.GetRequiredService<IJobScheduler>();
-jobScheduler.ScheduleRecurringJob<EmailReminderJob>("daily-email-job", Cron.Daily);
+public class EmailReminderJob : IJob
+{
+    private readonly ILogger<EmailReminderJob> _logger;
+
+    public EmailReminderJob(ILogger<EmailReminderJob> logger)
+    {
+        _logger = logger;
+    }
+
+    public async Task Execute(IJobExecutionContext context)
+    {
+        _logger.LogInformation("Sending email reminder...");
+        // E-posta gönderme işlemleri
+        await Task.Delay(1000); // Simüle edilmiş işlem
+        _logger.LogInformation("Email reminder sent.");
+    }
+}
+
+// Program.cs veya başka bir yerde işi planlama
+var jobScheduler = host.Services.GetRequiredService<IJobScheduler>();
+await jobScheduler.ScheduleDelayedJob<EmailReminderJob>("EmailReminder", TimeSpan.FromMinutes(5));
 ```
-> Bu örnekte, **EmailReminderJob** her gün bir kez çalışır.
 
 ---
 
-### **2. Gecikmeli Görev Planlama**
-Gecikmeli bir görevi çalıştırmak için:
+### 3. **Anında İş Kuyruğa Alma (Enqueue Job)**
+Hemen çalıştırılacak bir işi kuyruğa almak için:
+
 ```csharp
-jobScheduler.ScheduleDelayedJob<DatabaseCleanupJob>("cleanup-job", TimeSpan.FromMinutes(10));
+public class SampleJob : IJob
+{
+    private readonly ILogger<SampleJob> _logger;
+
+    public SampleJob(ILogger<SampleJob> logger)
+    {
+        _logger = logger;
+    }
+
+    public async Task Execute(IJobExecutionContext context)
+    {
+        _logger.LogInformation("Sample job started.");
+        await Task.Delay(1000); // Simüle edilmiş işlem
+        _logger.LogInformation("Sample job completed.");
+    }
+}
+
+// Program.cs veya başka bir yerde işi kuyruğa alma
+var jobScheduler = host.Services.GetRequiredService<IJobScheduler>();
+await jobScheduler.EnqueueJob<SampleJob>();
 ```
-> **DatabaseCleanupJob** 10 dakika sonra çalışır.
 
 ---
 
-### **3. Anında Görev Ekleme**
-Kuyruğa bir iş eklemek için:
-```csharp
-jobScheduler.EnqueueJob<DatabaseCleanupJob>();
+## **Örnek Proje Yapısı**
 ```
-> İş, anında kuyruğa eklenir ve en kısa sürede çalıştırılır.
-
----
-
-### **4. Quartz.NET Kullanımı**
-Quartz.NET ile zamanlanmış görevlerin yapılandırması:
-```csharp
-builder.Services.AddQuartzJobs();
-
-var quartzScheduler = app.Services.GetRequiredService<IJobScheduler>();
-quartzScheduler.ScheduleRecurringJob<EmailReminderJob>("weekly-email-job", "0 0 12 ? * MON"); // Her Pazartesi 12:00'de
+Core.BackgroundJobs/
+├── Jobs/
+│   ├── DatabaseCleanupJob.cs
+│   ├── EmailReminderJob.cs
+│   └── SampleJob.cs
+├── Services/
+│   ├── HangfireJobScheduler.cs
+│   └── QuartzJobScheduler.cs
+├── Interfaces/
+│   └── IJobScheduler.cs
+├── Extensions/
+│   └── BackgroundJobExtensions.cs
+└── Core.BackgroundJobs.csproj
 ```
-> Quartz.NET, **CRON** ifadeleri ile esnek zamanlama sağlar.
 
 ---
 
 ## **Sonuç**
-Core.BackgroundJobs modülü, arka planda çalışan işleri yönetmek için modern ve güçlü bir çözüm sunar. Hem **Hangfire** hem de **Quartz.NET** desteği sayesinde ihtiyacınıza göre uygun planlama mekanizmasını kullanabilirsiniz. Yapılandırması kolay, genişletilebilir ve büyük ölçekli projelere uygun bir altyapı sağlar.
+`Core.BackgroundJobs`, .NET uygulamalarında arka plan işlerini yönetmek için esnek ve genişletilebilir bir çözüm sunar. Hem **Hangfire** hem de **Quartz.NET** entegrasyonu sayesinde, farklı ihtiyaçlara uygun çözümler sunar. Bu kütüphaneyi kullanarak, tekrarlayan, gecikmeli ve anında işlerinizi kolayca planlayabilir ve yönetebilirsiniz. 🚀

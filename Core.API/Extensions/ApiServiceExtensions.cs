@@ -6,11 +6,14 @@ namespace Core.API.Extensions;
 
 public static class ApiServiceExtensions
 {
-    public static IServiceCollection AddApiServices(this IServiceCollection services)
+    public static IServiceCollection AddApiServices(this IServiceCollection services, bool addValidationFilter = true)
     {
         services.AddControllers(options =>
         {
-            options.Filters.Add<Filters.ValidationFilter>();
+            if (addValidationFilter)
+            {
+                options.Filters.Add<Filters.ValidationFilter>();
+            }
         });
 
         return services;

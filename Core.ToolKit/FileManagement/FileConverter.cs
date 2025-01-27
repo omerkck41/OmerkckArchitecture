@@ -22,12 +22,21 @@ public static class FileConverter
     /// <param name="base64String">Base64 encoded string.</param>
     /// <param name="outputPath">The path where the file will be saved.</param>
     /// <returns>Task representing the asynchronous operation.</returns>
-    public static async Task FromBase64Async(string base64String, string outputPath)
+    public static async Task FromBase64ToStreamAsync(string base64String, Stream outputStream)
     {
         if (string.IsNullOrEmpty(base64String))
             throw new ArgumentNullException(nameof(base64String), "Base64 string cannot be null or empty.");
 
         byte[] fileBytes = Convert.FromBase64String(base64String);
-        await File.WriteAllBytesAsync(outputPath, fileBytes);
+        await outputStream.WriteAsync(fileBytes, 0, fileBytes.Length);
+    }
+
+    public static async Task<string> StreamToBase64Async(Stream stream)
+    {
+        using (var memoryStream = new MemoryStream())
+        {
+            await stream.CopyToAsync(memoryStream);
+            return Convert.ToBase64String(memoryStream.ToArray());
+        }
     }
 }

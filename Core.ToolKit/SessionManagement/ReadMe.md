@@ -1,124 +1,209 @@
-﻿# Core.Toolkit Session Management Module
+﻿# CookieHelper ve SessionHelper Kütüphaneleri
 
-**Session Management Module**, ASP.NET Core projelerinde kullanıcı oturumu ve çerez yönetimi için güçlü araçlar sunar. Bu araçlar, yüksek performanslı ve modüler bir yapıyla oturum verilerini saklama, okuma ve temizleme işlemlerini kolaylaştırır.
-
----
-
-## **1. Session İşlemleri (SessionHelper)**
-
-### **Açıklama**
-Kullanıcı oturumunda verileri saklamak, okumak ve yönetmek için kullanılır.
-
-### **Kullanım**
-
-#### **Oturumda Veri Saklama**
-```csharp
-using Core.Toolkit.SessionManagement;
-using Microsoft.AspNetCore.Http;
-
-// Bir nesneyi oturuma kaydetme
-HttpContext.Session.Set("User", new { Name = "John", Age = 30 });
-```
-
-#### **Oturumdan Veri Okuma**
-```csharp
-using Core.Toolkit.SessionManagement;
-using Microsoft.AspNetCore.Http;
-
-// Oturumdan bir nesneyi okuma
-var user = HttpContext.Session.Get<dynamic>("User");
-Console.WriteLine(user?.Name);
-```
-
-#### **Oturumdan Veri Silme**
-```csharp
-using Core.Toolkit.SessionManagement;
-using Microsoft.AspNetCore.Http;
-
-// Belirli bir anahtarı oturumdan kaldırma
-HttpContext.Session.Remove("User");
-```
-
-#### **Tüm Oturum Verilerini Temizleme**
-```csharp
-using Core.Toolkit.SessionManagement;
-using Microsoft.AspNetCore.Http;
-
-// Tüm oturum verilerini temizleme
-HttpContext.Session.Clear();
-```
+Bu kütüphaneler, ASP.NET Core projelerinde cookie ve session yönetimini kolaylaştırmak için geliştirilmiştir. `CookieHelper` ve `SessionHelper` sınıfları, cookie ve session işlemlerini daha temiz, güvenli ve asenkron bir şekilde yönetmeyi sağlar.
 
 ---
 
-## **2. Cookie İşlemleri (CookieHelper)**
+## Nedir?
 
-### **Açıklama**
-Çerezleri yönetmek için kullanılır. Çerezleri güvenli ve özelleştirilebilir şekilde saklama, okuma ve silme işlemleri sağlar.
+- **CookieHelper**: HTTP cookie'lerini yönetmek için kullanılan bir yardımcı sınıftır. Cookie'lerin eklenmesi, okunması ve silinmesi gibi işlemleri kolaylaştırır.
+- **SessionHelper**: ASP.NET Core session yönetimi için kullanılan bir yardımcı sınıftır. Session'da veri saklama, okuma, silme ve temizleme gibi işlemleri destekler.
 
-### **Kullanım**
+---
 
-#### **Çerez Oluşturma**
+## Neden Kullanılır?
+
+- **Cookie ve Session Yönetimi**: Cookie ve session işlemlerini standartlaştırarak, projelerde tutarlı bir yapı sağlar.
+- **Asenkron Destek**: Asenkron metotlar ile performansı artırır ve modern uygulama geliştirme standartlarına uyum sağlar.
+- **Temiz Kod**: Clean Code prensiplerine uygun olarak geliştirilmiştir.
+- **Genişletilebilirlik**: Dependency Injection (DI) ile entegre edilebilir ve genişletilebilir bir yapı sunar.
+
+---
+
+## Avantajları
+
+- **Kolay Kullanım**: Basit ve anlaşılır metotlar ile cookie ve session yönetimi.
+- **Güvenlik**: Varsayılan olarak güvenli cookie ayarları (HttpOnly, Secure, SameSite).
+- **Esneklik**: JSON serileştirme ve deserileştirme ile her türlü veri tipini destekler.
+- **Asenkron İşlemler**: Performansı artıran asenkron metotlar.
+- **Loglama ve Hata Yönetimi**: Hata durumlarında loglama ve özel exception'lar.
+
+---
+
+## Projeye Ekleme ve Ayarlar
+
+### 1. Projeye Ekleme
+
+Kütüphaneleri projenize eklemek için aşağıdaki adımları izleyin:
+
+1. **CookieHelper.cs** ve **SessionHelper.cs** dosyalarını projenize ekleyin.
+2. Gerekirse, `ICookieHelper` ve `ISessionHelper` interface'lerini kullanarak Dependency Injection (DI) ile entegre edin.
+
+### 2. `Program.cs` Ayarları
+
+`Program.cs` dosyasında gerekli servisleri ekleyin:
+
 ```csharp
-using Core.Toolkit.SessionManagement;
+using Core.ToolKit.SessionManagement;
 using Microsoft.AspNetCore.Http;
 
-// Bir çerez oluşturma
-CookieHelper.Set(HttpContext.Response, "AuthToken", "abcdef12345", new CookieOptions
+var builder = WebApplication.CreateBuilder(args);
+
+// Session yapılandırması
+builder.Services.AddSession(options =>
 {
-    Expires = DateTime.UtcNow.AddHours(1),
-    HttpOnly = true,
-    Secure = true
-});
-```
-
-#### **Çerez Okuma**
-```csharp
-using Core.Toolkit.SessionManagement;
-using Microsoft.AspNetCore.Http;
-
-// Bir çerezi okuma
-var token = CookieHelper.Get(HttpContext.Request, "AuthToken");
-Console.WriteLine(token);
-```
-
-#### **Çerez Silme**
-```csharp
-using Core.Toolkit.SessionManagement;
-using Microsoft.AspNetCore.Http;
-
-// Bir çerezi silme
-CookieHelper.Remove(HttpContext.Response, "AuthToken");
-```
-
----
-
-## **Özellikler ve Avantajlar**
-
-- **Yüksek Performans**: Oturum ve çerez işlemleri hızlı ve optimize edilmiştir.
-- **Kolay Entegrasyon**: ASP.NET Core projelerinde kolayca kullanılabilir.
-- **Güvenli Çerezler**: HttpOnly ve Secure seçenekleriyle çerez güvenliği sağlar.
-- **Hata Yönetimi**: Eksik veya hatalı parametrelerde detaylı hata mesajları sağlar.
-
----
-
-## **Pratik Örnekler**
-
-### **Örnek 1: Kullanıcı Giriş Verilerini Saklama**
-```csharp
-HttpContext.Session.Set("LoggedInUser", new { UserId = 123, Role = "Admin" });
-```
-
-### **Örnek 2: Çerez ile Kimlik Doğrulama**
-```csharp
-// Çerez oluşturma
-CookieHelper.Set(HttpContext.Response, "SessionId", "xyz-123", new CookieOptions
-{
-    Expires = DateTime.UtcNow.AddDays(1),
-    HttpOnly = true
+    options.IdleTimeout = TimeSpan.FromMinutes(30); // Session timeout süresi
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
 });
 
-// Çerezi okuma
-var sessionId = CookieHelper.Get(HttpContext.Request, "SessionId");
+// CookieHelper ve SessionHelper servislerini ekleyin
+builder.Services.AddScoped<ICookieHelper, CookieHelper>();
+builder.Services.AddScoped<ISessionHelper, SessionHelper>();
+
+var app = builder.Build();
+
+// Session middleware'ini ekleyin
+app.UseSession();
+
+app.Run();
+```
+
+### 3. `appsettings.json` Ayarları
+
+`appsettings.json` dosyasında cookie ve session ile ilgili ayarları yapılandırabilirsiniz:
+
+```json
+{
+  "CookieSettings": {
+    "DefaultExpirationDays": 7,
+    "HttpOnly": true,
+    "Secure": true,
+    "SameSite": "Strict"
+  },
+  "SessionSettings": {
+    "TimeoutMinutes": 30,
+    "CookieName": "MySessionCookie"
+  }
+}
 ```
 
 ---
+
+## Detaylı Kullanım Örnekleri
+
+### 1. **CookieHelper Kullanımı**
+
+#### Cookie Ekleme
+```csharp
+public class HomeController : Controller
+{
+    private readonly ICookieHelper _cookieHelper;
+
+    public HomeController(ICookieHelper cookieHelper)
+    {
+        _cookieHelper = cookieHelper;
+    }
+
+    public async Task<IActionResult> SetCookie()
+    {
+        var options = _cookieHelper.GetDefaultCookieOptions();
+        await _cookieHelper.SetAsync(HttpContext.Response, "UserToken", "12345", options);
+        return Ok("Cookie set successfully.");
+    }
+}
+```
+
+#### Cookie Okuma
+```csharp
+public async Task<IActionResult> GetCookie()
+{
+    var userToken = await _cookieHelper.GetAsync(HttpContext.Request, "UserToken");
+    return Ok($"UserToken: {userToken}");
+}
+```
+
+#### Cookie Silme
+```csharp
+public async Task<IActionResult> RemoveCookie()
+{
+    await _cookieHelper.RemoveAsync(HttpContext.Response, "UserToken");
+    return Ok("Cookie removed successfully.");
+}
+```
+
+---
+
+### 2. **SessionHelper Kullanımı**
+
+#### Session'a Veri Ekleme
+```csharp
+public class HomeController : Controller
+{
+    private readonly ISessionHelper _sessionHelper;
+
+    public HomeController(ISessionHelper sessionHelper)
+    {
+        _sessionHelper = sessionHelper;
+    }
+
+    public async Task<IActionResult> SetSession()
+    {
+        var userData = new { UserId = 1, UserName = "JohnDoe" };
+        await _sessionHelper.SetAsync(HttpContext.Session, "UserData", userData);
+        return Ok("Session data set successfully.");
+    }
+}
+```
+
+#### Session'dan Veri Okuma
+```csharp
+public async Task<IActionResult> GetSession()
+{
+    var userData = await _sessionHelper.GetAsync<dynamic>(HttpContext.Session, "UserData");
+    return Ok($"UserData: {userData}");
+}
+```
+
+#### Session'dan Veri Silme
+```csharp
+public async Task<IActionResult> RemoveSession()
+{
+    await _sessionHelper.RemoveAsync(HttpContext.Session, "UserData");
+    return Ok("Session data removed successfully.");
+}
+```
+
+#### Session'u Temizleme
+```csharp
+public async Task<IActionResult> ClearSession()
+{
+    await _sessionHelper.ClearAsync(HttpContext.Session);
+    return Ok("Session cleared successfully.");
+}
+```
+
+---
+
+## Örnek Proje Yapısı
+
+```
+/MyProject
+│
+├── /Controllers
+│   └── HomeController.cs
+│
+├── /Services
+│   └── CookieHelper.cs
+│   └── SessionHelper.cs
+│
+├── appsettings.json
+├── Program.cs
+└── Startup.cs
+```
+
+---
+
+## Sonuç
+
+Bu kütüphaneler, ASP.NET Core projelerinde cookie ve session yönetimini kolaylaştırmak için tasarlanmıştır. Asenkron metotlar, güvenli ayarlar ve temiz kod yapısı ile büyük ölçekli projelerde rahatlıkla kullanılabilir. Dependency Injection ile entegre edilebilir ve genişletilebilir bir yapı sunar.

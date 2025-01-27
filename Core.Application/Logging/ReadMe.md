@@ -1,153 +1,44 @@
-﻿# Core.Application.Logging - README
+﻿# LoggingService ve LoggingBehavior Kullanımı
 
-**Core.Application.Logging**, modern yazılım projelerinde gelişmiş ve esnek loglama mekanizmaları sunar. Bu yapı hem **Behavior** tabanlı MediatR pipeline loglamayı hem de bağımsız **Service** tabanlı loglama çözümlerini destekler. Projenizde loglama ihtiyaçlarını karşılamak ve temiz kod yazmayı kolaylaştırmak için tasarlanmıştır.
+## Amaç
+Bu proje, uygulamanızdaki loglama süreçlerini standartlaştırmak ve loglama işlemlerini bir hizmet katmanına taşımak için geliştirilmiştir. Aynı zamanda, logların farklı seviyelerde (Info, Debug, Warning, Error, Trace) kaydedilmesi ve external sink’lere (örneğin, Elasticsearch) gönderilmesi desteklenir.
 
----
-
-## **1. Özellikler**
-
-1. **Behavior Tabanlı Loglama**:
-   - MediatR pipeline entegrasyonu ile request ve response loglaması.
-   - Hataları yakalama ve detaylı hata raporlaması.
-
-2. **Service Tabanlı Loglama**:
-   - Doğrudan kullanılabilir bağımsız bir loglama servisi.
-   - Farklı log seviyeleri (Info, Warning, Error, Debug).
-
-3. **Esneklik ve Genişletilebilirlik**:
-   - Dosya, konsol ve veri tabanı gibi farklı log hedeflerini destekler.
-   - Konfigürasyonlar appsettings.json dosyasından yönetilebilir.
+## Özellikler
+- Merkezi loglama servisi (`LoggingService`) ile logların düzenli bir şekilde yönetimi.
+- MediatR pipeline behavior ile otomatik loglama desteği.
+- JSON formatında log verisi desteği.
+- Elasticsearch gibi external sink entegrasyonu.
+- Farklı log seviyeleri: Trace, Debug, Info, Warning, Error.
+- EventId desteğiyle detaylı loglama.
 
 ---
 
-## **2. Projeye Entegrasyon**
+## Kullanılan Teknolojiler
+- **.NET 9.0**
+- **MediatR**: Request pipeline oluşturmak için.
+- **Microsoft.Extensions.Logging**: Standart loglama işlemleri için.
+- **Serilog**: Elasticsearch entegrasyonu için.
+- **Newtonsoft.Json**: Logları JSON formatına dönüştürmek için.
 
-### 2.1 NuGet Paketleri
+---
 
-Gerekli paketleri yükleyin:
+## Projeye Entegrasyon
 
+### 1. NuGet Paketlerini Yükleme
+Aşağıdaki NuGet paketlerini yükleyerek başlayın:
 ```bash
-Install-Package MediatR.Extensions.Microsoft.DependencyInjection
-Install-Package Microsoft.Extensions.Logging
-Install-Package Serilog.Extensions.Logging
-Install-Package Serilog
-Install-Package Serilog.Sinks.File
+# MediatR ve Serilog paketleri
+ dotnet add package MediatR.Extensions.Microsoft.DependencyInjection
+ dotnet add package Serilog
+ dotnet add package Serilog.Sinks.Elasticsearch
+ dotnet add package Microsoft.Extensions.Logging
+ dotnet add package Newtonsoft.Json
 ```
 
 ---
 
-### 2.2 Program.cs Ayarları
-
-**Dependency Injection** yapılandırmasını ekleyin:
-
-```csharp
-using Core.Application.Logging;
-
-var builder = WebApplication.CreateBuilder(args);
-
-// Logging configurations
-builder.Services.AddLogging(loggingBuilder =>
-{
-    loggingBuilder.AddConsole();
-    loggingBuilder.AddFile("logs/log-.txt", rollingInterval: RollingInterval.Day);
-});
-
-// Add MediatR pipeline behavior
-builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(LoggingBehavior<,>));
-
-// Add Logging Service
-builder.Services.AddScoped<ILoggingService, LoggingService>();
-
-var app = builder.Build();
-
-app.Run();
-```
-
----
-
-## **3. Kullanım**
-
-### **3.1 Behavior Tabanlı Kullanım**
-
-#### 3.1.1 Request Sınıfı
-Behavior tabanlı loglama için, loglanacak request’lerin `ILoggableRequest` arayüzünü implement etmesi gerekmektedir.
-
-```csharp
-using MediatR;
-using Core.Application.Logging;
-
-public class SampleRequest : IRequest<string>, ILoggableRequest
-{
-    public string Message { get; set; }
-}
-```
-
-#### 3.1.2 Request Handler
-Handler, request’in işlenmesi sırasında çalışır ve loglama işlemi pipeline tarafından otomatik yapılır.
-
-```csharp
-using MediatR;
-
-public class SampleRequestHandler : IRequestHandler<SampleRequest, string>
-{
-    public Task<string> Handle(SampleRequest request, CancellationToken cancellationToken)
-    {
-        return Task.FromResult($"Handled Message: {request.Message}");
-    }
-}
-```
-
-#### 3.1.3 Örnek Kullanım
-
-```csharp
-var mediator = serviceProvider.GetRequiredService<IMediator>();
-var response = await mediator.Send(new SampleRequest { Message = "Hello, World!" });
-```
-
----
-
-### **3.2 Service Tabanlı Kullanım**
-
-#### 3.2.1 Logging Service Kullanımı
-`ILoggingService` ile bağımsız olarak loglama işlemleri yapılabilir.
-
-```csharp
-using Core.Application.Logging;
-
-public class SomeService
-{
-    private readonly ILoggingService _loggingService;
-
-    public SomeService(ILoggingService loggingService)
-    {
-        _loggingService = loggingService;
-    }
-
-    public void PerformOperation()
-    {
-        try
-        {
-            _loggingService.LogInfo("Starting operation...");
-
-            // İşlem kodları
-            _loggingService.LogDebug("Operation is running.");
-
-            // Hata durumunda
-            throw new InvalidOperationException("Something went wrong!");
-        }
-        catch (Exception ex)
-        {
-            _loggingService.LogError("An error occurred during the operation.", ex);
-        }
-    }
-}
-```
-
----
-
-## **4. appsettings.json Konfigürasyonu**
-
-Loglama hedeflerini ve seviyelerini `appsettings.json` dosyasından yönetebilirsiniz:
+### 2. appsettings.json Ayarları
+Loglama yapılandırması için aşağıdaki gibi bir konfigürasyon ekleyin:
 
 ```json
 {
@@ -155,11 +46,12 @@ Loglama hedeflerini ve seviyelerini `appsettings.json` dosyasından yönetebilir
     "LogLevel": {
       "Default": "Information",
       "Microsoft": "Warning",
-      "Core.Application": "Debug"
+      "System": "Warning",
+      "Core.Application.Logging": "Trace"
     },
-    "File": {
-      "Path": "logs/log-.txt",
-      "RollingInterval": "Day"
+    "Elasticsearch": {
+      "Url": "http://localhost:9200",
+      "IndexFormat": "app-logs-{0:yyyy.MM.dd}"
     }
   }
 }
@@ -167,16 +59,117 @@ Loglama hedeflerini ve seviyelerini `appsettings.json` dosyasından yönetebilir
 
 ---
 
-## **5. Özelliklerin Karşılaştırması**
+### 3. Program.cs
+`LoggingService` ve `LoggingBehavior` yapılandırmasını ekleyin:
 
-| **Özellik**        | **Behavior Tabanlı**                    | **Service Tabanlı**                   |
-|--------------------|-----------------------------------------|---------------------------------------|
-| **Kapsam**         | MediatR pipeline kullanımlarında        | Bağımsız loglama işlemleri için       |
-| **Otomasyon**      | Request ve response otomatik loglanır  | Manuel loglama yapılır               |
-| **Kullanım Kolaylığı** | MediatR kullanan projeler için kolay   | Her türlü proje için esnek            |
+```csharp
+using Microsoft.Extensions.DependencyInjection;
+using Serilog;
+using Serilog.Sinks.Elasticsearch;
+using Core.Application.Logging.Behaviors;
+using Core.Application.Logging.Services;
+using MediatR;
+
+var configuration = new ConfigurationBuilder()
+    .AddJsonFile("appsettings.json")
+    .Build();
+
+Log.Logger = new LoggerConfiguration()
+    .ReadFrom.Configuration(configuration)
+    .WriteTo.Elasticsearch(new ElasticsearchSinkOptions(new Uri(configuration["Logging:Elasticsearch:Url"]))
+    {
+        AutoRegisterTemplate = true,
+        IndexFormat = configuration["Logging:Elasticsearch:IndexFormat"]
+    })
+    .CreateLogger();
+
+var builder = Host.CreateDefaultBuilder(args)
+    .UseSerilog()
+    .ConfigureServices((context, services) =>
+    {
+        services.AddLoggingServices(); // LoggingService ve LoggingBehavior kaydı
+        services.AddMediatR(typeof(Program));
+    });
+
+await builder.Build().RunAsync();
+```
 
 ---
 
-## **6. Sonuç**
+### 4. Dependency Injection (ServiceCollectionExtensions)
+`ServiceCollectionExtensions` sınıfı:
 
-**Core.Application.Logging**, hem Behavior tabanlı hem de bağımsız loglama ihtiyaçlarını karşılayabilecek esnek ve genişletilebilir bir yapıdır. Projelerinizdeki loglama işlemlerini düzenlemek, performansı artırmak ve hata ayıklamayı kolaylaştırmak için bu yapıyı kullanabilirsiniz.
+```csharp
+public static class ServiceCollectionExtensions
+{
+    public static IServiceCollection AddLoggingServices(this IServiceCollection services)
+    {
+        services.AddScoped<ILoggingService, LoggingService>();
+        services.AddScoped(typeof(IPipelineBehavior<,>), typeof(LoggingBehavior<,>));
+        return services;
+    }
+}
+```
+
+---
+
+## Kullanım Örnekleri
+
+### 1. ILoggableRequest Arayüzü Kullanan Bir Request
+```csharp
+using Core.Application.Logging.Behaviors;
+
+public class CreateOrderRequest : ILoggableRequest
+{
+    public string OrderId { get; set; }
+    public string CustomerName { get; set; }
+    public decimal Amount { get; set; }
+
+    public string RequestDetails => $"OrderId: {OrderId}, Customer: {CustomerName}, Amount: {Amount}";
+    public Dictionary<string, object>? Metadata => new Dictionary<string, object>
+    {
+        { "Timestamp", DateTime.UtcNow }
+    };
+}
+```
+
+### 2. Handler İçinde LoggingService Kullanımı
+```csharp
+using Core.Application.Logging.Services;
+using MediatR;
+
+public class CreateOrderHandler : IRequestHandler<CreateOrderRequest, bool>
+{
+    private readonly ILoggingService _loggingService;
+
+    public CreateOrderHandler(ILoggingService loggingService)
+    {
+        _loggingService = loggingService;
+    }
+
+    public async Task<bool> Handle(CreateOrderRequest request, CancellationToken cancellationToken)
+    {
+        try
+        {
+            _loggingService.LogInfo("Order creation started", request);
+
+            // İşlem kodları buraya
+
+            _loggingService.LogInfo("Order successfully created", request);
+            return true;
+        }
+        catch (Exception ex)
+        {
+            _loggingService.LogError("Order creation failed", ex, request);
+            throw;
+        }
+    }
+}
+```
+
+### 3. Trace Loglama Örneği
+```csharp
+_loggingService.LogTrace("Debugging details", new { Key = "Value", Status = "InProgress" });
+```
+
+---

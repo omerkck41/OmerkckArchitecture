@@ -150,7 +150,7 @@ public class EfRepositoryBase<TEntity, TId, TContext> : IAsyncRepository<TEntity
         return await query.AnyAsync(cancellationToken);
     }
 
-    public async Task<TEntity?> GetByIdAsync(int id, CancellationToken cancellationToken = default)
+    public async Task<TEntity?> GetByIdAsync(TId id, CancellationToken cancellationToken = default)
     {
         var entity = await _dbSet.AsQueryable()
                                  .Where(e => e.Id != null && e.Id.Equals(id))
@@ -193,36 +193,30 @@ public class EfRepositoryBase<TEntity, TId, TContext> : IAsyncRepository<TEntity
         _dbSet.UpdateRange(entities);
         await _context.SaveChangesAsync(cancellationToken);
     }
-    public async Task<TEntity> UpdatePartialAsync(TEntity entity, CancellationToken cancellationToken = default, params Expression<Func<TEntity, object>>[] properties)
-    {
-        // Entity'yi takip altına al
-        //_dbSet.Attach(entity);
 
-        // Belirtilen alanları güncelle
-        foreach (var property in properties)
+    private void ApplyUpdates<TEntity>(TEntity entity, params (Expression<Func<TEntity, object>> Property, object Value)[] updates)
+    {
+        foreach (var (Property, Value) in updates)
         {
-            var propertyName = property.GetPropertyAccess().Name;
+            var propertyName = Property.GetPropertyAccess().Name;
+            _context.Entry(entity).Property(propertyName).CurrentValue = Value;
             _context.Entry(entity).Property(propertyName).IsModified = true;
         }
-
+    }
+    public async Task<TEntity> UpdatePartialAsync(TEntity entity, CancellationToken cancellationToken = default, params Expression<Func<TEntity, object>>[] properties)
+    {
+        ApplyUpdates(entity, properties.Select(p => (p, _context.Entry(entity).Property(p.GetPropertyAccess().Name).CurrentValue)).ToArray());
         await _context.SaveChangesAsync(cancellationToken);
         return entity;
     }
-    public async Task BulkUpdateAsync(Expression<Func<TEntity, bool>> predicate, CancellationToken cancellationToken = default,
-                                      params (Expression<Func<TEntity, object>> Property, object Value)[] updates)
+    public async Task BulkUpdateAsync(Expression<Func<TEntity, bool>> predicate, CancellationToken cancellationToken = default, params (Expression<Func<TEntity, object>> Property, object Value)[] updates)
     {
         var entities = await _dbSet.Where(predicate).ToListAsync(cancellationToken);
 
         foreach (var entity in entities)
         {
             _dbSet.Attach(entity);
-
-            foreach (var (Property, Value) in updates)
-            {
-                var propertyName = Property.GetPropertyAccess().Name;
-                _context.Entry(entity).Property(propertyName).CurrentValue = Value;
-                _context.Entry(entity).Property(propertyName).IsModified = true;
-            }
+            ApplyUpdates(entity, updates);
         }
 
         await _context.SaveChangesAsync(cancellationToken);
@@ -256,58 +250,18 @@ public class EfRepositoryBase<TEntity, TId, TContext> : IAsyncRepository<TEntity
     }
 
 
-    public async Task<TEntity> SoftDeleteAsync(TEntity entity, CancellationToken cancellationToken = default)
-    {
-        if (entity == null)
-            throw new ArgumentNullException(nameof(entity), $"{typeof(TEntity).Name} entity cannot be null.");
-
-        entity.IsDeleted = true; // Soft Delete işlemi
-        entity.DeletedDate = DateTime.UtcNow;
-        _dbSet.Update(entity); // Entity'nin değişiklikleri takip ediliyor
-
-        await _context.SaveChangesAsync(cancellationToken);
-        return entity;
-    }
-    public async Task<TEntity> SoftDeleteAsync(TEntity entity, string deletedBy = "System", CancellationToken cancellationToken = default)
+    public async Task<TEntity> SoftDeleteAsync(TEntity entity, string? deletedBy = null, CancellationToken cancellationToken = default)
     {
         if (entity == null)
             throw new ArgumentNullException(nameof(entity), $"{typeof(TEntity).Name} entity cannot be null.");
 
         entity.IsDeleted = true;
         entity.DeletedDate = DateTime.UtcNow;
-        entity.DeletedBy = deletedBy; // Silen kullanıcının bilgisi eklenebilir
-        _dbSet.Update(entity); // Entity'nin değişiklikleri takip ediliyor
-
-        await _context.SaveChangesAsync(cancellationToken);
-        return entity;
-    }
-    public async Task<TEntity> SoftDeleteAsync(int id, CancellationToken cancellationToken = default)
-    {
-        var entity = await _dbSet.AsQueryable()
-                                 .Where(e => e.Id != null && e.Id.Equals(id))
-                                 .FirstOrDefaultAsync(cancellationToken)
-                                 ?? throw new KeyNotFoundException($"{typeof(TEntity).Name} with id {id} was not found.");
-
-        entity.IsDeleted = true;
-        entity.DeletedDate = DateTime.UtcNow;
-
-        _dbSet.Update(entity); // Değişiklik izleme
-        await _context.SaveChangesAsync(cancellationToken); // Veritabanına kaydet
-        return entity; // Geri dönüş olarak güncellenmiş entity
-    }
-    public async Task<TEntity> SoftDeleteAsync(int id, string deletedBy = "System", CancellationToken cancellationToken = default)
-    {
-        var entity = await _dbSet.AsQueryable()
-                                 .Where(e => e.Id != null && e.Id.Equals(id))
-                                 .FirstOrDefaultAsync(cancellationToken)
-                                 ?? throw new KeyNotFoundException($"{typeof(TEntity).Name} with id {id} was not found.");
-
-        entity.IsDeleted = true;
-        entity.DeletedDate = DateTime.UtcNow;
-        entity.DeletedBy = deletedBy; // Silen kullanıcı bilgisi eklenebilir
+        entity.DeletedBy = deletedBy;
 
         _dbSet.Update(entity);
-        await _context.SaveChangesAsync(cancellationToken); // Veritabanına kaydet
+        await _context.SaveChangesAsync(cancellationToken);
+
         return entity;
     }
     public async Task SoftDeleteRangeAsync(IEnumerable<TEntity> entities, CancellationToken cancellationToken = default)

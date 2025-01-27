@@ -9,7 +9,7 @@ namespace Core.API.Attributes;
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false, Inherited = true)]
 public class ApiKeyAttribute : Attribute, IAsyncAuthorizationFilter
 {
-    public async Task OnAuthorizationAsync(AuthorizationFilterContext context)
+    public Task OnAuthorizationAsync(AuthorizationFilterContext context)
     {
         var logger = context.HttpContext.RequestServices.GetRequiredService<ILogger<ApiKeyAttribute>>();
 
@@ -17,17 +17,17 @@ public class ApiKeyAttribute : Attribute, IAsyncAuthorizationFilter
         {
             logger.LogWarning("ApiKey header is missing.");
             context.Result = new UnauthorizedResult();
-            return;
+            return Task.CompletedTask;
         }
 
         var configuration = context.HttpContext.RequestServices.GetRequiredService<IConfiguration>();
-        var apiKey = await Task.Run(() => configuration.GetValue<string>("ApiSettings:ApiKey")); // Simulate async operation
+        var apiKey = configuration.GetValue<string>("ApiSettings:ApiKey");
 
         if (string.IsNullOrEmpty(apiKey))
         {
             logger.LogWarning("ApiKey is not configured in the application settings.");
             context.Result = new UnauthorizedResult();
-            return;
+            return Task.CompletedTask;
         }
 
         if (!apiKey.Equals(extractedApiKey))
@@ -35,6 +35,7 @@ public class ApiKeyAttribute : Attribute, IAsyncAuthorizationFilter
             logger.LogWarning("Invalid ApiKey provided.");
             context.Result = new UnauthorizedResult();
         }
-    }
 
+        return Task.CompletedTask;
+    }
 }

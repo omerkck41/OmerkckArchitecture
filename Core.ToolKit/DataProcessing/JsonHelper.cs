@@ -11,18 +11,14 @@ public static class JsonHelper
     /// <typeparam name="T">Type of the object to deserialize to.</typeparam>
     /// <param name="filePath">Path to the JSON file.</param>
     /// <returns>Deserialized object of type T.</returns>
-    public static async Task<T> ReadJsonAsync<T>(string filePath) where T : class
+    public static async Task<T> ReadJsonStreamAsync<T>(Stream stream) where T : class
     {
-        if (string.IsNullOrEmpty(filePath))
-            throw new ArgumentNullException(nameof(filePath), "File path cannot be null or empty.");
-
-        if (!File.Exists(filePath))
-            throw new FileNotFoundException($"JSON file not found at path: {filePath}");
+        if (stream == null)
+            throw new ArgumentNullException(nameof(stream), "Stream cannot be null.");
 
         try
         {
-            var jsonString = await File.ReadAllTextAsync(filePath);
-            return JsonSerializer.Deserialize<T>(jsonString, new JsonSerializerOptions
+            return await JsonSerializer.DeserializeAsync<T>(stream, new JsonSerializerOptions
             {
                 PropertyNameCaseInsensitive = true,
                 AllowTrailingCommas = true

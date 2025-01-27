@@ -21,9 +21,10 @@ public class RequestLoggingMiddleware
         await _next(context);
         stopwatch.Stop();
 
-        _logger.LogInformation("Request [{Method}] {Path} completed in {ElapsedMilliseconds}ms",
+        _logger.LogDebug("Request [{Method}] {Path} from {RemoteIpAddress} completed in {ElapsedMilliseconds}ms",
             context.Request.Method,
             context.Request.Path,
+            context.Connection.RemoteIpAddress,
             stopwatch.ElapsedMilliseconds);
     }
 }

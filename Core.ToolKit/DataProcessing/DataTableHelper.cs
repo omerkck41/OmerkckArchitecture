@@ -11,15 +11,23 @@ public static class DataTableHelper
     /// <typeparam name="T">Type of objects to convert to.</typeparam>
     /// <param name="dataTable">DataTable to convert.</param>
     /// <returns>List of objects of type T.</returns>
-    public static List<T> ToList<T>(DataTable dataTable) where T : new()
+    public static async Task<List<T>> ToListAsync<T>(DataTable dataTable) where T : new()
     {
         if (dataTable == null)
             throw new ArgumentNullException(nameof(dataTable), "DataTable cannot be null.");
 
         var properties = typeof(T).GetProperties();
+        var result = new List<T>();
 
-        return (from DataRow row in dataTable.Rows
-                select CreateItemFromRow<T>(row, properties)).ToList();
+        await Task.Run(() =>
+        {
+            foreach (DataRow row in dataTable.Rows)
+            {
+                result.Add(CreateItemFromRow<T>(row, properties));
+            }
+        });
+
+        return result;
     }
 
     private static T CreateItemFromRow<T>(DataRow row, PropertyInfo[] properties) where T : new()

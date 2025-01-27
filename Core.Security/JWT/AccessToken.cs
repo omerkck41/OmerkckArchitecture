@@ -1,18 +1,28 @@
 ﻿namespace Core.Security.JWT;
 
+/// <summary>
+/// Kimlik doğrulama ve yetkilendirme için kullanılan bir erişim token'ını temsil eder.
+/// </summary>
 public class AccessToken
 {
-    public string? Token { get; set; }
-    public DateTime ExpirationDate { get; set; }
+    /// <summary>
+    /// JWT token string'ini alır.
+    /// </summary>
+    public string Token { get; }
+    /// <summary>
+    /// Token'ın son kullanma tarihini alır.
+    /// </summary>
+    public DateTime ExpirationDate { get; }
 
-    public AccessToken()
-    {
-        Token = string.Empty;
-    }
-
+    /// <summary>
+    /// <see cref="AccessToken"/> sınıfının yeni bir örneğini başlatır.
+    /// </summary>
+    /// <param name="token">JWT token string'i.</param>
+    /// <param name="expirationDate">Token'ın son kullanma tarihi.</param>
+    /// <exception cref="ArgumentNullException">Token null ise fırlatılır.</exception>
     public AccessToken(string token, DateTime expirationDate)
     {
-        Token = token;
+        Token = token ?? throw new ArgumentNullException(nameof(token));
         ExpirationDate = expirationDate;
     }
 }

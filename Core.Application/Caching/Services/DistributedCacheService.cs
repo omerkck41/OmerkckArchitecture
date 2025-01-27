@@ -1,5 +1,5 @@
 ﻿using Microsoft.Extensions.Caching.Distributed;
-using Newtonsoft.Json;
+using System.Text.Json;
 
 namespace Core.Application.Caching.Services;
 
@@ -15,12 +15,12 @@ public class DistributedCacheService : ICacheService
     public async Task<T?> GetAsync<T>(string key, CancellationToken cancellationToken = default)
     {
         var cachedData = await _distributedCache.GetStringAsync(key, cancellationToken);
-        return cachedData is null ? default : JsonConvert.DeserializeObject<T>(cachedData);
+        return cachedData is null ? default : JsonSerializer.Deserialize<T>(cachedData);
     }
 
     public async Task SetAsync<T>(string key, T value, TimeSpan expiration, CancellationToken cancellationToken = default)
     {
-        var serializedData = JsonConvert.SerializeObject(value);
+        var serializedData = JsonSerializer.Serialize(value);
         var options = new DistributedCacheEntryOptions { AbsoluteExpirationRelativeToNow = expiration };
         await _distributedCache.SetStringAsync(key, serializedData, options, cancellationToken);
     }

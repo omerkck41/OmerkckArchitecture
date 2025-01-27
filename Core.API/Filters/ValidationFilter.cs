@@ -3,9 +3,9 @@ using Microsoft.AspNetCore.Mvc.Filters;
 
 namespace Core.API.Filters;
 
-public class ValidationFilter : IActionFilter
+public class ValidationFilter : IAsyncActionFilter
 {
-    public void OnActionExecuting(ActionExecutingContext context)
+    public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
     {
         if (context.ModelState == null || !context.ModelState.IsValid)
         {
@@ -17,9 +17,10 @@ public class ValidationFilter : IActionFilter
                     Errors = ms.Value!.Errors.Select(e => e.ErrorMessage)
                 }).ToList();
 
-            context.Result = new BadRequestObjectResult(new { success = false, errors });
+            context.Result = new BadRequestObjectResult(new { errors });
+            return;
         }
-    }
 
-    public void OnActionExecuted(ActionExecutedContext context) { }
+        await next();
+    }
 }

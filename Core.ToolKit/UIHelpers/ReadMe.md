@@ -1,96 +1,161 @@
-﻿# Core.Toolkit UI Helpers Module
+﻿# Core.ToolKit.UIHelpers
 
-**UI Helpers Module**, standartlaştırılmış bildirim mesajları ve hata sayfaları oluşturmak için güçlü araçlar sağlar. Modül, kullanıcıya anlamlı geri bildirimler sunarken geliştiricilere kolay entegrasyon sağlar.
-
----
-
-## **1. Bildirim Mesajları (NotificationHelper)**
-
-### **Açıklama**
-Başarı, hata veya uyarı mesajlarını standart bir formatta oluşturur ve gerektiğinde konsola loglar.
-
-### **Kullanım**
-
-#### **Başarı Mesajı Oluşturma**
-```csharp
-using Core.Toolkit.UIHelpers;
-
-string successMessage = NotificationHelper.Success("Operation completed successfully.", "The process took 3 seconds.");
-Console.WriteLine(successMessage);
-```
-
-#### **Hata Mesajı Oluşturma**
-```csharp
-using Core.Toolkit.UIHelpers;
-
-string errorMessage = NotificationHelper.Error("An error occurred.", "Stack trace: ...");
-Console.WriteLine(errorMessage);
-```
-
-#### **Uyarı Mesajı Oluşturma**
-```csharp
-using Core.Toolkit.UIHelpers;
-
-string warningMessage = NotificationHelper.Warning("This is a warning.", "You might encounter issues if you proceed.");
-Console.WriteLine(warningMessage);
-```
-
-#### **Mesajı Konsola Loglama**
-```csharp
-using Core.Toolkit.UIHelpers;
-
-NotificationHelper.Log("System started successfully.");
-```
+**Core.ToolKit.UIHelpers**, web uygulamalarında kullanılabilecek yardımcı araçlar içeren bir kütüphanedir. Bu kütüphane, hata sayfaları oluşturma ve bildirim mesajları yönetimi gibi işlemleri kolaylaştırmak için tasarlanmıştır. Büyük ölçekli projelerde kullanılmak üzere geliştirilmiştir ve temiz kod prensiplerine uygun olarak yazılmıştır.
 
 ---
 
-## **2. Hata Sayfası Oluşturma (ErrorPageGenerator)**
+## **Nedir?**
 
-### **Açıklama**
-HTTP hata kodları ve mesajları için basit HTML sayfaları oluşturur. 
+**Core.ToolKit.UIHelpers**, aşağıdaki işlevleri yerine getiren bir araç setidir:
 
-### **Kullanım**
+1. **ErrorPageGenerator**: HTTP hata kodlarına özel HTML hata sayfaları oluşturur.
+2. **NotificationHelper**: Başarı, hata ve uyarı mesajlarını standart bir şekilde yönetir ve loglar.
 
-#### **Hata Sayfası Oluşturma**
+Bu kütüphane, özellikle web uygulamalarında kullanıcıya gösterilecek hata sayfalarını ve loglama işlemlerini merkezi bir şekilde yönetmek için kullanılır.
+
+---
+
+## **Neden Kullanılır?**
+
+- **Hata Yönetimi**: HTTP hataları için özelleştirilmiş hata sayfaları oluşturur.
+- **Loglama**: Uygulama içindeki başarı, hata ve uyarı mesajlarını standart bir şekilde loglar.
+- **Esneklik**: HTML şablonları ve loglama hedefleri kolayca özelleştirilebilir.
+- **Temiz Kod**: Best practice'lere uygun olarak yazılmıştır ve büyük projelerde rahatça kullanılabilir.
+
+---
+
+## **Avantajları**
+
+- **Kolay Entegrasyon**: Mevcut projelere kolayca entegre edilebilir.
+- **Genişletilebilirlik**: Yeni özellikler eklenebilir veya mevcut özellikler özelleştirilebilir.
+- **Asenkron Destek**: Tüm metotlar asenkron olarak çalışır, bu da performansı artırır.
+- **Loglama Esnekliği**: Logları konsola, dosyaya veya harici bir servise gönderme imkanı sunar.
+
+---
+
+## **Kurulum ve Ayarlar**
+
+### 2. **Program.cs ve AppSettings.json Ayarları**
+
+#### **Program.cs**
+
+Kütüphaneyi kullanmak için `Program.cs` dosyasında gerekli ayarlamaları yapın. Örneğin, hata sayfalarını ve loglama işlemlerini yapılandırabilirsiniz.
+
 ```csharp
-using Core.Toolkit.UIHelpers;
+using Core.ToolKit.UIHelpers;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 
-string errorPage = ErrorPageGenerator.Generate(404, "The page you are looking for does not exist.");
-Console.WriteLine(errorPage);
+var builder = WebApplication.CreateBuilder(args);
+
+// NotificationHelper için loglama servisini ekleyin (isteğe bağlı)
+builder.Services.AddLogging(loggingBuilder =>
+{
+    loggingBuilder.AddConsole(); // Konsola loglama
+    loggingBuilder.AddDebug();   // Debug penceresine loglama
+});
+
+var app = builder.Build();
+
+// Hata sayfası middleware'i (örnek)
+app.Use(async (context, next) =>
+{
+    await next();
+
+    if (context.Response.StatusCode >= 400)
+    {
+        var errorMessage = "Bir hata oluştu. Lütfen daha sonra tekrar deneyin.";
+        var errorPage = await ErrorPageGenerator.GenerateAsync(context.Response.StatusCode, errorMessage);
+        context.Response.ContentType = "text/html";
+        await context.Response.WriteAsync(errorPage);
+    }
+});
+
+app.Run();
 ```
 
-#### **HTML Sayfasını Dosyaya Kaydetme**
-```csharp
-using Core.Toolkit.UIHelpers;
-using System.IO;
+#### **AppSettings.json**
 
-string errorPage = ErrorPageGenerator.Generate(500, "Internal server error.");
-File.WriteAllText("error500.html", errorPage);
+Loglama ve hata sayfaları için gerekli ayarları `appsettings.json` dosyasında yapılandırabilirsiniz.
+
+```json
+{
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft": "Warning",
+      "Microsoft.Hosting.Lifetime": "Information"
+    }
+  },
+  "ErrorPageSettings": {
+    "CustomCss": "<style>body { font-family: Arial, sans-serif; text-align: center; padding: 50px; } h1 { font-size: 50px; color: red; } p { font-size: 20px; }</style>"
+  }
+}
 ```
 
 ---
 
-## **Özellikler ve Avantajlar**
+## **Detaylı Kullanım Örnekleri**
 
-- **Standartlaştırılmış Mesajlar**: Başarı, hata ve uyarılar için tutarlı format sağlar.
-- **Hata Sayfaları**: Basit ama etkili HTML hata sayfaları oluşturur.
-- **Esnek ve Kullanıcı Dostu**: Opsiyonel detaylarla özelleştirilebilir.
-- **Performans**: Hafif ve yüksek performanslıdır.
+### 1. **ErrorPageGenerator Kullanımı**
+
+HTTP hataları için özelleştirilmiş hata sayfaları oluşturmak için `ErrorPageGenerator` sınıfını kullanabilirsiniz.
+
+```csharp
+using Core.ToolKit.UIHelpers;
+
+public async Task<string> GenerateErrorPageAsync(int statusCode, string errorMessage)
+{
+    var customCss = "<style>body { font-family: Arial, sans-serif; text-align: center; padding: 50px; } h1 { font-size: 50px; color: red; } p { font-size: 20px; }</style>";
+    return await ErrorPageGenerator.GenerateAsync(statusCode, errorMessage, customCss);
+}
+```
+
+### 2. **NotificationHelper Kullanımı**
+
+Başarı, hata ve uyarı mesajlarını loglamak için `NotificationHelper` sınıfını kullanabilirsiniz.
+
+```csharp
+using Core.ToolKit.UIHelpers;
+
+public async Task LogMessagesAsync()
+{
+    await NotificationHelper.LogAsync("Uygulama başlatıldı.", LogLevel.Info);
+
+    try
+    {
+        // Bir işlem yap
+        await NotificationHelper.LogAsync("İşlem başarılı.", LogLevel.Success);
+    }
+    catch (Exception ex)
+    {
+        await NotificationHelper.LogAsync("İşlem sırasında bir hata oluştu.", LogLevel.Error, ex.ToString());
+    }
+}
+```
+
+### 3. **Middleware ile Hata Sayfaları**
+
+Middleware kullanarak tüm HTTP hataları için otomatik hata sayfaları oluşturabilirsiniz.
+
+```csharp
+app.Use(async (context, next) =>
+{
+    await next();
+
+    if (context.Response.StatusCode >= 400)
+    {
+        var errorMessage = "Bir hata oluştu. Lütfen daha sonra tekrar deneyin.";
+        var errorPage = await ErrorPageGenerator.GenerateAsync(context.Response.StatusCode, errorMessage);
+        context.Response.ContentType = "text/html";
+        await context.Response.WriteAsync(errorPage);
+    }
+});
+```
 
 ---
 
-## **Pratik Örnekler**
+## **Sonuç**
 
-### **Örnek 1: Kullanıcıya Başarı Mesajı Gösterme**
-```csharp
-string message = NotificationHelper.Success("User registration completed successfully.");
-NotificationHelper.Log(message);
-```
-
-### **Örnek 2: Dinamik Hata Sayfası Oluşturma**
-```csharp
-string htmlContent = ErrorPageGenerator.Generate(403, "You do not have permission to access this page.");
-File.WriteAllText("403.html", htmlContent);
-```
-
----
+**Core.ToolKit.UIHelpers**, web uygulamalarında hata yönetimi ve loglama işlemlerini kolaylaştıran güçlü bir araç setidir. Temiz kod prensiplerine uygun olarak yazılmıştır ve büyük projelerde rahatça kullanılabilir. Yukarıdaki örnekler ve ayarlarla projenize entegre edebilirsiniz.

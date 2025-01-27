@@ -1,4 +1,5 @@
-﻿using System.Globalization;
+﻿using System.Collections.Concurrent;
+using System.Globalization;
 using System.Text.Json;
 
 namespace Core.ToolKit.Localization;
@@ -7,6 +8,7 @@ public static class LocalizationHelper
 {
     private static readonly Dictionary<string, Dictionary<string, string>> _translations = new();
     private static string _defaultCulture = CultureInfo.CurrentCulture.Name;
+    private static readonly ConcurrentDictionary<string, string> _translationCache = new();
 
     public static string DefaultCulture
     {
@@ -30,20 +32,22 @@ public static class LocalizationHelper
         if (files == null || files.Count == 0)
             throw new ArgumentException("Files dictionary cannot be null or empty.", nameof(files));
 
-        foreach (var (culture, filePath) in files)
+        var tasks = files.Select(async file =>
         {
-            if (string.IsNullOrWhiteSpace(filePath))
-                throw new ArgumentException("File path cannot be null or empty.", nameof(filePath));
+            if (string.IsNullOrWhiteSpace(file.Value))
+                throw new ArgumentException("File path cannot be null or empty.", nameof(file.Value));
 
-            if (!File.Exists(filePath))
-                throw new FileNotFoundException($"Translation file not found at path: {filePath}");
+            if (!File.Exists(file.Value))
+                throw new FileNotFoundException($"Translation file not found at path: {file.Value}");
 
-            var jsonContent = await File.ReadAllTextAsync(filePath);
+            var jsonContent = await File.ReadAllTextAsync(file.Value);
             var translations = JsonSerializer.Deserialize<Dictionary<string, string>>(jsonContent)
                 ?? throw new InvalidOperationException("Failed to deserialize translation file.");
 
-            _translations[culture] = translations;
-        }
+            _translations[file.Key] = translations;
+        });
+
+        await Task.WhenAll(tasks);
     }
 
     /// <summary>
@@ -59,12 +63,24 @@ public static class LocalizationHelper
 
         var culture = _defaultCulture;
 
+        if (_translationCache.TryGetValue(key, out var cachedValue))
+        {
+            return string.Format(cachedValue, parameters);
+        }
+
         if (_translations.TryGetValue(culture, out var translations) && translations.TryGetValue(key, out var value))
         {
+            _translationCache[key] = value;
             return string.Format(value, parameters);
         }
 
-        // Fallback to default culture
+        // Fallback to default culture (e.g., "en-US")
+        if (culture != "en-US" && _translations.TryGetValue("en-US", out var defaultTranslations) && defaultTranslations.TryGetValue(key, out var defaultValue))
+        {
+            _translationCache[key] = defaultValue;
+            return string.Format(defaultValue, parameters);
+        }
+
         return key;
     }
 
@@ -74,5 +90,22 @@ public static class LocalizationHelper
     public static void ClearTranslations()
     {
         _translations.Clear();
+        _translationCache.Clear();
+    }
+
+    public static IEnumerable<string> GetSupportedCultures()
+    {
+        return _translations.Keys;
+    }
+
+    public static void SetCulture(string culture)
+    {
+        if (string.IsNullOrWhiteSpace(culture))
+            throw new ArgumentException("Culture cannot be null or empty.", nameof(culture));
+
+        if (!_translations.ContainsKey(culture))
+            throw new ArgumentException($"Culture '{culture}' is not supported.", nameof(culture));
+
+        _defaultCulture = culture;
     }
 }

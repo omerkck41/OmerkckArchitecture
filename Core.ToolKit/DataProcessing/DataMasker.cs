@@ -55,6 +55,17 @@ public static class DataMasker
         return Regex.Replace(phoneNumber, @"\d(?=\d{4})", "*");
     }
 
+    public static string MaskCreditCard(string creditCardNumber)
+    {
+        if (string.IsNullOrWhiteSpace(creditCardNumber))
+            throw new ArgumentException("Credit card number cannot be null or empty.", nameof(creditCardNumber));
+
+        if (creditCardNumber.Length <= 4)
+            return creditCardNumber;
+
+        return new string('*', creditCardNumber.Length - 4) + creditCardNumber.Substring(creditCardNumber.Length - 4);
+    }
+
     /// <summary>
     /// Encrypts sensitive data using AES encryption.
     /// </summary>

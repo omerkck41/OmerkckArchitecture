@@ -2,29 +2,32 @@
 
 public static class ToolkitEvents
 {
-    /// <summary>
-    /// Event triggered when a process starts, including metadata.
-    /// </summary>
     public static event EventHandler<CustomEventArgs>? ProcessStarted;
-
-    /// <summary>
-    /// Event triggered when a process completes, including metadata.
-    /// </summary>
     public static event EventHandler<CustomEventArgs>? ProcessCompleted;
+    public static event EventHandler<CustomEventArgs>? ProcessFailed;
 
-    /// <summary>
-    /// Triggers the ProcessStarted event with a message.
-    /// </summary>
-    public static void TriggerProcessStarted(string message)
+    public static void TriggerProcessStarted(object sender, string message)
     {
-        ProcessStarted?.Invoke(null, new CustomEventArgs(message));
+        ProcessStarted?.Invoke(sender, new CustomEventArgs(message));
     }
 
-    /// <summary>
-    /// Triggers the ProcessCompleted event with a message.
-    /// </summary>
-    public static void TriggerProcessCompleted(string message)
+    public static void TriggerProcessCompleted(object sender, string message)
     {
-        ProcessCompleted?.Invoke(null, new CustomEventArgs(message));
+        ProcessCompleted?.Invoke(sender, new CustomEventArgs(message));
+    }
+
+    public static void TriggerProcessFailed(object sender, string message)
+    {
+        ProcessFailed?.Invoke(sender, new CustomEventArgs(message));
+    }
+
+    public static void SubscribeProcessStarted(EventHandler<CustomEventArgs> handler)
+    {
+        ProcessStarted += handler;
+    }
+
+    public static void UnsubscribeProcessStarted(EventHandler<CustomEventArgs> handler)
+    {
+        ProcessStarted -= handler;
     }
 }

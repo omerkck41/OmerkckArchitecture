@@ -2,6 +2,6 @@
 
 public interface IPasswordHasher
 {
-    Task<(byte[] passwordHash, byte[] passwordSalt)> CreatePasswordHashAsync(string password);
-    Task<bool> VerifyPasswordHashAsync(string password, byte[] passwordHash, byte[] passwordSalt);
+    Task<string> CreatePasswordHashAsync(string password);
+    Task<bool> VerifyPasswordHashAsync(string password, string storedHash);
 }

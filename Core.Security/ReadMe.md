@@ -1,201 +1,232 @@
-﻿# Core.Security Modülü - Kapsamlı Entegrasyon ve Kullanım Rehberi
+﻿---
 
-## **Giriş**
-Core.Security, projelerdeki güvenlik ihtiyaçlarını karşılamak için tasarlanmış, modüler ve genişletilebilir bir kütüphanedir. JWT tabanlı kimlik doğrulama, MFA, token iptali, hashing, HTTP güvenlik başlıkları, OAuth/OpenID Connect desteği ve secrets yönetimi gibi birçok güvenlik aracını içerir.
+# **Core.Security Katmanı**
 
-Bu rehber, Core.Security modülünü projeye **submodule** olarak eklemeyi, gerekli **NuGet paketlerini kurmayı**, **Program.cs** ve **appsettings.json** yapılandırmalarını tamamlamayı ve tüm modüllerin kullanımını örneklerle açıklar.
+`Core.Security` katmanı, uygulamalarınızda güvenlikle ilgili işlemleri kolaylaştırmak için geliştirilmiş bir .NET kütüphanesidir. Bu katman, kimlik doğrulama, yetkilendirme, şifreleme, token yönetimi ve çok faktörlü kimlik doğrulama (MFA) gibi temel güvenlik işlemlerini destekler. Aşağıda, bu katmanın bileşenleri ve nasıl kullanılacağına dair detaylı bilgiler bulunmaktadır.
 
 ---
 
-## **1. Core.Security Modülünü Projeye Ekleme**
+## **Bileşenler**
 
-### **Submodule Ekleme**
-Core.Security modülünü projeye **submodule** olarak eklemek için aşağıdaki komutu kullanın:
+### **1. JWT Token Yönetimi**
+- **AccessToken:** JWT tabanlı access token'ları temsil eder.
+- **RefreshToken:** Kullanıcı oturumlarını uzun süreli olarak yönetmek için kullanılan refresh token'ları temsil eder.
+- **TokenOptions:** Token ayarlarını yapılandırmak için kullanılır.
+- **JwtHelper:** JWT token'ları oluşturma, doğrulama ve yenileme işlemlerini yönetir.
+- **TokenBlacklist:** İptal edilen token'ları takip eder.
 
-```bash
-git submodule add <Core.Security Git Repository URL> Core.Security
-```
+### **2. Çok Faktörlü Kimlik Doğrulama (MFA)**
+- **IMfaService:** MFA işlemlerini yönetmek için kullanılan interface.
+- **MfaService:** Authenticator, TOTP, e-posta ve SMS tabanlı doğrulama işlemlerini gerçekleştirir.
+- **TotpService:** Zaman tabanlı tek kullanımlık şifre (TOTP) üretimi ve doğrulamasını yönetir.
 
-### **Proje Referansı Ekleme**
-1. **Visual Studio** kullanıyorsanız:
-   - Projeye sağ tıklayın ve **Add -> Existing Project** seçeneği ile **Core.Security.csproj** dosyasını ekleyin.
-   - Ana projeye sağ tıklayın ve **Add Reference** üzerinden **Core.Security**'i referans olarak ekleyin.
+### **3. Şifreleme ve Hashing**
+- **HashingService:** Şifre hash'leme ve doğrulama işlemlerini yönetir.
+- **SecurityKeyHelper:** Güvenlik anahtarları oluşturur.
+- **SigningCredentialsHelper:** JWT token'ları için imzalama kimlik bilgileri oluşturur.
 
-2. **.NET CLI** kullanıyorsanız:
-   ```bash
-   dotnet add reference Core.Security/Core.Security.csproj
+### **4. OAuth 2.0**
+- **OAuthConfiguration:** OAuth 2.0 yapılandırma ayarlarını temsil eder.
+- **OAuthService:** OAuth 2.0 akışlarını yönetir (Authorization Code, Refresh Token, vb.).
+
+### **5. Token İptal ve Doğrulama**
+- **TokenBlacklist:** İptal edilen token'ları takip eder.
+- **TokenValidator:** Token'ların geçerliliğini doğrular.
+
+### **6. Kullanıcı Doğrulama ve Kayıt**
+- **UserForLoginDto:** Kullanıcı girişi için kullanılan veri transfer nesnesi (DTO).
+- **UserForRegisterDto:** Kullanıcı kaydı için kullanılan veri transfer nesnesi (DTO).
+- **UserForLoginValidator:** Kullanıcı girişi için doğrulama kurallarını içerir.
+- **UserForRegisterValidator:** Kullanıcı kaydı için doğrulama kurallarını içerir.
+
+---
+
+## **Neden Kullanılır?**
+
+- **Güvenlik:** Kullanıcı kimlik doğrulama, yetkilendirme ve şifreleme işlemlerini güvenli bir şekilde yönetir.
+- **Esneklik:** Farklı güvenlik yöntemlerini (JWT, OAuth, MFA) destekler.
+- **Kolay Entegrasyon:** Basit ve anlaşılır bir API ile projelerinize kolayca entegre edilebilir.
+- **Genişletilebilirlik:** Yeni güvenlik yöntemleri eklemek veya mevcut yöntemleri özelleştirmek kolaydır.
+
+---
+
+## **Avantajları**
+
+- **Token Yönetimi:** JWT tabanlı token'ların oluşturulması, doğrulanması ve yenilenmesi kolaydır.
+- **Çok Faktörlü Kimlik Doğrulama:** Authenticator, TOTP, e-posta ve SMS tabanlı doğrulama seçenekleri sunar.
+- **Şifreleme ve Hashing:** Şifrelerin güvenli bir şekilde hash'lenmesini ve doğrulanmasını sağlar.
+- **OAuth 2.0 Desteği:** OAuth 2.0 akışlarını kolayca yönetmenizi sağlar.
+- **Token İptal Listesi:** İptal edilen token'ları takip eder ve güvenliği artırır.
+
+---
+
+## **Kurulum ve Yapılandırma**
+
+### **1. Projeye Ekleme**
+
+Kütüphaneyi projenize eklemek için aşağıdaki adımları izleyin:
+
+1. **ServiceCollectionExtensions Kullanımı:**
+   Projenizin `Program.cs` veya `Startup.cs` dosyasında, gerekli servisleri ekleyin:
+   ```csharp
+   public void ConfigureServices(IServiceCollection services)
+   {
+       // JWT Token Yönetimi
+       services.AddJwtHelper<Guid, int, Guid>(Configuration);
+
+       // MFA Servisleri
+       services.AddSingleton<TotpService>();
+       services.AddScoped<IMfaService, MfaService>();
+
+       // OAuth Servisleri
+       var oauthConfig = Configuration.GetSection("OAuthSettings").Get<OAuthConfiguration>();
+       services.AddSingleton(oauthConfig);
+       services.AddScoped<OAuthService>();
+
+       // Hashing Servisleri
+       services.AddScoped<IHashingService, HashingService>();
+   }
    ```
 
----
+### **2. Yapılandırma Dosyaları**
 
-## **2. Gerekli NuGet Paketlerinin Kurulumu**
-Core.Security modülünün doğru çalışması için aşağıdaki NuGet paketlerinin projeye eklenmesi gerekir:
-
-```bash
-Install-Package Microsoft.Extensions.Configuration.Binder
-Install-Package Microsoft.AspNetCore.Authentication.JwtBearer
-Install-Package FluentValidation
-Install-Package Microsoft.IdentityModel.Tokens
-Install-Package System.Security.Cryptography
-```
-
-### **Paketlerin Görevleri:**
-- **Microsoft.Extensions.Configuration.Binder**: `appsettings.json` yapılandırmalarını sınıflara bağlamak için kullanılır.
-- **Microsoft.AspNetCore.Authentication.JwtBearer**: JWT tabanlı kimlik doğrulama sağlar.
-- **Microsoft.IdentityModel.Tokens**: Token doğrulama ve güvenlik anahtarlarını yönetir.
-- **FluentValidation**: DTO'lar için doğrulama kuralları tanımlar.
-- **System.Security.Cryptography**: Hashing ve güvenli kod üretme için kullanılır.
-
----
-
-## **3. Program.cs Yapılandırması**
-`Program.cs` dosyasına Core.Security modülünü dahil etmek için aşağıdaki servis kayıtlarını ekleyin:
-
-```csharp
-using Core.Security.EmailAuthenticator;
-using Core.Security.Encryption;
-using Core.Security.Hashing;
-using Core.Security.JWT;
-using Core.Security.MFA;
-using Core.Security.TokenRevocation;
-using Core.Security.Secrets;
-using Core.Security.Headers;
-
-var builder = WebApplication.CreateBuilder(args);
-
-// JWT Token Options Configuration
-builder.Services.Configure<TokenOptions>(builder.Configuration.GetSection("TokenOptions"));
-
-// Core.Security Servis Kayıtları
-builder.Services.AddSingleton<IEmailAuthenticatorHelper, EmailAuthenticatorHelper>();
-builder.Services.AddSingleton<IMfaService, MfaService>();
-builder.Services.AddSingleton<TokenBlacklist>();
-builder.Services.AddSingleton<SecretsManager>();
-
-// JWT Authentication
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddJwtBearer(options =>
-    {
-        var tokenOptions = builder.Configuration.GetSection("TokenOptions").Get<TokenOptions>();
-        options.TokenValidationParameters = new TokenValidationParameters
-        {
-            ValidateIssuer = true,
-            ValidateAudience = true,
-            ValidateLifetime = true,
-            ValidateIssuerSigningKey = true,
-            ValidIssuer = tokenOptions.Issuer,
-            ValidAudience = tokenOptions.Audience,
-            IssuerSigningKey = SecurityKeyHelper.CreateSecurityKey(tokenOptions.SecurityKey)
-        };
-    });
-
-var app = builder.Build();
-
-// Middleware'ler
-app.UseMiddleware<SecurityHeadersMiddleware>();
-app.UseAuthentication();
-app.UseAuthorization();
-
-app.Run();
-```
-
----
-
-## **4. appsettings.json Yapılandırması**
-`appsettings.json` dosyasına JWT yapılandırmasını ekleyin:
-
+`appsettings.json` dosyanıza aşağıdaki gibi ayarları ekleyin:
 ```json
 {
   "TokenOptions": {
     "Audience": "YourAudience",
     "Issuer": "YourIssuer",
-    "AccessTokenExpiration": 30,
-    "SecurityKey": "YourSuperSecretKey12345"
+    "AccessTokenExpiration": 60, // Dakika cinsinden
+    "SecurityKey": "YourSuperSecretKey", // En az 16 karakter uzunluğunda
+    "RefreshTokenTTL": 7 // Gün cinsinden
+  },
+  "OAuthSettings": {
+    "ClientId": "YourClientId",
+    "ClientSecret": "YourClientSecret",
+    "AuthorizationEndpoint": "https://provider.com/oauth/authorize",
+    "TokenEndpoint": "https://provider.com/oauth/token",
+    "UserInfoEndpoint": "https://provider.com/oauth/userinfo",
+    "RedirectUri": "https://yourapp.com/callback",
+    "Scopes": ["openid", "profile", "email"]
   }
 }
 ```
 
-### **Parametrelerin Açıklaması:**
-- **Audience**: Token'ın hedef kitlesini belirtir.
-- **Issuer**: Token'ı oluşturan sunucuyu belirtir.
-- **AccessTokenExpiration**: Token'ın geçerlilik süresi (dakika cinsinden).
-- **SecurityKey**: Token'ı imzalamak için kullanılan gizli anahtar.
+---
+
+## **Detaylı Kullanım Örnekleri**
+
+### **1. JWT Token Oluşturma ve Doğrulama**
+```csharp
+public class AuthService
+{
+    private readonly ITokenHelper<Guid, int, Guid> _tokenHelper;
+
+    public AuthService(ITokenHelper<Guid, int, Guid> tokenHelper)
+    {
+        _tokenHelper = tokenHelper;
+    }
+
+    public async Task<AccessToken> CreateAccessTokenAsync(User<Guid> user, IList<OperationClaim<int>> operationClaims)
+    {
+        return await _tokenHelper.CreateTokenAsync(user, operationClaims);
+    }
+
+    public async Task<bool> ValidateTokenAsync(string token)
+    {
+        return await _tokenHelper.ValidateTokenAsync(token);
+    }
+}
+```
+
+### **2. Çok Faktörlü Kimlik Doğrulama (MFA)**
+```csharp
+public class MfaController : ControllerBase
+{
+    private readonly IMfaService _mfaService;
+
+    public MfaController(IMfaService mfaService)
+    {
+        _mfaService = mfaService;
+    }
+
+    [HttpGet("generate-totp")]
+    public async Task<IActionResult> GenerateTotpCode(string secretKey)
+    {
+        var code = await _mfaService.GenerateTotpCodeAsync(secretKey);
+        return Ok(new { Code = code });
+    }
+
+    [HttpPost("validate-totp")]
+    public async Task<IActionResult> ValidateTotpCode(string inputCode, string secretKey)
+    {
+        var isValid = await _mfaService.ValidateTotpCodeAsync(inputCode, secretKey);
+        return Ok(new { IsValid = isValid });
+    }
+}
+```
+
+### **3. OAuth 2.0 ile Kimlik Doğrulama**
+```csharp
+public class OAuthController : ControllerBase
+{
+    private readonly OAuthService _oauthService;
+
+    public OAuthController(OAuthService oauthService)
+    {
+        _oauthService = oauthService;
+    }
+
+    [HttpGet("login")]
+    public IActionResult Login()
+    {
+        var authUrl = _oauthService.GetAuthorizationUrl();
+        return Redirect(authUrl);
+    }
+
+    [HttpGet("callback")]
+    public async Task<IActionResult> Callback(string code)
+    {
+        var tokenResponse = await _oauthService.ExchangeCodeForTokenAsync(code);
+        return Ok(tokenResponse);
+    }
+}
+```
 
 ---
 
-## **5. Tüm Modüllerin Kullanımı ve Örnekleri**
+## **Örnek Proje Yapısı**
 
-### **5.1. DTO'lar (Data Transfer Objects)**
-```csharp
-var loginDto = new UserForLoginDto
-{
-    Email = "user@example.com",
-    Password = "Password123!"
-};
-```
-
-### **5.2. EmailAuthenticator Kullanımı**
-```csharp
-var emailHelper = new EmailAuthenticatorHelper();
-string activationCode = await emailHelper.CreateEmailActivationCodeAsync();
-bool isValid = await emailHelper.ValidateActivationCodeAsync("123456", activationCode);
-```
-
-### **5.3. Encryption Kullanımı**
-```csharp
-var securityKey = SecurityKeyHelper.CreateSecurityKey("YourSecretKey");
-var signingCredentials = SigningCredentialsHelper.CreateSigningCredentials(securityKey);
-```
-
-### **5.4. Hashing Kullanımı**
-```csharp
-        // Example 1: Create Password Hash and Salt
-        string password = "MySecurePassword123!";
-        var (passwordHash, passwordSalt) = await CreatePasswordHashAsync(password);
-
-        Console.WriteLine("Password Hash: " + Convert.ToBase64String(passwordHash));
-        Console.WriteLine("Password Salt: " + Convert.ToBase64String(passwordSalt));
-
-        // Example 2: Verify Password Hash
-        bool isVerified = await VerifyPasswordHashAsync(password, passwordHash, passwordSalt);
-        Console.WriteLine("Password Verified: " + isVerified);
-```
-
-### **5.5. JWT Kullanımı**
-```csharp
-var jwtHelper = new JwtHelper(configuration);
-var token = await jwtHelper.CreateTokenAsync(user, operationClaims);
-Console.WriteLine(token.Token);
-```
-
-### **5.6. HTTP Güvenlik Başlıkları Kullanımı**
-```csharp
-app.UseMiddleware<SecurityHeadersMiddleware>();
-```
-
-### **5.7. MFA Kullanımı**
-```csharp
-var mfaService = new MfaService();
-string code = await mfaService.GenerateAuthenticatorCodeAsync();
-bool isValid = await mfaService.ValidateAuthenticatorCodeAsync("123456", code);
-```
-
-### **5.8. Token İptali (Revocation) Kullanımı**
-```csharp
-var tokenBlacklist = new TokenBlacklist();
-tokenBlacklist.RevokeToken("token123");
-bool isRevoked = tokenBlacklist.IsTokenRevoked("token123");
-```
-
-### **5.9. Secrets Yönetimi Kullanımı**
-```csharp
-var secretsManager = new SecretsManager();
-secretsManager.AddSecret("ApiKey", "SuperSecretKey12345");
-string apiKey = secretsManager.GetSecret("ApiKey");
+```plaintext
+Core.Security/
+├── JWT/
+│   ├── AccessToken.cs
+│   ├── ITokenHelper.cs
+│   ├── JwtHelper.cs
+│   ├── RefreshToken.cs
+│   ├── TokenOptions.cs
+│   ├── ServiceCollectionExtensions.cs
+│   ├── TokenBlacklist.cs
+│   ├── IRefreshTokenRepository.cs
+│   └── RefreshTokenRepository.cs
+├── MFA/
+│   ├── IMfaService.cs
+│   ├── MfaService.cs
+│   ├── TotpService.cs
+├── OAuth/
+│   ├── OAuthConfiguration.cs
+│   ├── OAuthService.cs
+├── Hashing/
+│   ├── HashingService.cs
+│   ├── IHashingService.cs
+├── Validators/
+│   ├── UserForLoginValidator.cs
+│   ├── UserForRegisterValidator.cs
+└── README.md
 ```
 
 ---
 
 ## **Sonuç**
-Bu rehber ile Core.Security modülünü eksiksiz bir şekilde projeye ekleyebilir, gerekli NuGet paketlerini yükleyip yapılandırmaları tamamlayarak tüm güvenlik özelliklerini kullanabilirsiniz.
-Core.Security, modüler ve genişletilebilir yapısıyla büyük projelerde tüm güvenlik ihtiyaçlarınızı karşılayacaktır.
+
+`Core.Security` katmanı, uygulamalarınızda güvenlikle ilgili işlemleri kolaylaştırmak için geliştirilmiştir. Bu katman, JWT token yönetimi, çok faktörlü kimlik doğrulama, OAuth 2.0 ve şifreleme gibi temel güvenlik işlemlerini destekler. Yukarıdaki adımları takip ederek, bu katmanı projenize entegre edebilir ve kullanmaya başlayabilirsiniz.

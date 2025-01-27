@@ -16,19 +16,21 @@ public static class IQueryableDynamicFilterExtensions
         var property = Expression.Property(parameter, filter.Field);
         var value = Expression.Constant(filter.GetValue<object>());
 
-        return filter.Operator switch
+        var operatorEnum = Enum.Parse<FilterOperator>(filter.Operator, ignoreCase: true);
+
+        return operatorEnum switch
         {
-            "eq" => Expression.Equal(property, value),
-            "neq" => Expression.NotEqual(property, value),
-            "lt" => Expression.LessThan(property, value),
-            "lte" => Expression.LessThanOrEqual(property, value),
-            "gt" => Expression.GreaterThan(property, value),
-            "gte" => Expression.GreaterThanOrEqual(property, value),
-            "contains" => Expression.Call(property, typeof(string).GetMethod("Contains", [typeof(string)]), value),
-            "startswith" => Expression.Call(property, typeof(string).GetMethod("StartsWith", [typeof(string)]), value),
-            "endswith" => Expression.Call(property, typeof(string).GetMethod("EndsWith", [typeof(string)]), value),
-            "isnull" => Expression.Equal(property, Expression.Constant(null)),
-            "isnotnull" => Expression.NotEqual(property, Expression.Constant(null)),
+            FilterOperator.Eq => Expression.Equal(property, value),
+            FilterOperator.Neq => Expression.NotEqual(property, value),
+            FilterOperator.Lt => Expression.LessThan(property, value),
+            FilterOperator.Lte => Expression.LessThanOrEqual(property, value),
+            FilterOperator.Gt => Expression.GreaterThan(property, value),
+            FilterOperator.Gte => Expression.GreaterThanOrEqual(property, value),
+            FilterOperator.Contains => Expression.Call(property, typeof(string).GetMethod("Contains", [typeof(string)]), value),
+            FilterOperator.StartsWith => Expression.Call(property, typeof(string).GetMethod("StartsWith", [typeof(string)]), value),
+            FilterOperator.EndsWith => Expression.Call(property, typeof(string).GetMethod("EndsWith", [typeof(string)]), value),
+            FilterOperator.IsNull => Expression.Equal(property, Expression.Constant(null)),
+            FilterOperator.IsNotNull => Expression.NotEqual(property, Expression.Constant(null)),
             _ => throw new NotSupportedException($"Operator '{filter.Operator}' is not supported.")
         };
     }

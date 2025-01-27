@@ -19,15 +19,24 @@ public static class PathHelper
     /// <returns>True if valid, otherwise false.</returns>
     public static bool IsValidPath(string path)
     {
+        if (!IsValidPath(path))
+            return false;
+
         try
         {
-            Path.GetFullPath(path);
+            var fileInfo = new FileInfo(path);
             return true;
         }
         catch
         {
             return false;
         }
+    }
+
+    public static string SanitizePath(string path)
+    {
+        var invalidChars = Path.GetInvalidPathChars();
+        return new string(path.Where(c => !invalidChars.Contains(c)).ToArray());
     }
 
     /// <summary>

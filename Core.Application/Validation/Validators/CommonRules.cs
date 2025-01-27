@@ -18,6 +18,27 @@ public static class CommonRules
             .Matches(@"^\+?[1-9][0-9]{7,14}$").WithMessage("Invalid phone number format.");
     }
 
+    public static IRuleBuilderOptions<T, string> MustBeValidUrl<T>(this IRuleBuilder<T, string> ruleBuilder)
+    {
+        return ruleBuilder
+            .NotEmpty().WithMessage("URL is required.")
+            .Matches(@"^(https?:\\/\\/)?([\\w.-]+)+(:\\d+)?(\\/\\S*)?$").WithMessage("Invalid URL format.");
+    }
+
+    public static IRuleBuilderOptions<T, string> MustBeNumeric<T>(this IRuleBuilder<T, string> ruleBuilder)
+    {
+        return ruleBuilder
+            .NotEmpty().WithMessage("Field is required.")
+            .Matches("^[0-9]+$").WithMessage("Field must be numeric.");
+    }
+
+    public static IRuleBuilderOptions<T, string> MustContainUppercase<T>(this IRuleBuilder<T, string> ruleBuilder)
+    {
+        return ruleBuilder
+            .NotEmpty().WithMessage("Field is required.")
+            .Matches("[A-Z]").WithMessage("Field must contain at least one uppercase letter.");
+    }
+
     public static IRuleBuilderOptions<T, string> MustNotExceedMaxLength<T>(this IRuleBuilder<T, string> ruleBuilder, int maxLength)
     {
         return ruleBuilder

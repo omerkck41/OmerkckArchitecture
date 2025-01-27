@@ -4,15 +4,7 @@ namespace Core.ToolKit.Utilities;
 
 public static class UtilityHelper
 {
-    /// <summary>
-    /// Retries a task a specified number of times with exponential backoff.
-    /// </summary>
-    /// <typeparam name="T">The return type of the task.</typeparam>
-    /// <param name="operation">The task to retry.</param>
-    /// <param name="retryCount">Number of retry attempts.</param>
-    /// <param name="initialDelayMilliseconds">Initial delay between retries in milliseconds.</param>
-    /// <returns>The result of the task.</returns>
-    public static async Task<T> RetryWithExponentialBackoffAsync<T>(Func<Task<T>> operation, int retryCount, int initialDelayMilliseconds)
+    public static async Task<T> RetryWithExponentialBackoffAsync<T>(Func<Task<T>> operation, int retryCount, int initialDelayMilliseconds, int maxDelayMilliseconds = int.MaxValue)
     {
         if (retryCount <= 0) throw new ArgumentException("Retry count must be greater than zero.", nameof(retryCount));
 
@@ -28,7 +20,7 @@ public static class UtilityHelper
             {
                 if (attempt == retryCount) throw;
 
-                await Task.Delay(delay);
+                await Task.Delay(Math.Min(delay, maxDelayMilliseconds));
                 delay *= 2; // Exponential backoff
             }
         }
@@ -36,12 +28,6 @@ public static class UtilityHelper
         throw new InvalidOperationException("Retry operation failed.");
     }
 
-    /// <summary>
-    /// Measures the execution time of an asynchronous task.
-    /// </summary>
-    /// <typeparam name="T">The return type of the task.</typeparam>
-    /// <param name="operation">The asynchronous task to measure.</param>
-    /// <returns>Tuple containing the execution time in milliseconds and the task result.</returns>
     public static async Task<(long ExecutionTime, T Result)> MeasureExecutionTimeAsync<T>(Func<Task<T>> operation)
     {
         if (operation == null) throw new ArgumentNullException(nameof(operation));

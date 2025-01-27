@@ -8,4 +8,13 @@ public static class ValidationResultFormatter
     {
         return string.Join("; ", failures.Select(f => $"Property: {f.PropertyName} failed validation. Error: {f.ErrorMessage}"));
     }
+
+    public static string FormatAsJson(IEnumerable<ValidationFailure> failures)
+    {
+        return System.Text.Json.JsonSerializer.Serialize(failures.Select(f => new
+        {
+            Property = f.PropertyName,
+            Error = f.ErrorMessage
+        }));
+    }
 }

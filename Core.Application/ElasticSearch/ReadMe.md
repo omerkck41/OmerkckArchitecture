@@ -1,162 +1,182 @@
-﻿# Core.Application.ElasticSearch - Kullanım ve Entegrasyon Rehberi
-
-## **Giriş**
-Core.Application.ElasticSearch modülü, ElasticSearch üzerinde temel CRUD, arama ve index yönetimi işlemleri yapmak için tasarlanmıştır. Bu modül, esnek ve genişletilebilir yapısıyla projelere kolayca entegre edilebilir.
+﻿### **README.md**
 
 ---
 
-## **1. Şema**
-```
-Core.Application.ElasticSearch
-├── ElasticSearchSettings.cs
-├── Interfaces
-│   └── IElasticSearchService.cs
-├── Services
-│   └── ElasticSearchService.cs
-```
+# ElasticSearch Entegrasyonu
+
+Bu proje, .NET 9.0 mimarisi kullanılarak Elasticsearch ile entegre edilmiş bir uygulama örneğidir. Elasticsearch, büyük veri setleri üzerinde hızlı arama, analiz ve log yönetimi gibi işlemler için kullanılan güçlü bir arama motorudur. Bu projede, Elasticsearch ile temel CRUD (Create, Read, Update, Delete) işlemleri ve arama işlemleri gerçekleştirilmiştir.
 
 ---
 
-## **2. Projeye Entegrasyon**
+## **ElasticSearch Nedir?**
+Elasticsearch, dağıtılmış, RESTful bir arama ve analiz motorudur. Büyük miktarda veriyi gerçek zamanlı olarak depolamak, aramak ve analiz etmek için kullanılır. Özellikle log yönetimi, metin arama, veri analizi ve öneri sistemleri gibi alanlarda yaygın olarak kullanılır.
 
-### **Adım 1: NuGet Paketlerinin Kurulumu**
-Core.Application.ElasticSearch modülünü kullanabilmek için ElasticSearch kütüphanesini yükleyin:
+### **Ne İşe Yarar?**
+- **Hızlı Arama:** Büyük veri setlerinde milisaniyeler içinde arama yapabilir.
+- **Ölçeklenebilirlik:** Dağıtılmış yapısı sayesinde büyük veri setlerini kolayca yönetebilir.
+- **Esnek Veri Modeli:** JSON tabanlı belgelerle çalışır, bu da farklı veri türlerini destekler.
+- **Analiz ve Görselleştirme:** Logstash ve Kibana gibi araçlarla entegre çalışarak veri analizi ve görselleştirme sağlar.
 
-```bash
-Install-Package Elastic.Clients.Elasticsearch
-```
+---
 
-### **Adım 2: Proje Referansı Ekleme**
-ElasticSearch modülünü mevcut projeye referans eklemek için aşağıdaki komutu kullanabilirsiniz:
+## **Projede Kullanılan Sınıflar ve Yapılar**
 
-```bash
-dotnet add reference Core.Application.ElasticSearch/Core.Application.ElasticSearch.csproj
-```
-
-### **Adım 3: Program.cs Yapılandırması**
-`Program.cs` dosyasına ElasticSearch servisini ekleyin:
+### **1. ElasticSearchSettings**
+Elasticsearch bağlantı bilgilerini tutan sınıftır. `ConnectionString`, `DefaultIndex`, `Username` ve `Password` gibi bilgileri içerir.
 
 ```csharp
-using Core.Application.ElasticSearch;
+public class ElasticSearchSettings
+{
+    public string ConnectionString { get; }
+    public string DefaultIndex { get; }
+    public string Username { get; }
+    public string Password { get; }
 
-var builder = WebApplication.CreateBuilder(args);
+    public ElasticSearchSettings(string connectionString, string defaultIndex, string username, string password)
+    {
+        ConnectionString = connectionString ?? throw new ArgumentNullException(nameof(connectionString));
+        DefaultIndex = defaultIndex ?? throw new ArgumentNullException(nameof(defaultIndex));
+        Username = username ?? throw new ArgumentNullException(nameof(username));
+        Password = password ?? throw new ArgumentNullException(nameof(password));
+    }
+}
+```
 
-// ElasticSearch Ayarları
-builder.Services.Configure<ElasticSearchSettings>(builder.Configuration.GetSection("ElasticSearchSettings"));
+### **2. IElasticSearchService**
+Elasticsearch işlemlerini tanımlayan arayüzdür. CRUD işlemleri ve arama işlemleri bu arayüz üzerinden gerçekleştirilir.
 
-// ElasticSearch Servisi
-builder.Services.AddSingleton<IElasticSearchService, ElasticSearchService>();
+```csharp
+public interface IElasticSearchService
+{
+    Task<bool> CreateIndexAsync(string indexName, int numberOfShards, int numberOfReplicas);
+    Task<bool> CreateIndexIfNotExistsAsync(string indexName, int numberOfShards, int numberOfReplicas);
+    Task<bool> InsertDocumentAsync<T>(string indexName, string documentId, T document) where T : class;
+    Task<bool> UpdateDocumentAsync<T>(string indexName, string documentId, T document) where T : class;
+    Task<bool> DeleteDocumentAsync(string indexName, string documentId);
+    Task<T?> GetDocumentByIdAsync<T>(string indexName, string documentId) where T : class;
+    Task<List<T>> SearchDocumentsAsync<T>(string indexName, string query, int from, int size, string? sortField = null, bool isAscending = true) where T : class;
+    Task<bool> BulkInsertAsync<T>(string indexName, List<T> documents) where T : class;
+    Task<bool> DeleteIndexAsync(string indexName);
+}
+```
 
-var app = builder.Build();
-app.Run();
+### **3. ElasticSearchService**
+`IElasticSearchService` arayüzünü implemente eden sınıftır. Elasticsearch ile tüm işlemler bu sınıf üzerinden gerçekleştirilir.
+
+```csharp
+public class ElasticSearchService : IElasticSearchService
+{
+    private readonly ElasticsearchClient _client;
+    private readonly ILogger<ElasticSearchService> _logger;
+
+    public ElasticSearchService(IConfiguration configuration, ILogger<ElasticSearchService> logger)
+    {
+        _logger = logger;
+
+        var settings = configuration.GetSection("ElasticSearchSettings").Get<ElasticSearchSettings>()
+                      ?? throw new InvalidOperationException("ElasticSearch settings are not configured.");
+
+        var clientSettings = new ElasticsearchClientSettings(new Uri(settings.ConnectionString))
+            .DefaultIndex(settings.DefaultIndex)
+            .Authentication(new BasicAuthentication(settings.Username, settings.Password));
+
+        _client = new ElasticsearchClient(clientSettings);
+    }
+
+    // Diğer metodlar...
+}
 ```
 
 ---
 
-### **Adım 4: appsettings.json Yapılandırması**
-`appsettings.json` dosyasına ElasticSearch bağlantı ayarlarını ekleyin:
+## **Program.cs ve AppSettings.json Ayarları**
+
+### **1. AppSettings.json**
+Elasticsearch bağlantı bilgileri `appsettings.json` dosyasında tanımlanır.
 
 ```json
 {
   "ElasticSearchSettings": {
     "ConnectionString": "http://localhost:9200",
-    "DefaultIndex": "default-index"
+    "DefaultIndex": "my_default_index",
+    "Username": "elastic",
+    "Password": "your_password"
   }
 }
 ```
 
-- **ConnectionString**: ElasticSearch sunucusunun URL'si.
-- **DefaultIndex**: Varsayılan index adı.
+### **2. Program.cs**
+Elasticsearch servisi, `Program.cs` dosyasında DI (Dependency Injection) container'a eklenir.
 
----
-
-## **3. Kullanım Örnekleri**
-
-### **3.1. Index Oluşturma**
-Yeni bir index oluşturmak için:
 ```csharp
-var elasticSearchService = app.Services.GetRequiredService<IElasticSearchService>();
-bool isCreated = await elasticSearchService.CreateIndexAsync("products", 3, 2);
-Console.WriteLine(isCreated ? "Index created successfully" : "Index creation failed");
+var builder = WebApplication.CreateBuilder(args);
+
+// Elasticsearch servisini ekle
+builder.Services.AddElasticSearch(builder.Configuration);
+
+var app = builder.Build();
+
+// Diğer middleware'ler ve endpoint'ler...
+
+app.Run();
 ```
 
 ---
 
-### **3.2. Belge Ekleme**
-Index'e yeni bir belge eklemek için:
+## **Proje İçin Kullanım Örnekleri**
+
+### **1. Index Oluşturma**
 ```csharp
-var product = new { Id = 1, Name = "Laptop", Price = 1500 };
-bool isInserted = await elasticSearchService.InsertDocumentAsync("products", "1", product);
-Console.WriteLine(isInserted ? "Document inserted successfully" : "Document insertion failed");
+var elasticSearchService = serviceProvider.GetRequiredService<IElasticSearchService>();
+await elasticSearchService.CreateIndexAsync("my_index", 1, 1);
 ```
 
----
-
-### **3.3. Belge Güncelleme**
-Var olan bir belgeyi güncellemek için:
+### **2. Belge Ekleme**
 ```csharp
-var updatedProduct = new { Id = 1, Name = "Gaming Laptop", Price = 2000 };
-bool isUpdated = await elasticSearchService.UpdateDocumentAsync("products", "1", updatedProduct);
-Console.WriteLine(isUpdated ? "Document updated successfully" : "Document update failed");
+var document = new { Name = "John Doe", Age = 30 };
+await elasticSearchService.InsertDocumentAsync("my_index", "1", document);
 ```
 
----
-
-### **3.4. Belge Silme**
-Bir belgeyi silmek için:
+### **3. Belge Güncelleme**
 ```csharp
-bool isDeleted = await elasticSearchService.DeleteDocumentAsync("products", "1");
-Console.WriteLine(isDeleted ? "Document deleted successfully" : "Document deletion failed");
+var updatedDocument = new { Name = "Jane Doe", Age = 31 };
+await elasticSearchService.UpdateDocumentAsync("my_index", "1", updatedDocument);
 ```
 
----
-
-### **3.5. Belge Arama**
-Bir index üzerinde arama yapmak için:
+### **4. Belge Silme**
 ```csharp
-var results = await elasticSearchService.SearchDocumentsAsync<dynamic>("products", "Laptop", 0, 10);
-foreach (var item in results)
+await elasticSearchService.DeleteDocumentAsync("my_index", "1");
+```
+
+### **5. Belge Arama**
+```csharp
+var results = await elasticSearchService.SearchDocumentsAsync<MyDocumentType>("my_index", "John", 0, 10);
+```
+
+### **6. Toplu Belge Ekleme**
+```csharp
+var documents = new List<MyDocumentType>
 {
-    Console.WriteLine(item);
-}
-```
-
----
-
-### **3.6. Toplu Belge Ekleme**
-Birden fazla belgeyi aynı anda eklemek için:
-```csharp
-var products = new List<dynamic>
-{
-    new { Id = 2, Name = "Desktop", Price = 1200 },
-    new { Id = 3, Name = "Tablet", Price = 500 }
+    new MyDocumentType { Id = "1", Name = "John Doe", Age = 30 },
+    new MyDocumentType { Id = "2", Name = "Jane Doe", Age = 31 }
 };
-bool isBulkInserted = await elasticSearchService.BulkInsertAsync("products", products);
-Console.WriteLine(isBulkInserted ? "Bulk insert successful" : "Bulk insert failed");
+await elasticSearchService.BulkInsertAsync("my_index", documents);
 ```
 
 ---
 
-### **3.7. Index Silme**
-Bir index'i tamamen silmek için:
-```csharp
-bool isIndexDeleted = await elasticSearchService.DeleteIndexAsync("products");
-Console.WriteLine(isIndexDeleted ? "Index deleted successfully" : "Index deletion failed");
-```
+## **Bağımlılıklar**
+- `.NET 9.0`
+- `Elastic.Clients.Elasticsearch`
+- `Elastic.Transport`
+- `Microsoft.Extensions.Configuration`
+- `Microsoft.Extensions.Logging`
 
 ---
 
-## **4. Avantajları**
-
-1. **Modern API Kullanımı**: Yeni kütüphane, temiz ve modern bir API sunar.
-2. **Yüksek Performans**: ElasticSearch modülü, büyük veri setleri üzerinde hızlı sorgular çalıştırır.
-3. **Esnek Arama**: Full-text arama, filtreleme ve query-based arama desteklenir.
-4. **Modüler Yapı**: CRUD işlemleri, arama ve index yönetimi için ayrı ayrı kullanılabilir.
-5. **Kolay Entegrasyon**: Program.cs ve appsettings.json yapılandırmalarıyla hızlı kurulum.
+## **Kurulum ve Çalıştırma**
+1. Elasticsearch'ü yerel makinenizde veya bir sunucuda çalıştırın.
+2. `appsettings.json` dosyasındaki Elasticsearch bağlantı bilgilerini güncelleyin.
+3. Projeyi derleyin ve çalıştırın.
 
 ---
-
-## **Sonuç**
-Core.Application.ElasticSearch modülü, büyük projelerde veri arama ve yönetimi için güçlü bir çözüm sunar.
-Modüler yapısı sayesinde kolayca genişletilebilir ve özelleştirilebilir.
-ElasticSearch'in hız ve esnekliğini kullanarak projelerinizde arama, analiz ve log yönetimi gibi kritik ihtiyaçları karşılayabilirsiniz.

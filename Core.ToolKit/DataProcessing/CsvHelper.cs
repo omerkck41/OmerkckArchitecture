@@ -1,6 +1,4 @@
-﻿using System.Dynamic;
-
-namespace Core.ToolKit.DataProcessing;
+﻿namespace Core.ToolKit.DataProcessing;
 
 public static class CsvHelper
 {
@@ -10,7 +8,7 @@ public static class CsvHelper
     /// <param name="filePath">Path to the CSV file.</param>
     /// <param name="delimiter">Delimiter used in the CSV file.</param>
     /// <returns>List of dynamic objects representing rows of the CSV file.</returns>
-    public static async Task<List<ExpandoObject>> ReadCsvAsync(string filePath, char delimiter = ',')
+    public static async Task<List<T>> ReadCsvAsync<T>(string filePath, char delimiter = ',') where T : new()
     {
         if (string.IsNullOrEmpty(filePath))
             throw new ArgumentNullException(nameof(filePath), "File path cannot be null or empty.");
@@ -18,34 +16,32 @@ public static class CsvHelper
         if (!File.Exists(filePath))
             throw new FileNotFoundException($"CSV file not found at path: {filePath}");
 
-        try
+        var lines = await File.ReadAllLinesAsync(filePath);
+        if (lines.Length == 0)
+            throw new InvalidOperationException("CSV file is empty.");
+
+        var headers = lines[0].Split(delimiter).Select(h => h.Trim()).ToArray();
+        var rows = new List<T>();
+
+        foreach (var line in lines.Skip(1))
         {
-            var lines = await File.ReadAllLinesAsync(filePath);
-            if (lines.Length == 0)
-                throw new InvalidOperationException("CSV file is empty.");
+            var values = line.Split(delimiter);
+            var row = new T();
+            var properties = typeof(T).GetProperties();
 
-            var headers = lines[0].Split(delimiter).Select(h => h.Trim()).ToArray();
-            var rows = new List<ExpandoObject>();
-
-            foreach (var line in lines.Skip(1))
+            for (int i = 0; i < headers.Length; i++)
             {
-                var values = line.Split(delimiter);
-                var row = new ExpandoObject() as IDictionary<string, object>;
-
-                for (int i = 0; i < headers.Length; i++)
+                var property = properties.FirstOrDefault(p => p.Name == headers[i]);
+                if (property != null && i < values.Length)
                 {
-                    row[headers[i]] = i < values.Length && values[i] != null ? values[i].Trim() : string.Empty;
+                    property.SetValue(row, Convert.ChangeType(values[i], property.PropertyType));
                 }
-
-                rows.Add((ExpandoObject)row!);
             }
 
-            return rows;
+            rows.Add(row);
         }
-        catch (Exception ex)
-        {
-            throw new InvalidOperationException("Error occurred while reading CSV file.", ex);
-        }
+
+        return rows;
     }
 
     /// <summary>
