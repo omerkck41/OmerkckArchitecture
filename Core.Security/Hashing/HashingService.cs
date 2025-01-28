@@ -3,55 +3,29 @@ using System.Text;
 
 namespace Core.Security.Hashing;
 
-public class HashingService : IHashingService, IPasswordHasher
+public static class HashingService
 {
-    public async Task<string> ComputeHashAsync(string input)
-    {
-        using var sha256 = SHA256.Create();
-        var bytes = Encoding.UTF8.GetBytes(input);
-        var hash = await Task.Run(() => sha256.ComputeHash(bytes));
-        var result = Convert.ToBase64String(hash);
-
-
-        return result;
-    }
-
-    public async Task<bool> VerifyHashAsync(string input, string hash)
-    {
-        var computedHash = await ComputeHashAsync(input);
-        var isValid = computedHash == hash;
-
-
-        return isValid;
-    }
-
-    public async Task<string> CreatePasswordHashAsync(string password)
+    public static async Task<(string PasswordHash, string PasswordSalt)> CreatePasswordHashAsync(string password)
     {
         using var hmac = new HMACSHA512();
-        var passwordSalt = hmac.Key;
-        var passwordHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(password));
+        var passwordSalt = Convert.ToBase64String(hmac.Key); // Salt'ı base64 formatında döndür
+        var passwordHash = Convert.ToBase64String(hmac.ComputeHash(Encoding.UTF8.GetBytes(password))); // Hash'i base64 formatında döndür
 
-        // Salt ve hash'i birleştirip base64 formatında döndür
-        var combinedHash = Convert.ToBase64String(passwordSalt) + ":" + Convert.ToBase64String(passwordHash);
-        return await Task.FromResult(combinedHash);
+        return await Task.FromResult((passwordHash, passwordSalt));
     }
 
-    public async Task<bool> VerifyPasswordHashAsync(string password, string storedHash)
+    public static async Task<bool> VerifyPasswordHashAsync(string password, string passwordHash, string passwordSalt)
     {
-        var parts = storedHash.Split(':');
-        if (parts.Length != 2)
-            return await Task.FromResult(false);
+        var saltBytes = Convert.FromBase64String(passwordSalt); // Salt'ı byte dizisine çevir
+        var storedHashBytes = Convert.FromBase64String(passwordHash); // Hash'i byte dizisine çevir
 
-        var storedSalt = Convert.FromBase64String(parts[0]);
-        var storedPasswordHash = Convert.FromBase64String(parts[1]);
-
-        using var hmac = new HMACSHA512(storedSalt);
-        var computedHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(password));
+        using var hmac = new HMACSHA512(saltBytes);
+        var computedHashBytes = hmac.ComputeHash(Encoding.UTF8.GetBytes(password)); // Yeni hash'i hesapla
 
         // Hash'lerin eşleşip eşleşmediğini kontrol et
-        for (int i = 0; i < computedHash.Length; i++)
+        for (int i = 0; i < computedHashBytes.Length; i++)
         {
-            if (computedHash[i] != storedPasswordHash[i])
+            if (computedHashBytes[i] != storedHashBytes[i])
                 return await Task.FromResult(false);
         }
 
