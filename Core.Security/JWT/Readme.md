@@ -131,5 +131,3 @@ Bu yapı sayesinde JWT kimlik doğrulama sisteminizi **isteğe bağlı Redis des
 ✅ **Yüksek performans** – Redis ile token doğrulama işlemleri hızlandırılır.  
 ✅ **Kolay entegrasyon** – .NET 9.0 projelerinde hızlıca kullanılabilir.  
 
-🚀 **Şimdi projene entegre et ve güvenli JWT sistemiyle çalışmaya başla!** 🎯
-
