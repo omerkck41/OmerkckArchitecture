@@ -17,25 +17,27 @@ public static class ServiceCollectionExtensions
     /// <param name="configureOptions">Token yapılandırma seçenekleri (isteğe bağlı).</param>
     /// <param name="useRedis">Redis kullanım tercihi.</param>
     /// <returns>Yapılandırılmış hizmet koleksiyonu.</returns>
-    public static IServiceCollection AddJwtHelper<TUserId, TOperationClaimId, TRefreshTokenId>(this IServiceCollection services, IConfiguration configuration, Action<TokenOptions> configureOptions = null, bool useRedis = false)
+    public static IServiceCollection AddJwtHelper<TUserId, TOperationClaimId, TRefreshTokenId>(
+        this IServiceCollection services,
+        IConfiguration configuration,
+        Action<TokenOptions> configureOptions = null,
+        bool useRedis = false)
     {
         var tokenOptions = configuration.GetSection("TokenOptions").Get<TokenOptions>();
-
         configureOptions?.Invoke(tokenOptions);
+        _ = services.AddSingleton(tokenOptions);
 
-        services.AddSingleton(tokenOptions);
-
-        if (useRedis)
+        var redisConfig = configuration.GetSection("Redis:Connection").Value;
+        if (useRedis && !string.IsNullOrWhiteSpace(redisConfig))
         {
-            var redisConnection = ConnectionMultiplexer.Connect(configuration.GetConnectionString("Redis"));
+            var redisConnection = ConnectionMultiplexer.Connect(redisConfig);
             services.AddSingleton<IConnectionMultiplexer>(redisConnection);
-            services.AddSingleton<IServer>(redisConnection.GetServer(redisConnection.GetEndPoints().First())); // IServer ekleniyor
-            services.AddSingleton<ITokenBlacklist, RedisTokenBlacklist>();
-            services.AddScoped<IRefreshTokenRepository<TRefreshTokenId, TUserId>, RedisRefreshTokenRepository<TRefreshTokenId, TUserId>>();
+            services.AddSingleton<IDatabase>(sp => redisConnection.GetDatabase());
+            services.AddSingleton<ITokenBlacklistManager, RedisTokenBlacklistManager>(); // Redis tabanlı blacklist yönetimi
         }
         else
         {
-            services.AddSingleton<TokenBlacklist<int>>();
+            services.AddSingleton<ITokenBlacklistManager, InMemoryTokenBlacklistManager>(); // Varsayılan olarak in-memory çalışacak
         }
 
         services.AddScoped<ITokenHelper<TUserId, TOperationClaimId, TRefreshTokenId>, JwtHelper<TUserId, TOperationClaimId, TRefreshTokenId>>();

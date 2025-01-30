@@ -1,188 +1,135 @@
-﻿# JWT Authentication and Token Management Library
+﻿# JWT ve Opsiyonel Redis 
 
-## Nedir?
+## 📌 Nedir?
+Bu yapı, **JSON Web Token (JWT)** tabanlı kimlik doğrulama sistemini **isteğe bağlı Redis entegrasyonu** ile destekleyen modüler bir altyapıdır. **Redis kullanımı opsiyonel olup**, **Redis olmadan da** çalışabilir. 
 
-Bu kütüphane, JWT (JSON Web Token) tabanlı kimlik doğrulama ve token yönetimi için geliştirilmiş bir çözümdür. Kullanıcıların kimlik doğrulaması, erişim token'ları oluşturma, refresh token'ları yönetme ve token'ların geçerliliğini kontrol etme gibi işlemleri kolayca gerçekleştirmenizi sağlar. Ayrıca, Redis kullanarak token'ların kara listeye alınması ve refresh token'ların yönetimi gibi özellikleri de destekler.
+JWT, istemci ve sunucu arasındaki kimlik doğrulama işlemlerini güvenli bir şekilde gerçekleştirmek için kullanılan bir JSON tabanlı güvenlik standardıdır.
 
-## Neden Kullanılır?
+---
 
-- **Güvenlik**: JWT token'ları, kullanıcı kimlik doğrulaması ve yetkilendirme işlemlerinde güvenli bir yöntem sunar.
-- **Esneklik**: Hem in-memory hem de Redis tabanlı token yönetimi seçenekleri sunar.
-- **Kolay Entegrasyon**: .NET projelerine kolayca entegre edilebilir ve yapılandırılabilir.
-- **Token Yönetimi**: Refresh token'ların yönetimi, token'ların iptal edilmesi ve süresi dolmuş token'ların temizlenmesi gibi işlemleri otomatikleştirir.
+## 🔥 Neden Kullanılır?
+Bu yapı, **yetkilendirme işlemlerini** güvenli ve ölçeklenebilir bir şekilde yönetmek için kullanılır. **Redis entegrasyonu**, **blacklist (kara liste)** yönetimini optimize ederek, iptal edilen token'ların anında geçersiz kılınmasını sağlar.
 
-## Avantajları
+### **Ne Sağlar?**
+✔ **Modüler ve esnek yapı** - Redis kullanılabilir veya kullanılmayabilir.  
+✔ **Token geçerliliği ve iptal yönetimi** - Redis veya in-memory blacklist mekanizması sağlar.  
+✔ **Dağıtık yapı desteği** - Redis kullanıldığında çoklu sunucu ortamlarında geçersiz token'lar anında tanınır.  
+✔ **Kolay entegrasyon** - .NET 9.0 ile uyumlu, hızlı şekilde projeye entegre edilebilir.  
+✔ **Performans odaklı** - Redis ile token doğrulama işlemleri daha hızlı gerçekleşir.  
 
-- **Redis Desteği**: Redis kullanarak token'ların kara listeye alınması ve refresh token'ların yönetimi gibi işlemleri hızlı ve etkili bir şekilde gerçekleştirir.
-- **Genişletilebilirlik**: Farklı token yönetim stratejileri ve depolama seçenekleri ile genişletilebilir.
-- **Entegrasyon Kolaylığı**: .NET Core projelerine kolayca entegre edilebilir ve yapılandırılabilir.
+---
 
-## Projeye Ekleme ve Yapılandırma
+## 🚀 Nasıl Kullanılır?
 
-### 1. Projeye Ekleme
+### 1️⃣ **Proje Bağımlılıklarını Yükleme**
+Öncelikle Redis ve JWT için gerekli bağımlılıkları yükleyelim:
 
-Öncelikle, kütüphaneyi projenize eklemek için `ServiceCollectionExtensions` sınıfını kullanarak gerekli servisleri kaydedin.
-
-```csharp
-public void ConfigureServices(IServiceCollection services)
-{
-    // Diğer servisler...
-
-    // JWT ve Redis tabanlı token hizmetlerini ekleyin
-    services.AddJwtHelper<Guid, int, Guid>(Configuration, useRedis: true);
-}
+```sh
+ dotnet add package Microsoft.AspNetCore.Authentication.JwtBearer
+ dotnet add package Microsoft.Extensions.Configuration.Json
+ dotnet add package StackExchange.Redis
 ```
 
-### 2. `appsettings.json` Yapılandırması
+---
 
-`appsettings.json` dosyasına JWT token yapılandırma seçeneklerini ekleyin.
+### 2️⃣ **appsettings.json Ayarları**
+JWT ve Redis ile ilgili konfigürasyonları aşağıdaki gibi ekleyin:
 
 ```json
 {
   "TokenOptions": {
-    "Audience": "YourAudience",
-    "Issuer": "YourIssuer",
+    "Audience": "your-audience",
+    "Issuer": "your-issuer",
     "AccessTokenExpiration": 60,
-    "SecurityKey": "YourSuperSecretKey",
+    "SecurityKey": "your-secure-key-should-be-at-least-32-characters-long",
     "RefreshTokenTTL": 7
   },
-  "ConnectionStrings": {
-    "Redis": "localhost:6379"
+  "Redis": {
+    "Connection": "localhost:6379"
   }
 }
 ```
+📌 **Dikkat!** `SecurityKey` değeri **en az 32 karakter uzunluğunda olmalıdır.**
 
-### 3. `Program.cs` veya `Startup.cs` Yapılandırması
+---
 
-`Program.cs` veya `Startup.cs` dosyasında JWT servislerini kaydedin.
+### 3️⃣ **Program.cs Konfigürasyonu**
+Aşağıdaki kodları `Program.cs` dosyanıza ekleyerek JWT sistemini ve Redis'i yapılandırabilirsiniz:
 
 ```csharp
-public class Startup
-{
-    public IConfiguration Configuration { get; }
+using Core.Security.JWT;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using StackExchange.Redis;
+using System.Text;
 
-    public Startup(IConfiguration configuration)
+var builder = WebApplication.CreateBuilder(args);
+
+bool useRedis = builder.Configuration.GetValue<bool>("UseRedis");
+builder.Services.AddJwtHelper<int, int, int>(builder.Configuration, useRedis: useRedis);
+
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
     {
-        Configuration = configuration;
-    }
+        var tokenOptions = builder.Configuration.GetSection("TokenOptions").Get<TokenOptions>();
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = tokenOptions.Issuer,
+            ValidAudience = tokenOptions.Audience,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(tokenOptions.SecurityKey))
+        };
+    });
 
-    public void ConfigureServices(IServiceCollection services)
-    {
-        // Diğer servisler...
+var app = builder.Build();
 
-        // JWT ve Redis tabanlı token hizmetlerini ekleyin
-        services.AddJwtHelper<Guid, int, Guid>(Configuration, useRedis: true);
-    }
+app.UseAuthentication();
+app.UseAuthorization();
 
-    public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
-    {
-        // Diğer middleware'ler...
-    }
-}
+app.Run();
 ```
+📌 **Dikkat!** Eğer Redis kullanmak istemiyorsanız `appsettings.json` içine `"UseRedis": false` ekleyebilirsiniz.
 
-## Detaylı Kullanım Örnekleri
+---
 
-### 1. Access Token Oluşturma
+## 🎯 **JWT Kullanımı**
+Aşağıda JWT oluşturma, doğrulama ve iptal etme işlemleri için kullanabileceğiniz örnek kodlar verilmiştir.
 
-Kullanıcı için bir access token oluşturmak için `CreateTokenAsync` metodunu kullanın.
-
+### **✅ Token Oluşturma**
 ```csharp
-public class AuthService
-{
-    private readonly ITokenHelper<Guid, int, Guid> _tokenHelper;
+var tokenHelper = serviceProvider.GetRequiredService<ITokenHelper<int, int, int>>();
+var user = new User<int> { Id = 1, Email = "test@example.com", FirstName = "Test", LastName = "User" };
+var claims = new List<OperationClaim<int>> { new(1, "Admin") };
+var token = tokenHelper.CreateToken(user, claims);
 
-    public AuthService(ITokenHelper<Guid, int, Guid> tokenHelper)
-    {
-        _tokenHelper = tokenHelper;
-    }
-
-    public async Task<AccessToken> CreateTokenAsync(User<Guid> user, IList<OperationClaim<int>> operationClaims)
-    {
-        return await _tokenHelper.CreateTokenAsync(user, operationClaims);
-    }
-}
+Console.WriteLine($"Oluşturulan Token: {token.Token}");
 ```
 
-### 2. Refresh Token Oluşturma
-
-Kullanıcı için bir refresh token oluşturmak için `CreateRefreshTokenAsync` metodunu kullanın.
-
+### **✅ Token Doğrulama**
 ```csharp
-public async Task<RefreshToken<Guid, Guid>> CreateRefreshTokenAsync(User<Guid> user, string ipAddress)
-{
-    return await _tokenHelper.CreateRefreshTokenAsync(user, ipAddress);
-}
+bool isValid = tokenHelper.ValidateToken(token.Token);
+Console.WriteLine(isValid ? "Token geçerli" : "Token geçersiz");
 ```
 
-### 3. Token Yenileme
-
-Mevcut bir refresh token kullanarak yeni bir access token oluşturmak için `RefreshTokenAsync` metodunu kullanın.
-
+### **✅ Token İptal Etme (Blacklist)**
 ```csharp
-public async Task<AccessToken> RefreshTokenAsync(User<Guid> user, IList<OperationClaim<int>> operationClaims, string ipAddress)
-{
-    return await _tokenHelper.RefreshTokenAsync(user, operationClaims, ipAddress);
-}
+tokenHelper.RevokeToken(token.Token);
+Console.WriteLine("Token iptal edildi");
 ```
 
-### 4. Token Geçerliliğini Kontrol Etme
+📌 **Eğer Redis kullanılıyorsa, iptal edilen token anında geçersiz sayılır!**
 
-Bir token'ın geçerliliğini kontrol etmek için `ValidateTokenAsync` metodunu kullanın.
+---
 
-```csharp
-public async Task<bool> ValidateTokenAsync(string token)
-{
-    return await _tokenHelper.ValidateTokenAsync(token);
-}
-```
+## 🎯 **Özet ve Sonuç**
+Bu yapı sayesinde JWT kimlik doğrulama sisteminizi **isteğe bağlı Redis desteğiyle** daha güvenli ve performanslı hale getirebilirsiniz. 
 
-### 5. Token İptal Etme
+✅ **Esnek kullanım** – Redis kullanılabilir veya in-memory çalışabilir.  
+✅ **Yüksek performans** – Redis ile token doğrulama işlemleri hızlandırılır.  
+✅ **Kolay entegrasyon** – .NET 9.0 projelerinde hızlıca kullanılabilir.  
 
-Bir token'ı iptal etmek için `RevokeTokenAsync` metodunu kullanın.
+🚀 **Şimdi projene entegre et ve güvenli JWT sistemiyle çalışmaya başla!** 🎯
 
-```csharp
-public async Task RevokeTokenAsync(string token)
-{
-    await _tokenHelper.RevokeTokenAsync(token);
-}
-```
-
-### 6. Token'dan Claim'leri Alma
-
-Bir token'dan claim'leri almak için `GetClaimsFromTokenAsync` metodunu kullanın.
-
-```csharp
-public async Task<IEnumerable<Claim>> GetClaimsFromTokenAsync(string token)
-{
-    return await _tokenHelper.GetClaimsFromTokenAsync(token);
-}
-```
-
-### 7. Token'dan Kullanıcı ID'sini Alma
-
-Bir token'dan kullanıcı ID'sini almak için `GetUserIdFromTokenAsync` metodunu kullanın.
-
-```csharp
-public async Task<Guid> GetUserIdFromTokenAsync(string token)
-{
-    return await _tokenHelper.GetUserIdFromTokenAsync(token);
-}
-```
-
-### 8. Token'ın Son Kullanma Tarihini Alma
-
-Bir token'ın son kullanma tarihini almak için `GetExpirationDateFromTokenAsync` metodunu kullanın.
-
-```csharp
-public async Task<DateTime> GetExpirationDateFromTokenAsync(string token)
-{
-    return await _tokenHelper.GetExpirationDateFromTokenAsync(token);
-}
-```
-
-## Sonuç
-
-Bu kütüphane, JWT tabanlı kimlik doğrulama ve token yönetimi için kapsamlı bir çözüm sunar.
-Redis desteği ile token'ların kara listeye alınması ve refresh token'ların yönetimi gibi işlemleri kolayca gerçekleştirebilirsiniz.
-Projenize entegre ederek güvenli ve esnek bir kimlik doğrulama mekanizması oluşturabilirsiniz.

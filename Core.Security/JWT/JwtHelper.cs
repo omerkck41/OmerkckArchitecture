@@ -11,9 +11,9 @@ namespace Core.Security.JWT;
 public class JwtHelper<TUserId, TOperationClaimId, TRefreshTokenId> : ITokenHelper<TUserId, TOperationClaimId, TRefreshTokenId>
 {
     private readonly TokenOptions _tokenOptions;
-    private readonly IRefreshTokenRepository<TRefreshTokenId, TUserId> _refreshTokenRepository;
-    private readonly SymmetricSecurityKey _securityKey;
-    private readonly SigningCredentials _signingCredentials;
+    private readonly Lazy<SymmetricSecurityKey> _securityKey;
+    private readonly Lazy<SigningCredentials> _signingCredentials;
+    private readonly ITokenBlacklistManager _tokenBlacklistManager;
 
     /// <summary>
     /// JwtHelper sınıfını başlatır ve gerekli bağımlılıkları yükler.
@@ -22,13 +22,16 @@ public class JwtHelper<TUserId, TOperationClaimId, TRefreshTokenId> : ITokenHelp
     /// <param name="tokenBlacklist">Token kara liste kontrolü için kullanılacak sınıf.</param>
     /// <param name="refreshTokenRepository">Refresh token yönetimi için kullanılacak repository.</param>
     /// <exception cref="InvalidOperationException">Token yapılandırma seçenekleri yüklenemezse fırlatılır.</exception>
-    public JwtHelper(IOptions<TokenOptions> tokenOptions, IRefreshTokenRepository<TRefreshTokenId, TUserId> refreshTokenRepository)
+    public JwtHelper(IOptions<TokenOptions> tokenOptions, ITokenBlacklistManager tokenBlacklistManager)
     {
         _tokenOptions = tokenOptions.Value ?? throw new InvalidOperationException("Token options are not configured.");
+        _tokenBlacklistManager = tokenBlacklistManager;
 
-        _securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_tokenOptions.SecurityKey));
-        _signingCredentials = new SigningCredentials(_securityKey, SecurityAlgorithms.HmacSha512Signature);
-        _refreshTokenRepository = refreshTokenRepository;
+        if (string.IsNullOrWhiteSpace(_tokenOptions.SecurityKey))
+            throw new InvalidOperationException("SecurityKey is not configured properly.");
+
+        _securityKey = new Lazy<SymmetricSecurityKey>(() => new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_tokenOptions.SecurityKey)));
+        _signingCredentials = new Lazy<SigningCredentials>(() => new SigningCredentials(_securityKey.Value, SecurityAlgorithms.HmacSha512Signature));
     }
 
     /// <summary>
@@ -38,7 +41,7 @@ public class JwtHelper<TUserId, TOperationClaimId, TRefreshTokenId> : ITokenHelp
     /// <param name="operationClaims">Kullanıcının operasyon yetkileri.</param>
     /// <param name="customClaims">Ekstra claim'ler (isteğe bağlı).</param>
     /// <returns>Oluşturulan access token.</returns>
-    public async Task<AccessToken> CreateTokenAsync(User<TUserId> user, IList<OperationClaim<TOperationClaimId>> operationClaims, IDictionary<string, string> customClaims = null)
+    public AccessToken CreateToken(User<TUserId> user, IList<OperationClaim<TOperationClaimId>> operationClaims, IDictionary<string, string> customClaims = null)
     {
         var expirationDate = DateTime.UtcNow.AddMinutes(_tokenOptions.AccessTokenExpiration);
         var claims = SetClaims(user, operationClaims);
@@ -57,11 +60,11 @@ public class JwtHelper<TUserId, TOperationClaimId, TRefreshTokenId> : ITokenHelp
             audience: _tokenOptions.Audience,
             claims: claims,
             expires: expirationDate,
-            signingCredentials: _signingCredentials
+            signingCredentials: _signingCredentials.Value
         );
 
         var token = new JwtSecurityTokenHandler().WriteToken(jwt);
-        return await Task.FromResult(new AccessToken(token, expirationDate));
+        return new AccessToken(token, expirationDate);
     }
 
     /// <summary>
@@ -70,45 +73,17 @@ public class JwtHelper<TUserId, TOperationClaimId, TRefreshTokenId> : ITokenHelp
     /// <param name="user">Refresh token oluşturulacak kullanıcı.</param>
     /// <param name="ipAddress">IP adresi.</param>
     /// <returns>Oluşturulan refresh token.</returns>
-    public async Task<RefreshToken<TRefreshTokenId, TUserId>> CreateRefreshTokenAsync(User<TUserId> user, string ipAddress)
+    public RefreshToken<TRefreshTokenId, TUserId> CreateRefreshToken(User<TUserId> user, string ipAddress)
     {
         var refreshToken = new RefreshToken<TRefreshTokenId, TUserId>(
-            id: default!,
+            id: (TRefreshTokenId)default!,
             userId: user.Id,
             token: GenerateRefreshToken(),
             expirationDate: DateTime.UtcNow.AddDays(_tokenOptions.RefreshTokenTTL),
             createdByIp: ipAddress
         );
 
-        return await Task.FromResult(refreshToken);
-    }
-
-    /// <summary>
-    /// Mevcut bir refresh token kullanarak yeni bir access token oluşturur.
-    /// </summary>
-    /// <param name="user">Token yenilenecek kullanıcı.</param>
-    /// <param name="operationClaims">Kullanıcının operasyon yetkileri.</param>
-    /// <param name="ipAddress">IP adresi.</param>
-    /// <returns>Yenilenen access token.</returns>
-    public async Task<AccessToken> RefreshTokenAsync(User<TUserId> user, IList<OperationClaim<TOperationClaimId>> operationClaims, string ipAddress)
-    {
-        // Eski refresh token'ı iptal et
-        var oldRefreshToken = await _refreshTokenRepository.GetCurrentRefreshTokenAsync(user.Id);
-        if (oldRefreshToken != null)
-        {
-            await _refreshTokenRepository.RevokeRefreshTokenAsync(oldRefreshToken.Id, ipAddress, "Replaced by new token");
-        }
-
-        // Yeni access token oluştur
-        var newAccessToken = await CreateTokenAsync(user, operationClaims);
-
-        // Yeni refresh token oluştur
-        var newRefreshToken = await CreateRefreshTokenAsync(user, ipAddress);
-
-        // Yeni refresh token'ı veritabanına kaydet
-        await _refreshTokenRepository.AddRefreshTokenAsync(newRefreshToken);
-
-        return newAccessToken;
+        return refreshToken;
     }
 
     /// <summary>
@@ -116,8 +91,12 @@ public class JwtHelper<TUserId, TOperationClaimId, TRefreshTokenId> : ITokenHelp
     /// </summary>
     /// <param name="token">Kontrol edilecek token.</param>
     /// <returns>Token geçerliyse true, aksi halde false.</returns>
-    public async Task<bool> ValidateTokenAsync(string token)
+    public bool ValidateToken(string token)
     {
+        if (_tokenBlacklistManager.IsTokenRevoked(token))
+            return false;
+
+
         var tokenHandler = new JwtSecurityTokenHandler();
         var validationParameters = new TokenValidationParameters
         {
@@ -135,18 +114,15 @@ public class JwtHelper<TUserId, TOperationClaimId, TRefreshTokenId> : ITokenHelp
             tokenHandler.ValidateToken(token, validationParameters, out _);
             return true;
         }
-        catch (SecurityTokenExpiredException)
+        catch (SecurityTokenException)
         {
-            throw new SecurityTokenException("Token has expired.");
+            return false;
         }
-        catch (SecurityTokenInvalidSignatureException)
-        {
-            throw new SecurityTokenException("Invalid token signature.");
-        }
-        catch
-        {
-            throw new SecurityTokenException("Invalid token.");
-        }
+    }
+
+    public void RevokeToken(string token)
+    {
+        _tokenBlacklistManager.RevokeToken(token, TimeSpan.FromMinutes(_tokenOptions.AccessTokenExpiration));
     }
 
     /// <summary>
@@ -154,11 +130,11 @@ public class JwtHelper<TUserId, TOperationClaimId, TRefreshTokenId> : ITokenHelp
     /// </summary>
     /// <param name="token">Claim'leri alınacak token.</param>
     /// <returns>Token'daki claim bilgileri.</returns>
-    public async Task<IEnumerable<Claim>> GetClaimsFromTokenAsync(string token)
+    public IEnumerable<Claim> GetClaimsFromToken(string token)
     {
         var tokenHandler = new JwtSecurityTokenHandler();
         var jwtToken = tokenHandler.ReadJwtToken(token);
-        return await Task.FromResult(jwtToken.Claims);
+        return jwtToken.Claims;
     }
 
     /// <summary>
@@ -166,15 +142,22 @@ public class JwtHelper<TUserId, TOperationClaimId, TRefreshTokenId> : ITokenHelp
     /// </summary>
     /// <param name="token">Kullanıcı ID'si alınacak token.</param>
     /// <returns>Kullanıcı ID'si.</returns>
-    public async Task<TUserId> GetUserIdFromTokenAsync(string token)
+    public TUserId GetUserIdFromToken(string token)
     {
-        var claims = await GetClaimsFromTokenAsync(token);
+        var claims = GetClaimsFromToken(token);
         var userIdClaim = claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier);
-        if (userIdClaim == null)
-        {
+
+        if (userIdClaim == null || string.IsNullOrEmpty(userIdClaim.Value))
             throw new SecurityTokenException("User ID claim not found in token.");
+
+        try
+        {
+            return (TUserId)Convert.ChangeType(userIdClaim.Value, typeof(TUserId));
         }
-        return (TUserId)Convert.ChangeType(userIdClaim.Value, typeof(TUserId));
+        catch
+        {
+            throw new SecurityTokenException("Invalid user ID type in token.");
+        }
     }
 
     /// <summary>
@@ -182,11 +165,11 @@ public class JwtHelper<TUserId, TOperationClaimId, TRefreshTokenId> : ITokenHelp
     /// </summary>
     /// <param name="token">Geçerlilik tarihi alınacak token.</param>
     /// <returns>Token'ın geçerlilik bitiş tarihi.</returns>
-    public async Task<DateTime> GetExpirationDateFromTokenAsync(string token)
+    public DateTime GetExpirationDateFromToken(string token)
     {
         var tokenHandler = new JwtSecurityTokenHandler();
         var jwtToken = tokenHandler.ReadJwtToken(token);
-        return await Task.FromResult(jwtToken.ValidTo);
+        return jwtToken.ValidTo;
     }
 
 
@@ -194,7 +177,7 @@ public class JwtHelper<TUserId, TOperationClaimId, TRefreshTokenId> : ITokenHelp
     {
         var claims = new List<Claim>
         {
-            new(ClaimTypes.NameIdentifier, user.Id!.ToString()!),
+            new(ClaimTypes.NameIdentifier, Convert.ToString(user.Id) ?? string.Empty),
             new(ClaimTypes.Email, user.Email),
             new(ClaimTypes.Name, $"{user.FirstName} {user.LastName}")
         };
@@ -205,9 +188,6 @@ public class JwtHelper<TUserId, TOperationClaimId, TRefreshTokenId> : ITokenHelp
 
     private string GenerateRefreshToken()
     {
-        var randomNumber = new byte[32];
-        using var rng = RandomNumberGenerator.Create();
-        rng.GetBytes(randomNumber);
-        return Convert.ToBase64String(randomNumber);
+        return Convert.ToBase64String(RandomNumberGenerator.GetBytes(32));
     }
 }

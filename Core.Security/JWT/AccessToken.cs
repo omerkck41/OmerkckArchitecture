@@ -8,11 +8,11 @@ public class AccessToken
     /// <summary>
     /// JWT token string'ini alır.
     /// </summary>
-    public string Token { get; }
+    public string Token { get; private set; }
     /// <summary>
     /// Token'ın son kullanma tarihini alır.
     /// </summary>
-    public DateTime ExpirationDate { get; }
+    public DateTime ExpirationDate { get; private set; }
 
     /// <summary>
     /// <see cref="AccessToken"/> sınıfının yeni bir örneğini başlatır.
