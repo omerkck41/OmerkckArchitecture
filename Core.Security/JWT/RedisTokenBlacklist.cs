@@ -1,4 +1,6 @@
-﻿using StackExchange.Redis;
+﻿using Microsoft.Extensions.Options;
+using StackExchange.Redis;
+using System.IdentityModel.Tokens.Jwt;
 
 namespace Core.Security.JWT;
 
@@ -8,23 +10,38 @@ namespace Core.Security.JWT;
 public class RedisTokenBlacklist : ITokenBlacklist
 {
     private readonly IDatabase _redisDatabase;
+    private readonly TokenOptions _tokenOptions;
 
     /// <summary>
     /// <see cref="RedisTokenBlacklist"/> sınıfının yeni bir örneğini başlatır.
     /// </summary>
     /// <param name="redisConnection">Redis bağlantı çoklayıcısı.</param>
-    public RedisTokenBlacklist(IConnectionMultiplexer redisConnection)
+    /// <param name="tokenOptions">JWT yapılandırma seçenekleri.</param>
+    public RedisTokenBlacklist(IConnectionMultiplexer redisConnection, IOptions<TokenOptions> tokenOptions)
     {
         _redisDatabase = redisConnection.GetDatabase();
+        _tokenOptions = tokenOptions.Value;
     }
 
+
+    private async Task<TimeSpan?> GetTokenExpirationFromJwtAsync(string token)
+    {
+        var handler = new JwtSecurityTokenHandler();
+        var jwtToken = handler.ReadJwtToken(token);
+        return jwtToken.ValidTo > DateTime.UtcNow ? jwtToken.ValidTo - DateTime.UtcNow : null;
+    }
     /// <summary>
     /// Bir token'ı Redis kara listesine ekleyerek iptal eder.
     /// </summary>
     /// <param name="token">İptal edilecek token.</param>
-    public void RevokeToken(string token)
+    /// <param name="reason">İptal sebebi (opsiyonel).</param>
+    public async Task RevokeTokenAsync(string token, string reason = "Revoked by system")
     {
-        _redisDatabase.StringSet(token, "revoked", TimeSpan.FromMinutes(60)); // Token'ı 60 dakika boyunca iptal et
+        var expiration = await GetTokenExpirationFromJwtAsync(token);
+        if (expiration == null) return;
+
+        // Redis'e token'ı "revoked" olarak ekleyelim
+        await _redisDatabase.StringSetAsync(token, reason, expiration);
     }
 
     /// <summary>
@@ -32,8 +49,8 @@ public class RedisTokenBlacklist : ITokenBlacklist
     /// </summary>
     /// <param name="token">Kontrol edilecek token.</param>
     /// <returns>Token iptal edilmişse true; aksi takdirde false.</returns>
-    public bool IsTokenRevoked(string token)
+    public async Task<bool> IsTokenRevokedAsync(string token)
     {
-        return _redisDatabase.KeyExists(token);
+        return await _redisDatabase.KeyExistsAsync(token);
     }
 }

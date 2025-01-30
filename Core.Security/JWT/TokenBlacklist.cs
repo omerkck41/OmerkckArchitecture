@@ -1,28 +1,23 @@
-﻿namespace Core.Security.JWT;
+﻿using Core.Persistence.Entities;
+
+namespace Core.Security.JWT;
 
 /// <summary>
 /// İptal edilen token'lar için bir kara liste temsil eder.
 /// </summary>
-public class TokenBlacklist : ITokenBlacklist
+public class TokenBlacklist<TId> : Entity<TId>
 {
-    private readonly HashSet<string> _revokedTokens = new();
+    public string Token { get; set; }  // İptal edilen token
+    public DateTime RevokedDate { get; set; }  // Token'ın iptal edildiği tarih
+    public string? Reason { get; set; }  // İptal sebebi (Opsiyonel)
 
-    /// <summary>
-    /// Bir token'ı kara listeye ekleyerek iptal eder.
-    /// </summary>
-    /// <param name="token">İptal edilecek token.</param>
-    public void RevokeToken(string token)
+    public TokenBlacklist() { Token = string.Empty; RevokedDate = DateTime.UtcNow; Reason = string.Empty; }
+
+    public TokenBlacklist(TId id, string token, string? reason = null) : base(id)
     {
-        _revokedTokens.Add(token);
+        Token = token;
+        RevokedDate = DateTime.UtcNow;
+        Reason = reason;
     }
 
-    /// <summary>
-    /// Bir token'ın iptal edilip edilmediğini kontrol eder.
-    /// </summary>
-    /// <param name="token">Kontrol edilecek token.</param>
-    /// <returns>Token iptal edilmişse true; aksi takdirde false.</returns>
-    public bool IsTokenRevoked(string token)
-    {
-        return _revokedTokens.Contains(token);
-    }
 }

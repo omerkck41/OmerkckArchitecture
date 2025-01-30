@@ -6,11 +6,11 @@ public interface ITokenBlacklist
     /// Bir token'ı kara listeye ekler.
     /// </summary>
     /// <param name="token">Kara listeye eklenecek token.</param>
-    void RevokeToken(string token);
+    Task RevokeTokenAsync(string token, string reason);
 
     /// <summary>
     /// Bir token'ın kara listede olup olmadığını kontrol eder.
     /// </summary>
     /// <param name="token">Kontrol edilecek token.</param>
-    bool IsTokenRevoked(string token);
+    Task<bool> IsTokenRevokedAsync(string token);
 }

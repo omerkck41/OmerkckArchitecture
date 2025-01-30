@@ -35,12 +35,6 @@ public interface ITokenHelper<TUserId, TOperationClaimId, TRefreshTokenId>
     Task<bool> ValidateTokenAsync(string token);
 
     /// <summary>
-    /// Bir token'ı iptal eder.
-    /// </summary>
-    /// <param name="token">İptal edilecek token.</param>
-    Task RevokeTokenAsync(string token);
-
-    /// <summary>
     /// Bir token'dan claim'leri alır.
     /// </summary>
     /// <param name="token">Claim'leri alınacak token.</param>

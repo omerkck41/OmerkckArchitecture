@@ -20,10 +20,8 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddJwtHelper<TUserId, TOperationClaimId, TRefreshTokenId>(this IServiceCollection services, IConfiguration configuration, Action<TokenOptions> configureOptions = null, bool useRedis = false)
     {
         var tokenOptions = configuration.GetSection("TokenOptions").Get<TokenOptions>();
-        if (configureOptions != null)
-        {
-            configureOptions(tokenOptions);
-        }
+
+        configureOptions?.Invoke(tokenOptions);
 
         services.AddSingleton(tokenOptions);
 
@@ -37,8 +35,7 @@ public static class ServiceCollectionExtensions
         }
         else
         {
-            services.AddSingleton<ITokenBlacklist, TokenBlacklist>();
-            services.AddScoped<IRefreshTokenRepository<TRefreshTokenId, TUserId>, RefreshTokenRepository<TRefreshTokenId, TUserId>>();
+            services.AddSingleton<TokenBlacklist<int>>();
         }
 
         services.AddScoped<ITokenHelper<TUserId, TOperationClaimId, TRefreshTokenId>, JwtHelper<TUserId, TOperationClaimId, TRefreshTokenId>>();

@@ -11,7 +11,6 @@ namespace Core.Security.JWT;
 public class JwtHelper<TUserId, TOperationClaimId, TRefreshTokenId> : ITokenHelper<TUserId, TOperationClaimId, TRefreshTokenId>
 {
     private readonly TokenOptions _tokenOptions;
-    private readonly TokenBlacklist _tokenBlacklist;
     private readonly IRefreshTokenRepository<TRefreshTokenId, TUserId> _refreshTokenRepository;
     private readonly SymmetricSecurityKey _securityKey;
     private readonly SigningCredentials _signingCredentials;
@@ -23,13 +22,12 @@ public class JwtHelper<TUserId, TOperationClaimId, TRefreshTokenId> : ITokenHelp
     /// <param name="tokenBlacklist">Token kara liste kontrolü için kullanılacak sınıf.</param>
     /// <param name="refreshTokenRepository">Refresh token yönetimi için kullanılacak repository.</param>
     /// <exception cref="InvalidOperationException">Token yapılandırma seçenekleri yüklenemezse fırlatılır.</exception>
-    public JwtHelper(IOptions<TokenOptions> tokenOptions, TokenBlacklist tokenBlacklist, IRefreshTokenRepository<TRefreshTokenId, TUserId> refreshTokenRepository)
+    public JwtHelper(IOptions<TokenOptions> tokenOptions, IRefreshTokenRepository<TRefreshTokenId, TUserId> refreshTokenRepository)
     {
         _tokenOptions = tokenOptions.Value ?? throw new InvalidOperationException("Token options are not configured.");
 
         _securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_tokenOptions.SecurityKey));
         _signingCredentials = new SigningCredentials(_securityKey, SecurityAlgorithms.HmacSha512Signature);
-        _tokenBlacklist = tokenBlacklist;
         _refreshTokenRepository = refreshTokenRepository;
     }
 
@@ -120,11 +118,6 @@ public class JwtHelper<TUserId, TOperationClaimId, TRefreshTokenId> : ITokenHelp
     /// <returns>Token geçerliyse true, aksi halde false.</returns>
     public async Task<bool> ValidateTokenAsync(string token)
     {
-        if (_tokenBlacklist.IsTokenRevoked(token))
-        {
-            throw new SecurityTokenException("Token has been revoked.");
-        }
-
         var tokenHandler = new JwtSecurityTokenHandler();
         var validationParameters = new TokenValidationParameters
         {
@@ -154,47 +147,6 @@ public class JwtHelper<TUserId, TOperationClaimId, TRefreshTokenId> : ITokenHelp
         {
             throw new SecurityTokenException("Invalid token.");
         }
-    }
-
-    private async Task<ClaimsPrincipal> ValidateTokenAndGetClaimsAsync(string token)
-    {
-        var tokenHandler = new JwtSecurityTokenHandler();
-        var validationParameters = new TokenValidationParameters
-        {
-            ValidateIssuer = true,
-            ValidateAudience = true,
-            ValidateLifetime = true,
-            ValidateIssuerSigningKey = true,
-            ValidIssuer = _tokenOptions.Issuer,
-            ValidAudience = _tokenOptions.Audience,
-            IssuerSigningKey = _securityKey
-        };
-
-        try
-        {
-            return tokenHandler.ValidateToken(token, validationParameters, out _);
-        }
-        catch
-        {
-            return null;
-        }
-    }
-    /// <summary>
-    /// Belirtilen bir token'ı iptal eder.
-    /// </summary>
-    /// <param name="token">İptal edilecek token.</param>
-    public async Task RevokeTokenAsync(string token)
-    {
-        // Token'ı doğrula ve claims'leri al
-        var claimsPrincipal = await ValidateTokenAndGetClaimsAsync(token);
-        if (claimsPrincipal == null)
-        {
-            throw new SecurityTokenException("Invalid token.");
-        }
-
-        // Token'ın iptal edilmesi gerekiyorsa, proje tarafında bu işlem yapılmalı
-        // Örneğin, proje tarafında bir revoked tokens listesi tutulabilir
-        // Bu sınıf sadece token'ın geçerliliğini kontrol eder
     }
 
     /// <summary>
@@ -241,11 +193,11 @@ public class JwtHelper<TUserId, TOperationClaimId, TRefreshTokenId> : ITokenHelp
     private List<Claim> SetClaims(User<TUserId> user, IList<OperationClaim<TOperationClaimId>> operationClaims)
     {
         var claims = new List<Claim>
-    {
-        new(ClaimTypes.NameIdentifier, user.Id!.ToString()!),
-        new(ClaimTypes.Email, user.Email),
-        new(ClaimTypes.Name, $"{user.FirstName} {user.LastName}")
-    };
+        {
+            new(ClaimTypes.NameIdentifier, user.Id!.ToString()!),
+            new(ClaimTypes.Email, user.Email),
+            new(ClaimTypes.Name, $"{user.FirstName} {user.LastName}")
+        };
 
         claims.AddRange(operationClaims.Select(c => new Claim(ClaimTypes.Role, c.Name)));
         return claims;
