@@ -1,6 +1,9 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.IdentityModel.Tokens;
 using StackExchange.Redis;
+using System.Text;
 
 namespace Core.Security.JWT;
 
@@ -26,6 +29,22 @@ public static class ServiceCollectionExtensions
         var tokenOptions = configuration.GetSection("TokenOptions").Get<TokenOptions>();
         configureOptions?.Invoke(tokenOptions);
         _ = services.AddSingleton(tokenOptions);
+
+        // JWT Authentication yapılandırması
+        services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+            .AddJwtBearer(options =>
+            {
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    ValidIssuer = tokenOptions.Issuer,
+                    ValidAudience = tokenOptions.Audience,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(tokenOptions.SecurityKey))
+                };
+            });
 
         var redisConfig = configuration.GetSection("Redis:Connection").Value;
         if (useRedis && !string.IsNullOrWhiteSpace(redisConfig))
