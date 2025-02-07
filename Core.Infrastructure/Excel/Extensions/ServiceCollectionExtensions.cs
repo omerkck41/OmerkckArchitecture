@@ -14,7 +14,6 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IExcelBuilderAsync, ExcelBuilderAsync>();
         services.AddScoped<IExcelTemplateManager, ExcelTemplateManager>();
 
-        // Gerekirse daha fazla servis eklenebilir
         return services;
     }
 }

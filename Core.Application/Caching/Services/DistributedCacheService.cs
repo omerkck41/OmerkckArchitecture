@@ -9,7 +9,7 @@ public class DistributedCacheService : ICacheService
 
     public DistributedCacheService(IDistributedCache distributedCache)
     {
-        _distributedCache = distributedCache;
+        _distributedCache = distributedCache ?? throw new ArgumentNullException(nameof(distributedCache));
     }
 
     public async Task<T?> GetAsync<T>(string key, CancellationToken cancellationToken = default)

@@ -15,16 +15,23 @@ public static class ServiceCollectionExtensions
         if (configureSettings == null)
             throw new ArgumentNullException(nameof(configureSettings));
 
-        var settings = new CacheSettings();
+        CacheSettings settings = new CacheSettings();
         configureSettings(settings);
+
+        services.AddSingleton(settings);
 
         // Cache servislerini ekle
         if (settings.Provider == CacheProvider.InMemory)
+        {
+            services.AddMemoryCache();
             services.AddSingleton<ICacheService, InMemoryCacheService>();
+        }
         else if (settings.Provider == CacheProvider.Distributed)
+        {
+            services.AddDistributedMemoryCache();
             services.AddSingleton<ICacheService, DistributedCacheService>();
+        }
 
-        services.AddSingleton(settings);
 
         // MediatR pipeline'ına cache davranışlarını ekle
         services.AddTransient(typeof(IPipelineBehavior<,>), typeof(CachingBehavior<,>));
