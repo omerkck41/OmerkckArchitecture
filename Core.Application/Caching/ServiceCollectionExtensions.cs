@@ -1,13 +1,14 @@
 ﻿using Core.Application.Caching.Behaviors;
 using Core.Application.Caching.Services;
 using MediatR;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Core.Application.Caching;
 
 public static class ServiceCollectionExtensions
 {
-    public static IServiceCollection AddCachingServices(this IServiceCollection services, Action<CacheSettings> configureSettings)
+    public static IServiceCollection AddCachingServices(this IServiceCollection services, IConfiguration configuration, Action<CacheSettings> configureSettings)
     {
         if (services == null)
             throw new ArgumentNullException(nameof(services));
@@ -30,6 +31,13 @@ public static class ServiceCollectionExtensions
         {
             services.AddDistributedMemoryCache();
             services.AddSingleton<ICacheService, DistributedCacheService>();
+
+            // Distributed cache için Redis kullanılacaksa:
+            services.AddStackExchangeRedisCache(options =>
+            {
+                options.Configuration = configuration.GetConnectionString("Redis");
+                options.InstanceName = configuration.GetConnectionString("InstanceName");
+            });
         }
 
 
