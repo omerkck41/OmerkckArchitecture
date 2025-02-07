@@ -4,7 +4,6 @@ using Core.Infrastructure.UniversalFTP.Services.Interfaces;
 using Core.Infrastructure.UniversalFTP.Services.Models;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
 
 namespace Core.Infrastructure.UniversalFTP.Helper;
 
@@ -15,12 +14,18 @@ public static class ServiceCollectionExtensions
         if (settings == null)
             throw new ArgumentNullException(nameof(settings), "FtpSettings cannot be null.");
 
-        // IOptions<FtpSettings> olarak ayarlanıyor
-        services.AddSingleton<IOptions<FtpSettings>>(Options.Create(settings));
-        services.AddSingleton<FtpConnectionPool>();
+        services.Configure<FtpSettings>(opts =>
+        {
+            opts.Host = settings.Host;
+            opts.Port = settings.Port;
+            opts.Username = settings.Username;
+            opts.Password = settings.Password;
+        });
+
+        services.AddScoped<FtpConnectionPool>();
         services.AddScoped<IFtpClientFactory, DefaultFtpClientFactory>();
-        services.AddScoped<FluentFtpService>();
-        services.AddScoped<FluentFtpDirectoryService>();
+        services.AddScoped<IFtpService, FluentFtpService>();
+        services.AddScoped<IFtpDirectoryService, FluentFtpDirectoryService>();
 
         return services;
     }
@@ -31,12 +36,12 @@ public static class ServiceCollectionExtensions
             throw new InvalidOperationException("FtpSettings configuration section is missing.");
 
         services.Configure<FtpSettings>(configuration.GetSection("FtpSettings"));
-        services.AddSingleton<FtpConnectionPool>();
-        services.AddSingleton<IFtpClientFactory, DefaultFtpClientFactory>();
-        services.AddTransient<IFtpService, FluentFtpService>();
-        services.AddTransient<IFtpDirectoryService, FluentFtpDirectoryService>();
+
+        services.AddScoped<FtpConnectionPool>();
+        services.AddScoped<IFtpClientFactory, DefaultFtpClientFactory>();
+        services.AddScoped<IFtpService, FluentFtpService>();
+        services.AddScoped<IFtpDirectoryService, FluentFtpDirectoryService>();
 
         return services;
     }
-
 }
