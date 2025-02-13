@@ -228,6 +228,15 @@ public class EfRepositoryBase<TEntity, TId, TContext> : IAsyncRepository<TEntity
         await _context.SaveChangesAsync(cancellationToken);
         return entity;
     }
+
+    public async Task<TEntity> DeleteAsync(Expression<Func<TEntity, bool>> predicate, CancellationToken cancellationToken = default)
+    {
+        var entity = _dbSet.FirstOrDefault(predicate);
+
+        _dbSet.Remove(entity);
+        await _context.SaveChangesAsync(cancellationToken);
+        return entity;
+    }
     public async Task<TEntity> DeleteAsync(int id, CancellationToken cancellationToken = default)
     {
         // CancellationToken destekleyen bir LINQ sorgusu ile entity aranır

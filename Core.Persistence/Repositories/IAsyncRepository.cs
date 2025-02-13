@@ -78,6 +78,11 @@ public interface IAsyncRepository<T, TId> : IQuery<T> where T : Entity<TId>
     Task<T> DeleteAsync(T entity, CancellationToken cancellationToken = default);
 
     /// <summary>
+    /// Koşullu bir varlığı siler.
+    /// </summary>
+    Task<T> DeleteAsync(Expression<Func<T, bool>> predicate, CancellationToken cancellationToken = default);
+
+    /// <summary>
     /// Birden fazla varlığı siler.
     /// </summary>
     Task DeleteRangeAsync(IEnumerable<T> entities, CancellationToken cancellationToken = default);
