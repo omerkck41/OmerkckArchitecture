@@ -5,14 +5,37 @@ namespace Core.Security.JWT;
 public class InMemoryTokenBlacklistManager : ITokenBlacklistManager
 {
     private static readonly ConcurrentDictionary<string, DateTime> Blacklist = new();
+    private const string BlacklistKeyPrefix = "user_token_";
 
-    public void RevokeToken(string token, TimeSpan expiration)
+    public void RevokeToken(string token, string userId, TimeSpan expiration)
     {
-        Blacklist[token] = DateTime.UtcNow.Add(expiration);
+        Blacklist[$"{BlacklistKeyPrefix}{userId}_{token}"] = DateTime.UtcNow.Add(expiration);
     }
 
     public bool IsTokenRevoked(string token)
     {
-        return Blacklist.TryGetValue(token, out var expiration) && expiration > DateTime.UtcNow;
+        return Blacklist.Keys.Any(key => key.EndsWith(token) && Blacklist[key] > DateTime.UtcNow);
+    }
+
+    public bool IsUserRevoked(string userId)
+    {
+        return Blacklist.Keys.Any(key => key.StartsWith($"{BlacklistKeyPrefix}{userId}_") && Blacklist[key] > DateTime.UtcNow);
+    }
+
+    public void RemoveFromBlacklist(string token)
+    {
+        Blacklist.TryRemove($"token_{token}", out _);
+    }
+
+    public void RemoveUserFromBlacklist(string userId)
+    {
+        var keysToRemove = Blacklist.Keys
+        .Where(key => key.StartsWith($"user_token_{userId}_"))
+        .ToList();
+
+        foreach (var key in keysToRemove)
+        {
+            Blacklist.TryRemove(key, out _);
+        }
     }
 }

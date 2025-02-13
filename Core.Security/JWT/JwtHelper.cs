@@ -97,21 +97,19 @@ public class JwtHelper<TUserId, TOperationClaimId, TRefreshTokenId> : ITokenHelp
             return false;
 
 
-        var tokenHandler = new JwtSecurityTokenHandler();
-        var validationParameters = new TokenValidationParameters
-        {
-            ValidateIssuer = true,
-            ValidateAudience = true,
-            ValidateLifetime = true,
-            ValidateIssuerSigningKey = true,
-            ValidIssuer = _tokenOptions.Issuer,
-            ValidAudience = _tokenOptions.Audience,
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_tokenOptions.SecurityKey))
-        };
-
         try
         {
-            tokenHandler.ValidateToken(token, validationParameters, out _);
+            new JwtSecurityTokenHandler().ValidateToken(token, new TokenValidationParameters
+            {
+                ValidateIssuer = true,
+                ValidateAudience = true,
+                ValidateLifetime = true,
+                ValidateIssuerSigningKey = true,
+                ValidIssuer = _tokenOptions.Issuer,
+                ValidAudience = _tokenOptions.Audience,
+                IssuerSigningKey = _securityKey.Value
+            }, out _);
+
             return true;
         }
         catch (SecurityTokenException)
@@ -120,9 +118,10 @@ public class JwtHelper<TUserId, TOperationClaimId, TRefreshTokenId> : ITokenHelp
         }
     }
 
-    public void RevokeToken(string token)
+    public void RevokeToken(string token, string userId, TimeSpan? expiration = null)
     {
-        _tokenBlacklistManager.RevokeToken(token, TimeSpan.FromMinutes(_tokenOptions.AccessTokenExpiration));
+        var revokeDuration = expiration ?? TimeSpan.FromMinutes(_tokenOptions.AccessTokenExpiration);
+        _tokenBlacklistManager.RevokeToken(token, userId, revokeDuration);
     }
 
     /// <summary>
@@ -132,9 +131,7 @@ public class JwtHelper<TUserId, TOperationClaimId, TRefreshTokenId> : ITokenHelp
     /// <returns>Token'daki claim bilgileri.</returns>
     public IEnumerable<Claim> GetClaimsFromToken(string token)
     {
-        var tokenHandler = new JwtSecurityTokenHandler();
-        var jwtToken = tokenHandler.ReadJwtToken(token);
-        return jwtToken.Claims;
+        return new JwtSecurityTokenHandler().ReadJwtToken(token).Claims;
     }
 
     /// <summary>
@@ -145,19 +142,12 @@ public class JwtHelper<TUserId, TOperationClaimId, TRefreshTokenId> : ITokenHelp
     public TUserId GetUserIdFromToken(string token)
     {
         var claims = GetClaimsFromToken(token);
-        var userIdClaim = claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier);
+        var userIdClaim = claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
 
-        if (userIdClaim == null || string.IsNullOrEmpty(userIdClaim.Value))
+        if (userIdClaim == null)
             throw new SecurityTokenException("User ID claim not found in token.");
 
-        try
-        {
-            return (TUserId)Convert.ChangeType(userIdClaim.Value, typeof(TUserId));
-        }
-        catch
-        {
-            throw new SecurityTokenException("Invalid user ID type in token.");
-        }
+        return (TUserId)Convert.ChangeType(userIdClaim, typeof(TUserId));
     }
 
     /// <summary>
@@ -167,9 +157,7 @@ public class JwtHelper<TUserId, TOperationClaimId, TRefreshTokenId> : ITokenHelp
     /// <returns>Token'ın geçerlilik bitiş tarihi.</returns>
     public DateTime GetExpirationDateFromToken(string token)
     {
-        var tokenHandler = new JwtSecurityTokenHandler();
-        var jwtToken = tokenHandler.ReadJwtToken(token);
-        return jwtToken.ValidTo;
+        return new JwtSecurityTokenHandler().ReadJwtToken(token).ValidTo;
     }
 
 
@@ -185,7 +173,6 @@ public class JwtHelper<TUserId, TOperationClaimId, TRefreshTokenId> : ITokenHelp
         claims.AddRange(operationClaims.Select(c => new Claim(ClaimTypes.Role, c.Name)));
         return claims;
     }
-
     private string GenerateRefreshToken()
     {
         return Convert.ToBase64String(RandomNumberGenerator.GetBytes(32));
