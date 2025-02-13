@@ -1,10 +1,10 @@
 ﻿namespace Core.Security.JWT;
 
-public interface ITokenBlacklistManager
+public interface ITokenBlacklistManager<TUserId>
 {
-    void RevokeToken(string token, string userId, TimeSpan expiration);
+    void RevokeToken(string token, TUserId userId, TimeSpan expiration);
     bool IsTokenRevoked(string token);
-    bool IsUserRevoked(string userId);
+    bool IsUserRevoked(TUserId userId);
     void RemoveFromBlacklist(string token);
-    void RemoveUserFromBlacklist(string userId);
+    void RemoveUserFromBlacklist(TUserId userId);
 }

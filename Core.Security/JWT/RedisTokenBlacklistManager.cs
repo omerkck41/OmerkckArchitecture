@@ -2,7 +2,7 @@
 
 namespace Core.Security.JWT;
 
-public class RedisTokenBlacklistManager : ITokenBlacklistManager
+public class RedisTokenBlacklistManager<TUserId> : ITokenBlacklistManager<TUserId>
 {
     private readonly IDatabase _redisDatabase;
     private const string BlacklistKeyPrefix = "user_token_";
@@ -12,7 +12,7 @@ public class RedisTokenBlacklistManager : ITokenBlacklistManager
         _redisDatabase = redis.GetDatabase();
     }
 
-    public void RevokeToken(string token, string userId, TimeSpan expiration)
+    public void RevokeToken(string token, TUserId userId, TimeSpan expiration)
     {
         _redisDatabase.StringSet($"{BlacklistKeyPrefix}{userId}_{token}", "revoked", expiration);
     }
@@ -22,7 +22,7 @@ public class RedisTokenBlacklistManager : ITokenBlacklistManager
         return _redisDatabase.KeyExists($"{BlacklistKeyPrefix}_*_" + token);
     }
 
-    public bool IsUserRevoked(string userId)
+    public bool IsUserRevoked(TUserId userId)
     {
         return _redisDatabase.KeyExists($"{BlacklistKeyPrefix}{userId}_*");
     }
@@ -32,7 +32,7 @@ public class RedisTokenBlacklistManager : ITokenBlacklistManager
         _redisDatabase.KeyDelete($"token_{token}");
     }
 
-    public void RemoveUserFromBlacklist(string userId)
+    public void RemoveUserFromBlacklist(TUserId userId)
     {
         _redisDatabase.KeyDelete($"user_{userId}");
     }
