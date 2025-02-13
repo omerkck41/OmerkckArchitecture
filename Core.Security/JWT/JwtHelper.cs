@@ -13,7 +13,7 @@ public class JwtHelper<TUserId, TOperationClaimId, TRefreshTokenId> : ITokenHelp
     private readonly TokenOptions _tokenOptions;
     private readonly Lazy<SymmetricSecurityKey> _securityKey;
     private readonly Lazy<SigningCredentials> _signingCredentials;
-    private readonly ITokenBlacklistManager _tokenBlacklistManager;
+    private readonly ITokenBlacklistManager<TUserId> _tokenBlacklistManager;
 
     /// <summary>
     /// JwtHelper sınıfını başlatır ve gerekli bağımlılıkları yükler.
@@ -22,7 +22,7 @@ public class JwtHelper<TUserId, TOperationClaimId, TRefreshTokenId> : ITokenHelp
     /// <param name="tokenBlacklist">Token kara liste kontrolü için kullanılacak sınıf.</param>
     /// <param name="refreshTokenRepository">Refresh token yönetimi için kullanılacak repository.</param>
     /// <exception cref="InvalidOperationException">Token yapılandırma seçenekleri yüklenemezse fırlatılır.</exception>
-    public JwtHelper(IOptions<TokenOptions> tokenOptions, ITokenBlacklistManager tokenBlacklistManager)
+    public JwtHelper(IOptions<TokenOptions> tokenOptions, ITokenBlacklistManager<TUserId> tokenBlacklistManager)
     {
         _tokenOptions = tokenOptions.Value ?? throw new InvalidOperationException("Token options are not configured.");
         _tokenBlacklistManager = tokenBlacklistManager;
@@ -118,7 +118,7 @@ public class JwtHelper<TUserId, TOperationClaimId, TRefreshTokenId> : ITokenHelp
         }
     }
 
-    public void RevokeToken(string token, string userId, TimeSpan? expiration = null)
+    public void RevokeToken(string token, TUserId userId, TimeSpan? expiration = null)
     {
         var revokeDuration = expiration ?? TimeSpan.FromMinutes(_tokenOptions.AccessTokenExpiration);
         _tokenBlacklistManager.RevokeToken(token, userId, revokeDuration);

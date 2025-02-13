@@ -20,7 +20,7 @@ public interface ITokenHelper<TUserId, TOperationClaimId, TRefreshTokenId>
     /// <param name="ipAddress">IP adresi.</param>
     RefreshToken<TRefreshTokenId, TUserId> CreateRefreshToken(User<TUserId> user, string ipAddress);
 
-    void RevokeToken(string token, string userId, TimeSpan? expiration = null);
+    void RevokeToken(string token, TUserId userId, TimeSpan? expiration = null);
 
     /// <summary>
     /// Bir token'ın geçerliliğini kontrol eder.

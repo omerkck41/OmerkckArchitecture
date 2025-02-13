@@ -53,11 +53,11 @@ public static class ServiceCollectionExtensions
             var redisConnection = ConnectionMultiplexer.Connect(redisConfig);
             services.AddSingleton<IConnectionMultiplexer>(redisConnection);
             services.AddSingleton<IDatabase>(sp => redisConnection.GetDatabase());
-            services.AddSingleton<ITokenBlacklistManager, RedisTokenBlacklistManager>(); // Redis tabanlı blacklist yönetimi
+            services.AddSingleton<ITokenBlacklistManager<TUserId>, RedisTokenBlacklistManager<TUserId>>(); // Redis tabanlı blacklist yönetimi
         }
         else
         {
-            services.AddSingleton<ITokenBlacklistManager, InMemoryTokenBlacklistManager>(); // Varsayılan olarak in-memory çalışacak
+            services.AddSingleton<ITokenBlacklistManager<TUserId>, InMemoryTokenBlacklistManager<TUserId>>(); // Varsayılan olarak in-memory çalışacak
         }
 
         services.AddScoped<ITokenHelper<TUserId, TOperationClaimId, TRefreshTokenId>, JwtHelper<TUserId, TOperationClaimId, TRefreshTokenId>>();
