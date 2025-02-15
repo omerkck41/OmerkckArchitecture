@@ -6,13 +6,7 @@ Bu rehber, UniversalFTP projesinin projeye nasıl entegre edileceğini, yapılan
 
 ## 1. Projeye Nasıl Entegre Edilir?
 
-1. **UniversalFTP NuGet Paketi Eklenmesi**  
-   UniversalFTP, bir **Class Library** olarak geliştirilmiştir. Projenize eklemek için bu kütüphaneyi NuGet paketi olarak yükleyin:
-   ```bash
-   dotnet add package UniversalFTP
-   ```
-
-2. **FtpSettings Ayarlarının Eklenmesi**  
+1. **FtpSettings Ayarlarının Eklenmesi**  
    `appsettings.json` dosyasına FTP bağlantı bilgilerini ekleyin:
    ```json
    {
