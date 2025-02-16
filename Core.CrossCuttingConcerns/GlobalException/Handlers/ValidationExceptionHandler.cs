@@ -20,7 +20,7 @@ public class ValidationExceptionHandler : IExceptionHandler
                 Detail = "Validation failed for one or more fields.",
                 Extensions =
                 {
-                    ["errors"] = validationException.Errors // Doğrudan Errors ekle
+                    ["errors"] = validationException.Errors
                 }
             };
 
