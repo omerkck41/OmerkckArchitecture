@@ -1,7 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-
-namespace Core.CrossCuttingConcerns.GlobalException.Exceptions;
+﻿namespace Core.CrossCuttingConcerns.GlobalException.Exceptions;
 
 public class ValidationException : CustomException
 {
@@ -13,14 +10,12 @@ public class ValidationException : CustomException
         Errors = errors ?? new Dictionary<string, string[]>();
     }
 
-    public ProblemDetails ToProblemDetails()
+    // Hata detaylarını ToString üzerinden dön
+    public override string ToString()
     {
-        return new ProblemDetails
+        return System.Text.Json.JsonSerializer.Serialize(Errors, new System.Text.Json.JsonSerializerOptions
         {
-            Status = StatusCodes.Status400BadRequest,
-            Title = "Validation error",
-            Detail = "Validation failed for one or more fields.",
-            Extensions = { ["errors"] = Errors }
-        };
+            WriteIndented = true
+        });
     }
 }
