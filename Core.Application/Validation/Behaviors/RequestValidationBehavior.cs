@@ -36,10 +36,7 @@ public class RequestValidationBehavior<TRequest, TResponse> : IPipelineBehavior<
                         g => g.Select(f => f.ErrorMessage).ToArray()
                     );
 
-
-                var errorMessage = System.Text.Json.JsonSerializer.Serialize(errorDictionary);
-
-                throw new ValidationException(errorMessage);
+                throw new Core.CrossCuttingConcerns.GlobalException.Exceptions.ValidationException(errorDictionary);
             }
         }
 
