@@ -6,7 +6,7 @@ namespace Core.CrossCuttingConcerns.GlobalException.Handlers;
 
 public class ValidationExceptionHandler : IExceptionHandler
 {
-    public async Task HandleExceptionAsync(HttpContext context, System.Exception exception)
+    public async Task HandleExceptionAsync(HttpContext context, Exception exception)
     {
         if (exception is ValidationException validationException)
         {
