@@ -13,7 +13,7 @@ public class ValidationExceptionHandler : IExceptionHandler
             context.Response.ContentType = "application/json";
             context.Response.StatusCode = StatusCodes.Status400BadRequest;
 
-            // Errors'u object olarak uygun formata dönüştür
+            // Errors'u düzgün bir object formatına dönüştür
             var formattedErrors = validationException.Errors
                 .ToDictionary(
                     kvp => kvp.Key,
@@ -24,7 +24,7 @@ public class ValidationExceptionHandler : IExceptionHandler
             {
                 Status = StatusCodes.Status400BadRequest,
                 Title = "Validation error",
-                Detail = "Validation failed for one or more fields.",
+                Detail = validationException.ToString(),
                 Extensions = { ["errors"] = formattedErrors }
             };
 
