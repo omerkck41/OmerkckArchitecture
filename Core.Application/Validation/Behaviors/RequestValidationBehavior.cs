@@ -29,16 +29,15 @@ public class RequestValidationBehavior<TRequest, TResponse> : IPipelineBehavior<
             // Hata varsa ValidationException fırlat
             if (failures.Count > 0)
             {
-                // failures listesini Dictionary<string, string[]> formatına dönüştür
                 var errorDictionary = failures
-                    .GroupBy(f => f.PropertyName) // PropertyName'e göre grupla
+                    .GroupBy(f => f.PropertyName)
                     .ToDictionary(
-                        g => g.Key,                // Key olarak PropertyName kullan
-                        g => g.Select(f => f.ErrorMessage).ToArray() // Hata mesajlarını dizi olarak al
+                        g => g.Key,
+                        g => g.Select(f => f.ErrorMessage).ToArray()
                     );
 
-                // ValidationException fırlat
-                throw new ValidationException((IEnumerable<FluentValidation.Results.ValidationFailure>)errorDictionary);
+                // Explicit Cast ile string'e dönüştürme
+                throw new ValidationException(errorDictionary.ToString() ?? "Validation errors occurred.");
             }
         }
 
