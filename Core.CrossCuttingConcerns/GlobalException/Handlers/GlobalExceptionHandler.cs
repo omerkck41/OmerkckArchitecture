@@ -50,13 +50,9 @@ public class GlobalExceptionHandler : IExceptionHandler
             Status = StatusCodes.Status400BadRequest,
             Title = "Validation error",
             Detail = "Validation failed for one or more fields.",
-            Extensions =
+            Extensions = new Dictionary<string, object>
             {
                 ["errors"] = (exception is ValidationException validationException ? validationException.Errors : null)
-                    .ToDictionary(
-                        kvp => kvp.Key,
-                        kvp => (object)kvp.Value // Object olarak dönüştür
-                    )
             }
         };
 
