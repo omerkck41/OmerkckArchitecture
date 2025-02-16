@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using StackExchange.Redis;
 using System.Text;
@@ -23,17 +24,21 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddJwtHelper<TUserId, TOperationClaimId, TRefreshTokenId>(
         this IServiceCollection services,
         IConfiguration configuration,
-        Action<TokenOptions> configureOptions = null,
+        Action<TokenOptions>? configureOptions = null,
         bool useRedis = false)
     {
-        var tokenOptions = configuration.GetSection("TokenOptions").Get<TokenOptions>();
-        configureOptions?.Invoke(tokenOptions);
-        _ = services.AddSingleton(tokenOptions);
+
+        // `IOptions<TokenOptions>` kullanımı için yapılandırma
+        services.Configure<TokenOptions>(configuration.GetSection("TokenOptions"));
+        services.AddSingleton(sp => sp.GetRequiredService<IOptions<TokenOptions>>().Value);
 
         // JWT Authentication yapılandırması
         services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             .AddJwtBearer(options =>
             {
+                var tokenOptions = services.BuildServiceProvider().GetRequiredService<IOptions<TokenOptions>>().Value
+                ?? throw new InvalidOperationException("TokenOptions yapılandırması bulunamadı.");
+
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
                     ValidateIssuer = true,
