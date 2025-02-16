@@ -13,18 +13,19 @@ public class ValidationExceptionHandler : IExceptionHandler
             context.Response.ContentType = "application/json";
             context.Response.StatusCode = StatusCodes.Status400BadRequest;
 
-            var errors = validationException.Errors?.Select(e => new Dictionary<string, string[]>
-            {
-                [e.Key] = e.Value
-            }).ToList() ?? [];
-
+            // Errors'u object olarak uygun formata dönüştür
+            var formattedErrors = validationException.Errors
+                .ToDictionary(
+                    kvp => kvp.Key,
+                    kvp => (object)kvp.Value
+                );
 
             var response = new ProblemDetails
             {
                 Status = StatusCodes.Status400BadRequest,
                 Title = "Validation error",
                 Detail = "Validation failed for one or more fields.",
-                Extensions = { ["errors"] = validationException.Errors }
+                Extensions = { ["errors"] = formattedErrors }
             };
 
             await context.Response.WriteAsJsonAsync(response);
