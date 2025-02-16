@@ -1,6 +1,5 @@
 ﻿using Core.CrossCuttingConcerns.GlobalException.Exceptions;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
 
 namespace Core.CrossCuttingConcerns.GlobalException.Handlers;
 
@@ -12,21 +11,7 @@ public class ValidationExceptionHandler : IExceptionHandler
         {
             context.Response.ContentType = "application/json";
             context.Response.StatusCode = StatusCodes.Status400BadRequest;
-
-            var formattedErrors = validationException.Errors.ToDictionary(
-                kvp => kvp.Key,
-                kvp => (object)kvp.Value
-            );
-
-            var response = new ProblemDetails
-            {
-                Status = StatusCodes.Status400BadRequest,
-                Title = "Validation error",
-                Detail = validationException.ToString(),
-                Extensions = { ["errors"] = formattedErrors }
-            };
-
-            await context.Response.WriteAsJsonAsync(response);
+            await context.Response.WriteAsJsonAsync(validationException.ToProblemDetails());
         }
     }
 }
