@@ -9,9 +9,9 @@ using TimeoutException = Core.CrossCuttingConcerns.GlobalException.Exceptions.Ti
 
 namespace Core.CrossCuttingConcerns.GlobalException.Handlers;
 
-public static class GlobalExceptionHandler
+public class GlobalExceptionHandler : IExceptionHandler
 {
-    public static async Task HandleExceptionAsync(HttpContext context, System.Exception exception)
+    public async Task HandleExceptionAsync(HttpContext context, System.Exception exception)
     {
         context.Response.ContentType = "application/json";
 
@@ -45,7 +45,7 @@ public static class GlobalExceptionHandler
             Timestamp = DateTime.UtcNow // Zaman damgası
         };
 
-        await context.Response.WriteAsync(JsonSerializer.Serialize(response, _jsonSerializerOptions));
+        await context.Response.WriteAsJsonAsync(response);
     }
 
     private static readonly JsonSerializerOptions _jsonSerializerOptions = new()

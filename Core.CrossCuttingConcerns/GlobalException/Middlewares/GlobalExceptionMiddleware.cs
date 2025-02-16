@@ -1,18 +1,17 @@
 ﻿using Core.CrossCuttingConcerns.GlobalException.Handlers;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Core.CrossCuttingConcerns.GlobalException.Middlewares;
 
 public class GlobalExceptionMiddleware
 {
     private readonly RequestDelegate _next;
-    private readonly IServiceProvider _serviceProvider;
+    private readonly IExceptionHandlerFactory _handlerFactory;
 
-    public GlobalExceptionMiddleware(RequestDelegate next, IServiceProvider serviceProvider)
+    public GlobalExceptionMiddleware(RequestDelegate next, IExceptionHandlerFactory handlerFactory)
     {
         _next = next;
-        _serviceProvider = serviceProvider;
+        _handlerFactory = handlerFactory;
     }
 
     public async Task InvokeAsync(HttpContext context)
@@ -23,9 +22,8 @@ public class GlobalExceptionMiddleware
         }
         catch (Exception ex)
         {
-            using var scope = _serviceProvider.CreateScope();
-            var exceptionHandler = scope.ServiceProvider.GetRequiredService<IExceptionHandler>();
-            await exceptionHandler.HandleExceptionAsync(context, ex);
+            var handler = _handlerFactory.GetHandler(ex);
+            await handler.HandleExceptionAsync(context, ex);
         }
     }
 }

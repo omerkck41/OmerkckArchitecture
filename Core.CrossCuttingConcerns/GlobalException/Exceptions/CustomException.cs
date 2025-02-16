@@ -1,7 +1,7 @@
 ﻿namespace Core.CrossCuttingConcerns.GlobalException.Exceptions;
 
-public class CustomException : System.Exception
+public class CustomException : Exception
 {
     public CustomException(string message) : base(message) { }
-    public CustomException(string message, System.Exception innerException) : base(message, innerException) { }
+    public CustomException(string message, Exception innerException) : base(message, innerException) { }
 }

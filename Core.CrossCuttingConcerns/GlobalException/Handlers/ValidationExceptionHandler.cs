@@ -1,6 +1,6 @@
 ﻿using Core.CrossCuttingConcerns.GlobalException.Exceptions;
 using Microsoft.AspNetCore.Http;
-using System.Text.Json;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Core.CrossCuttingConcerns.GlobalException.Handlers;
 
@@ -13,15 +13,21 @@ public class ValidationExceptionHandler : IExceptionHandler
             context.Response.ContentType = "application/json";
             context.Response.StatusCode = StatusCodes.Status400BadRequest;
 
-            var response = new ErrorResponse
+            var errors = validationException.Errors?.Select(e => new Dictionary<string, string[]>
             {
-                Success = false,
-                Message = "Validation errors occurred.",
-                Errors = validationException.Errors,
-                Type = nameof(ValidationException)
+                [e.Key] = e.Value
+            }).ToList() ?? [];
+
+
+            var response = new ProblemDetails
+            {
+                Status = StatusCodes.Status400BadRequest,
+                Title = "Validation error",
+                Detail = "Validation failed for one or more fields.",
+                Extensions = { ["errors"] = validationException.Errors }
             };
 
-            await context.Response.WriteAsync(JsonSerializer.Serialize(response));
+            await context.Response.WriteAsJsonAsync(response);
         }
     }
 }
