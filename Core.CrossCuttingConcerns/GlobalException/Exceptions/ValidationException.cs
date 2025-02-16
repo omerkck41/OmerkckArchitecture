@@ -7,15 +7,12 @@ public class ValidationException : CustomException
     public ValidationException(Dictionary<string, string[]> errors)
         : base("One or more validation failures have occurred.")
     {
-        Errors = errors ?? new Dictionary<string, string[]>();
+        Errors = errors;
     }
 
-    // Hata mesajını otomatik olarak Errors ile birleştir
     public override string ToString()
     {
-        var errorMessages = string.Join("; ",
-            Errors.Select(e => $"{e.Key}: {string.Join(", ", e.Value)}")
-        );
+        var errorMessages = string.Join("; ", Errors.Select(e => $"{e.Key}: {string.Join(", ", e.Value)}"));
         return $"{base.Message} - Details: {errorMessages}";
     }
 }

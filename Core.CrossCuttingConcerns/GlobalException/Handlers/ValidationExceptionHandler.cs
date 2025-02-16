@@ -13,12 +13,10 @@ public class ValidationExceptionHandler : IExceptionHandler
             context.Response.ContentType = "application/json";
             context.Response.StatusCode = StatusCodes.Status400BadRequest;
 
-            // Errors'u düzgün bir object formatına dönüştür
-            var formattedErrors = validationException.Errors
-                .ToDictionary(
-                    kvp => kvp.Key,
-                    kvp => (object)kvp.Value
-                );
+            var formattedErrors = validationException.Errors.ToDictionary(
+                kvp => kvp.Key,
+                kvp => (object)kvp.Value
+            );
 
             var response = new ProblemDetails
             {
