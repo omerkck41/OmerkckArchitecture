@@ -21,15 +21,22 @@ public class RequestValidationBehavior<TRequest, TResponse> : IPipelineBehavior<
                 _validators.Select(v => v.ValidateAsync(context, cancellationToken))
             );
 
-            var failures = validationResults
-                .SelectMany(r => r.Errors)
+            //var failures = validationResults
+            //    .SelectMany(r => r.Errors)
+            //    .Where(f => f != null)
+            //    .ToList();
+
+            var failtures = validationResults
+                .SelectMany(result => result.Errors)
+                .GroupBy(x => x.ErrorMessage)
+                .Select(x => x.First())
                 .Where(f => f != null)
                 .ToList();
 
             // Hata varsa ValidationException fırlat
-            if (failures.Count > 0)
+            if (failtures.Count > 0)
             {
-                var errorDictionary = failures
+                var errorDictionary = failtures
                     .GroupBy(f => f.PropertyName)
                     .ToDictionary(
                         g => g.Key,
