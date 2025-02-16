@@ -36,8 +36,10 @@ public class RequestValidationBehavior<TRequest, TResponse> : IPipelineBehavior<
                         g => g.Select(f => f.ErrorMessage).ToArray()
                     );
 
-                // Explicit Cast ile string'e dönüştürme
-                throw new ValidationException(errorDictionary.ToString() ?? "Validation errors occurred.");
+
+                var errorMessage = System.Text.Json.JsonSerializer.Serialize(errorDictionary);
+
+                throw new ValidationException(errorMessage);
             }
         }
 
