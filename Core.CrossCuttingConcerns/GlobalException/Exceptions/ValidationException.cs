@@ -6,8 +6,7 @@ public class ValidationException : CustomException
 {
     public Dictionary<string, string[]> Errors { get; }
 
-    public ValidationException(Dictionary<string, string[]> errors)
-        : base(CreateErrorMessage(errors))
+    public ValidationException(Dictionary<string, string[]> errors) : base(CreateErrorMessage(errors))
     {
         Errors = errors ?? new Dictionary<string, string[]>();
     }

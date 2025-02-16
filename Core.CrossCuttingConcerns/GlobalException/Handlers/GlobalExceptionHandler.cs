@@ -1,10 +1,10 @@
 ﻿using Core.CrossCuttingConcerns.GlobalException.Exceptions;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using System.Text.Json;
 using TimeoutException = Core.CrossCuttingConcerns.GlobalException.Exceptions.TimeoutException;
+using ValidationException = Core.CrossCuttingConcerns.GlobalException.Exceptions.ValidationException;
 
 
 namespace Core.CrossCuttingConcerns.GlobalException.Handlers;
@@ -32,24 +32,27 @@ public class GlobalExceptionHandler : IExceptionHandler
         // IHostEnvironment Kullanımı
         var env = context.RequestServices.GetRequiredService<IWebHostEnvironment>();
 
-        var response = new ErrorResponse
+        //var response = new ErrorResponse
+        //{
+        //    Success = false,
+        //    Message = exception.Message,
+        //    Detail = exception.InnerException?.Message,
+        //    Type = exception.GetType().Name,
+        //    Errors = exception is ValidationException validationException ? validationException.Errors : null,
+        //    StackTrace = env.IsDevelopment() ? exception.StackTrace : null,
+        //    ErrorCode = statusCode, // HTTP durum kodunu hata kodu olarak kullanabilirsiniz
+        //    CorrelationId = context.TraceIdentifier, // İstek kimliği
+        //    Timestamp = DateTime.UtcNow // Zaman damgası
+        //};
+
+        var problemDetails = new ProblemDetails
         {
-            Success = false,
-            Message = exception.Message,
-            Detail = exception.InnerException?.Message,
-            Type = exception.GetType().Name,
-            Errors = exception is ValidationException validationException ? validationException.Errors : null,
-            StackTrace = env.IsDevelopment() ? exception.StackTrace : null,
-            ErrorCode = statusCode, // HTTP durum kodunu hata kodu olarak kullanabilirsiniz
-            CorrelationId = context.TraceIdentifier, // İstek kimliği
-            Timestamp = DateTime.UtcNow // Zaman damgası
+            Status = StatusCodes.Status400BadRequest,
+            Title = "Validation error",
+            Detail = "Validation failed for one or more fields.",
+            Extensions = { ["errors"] = exception is ValidationException validationException ? validationException.Errors : null }
         };
 
-        await context.Response.WriteAsJsonAsync(response);
+        await context.Response.WriteAsJsonAsync(problemDetails);
     }
-
-    private static readonly JsonSerializerOptions _jsonSerializerOptions = new()
-    {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-    };
 }
