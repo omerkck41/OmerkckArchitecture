@@ -1,5 +1,7 @@
-﻿using FluentValidation;
+﻿using Core.CrossCuttingConcerns.GlobalException.Exceptions;
+using FluentValidation;
 using MediatR;
+using ValidationException = Core.CrossCuttingConcerns.GlobalException.Exceptions.ValidationException;
 
 namespace Core.Application.Validation.Behaviors;
 
@@ -17,33 +19,20 @@ public class RequestValidationBehavior<TRequest, TResponse> : IPipelineBehavior<
         if (_validators.Any())
         {
             ValidationContext<TRequest> context = new(request);
-            var validationResults = await Task.WhenAll(
-                _validators.Select(v => v.ValidateAsync(context, cancellationToken))
-            );
 
+            IEnumerable<ValidationExceptionModel> errors = _validators
+            .Select(validator => validator.Validate(context))
+            .SelectMany(result => result.Errors)
+            .Where(failure => failure != null)
+            .GroupBy(
+                keySelector: p => p.PropertyName,
+                resultSelector: (propertyName, errors) =>
+                    new ValidationExceptionModel { Property = propertyName, Errors = errors.Select(e => e.ErrorMessage) }
+            )
+            .ToList();
 
-            var failtures = validationResults
-                .SelectMany(result => result.Errors)
-                .Where(f => f != null)
-                .ToList();
-
-            // Hata varsa ValidationException fırlat
-            if (failtures.Count > 0)
-            {
-                var errorDictionary = failtures
-                    .GroupBy(f => f.PropertyName,
-
-
-
-                     resultSelector: (propertyName, errors) => g.Select(f => f.ErrorMessage)
-
-                    //resultSelector: (propertyName, errors) =>
-                    //new ValidationExceptionModel { Property = propertyName, Errors = errors.Select(e => e.ErrorMessage) }
-
-                    ).ToList();
-
-                throw new Core.CrossCuttingConcerns.GlobalException.Exceptions.ValidationException(errorDictionary);
-            }
+            if (errors.Any())
+                throw new ValidationException(errors);
         }
 
         return await next();

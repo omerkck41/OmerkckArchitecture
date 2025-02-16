@@ -2,20 +2,40 @@
 
 public class ValidationException : CustomException
 {
-    public Dictionary<string, string[]> Errors { get; }
+    public IEnumerable<ValidationExceptionModel> Errors { get; }
 
-    public ValidationException(Dictionary<string, string[]> errors)
-        : base("One or more validation failures have occurred.")
+    public ValidationException() : base("One or more validation failures have occurred.")
     {
-        Errors = errors ?? new Dictionary<string, string[]>();
+        Errors = Array.Empty<ValidationExceptionModel>();
     }
 
-    // Hata detaylarını ToString üzerinden dön
-    public override string ToString()
+    public ValidationException(string? message) : base(message)
     {
-        return System.Text.Json.JsonSerializer.Serialize(Errors, new System.Text.Json.JsonSerializerOptions
-        {
-            WriteIndented = true
-        });
+        Errors = Array.Empty<ValidationExceptionModel>();
     }
+
+    public ValidationException(string? message, System.Exception? innerException) : base(message, innerException)
+    {
+        Errors = Array.Empty<ValidationExceptionModel>();
+    }
+
+    public ValidationException(IEnumerable<ValidationExceptionModel> errors) : base(BuildErrorMessage(errors))
+    {
+        Errors = errors;
+    }
+
+    private static string BuildErrorMessage(IEnumerable<ValidationExceptionModel> errors)
+    {
+        IEnumerable<string> arr = errors.Select(x =>
+            $"{Environment.NewLine} -- {x.Property}: {string.Join(Environment.NewLine, values: x.Errors ?? Array.Empty<string>())}"
+        );
+        return $"Validation failed: {string.Join(string.Empty, arr)}";
+    }
+
+}
+public class ValidationExceptionModel
+{
+    public string? Property { get; set; }
+    public IEnumerable<string>? Errors { get; set; }
+    public string? ErrorCode { get; set; }
 }
