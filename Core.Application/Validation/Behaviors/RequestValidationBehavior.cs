@@ -26,8 +26,13 @@ public class RequestValidationBehavior<TRequest, TResponse> : IPipelineBehavior<
             .Where(failure => failure != null)
             .GroupBy(
                 keySelector: p => p.PropertyName,
-                resultSelector: (propertyName, errors) =>
-                    new ValidationExceptionModel { Property = propertyName, Errors = errors.Select(e => e.ErrorMessage) }
+                resultSelector: (propertyName, failures) =>
+                    new ValidationExceptionModel
+                    {
+                        Property = propertyName,
+                        Errors = failures.Select(e => e.ErrorMessage),
+                        ErrorCode = failures.FirstOrDefault()?.ErrorCode
+                    }
             )
             .ToList();
 
