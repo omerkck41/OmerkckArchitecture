@@ -14,11 +14,12 @@ public class ExceptionHandlerFactory : IExceptionHandlerFactory
 
     public IExceptionHandler GetHandler(Exception exception)
     {
-        // İleride başka özel hata işleyiciler eklemek isterseniz, switch-case içerisine ekleyebilirsiniz.
+        var handlers = _serviceProvider.GetServices<IExceptionHandler>(); // çoklu implementasyon döner
+
         return exception switch
         {
-            ValidationException => _serviceProvider.GetRequiredService<ValidationExceptionHandler>(),
-            _ => _serviceProvider.GetRequiredService<GlobalExceptionHandler>()
+            ValidationException => handlers.OfType<ValidationExceptionHandler>().First(),
+            _ => handlers.OfType<GlobalExceptionHandler>().First()
         };
     }
 }
