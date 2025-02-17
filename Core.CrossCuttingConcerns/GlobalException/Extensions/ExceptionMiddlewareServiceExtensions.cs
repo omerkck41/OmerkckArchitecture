@@ -18,11 +18,9 @@ public static class ExceptionMiddlewareServiceExtensions
     {
         services.TryAddSingleton<IExceptionHandlerFactory, ExceptionHandlerFactory>();
 
-        services.TryAddSingleton<ValidationExceptionHandler>();
-        services.TryAddSingleton<GlobalExceptionHandler>();
+        services.TryAddSingleton<IExceptionHandler, ValidationExceptionHandler>();
+        services.TryAddSingleton<IExceptionHandler, GlobalExceptionHandler>();
 
-        //services.TryAddSingleton<IExceptionHandler, ValidationExceptionHandler>();
-        //services.TryAddSingleton<IExceptionHandler, GlobalExceptionHandler>();
         return services;
     }
 }
