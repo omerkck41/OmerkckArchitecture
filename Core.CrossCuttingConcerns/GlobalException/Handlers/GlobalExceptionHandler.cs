@@ -29,8 +29,8 @@ public class GlobalExceptionHandler : IExceptionHandler
 
         var problemDetails = new ProblemDetails
         {
-            Status = StatusCodes.Status500InternalServerError,
-            Title = "An unexpected error occurred",
+            Status = statusCode,
+            Title = statusCode == StatusCodes.Status500InternalServerError ? "Unexpected error occurred" : "Error",
             Detail = exception.Message,
             Extensions = { ["errorType"] = exception.GetType().Name }
         };

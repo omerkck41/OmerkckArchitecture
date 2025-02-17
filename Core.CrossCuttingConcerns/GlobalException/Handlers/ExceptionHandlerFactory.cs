@@ -14,6 +14,7 @@ public class ExceptionHandlerFactory : IExceptionHandlerFactory
 
     public IExceptionHandler GetHandler(Exception exception)
     {
+        // İleride başka özel hata işleyiciler eklemek isterseniz, switch-case içerisine ekleyebilirsiniz.
         return exception switch
         {
             ValidationException => _serviceProvider.GetRequiredService<ValidationExceptionHandler>(),

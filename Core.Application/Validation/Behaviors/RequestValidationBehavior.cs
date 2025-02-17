@@ -18,26 +18,24 @@ public class RequestValidationBehavior<TRequest, TResponse> : IPipelineBehavior<
     {
         if (_validators.Any())
         {
-            ValidationContext<TRequest> context = new(request);
+            var context = new ValidationContext<TRequest>(request);
 
-            IEnumerable<ValidationExceptionModel> errors = _validators
-            .Select(validator => validator.Validate(context))
-            .SelectMany(result => result.Errors)
-            .Where(failure => failure != null)
-            .GroupBy(
-                keySelector: p => p.PropertyName,
-                resultSelector: (propertyName, failures) =>
-                    new ValidationExceptionModel
+            var validationResults = await Task.WhenAll(_validators.Select(validator => validator.ValidateAsync(context, cancellationToken)));
+            var failures = validationResults.SelectMany(result => result.Errors).Where(failure => failure != null).ToList();
+
+            if (failures.Any())
+            {
+                var errors = failures
+                    .GroupBy(x => x.PropertyName)
+                    .Select(group => new ValidationExceptionModel
                     {
-                        Property = propertyName,
-                        Errors = failures.Select(e => e.ErrorMessage),
-                        ErrorCode = failures.FirstOrDefault()?.ErrorCode
-                    }
-            )
-            .ToList();
+                        Property = group.Key,
+                        Errors = group.Select(e => e.ErrorMessage),
+                        ErrorCode = group.First().ErrorCode
+                    }).ToList();
 
-            if (errors.Any())
                 throw new ValidationException(errors);
+            }
         }
 
         return await next();
