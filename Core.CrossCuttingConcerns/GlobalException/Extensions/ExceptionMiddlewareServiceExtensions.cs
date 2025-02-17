@@ -18,6 +18,7 @@ public static class ExceptionMiddlewareServiceExtensions
     {
         services.TryAddSingleton<IExceptionHandlerFactory, ExceptionHandlerFactory>();
 
+        // IExceptionHandler arayüzü üzerinden handler’ları kaydediyoruz.
         services.TryAddSingleton<IExceptionHandler, ValidationExceptionHandler>();
         services.TryAddSingleton<IExceptionHandler, GlobalExceptionHandler>();
 

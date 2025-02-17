@@ -35,6 +35,12 @@ public class GlobalExceptionHandler : IExceptionHandler
             Extensions = { ["errorType"] = exception.GetType().Name }
         };
 
+        // Eğer exception, CustomException ise ve ek veri varsa bunu da ekle.
+        if (exception is CustomException customException && customException.AdditionalData != null)
+        {
+            problemDetails.Extensions["additionalData"] = customException.AdditionalData;
+        }
+
         await context.Response.WriteAsJsonAsync(problemDetails);
     }
 }

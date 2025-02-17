@@ -6,6 +6,12 @@ namespace Core.CrossCuttingConcerns.GlobalException.Handlers;
 public class ExceptionHandlerFactory : IExceptionHandlerFactory
 {
     private readonly IServiceProvider _serviceProvider;
+    private static readonly Dictionary<Type, Type> ExceptionHandlerMapping = new()
+        {
+            // Özel handler eşlemeleri: eğer ValidationException fırlatılırsa, ValidationExceptionHandler kullanılacak.
+            { typeof(ValidationException), typeof(ValidationExceptionHandler) }
+            // İleride diğer exception tiplerini de ekleyebilirsiniz.
+        };
 
     public ExceptionHandlerFactory(IServiceProvider serviceProvider)
     {
@@ -14,12 +20,24 @@ public class ExceptionHandlerFactory : IExceptionHandlerFactory
 
     public IExceptionHandler GetHandler(Exception exception)
     {
-        var handlers = _serviceProvider.GetServices<IExceptionHandler>(); // çoklu implementasyon döner
+        var exceptionType = exception.GetType();
+        var handlerType = ExceptionHandlerMapping
+            .FirstOrDefault(mapping => mapping.Key.IsAssignableFrom(exceptionType)).Value;
 
-        return exception switch
+        if (handlerType != null)
         {
-            ValidationException => handlers.OfType<ValidationExceptionHandler>().First(),
-            _ => handlers.OfType<GlobalExceptionHandler>().First()
-        };
+            var handler = _serviceProvider.GetServices<IExceptionHandler>()
+                .FirstOrDefault(h => h.GetType() == handlerType);
+            if (handler != null)
+                return handler;
+        }
+
+        // Eğer eşleşen özel handler bulunamazsa, GlobalExceptionHandler'ı döndür.
+        var globalHandler = _serviceProvider.GetServices<IExceptionHandler>()
+            .OfType<GlobalExceptionHandler>().FirstOrDefault();
+        if (globalHandler != null)
+            return globalHandler;
+
+        throw new Exception("GlobalExceptionHandler is not registered.");
     }
 }
