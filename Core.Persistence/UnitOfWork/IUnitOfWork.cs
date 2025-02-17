@@ -13,7 +13,7 @@ public interface IUnitOfWork : IDisposable
     /// <summary>
     /// Tüm değişiklikleri kaydeder.
     /// </summary>
-    Task<int> SaveChangesAsync(bool autoCommitTransaction);
+    Task<int> SaveChangesAsync(bool autoCommitTransaction = false);
 
     /// <summary>
     /// Transaction'ı onaylar.
