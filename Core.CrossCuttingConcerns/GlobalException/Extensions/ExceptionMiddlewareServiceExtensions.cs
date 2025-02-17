@@ -2,7 +2,6 @@
 using Core.CrossCuttingConcerns.GlobalException.Middlewares;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Core.CrossCuttingConcerns.GlobalException.Extensions;
 
@@ -16,11 +15,15 @@ public static class ExceptionMiddlewareServiceExtensions
     // Middleware için gerekli servisleri ekleyin
     public static IServiceCollection AddExceptionMiddlewareServices(this IServiceCollection services)
     {
-        services.TryAddSingleton<IExceptionHandlerFactory, ExceptionHandlerFactory>();
+        services.AddSingleton<IExceptionHandlerFactory, ExceptionHandlerFactory>();
 
-        // IExceptionHandler arayüzü üzerinden handler’ları kaydediyoruz.
-        services.TryAddSingleton<IExceptionHandler, ValidationExceptionHandler>();
-        services.TryAddSingleton<IExceptionHandler, GlobalExceptionHandler>();
+        // Somut tipleri DI konteynerına ekleyin
+        services.AddSingleton<ValidationExceptionHandler>();
+        services.AddSingleton<GlobalExceptionHandler>();
+
+        // Somut tipleri IExceptionHandler arayüzü üzerinden erişilebilir hale getirin
+        services.AddSingleton<IExceptionHandler>(sp => sp.GetRequiredService<ValidationExceptionHandler>());
+        services.AddSingleton<IExceptionHandler>(sp => sp.GetRequiredService<GlobalExceptionHandler>());
 
         return services;
     }
