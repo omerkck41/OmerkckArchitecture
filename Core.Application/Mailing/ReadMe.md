@@ -19,17 +19,17 @@ Mailing Service, uygulamanızdan e-posta gönderimi yapabilmenizi sağlayan, mod
 ---
 
 ## Neden Kullanılır?
-- **Merkezi Konfigürasyon: Tüm e-posta gönderim ayarları EmailSettings adlı strongly-typed model üzerinden yönetilir.
-- **Çoklu Sağlayıcı Desteği: SMTP, SendGrid ve Amazon SES gibi farklı e-posta sağlayıcıları desteklenir; böylece ihtiyaç duyduğunuzda sağlayıcılar arasında geçiş yapabilirsiniz.
+- **Merkezi Konfigürasyon:** Tüm e-posta gönderim ayarları EmailSettings adlı strongly-typed model üzerinden yönetilir.
+- **Çoklu Sağlayıcı Desteği:** SMTP, SendGrid ve Amazon SES gibi farklı e-posta sağlayıcıları desteklenir; böylece ihtiyaç duyduğunuzda sağlayıcılar arasında geçiş yapabilirsiniz.
 - **Varsayılan Değerlerin Uygulanması: EmailSendingService içerisinde yer alan ApplyDefaults metodu ile, e-posta mesajları oluşturulurken otomatik olarak varsayılan From ve FromName değerleri eklenir.
-- **Modüler Yapı: Yeni e-posta sağlayıcılarını sisteme eklemek ve mevcut olanları güncellemek oldukça kolaydır.
-- **Test Edilebilirlik ve Bakım Kolaylığı: Bağımsız servis ve sağlayıcıların kullanılması, birim testler ve ileride yapılacak bakım işlemlerini basitleştirir.
+- **Modüler Yapı:** Yeni e-posta sağlayıcılarını sisteme eklemek ve mevcut olanları güncellemek oldukça kolaydır.
+- **Test Edilebilirlik ve Bakım Kolaylığı:** Bağımsız servis ve sağlayıcıların kullanılması, birim testler ve ileride yapılacak bakım işlemlerini basitleştirir.
 
 ## Avantajları
-- **Tek Noktadan Ayar Yönetimi: EmailSettings sayesinde tüm e-posta gönderim ayarları merkezi olarak konfigüre edilir.
-- **Azaltılmış Kod Tekrarı: Default değer atamaları, ApplyDefaults metodu ile merkezi olarak uygulanır.
-- **Genişletilebilirlik: Yeni e-posta sağlayıcılarını eklemek veya mevcut sağlayıcıları değiştirmek kolaydır.
-- **Hata Yönetimi & Logging: Uygulamada meydana gelen hatalar merkezi olarak ele alınır, ayrıca loglama mekanizmaları ile desteklenir.
+- **Tek Noktadan Ayar Yönetimi:** EmailSettings sayesinde tüm e-posta gönderim ayarları merkezi olarak konfigüre edilir.
+- **Azaltılmış Kod Tekrarı:** Default değer atamaları, ApplyDefaults metodu ile merkezi olarak uygulanır.
+- **Genişletilebilirlik:** Yeni e-posta sağlayıcılarını eklemek veya mevcut sağlayıcıları değiştirmek kolaydır.
+- **Hata Yönetimi & Logging:** Uygulamada meydana gelen hatalar merkezi olarak ele alınır, ayrıca loglama mekanizmaları ile desteklenir.
 
 ---
 ## Kurulum
@@ -37,10 +37,10 @@ Mailing Service, uygulamanızdan e-posta gönderimi yapabilmenizi sağlayan, mod
 ### 1. Projeye Nasıl Eklenir?
 
 1. **NuGet Paketleri:** Projede aşağıdaki NuGet paketlerinin yüklü olduğundan emin olun:
-- **Microsoft.Extensions.DependencyInjection
-- **Microsoft.Extensions.Options
-- **(Amazon SES için) AWSSDK.SimpleEmailV2
-- **Diğer sağlayıcılar için ilgili paketler (örn. SendGrid)
+- **Microsoft.Extensions.DependencyInjection**
+- **Microsoft.Extensions.Options**
+- **(Amazon SES için) AWSSDK.SimpleEmailV2**
+- **Diğer sağlayıcılar için ilgili paketler (örn. SendGrid)**
 
 ---
 
@@ -129,7 +129,7 @@ public class Startup
 
 ### 1. Mail Mesajı Oluşturma
 
-- **Örnek 1: Basit E-posta Gönderimi
+- **Örnek 1:** Basit E-posta Gönderimi
 Aşağıdaki örnekte, kullanıcı doğrulama e-postası göndermek için EmailSendingService kullanılmıştır:
 
 ```csharp
@@ -298,9 +298,11 @@ E-posta gönderim işlemlerini yöneten servis sınıfıdır. Bu sınıf, ApplyD
 Farklı e-posta gönderim yöntemlerini destekleyen sağlayıcı sınıfları:
 
 **SmtpEmailProvider:** SMTP üzerinden e-posta gönderimi gerçekleştirir.
+
 **SendGridEmailProvider:** SendGrid üzerinden e-posta gönderimi gerçekleştirir.
+
 **AmazonSesEmailProvider:** Amazon SES üzerinden e-posta gönderimi gerçekleştirir.
-**ISmtpClientSelector (Opsiyonel):**
-SMTP istemcileri arasında rate-limiting uygulanmasını sağlayan yardımcı sınıftır.
+
+**ISmtpClientSelector (Opsiyonel):**SMTP istemcileri arasında rate-limiting uygulanmasını sağlayan yardımcı sınıftır.
 
 ---
