@@ -4,7 +4,7 @@
 
 # Mail Gönderme Kütüphanesi
 
-Bu kütüphane, .NET 9.0 üzerinde geliştirilmiş, esnek ve genişletilebilir bir mail gönderme çözümü sunar. Kütüphane, birden fazla mail sağlayıcısı (SMTP, SendGrid, Amazon SES vb.) ile çalışabilme özelliğine sahiptir ve rate limiting, logging, behavior'lar gibi özelliklerle desteklenmiştir. Ayrıca, builder pattern kullanılarak mail mesajlarının kolayca oluşturulmasını sağlar.
+Mailing Service, uygulamanızdan e-posta gönderimi yapabilmenizi sağlayan, modüler ve çoklu e-posta sağlayıcı desteği sunan bir altyapıdır. Proje, SMTP, SendGrid ve Amazon SES gibi farklı e-posta gönderim yöntemlerini destekler. Merkezi konfigürasyon yönetimi sayesinde, e-posta gönderiminde kullanılan varsayılan bilgiler (örn. From ve FromName) tek bir noktadan ayarlanır.
 
 ---
 
@@ -20,95 +20,158 @@ Bu kütüphane, .NET 9.0 üzerinde geliştirilmiş, esnek ve genişletilebilir b
 
 ---
 
+## Neden Kullanılır?
+- **Merkezi Konfigürasyon: Tüm e-posta gönderim ayarları EmailSettings adlı strongly-typed model üzerinden yönetilir.
+- **Çoklu Sağlayıcı Desteği: SMTP, SendGrid ve Amazon SES gibi farklı e-posta sağlayıcıları desteklenir; böylece ihtiyaç duyduğunuzda sağlayıcılar arasında geçiş yapabilirsiniz.
+- **Varsayılan Değerlerin Uygulanması: EmailSendingService içerisinde yer alan ApplyDefaults metodu ile, e-posta mesajları oluşturulurken otomatik olarak varsayılan From ve FromName değerleri eklenir.
+- **Modüler Yapı: Yeni e-posta sağlayıcılarını sisteme eklemek ve mevcut olanları güncellemek oldukça kolaydır.
+- **Test Edilebilirlik ve Bakım Kolaylığı: Bağımsız servis ve sağlayıcıların kullanılması, birim testler ve ileride yapılacak bakım işlemlerini basitleştirir.
+
+## Avantajları
+- **Tek Noktadan Ayar Yönetimi: EmailSettings sayesinde tüm e-posta gönderim ayarları merkezi olarak konfigüre edilir.
+- **Azaltılmış Kod Tekrarı: Default değer atamaları, ApplyDefaults metodu ile merkezi olarak uygulanır.
+- **Genişletilebilirlik: Yeni e-posta sağlayıcılarını eklemek veya mevcut sağlayıcıları değiştirmek kolaydır.
+- **Hata Yönetimi & Logging: Uygulamada meydana gelen hatalar merkezi olarak ele alınır, ayrıca loglama mekanizmaları ile desteklenir.
+
+---
 ## Kurulum
 
-### 1. Projeye Ekleme
+### 1. Projeye Nasıl Eklenir?
 
-1. **Manuel Ekleme:** Eğer kütüphaneyi manuel olarak eklemek istiyorsanız, tüm sınıfları projenize kopyalayın ve gerekli bağımlılıkları ekleyin.
+1. **NuGet Paketleri:** Projede aşağıdaki NuGet paketlerinin yüklü olduğundan emin olun:
+- **Microsoft.Extensions.DependencyInjection
+- **Microsoft.Extensions.Options
+- **(Amazon SES için) AWSSDK.SimpleEmailV2
+- **Diğer sağlayıcılar için ilgili paketler (örn. SendGrid)
 
 ---
 
-### 2. Yapılandırma
+### 2. Ayar Dosyalarının Düzenlenmesi
 
-Kütüphaneyi kullanmadan önce, gerekli yapılandırmaları yapmanız gerekmektedir. Bu yapılandırmalar, `appsettings.json` dosyası üzerinden yapılabilir.
+`appsettings.json`
+Projenizin kök dizininde bulunan appsettings.json dosyanıza aşağıdaki örnek konfigürasyonu ekleyin:
 
 #### `appsettings.json` Örneği:
 
 ```json
-"EmailSettings": {
-    "DefaultFromAddress": "noreply@archonapp.com",
-    "DefaultFromName": "ArchonApp Support",
+{
+  "EmailSettings": {
+    "DefaultFromAddress": "noreply@ornek.com",
+    "DefaultFromName": "Destek Ekibi",
     "SendGridApiKey": "your-sendgrid-api-key",
-    "AwsRegion": "us-east-1",                       // AWS bölgesi (örneğin, us-east-1)
-    "AwsAccessKey": "YOUR_AWS_ACCESS_KEY",          // AWS erişim anahtarı
-    "AwsSecretKey": "YOUR_AWS_SECRET_KEY",          // AWS gizli anahtarı
-    "PreferredProvider": "Smtp",                    // Öncelikli sağlayıcı
+    "AwsRegion": "us-east-1",
+    "AwsAccessKey": "YOUR_AWS_ACCESS_KEY",
+    "AwsSecretKey": "YOUR_AWS_SECRET_KEY",
+    "PreferredProvider": "Smtp",
     "MaxEmailsPerClient": 100,
-    "SmtpServers": {
-      "Smtp": {
-        "Host": "mail.archonapp.com",
+    "SmtpServers": [
+      {
+        "Host": "mail.ornek.com",
         "Port": 587,
-        "EnableSsl": false,
-        "UserName": "support@archonapp.com",
-        "Password": "123456"
+        "UseSsl": true,
+        "Username": "test@ornek.com",
+        "Password": "sifre123"
       }
-    }
+    ],
   }
+}
 ```
 
 ---
 
-### 3. Dependency Injection
+### 3. DI Container’a Servislerin Eklenmesi
 
-Kütüphaneyi kullanmak için gerekli servisleri `Startup.cs` veya `Program.cs` dosyasında Dependency Injection ile kaydedin.
+Mailing servisi ve ilgili bağımlılıkları DI container’a eklemek için ServiceCollectionExtensions sınıfını kullanabilirsiniz.
 
+Program.cs (.NET 6 ve sonrası) Örneği:
 ```csharp
-public void ConfigureServices(IServiceCollection services)
+var builder = WebApplication.CreateBuilder(args);
+
+// appsettings.json konfigürasyonunu ekleyin
+builder.Configuration.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
+
+// Mailing servislerini IOptions pattern ile register edin
+builder.Services.AddMailingServicesFromJson(builder.Configuration);
+
+var app = builder.Build();
+
+// Diğer middleware ve yapılandırmalar
+
+app.Run();
+
+```
+---
+
+Startup.cs (.NET Core 3.1 veya .NET 5) Örneği:
+```csharp
+public class Startup
 {
-    // SMTP istemcilerini yapılandırma
-    var smtpClients = new List<SmtpClient>
+    public IConfiguration Configuration { get; }
+    
+    public Startup(IConfiguration configuration)
     {
-        new SmtpClient("smtp.example.com", 587)
-        {
-            EnableSsl = true,
-            Credentials = new NetworkCredential("your-username", "your-password")
-        }
-    };
+        Configuration = configuration;
+    }
 
-    // RateLimitingSmtpClientSelector'ı kaydet
-    services.AddSingleton<ISmtpClientSelector>(new RateLimitingSmtpClientSelector(smtpClients, 100));
+    public void ConfigureServices(IServiceCollection services)
+    {
+        services.AddMailingServicesFromJson(Configuration);
+        // Diğer servis kayıtları...
+    }
 
-    // Email sağlayıcılarını kaydet
-    services.AddSingleton<IEmailProvider, SmtpEmailProvider>();
-    services.AddSingleton<IEmailProvider, SendGridEmailProvider>();
-
-    // Email gönderme servisini kaydet
-    services.AddSingleton<IMailService, EmailSendingService>();
-
-    // MediatR ve Behavior'ları kaydet
-    services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(Program).Assembly));
-    services.AddTransient(typeof(IPipelineBehavior<,>), typeof(EmailLoggingBehavior<,>));
-    services.AddTransient(typeof(IPipelineBehavior<,>), typeof(EmailSendingBehavior<,>));
+    public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+    {
+        // Middleware yapılandırmaları...
+    }
 }
 ```
-
 ---
 
 ## Kullanım
 
 ### 1. Mail Mesajı Oluşturma
 
-Mail mesajı oluşturmak için `EmailMessageBuilder` sınıfını kullanabilirsiniz.
+- **Örnek 1: Basit E-posta Gönderimi
+Aşağıdaki örnekte, kullanıcı doğrulama e-postası göndermek için EmailSendingService kullanılmıştır:
 
 ```csharp
-var emailMessage = new EmailMessageBuilder()
-    .AddFrom("sender@example.com")
-    .AddRecipient("recipient@example.com", RecipientType.To, "Recipient Name")
-    .AddSubject("Test Email")
-    .AddBody("<h1>Hello World!</h1>", isHtml: true)
-    .MarkAsImportant()
-    .AddAttachment("path/to/file.pdf", "application/pdf")
-    .Build();
+using Core.Application.Mailing.Models;
+using Core.Application.Mailing.Services;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+
+public class AccountService
+{
+    private readonly IMailService _mailService;
+
+    public AccountService(IMailService mailService)
+    {
+        _mailService = mailService;
+    }
+
+    public async Task SendVerificationEmailAsync(User user, string verificationLink)
+    {
+        var emailMessage = new EmailMessage
+        {
+            Recipients = new List<EmailRecipient>
+            {
+                new EmailRecipient 
+                { 
+                    Name = $"{user.FirstName} {user.LastName}", 
+                    Email = user.Email, 
+                    Type = RecipientType.To 
+                }
+            },
+            Subject = "E-posta Doğrulama",
+            Body = $"E-posta adresinizi doğrulamak için lütfen aşağıdaki linke tıklayın: {verificationLink}",
+            IsHtml = false
+        };
+
+        // EmailSendingService içerisinde default değerler (From, FromName) otomatik olarak uygulanır
+        await _mailService.SendEmailAsync(emailMessage);
+    }
+}
+
 ```
 
 ---
@@ -220,5 +283,26 @@ public async Task SendEmailWithFallbackAsync()
     }
 }
 ```
+
+---
+
+### Genel Mimari
+**EmailSettings:**
+Uygulamanın e-posta gönderim ayarlarını (varsayılan gönderici, AWS bilgileri, SMTP sunucuları vb.) tutan strongly-typed konfigürasyon modelidir.
+
+**EmailMessage:**
+E-posta içeriği, alıcı bilgileri, konu ve gövde gibi bilgileri barındıran DTO (Data Transfer Object) sınıfıdır.
+
+**EmailSendingService:**
+E-posta gönderim işlemlerini yöneten servis sınıfıdır. Bu sınıf, ApplyDefaults metodu aracılığıyla tüm mesajlarda varsayılan değerlerin uygulanmasını sağlar ve kayıtlı tüm e-posta sağlayıcılarını kullanarak gönderimi gerçekleştirir.
+
+**IEmailProvider Implementasyonları:**
+Farklı e-posta gönderim yöntemlerini destekleyen sağlayıcı sınıfları:
+
+**SmtpEmailProvider:** SMTP üzerinden e-posta gönderimi gerçekleştirir.
+**SendGridEmailProvider:** SendGrid üzerinden e-posta gönderimi gerçekleştirir.
+**AmazonSesEmailProvider:** Amazon SES üzerinden e-posta gönderimi gerçekleştirir.
+**ISmtpClientSelector (Opsiyonel):**
+SMTP istemcileri arasında rate-limiting uygulanmasını sağlayan yardımcı sınıftır.
 
 ---
