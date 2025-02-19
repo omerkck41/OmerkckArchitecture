@@ -41,7 +41,7 @@ Bu kütüphane, **Multi-Factor Authentication (MFA)** işlemlerini kolayca uygul
 Kütüphaneyi projenize eklemek için aşağıdaki adımları izleyin:
 
 1. **Core.Security.MFA** klasörünü projenize ekleyin.
-2. `IMfaService`, `MfaService` ve `TotpService` sınıflarını kullanmak için gerekli bağımlılıkları ekleyin.
+2. `IMfaService`, `MfaService` ve `ITotpService` sınıflarını kullanmak için gerekli bağımlılıkları ekleyin.
 
 ### 2. **Program.cs Ayarları**
 
@@ -53,7 +53,7 @@ using Core.Security.MFA;
 var builder = WebApplication.CreateBuilder(args);
 
 // Servisleri kaydet
-builder.Services.AddSingleton<TotpService>();
+builder.Services.AddSingleton<ITotpService, TotpService>();
 builder.Services.AddSingleton<IMfaService, MfaService>();
 
 var app = builder.Build();
@@ -159,21 +159,5 @@ public class NotificationController : ControllerBase
         var isValid = await _mfaService.ValidateEmailCodeAsync(inputCode, expectedCode);
         return Ok(new { IsValid = isValid });
     }
-
-    [HttpGet("generate-sms-code")]
-    public async Task<IActionResult> GenerateSmsCode()
-    {
-        var code = await _mfaService.GenerateSmsCodeAsync();
-        return Ok(new { Code = code });
-    }
-
-    [HttpPost("validate-sms-code")]
-    public async Task<IActionResult> ValidateSmsCode([FromBody] string inputCode, [FromBody] string expectedCode)
-    {
-        var isValid = await _mfaService.ValidateSmsCodeAsync(inputCode, expectedCode);
-        return Ok(new { IsValid = isValid });
-    }
 }
 ```
-
----
