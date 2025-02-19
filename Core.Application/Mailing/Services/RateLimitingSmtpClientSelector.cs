@@ -1,4 +1,5 @@
-﻿using System.Net.Mail;
+﻿using Core.CrossCuttingConcerns.GlobalException.Exceptions;
+using System.Net.Mail;
 
 namespace Core.Application.Mailing.Services;
 
@@ -26,14 +27,14 @@ public class RateLimitingSmtpClientSelector : ISmtpClientSelector
                 _sendCounts[client]++;
                 return client;
             }
-            throw new InvalidOperationException("No available SMTP client within the rate limit.");
+            throw new CustomException("No available SMTP client within the rate limit.");
         }
     }
 
     public void RegisterSend(SmtpClient smtpClient)
     {
         if (!_sendCounts.TryGetValue(smtpClient, out int value))
-            throw new InvalidOperationException("SMTP client not registered.");
+            throw new CustomException("SMTP client not registered.");
 
         _sendCounts[smtpClient] = value + 1;
     }

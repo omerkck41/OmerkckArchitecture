@@ -16,7 +16,7 @@ public class SmtpEmailProvider : IEmailProvider
         var smtpClient = _smtpClientSelector.GetNextClient();
         var mailMessage = new MailMessage
         {
-            From = new MailAddress(emailMessage.From), // Sender name can be configurable
+            From = new MailAddress(emailMessage.From, emailMessage.FromName), // Sender name can be configurable
             Subject = emailMessage.Subject,
             Body = emailMessage.Body,
             IsBodyHtml = emailMessage.IsHtml

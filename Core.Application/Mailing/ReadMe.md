@@ -35,28 +35,26 @@ Kütüphaneyi kullanmadan önce, gerekli yapılandırmaları yapmanız gerekmekt
 #### `appsettings.json` Örneği:
 
 ```json
-{
-  "EmailSettings": {
-    "DefaultFromAddress": "noreply@rentacar.com",
+"EmailSettings": {
+    "DefaultFromAddress": "noreply@archonapp.com",
     "DefaultFromName": "ArchonApp Support",
     "SendGridApiKey": "your-sendgrid-api-key",
-    "Providers": {
+    "AwsRegion": "us-east-1",                       // AWS bölgesi (örneğin, us-east-1)
+    "AwsAccessKey": "YOUR_AWS_ACCESS_KEY",          // AWS erişim anahtarı
+    "AwsSecretKey": "YOUR_AWS_SECRET_KEY",          // AWS gizli anahtarı
+    "PreferredProvider": "Smtp",                    // Öncelikli sağlayıcı
+    "MaxEmailsPerClient": 100,
+    "SmtpServers": {
       "Smtp": {
-        "Host": "smtp.gmail.com",
+        "Host": "mail.archonapp.com",
         "Port": 587,
-        "EnableSsl": true,
-        "UserName": "your-email@gmail.com",
-        "Password": "your-email-password",
-        "MaxEmailsPerClient": 100
+        "EnableSsl": false,
+        "UserName": "support@archonapp.com",
+        "Password": "123456"
       }
-    },
-    "AmazonSes": {
-      "AccessKeyId": "your-aws-access-key-id",
-      "SecretAccessKey": "your-aws-secret-access-key",
-      "Region": "us-east-1"
     }
+
   }
-}
 ```
 
 ---

@@ -1,4 +1,5 @@
 ﻿using Core.Application.Mailing.Models;
+using Core.CrossCuttingConcerns.GlobalException.Exceptions;
 
 namespace Core.Application.Mailing.Services;
 
@@ -45,6 +46,6 @@ public class EmailSendingService : IMailService
             }
         }
 
-        throw new InvalidOperationException("All email providers failed to send the email.");
+        throw new CustomException("All email providers failed to send the email.");
     }
 }

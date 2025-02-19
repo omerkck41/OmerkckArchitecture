@@ -1,4 +1,5 @@
-﻿using System.Net.Mail;
+﻿using Core.CrossCuttingConcerns.GlobalException.Exceptions;
+using System.Net.Mail;
 using System.Text.RegularExpressions;
 
 namespace Core.Application.Mailing.Services;
@@ -7,25 +8,26 @@ public class EmailMessageBuilder
 {
     private readonly EmailMessage _emailMessage = new();
 
-    public EmailMessageBuilder AddFrom(string address)
+    public EmailMessageBuilder AddFrom(string address, string? name = null)
     {
         if (string.IsNullOrWhiteSpace(address))
-            throw new ArgumentException("From address cannot be empty.", nameof(address));
+            throw new CustomException("From address cannot be empty.", nameof(address));
 
         if (!IsValidEmail(address))
-            throw new FormatException("Invalid email format.");
+            throw new CustomException("Invalid email format.");
 
         _emailMessage.From = address;
+        _emailMessage.FromName = name ?? "";
         return this;
     }
 
     public EmailMessageBuilder AddRecipient(string email, RecipientType type, string name = null)
     {
         if (string.IsNullOrWhiteSpace(email))
-            throw new ArgumentException("Email cannot be empty.", nameof(email));
+            throw new CustomException("Email cannot be empty.", nameof(email));
 
         if (!IsValidEmail(email))
-            throw new FormatException("Invalid email format.");
+            throw new CustomException("Invalid email format.");
 
         _emailMessage.Recipients.Add(new EmailRecipient { Name = name, Email = email, Type = type });
         return this;
@@ -34,7 +36,7 @@ public class EmailMessageBuilder
     public EmailMessageBuilder AddSubject(string subject)
     {
         if (string.IsNullOrWhiteSpace(subject))
-            throw new ArgumentException("Subject cannot be empty.", nameof(subject));
+            throw new CustomException("Subject cannot be empty.", nameof(subject));
 
         _emailMessage.Subject = subject;
         return this;

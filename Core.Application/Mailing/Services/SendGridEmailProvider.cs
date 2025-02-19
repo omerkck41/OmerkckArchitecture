@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using Core.Application.Mailing.Models;
+using Core.CrossCuttingConcerns.GlobalException.Exceptions;
 using SendGrid;
 using SendGrid.Helpers.Mail;
 
@@ -7,16 +8,19 @@ namespace Core.Application.Mailing.Services;
 public class SendGridEmailProvider : IEmailProvider
 {
     private readonly SendGridClient _client;
+    private readonly EmailSettings _emailSettings;
 
-    public SendGridEmailProvider(IConfiguration configuration)
+    public SendGridEmailProvider(EmailSettings emailSettings)
     {
-        var apiKey = configuration["EmailSettings:SendGridApiKey"];
+        _emailSettings = emailSettings ?? throw new ArgumentNullException(nameof(emailSettings));
+
+        var apiKey = _emailSettings.SendGridApiKey;
         _client = new SendGridClient(apiKey);
     }
 
     public async Task SendAsync(EmailMessage emailMessage)
     {
-        var from = new EmailAddress(emailMessage.From);
+        var from = new EmailAddress(emailMessage.From, emailMessage.FromName);
         var subject = emailMessage.Subject;
         var to = emailMessage.Recipients
             .Where(r => r.Type == RecipientType.To)
@@ -31,7 +35,7 @@ public class SendGridEmailProvider : IEmailProvider
 
         if (response.StatusCode != System.Net.HttpStatusCode.Accepted)
         {
-            throw new Exception("Failed to send email via SendGrid.");
+            throw new CustomException("Failed to send email via SendGrid.");
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using Core.Application.Mailing.Models;
 using Core.Application.Mailing.Services;
+using Core.CrossCuttingConcerns.GlobalException.Exceptions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System.Net.Mail;
@@ -15,7 +16,7 @@ public static class ServiceCollectionExtensions
         var emailSettings = configuration.GetSection("EmailSettings").Get<EmailSettings>();
 
         if (emailSettings == null)
-            throw new InvalidOperationException("EmailSettings configuration section is missing or invalid.");
+            throw new CustomException("EmailSettings configuration section is missing or invalid.");
 
         // Servisleri kaydet
         return AddMailingServices(services, emailSettings);
@@ -25,7 +26,7 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddMailingServicesFromObject(this IServiceCollection services, EmailSettings emailSettings)
     {
         if (emailSettings == null)
-            throw new ArgumentNullException(nameof(emailSettings), "EmailSettings cannot be null.");
+            throw new CustomException(nameof(emailSettings), "EmailSettings cannot be null.");
 
         // Servisleri kaydet
         return AddMailingServices(services, emailSettings);
