@@ -1,5 +1,6 @@
 ﻿using Core.Application.Mailing.Models;
 using Core.CrossCuttingConcerns.GlobalException.Exceptions;
+using Microsoft.Extensions.Options;
 using SendGrid;
 using SendGrid.Helpers.Mail;
 
@@ -10,9 +11,9 @@ public class SendGridEmailProvider : IEmailProvider
     private readonly SendGridClient _client;
     private readonly EmailSettings _emailSettings;
 
-    public SendGridEmailProvider(EmailSettings emailSettings)
+    public SendGridEmailProvider(IOptions<EmailSettings> emailSettings)
     {
-        _emailSettings = emailSettings ?? throw new ArgumentNullException(nameof(emailSettings));
+        _emailSettings = emailSettings?.Value ?? throw new CustomException(nameof(emailSettings));
 
         var apiKey = _emailSettings.SendGridApiKey;
         _client = new SendGridClient(apiKey);

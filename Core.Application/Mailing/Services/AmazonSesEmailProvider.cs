@@ -3,6 +3,7 @@ using Amazon.SimpleEmailV2;
 using Amazon.SimpleEmailV2.Model;
 using Core.Application.Mailing.Models;
 using Core.CrossCuttingConcerns.GlobalException.Exceptions;
+using Microsoft.Extensions.Options;
 using System.Net;
 
 namespace Core.Application.Mailing.Services;
@@ -12,9 +13,10 @@ public class AmazonSesEmailProvider : IEmailProvider
     private readonly AmazonSimpleEmailServiceV2Client _client;
     private readonly EmailSettings _emailSettings;
 
-    public AmazonSesEmailProvider(EmailSettings emailSettings)
+    public AmazonSesEmailProvider(IOptions<EmailSettings> emailSettings)
     {
-        _emailSettings = emailSettings ?? throw new ArgumentNullException(nameof(emailSettings));
+        _emailSettings = emailSettings?.Value ?? throw new CustomException(nameof(emailSettings));
+
 
         if (string.IsNullOrWhiteSpace(_emailSettings.DefaultFromAddress))
             throw new CustomException("DefaultFromAddress must be specified.", nameof(_emailSettings.DefaultFromAddress));
