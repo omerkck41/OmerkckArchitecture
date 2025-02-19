@@ -41,15 +41,6 @@ public class AmazonSesEmailProvider : IEmailProvider
         if (emailMessage == null)
             throw new CustomException(nameof(emailMessage));
 
-        // Varsayılan değerleri ata (gerekirse)
-        emailMessage.From = string.IsNullOrWhiteSpace(emailMessage.From)
-            ? _emailSettings.DefaultFromAddress
-            : emailMessage.From;
-
-        emailMessage.FromName = string.IsNullOrWhiteSpace(emailMessage.FromName)
-            ? _emailSettings.DefaultFromName
-            : emailMessage.FromName;
-
 
         // Alıcıları hazırla
         var destination = BuildDestination(emailMessage.Recipients);

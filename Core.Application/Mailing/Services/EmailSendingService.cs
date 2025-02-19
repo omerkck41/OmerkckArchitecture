@@ -16,6 +16,9 @@ public class EmailSendingService : IMailService
 
     public async Task SendEmailAsync(EmailMessage emailMessage)
     {
+        // Default değerleri merkezi olarak uygula
+        emailMessage = ApplyDefaults(emailMessage);
+
         // Öncelikli sağlayıcıyı bul
         var preferredProvider = _emailProviders.FirstOrDefault(p => p.GetType().Name.StartsWith(_emailSettings.PreferredProvider));
 
@@ -47,5 +50,19 @@ public class EmailSendingService : IMailService
         }
 
         throw new CustomException("All email providers failed to send the email.");
+    }
+
+    /// <summary>
+    /// Applies the default From and FromName values to the EmailMessage object.
+    /// </summary>
+    private EmailMessage ApplyDefaults(EmailMessage message)
+    {
+        message.From = string.IsNullOrWhiteSpace(message.From)
+            ? _emailSettings.DefaultFromAddress
+            : message.From;
+        message.FromName = string.IsNullOrWhiteSpace(message.FromName)
+            ? _emailSettings.DefaultFromName
+            : message.FromName;
+        return message;
     }
 }
