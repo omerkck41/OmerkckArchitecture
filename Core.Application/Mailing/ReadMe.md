@@ -53,7 +53,6 @@ Kütüphaneyi kullanmadan önce, gerekli yapılandırmaları yapmanız gerekmekt
         "Password": "123456"
       }
     }
-
   }
 ```
 

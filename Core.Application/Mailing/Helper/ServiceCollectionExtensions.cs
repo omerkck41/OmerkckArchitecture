@@ -3,53 +3,63 @@ using Core.Application.Mailing.Services;
 using Core.CrossCuttingConcerns.GlobalException.Exceptions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using System.Net.Mail;
 
 namespace Core.Application.Mailing.Helper;
 
 public static class ServiceCollectionExtensions
 {
-    // JSON'dan bilgileri alarak servisleri kaydeden metot
+    /// <summary>
+    /// IOptions pattern kullanarak, JSON'daki "EmailSettings" bölümünü register edip mailing servislerini kaydeder.
+    /// </summary>
     public static IServiceCollection AddMailingServicesFromJson(this IServiceCollection services, IConfiguration configuration)
     {
-        // JSON'dan e-posta ayarlarını oku
-        var emailSettings = configuration.GetSection("EmailSettings").Get<EmailSettings>();
+        if (configuration == null)
+            throw new CustomException(nameof(configuration));
 
-        if (emailSettings == null)
-            throw new CustomException("EmailSettings configuration section is missing or invalid.");
+        // IOptions pattern ile EmailSettings strongly-typed olarak register ediliyor
+        services.Configure<EmailSettings>(configuration.GetSection("EmailSettings"));
 
-        // Servisleri kaydet
-        return AddMailingServices(services, emailSettings);
+        return AddMailingServices(services);
     }
 
-    // Bir sınıf üzerinden bilgileri alarak servisleri kaydeden metot
+    /// <summary>
+    /// IOptions pattern kullanarak, verilen EmailSettings nesnesini register edip mailing servislerini kaydeder.
+    /// </summary>
     public static IServiceCollection AddMailingServicesFromObject(this IServiceCollection services, EmailSettings emailSettings)
     {
         if (emailSettings == null)
             throw new CustomException(nameof(emailSettings), "EmailSettings cannot be null.");
 
-        // Servisleri kaydet
-        return AddMailingServices(services, emailSettings);
+        // Options.Create ile EmailSettings'i IOptions olarak register ediyoruz
+        services.AddSingleton(Options.Create(emailSettings));
+
+        return AddMailingServices(services);
     }
 
-    // Ortak servis kayıt metodu
-    private static IServiceCollection AddMailingServices(IServiceCollection services, EmailSettings emailSettings)
+    /// <summary>
+    /// Ortak servis kayıt metodudur. Bu metotta mailing servisleri, sağlayıcılar ve SMTP istemcisi kaydedilir.
+    /// </summary>
+    private static IServiceCollection AddMailingServices(IServiceCollection services)
     {
-        // SMTP ve SendGrid gibi e-posta sağlayıcılarını kaydet
+        // E-posta sağlayıcılarını kaydediyoruz
         services.AddTransient<IEmailProvider, SmtpEmailProvider>();
         services.AddTransient<IEmailProvider, SendGridEmailProvider>();
         services.AddTransient<IEmailProvider, AmazonSesEmailProvider>();
 
-        // E-posta gönderme servisini kaydet
+        // E-posta gönderim servisini kaydediyoruz. IOptions<EmailSettings> üzerinden ayarlar DI'dan çekiliyor.
         services.AddTransient<IMailService, EmailSendingService>(provider =>
         {
             var emailProviders = provider.GetServices<IEmailProvider>();
+            var emailSettings = provider.GetRequiredService<IOptions<EmailSettings>>().Value;
             return new EmailSendingService(emailProviders, emailSettings);
         });
 
-        // SMTP istemci seçiciyi kaydet (örnek olarak RateLimitingSmtpClientSelector kullanıyoruz)
+        // SMTP istemci seçiciyi kaydediyoruz (örneğin RateLimitingSmtpClientSelector kullanarak)
         services.AddSingleton<ISmtpClientSelector, RateLimitingSmtpClientSelector>(provider =>
         {
+            var emailSettings = provider.GetRequiredService<IOptions<EmailSettings>>().Value;
             var smtpClients = emailSettings.SmtpServers.Select(server => new SmtpClient(server.Host)
             {
                 Port = server.Port,
@@ -57,10 +67,10 @@ public static class ServiceCollectionExtensions
                 EnableSsl = server.UseSsl
             }).ToList();
 
-            return new RateLimitingSmtpClientSelector(smtpClients, maxSendsPerClient: emailSettings.MaxSendsPerClient);
+            return new RateLimitingSmtpClientSelector(smtpClients, emailSettings.MaxSendsPerClient);
         });
 
-        // Logging servisini kaydet (eğer yoksa)
+        // Logging servisini ekliyoruz (eğer henüz eklenmediyse)
         services.AddLogging();
 
         return services;
