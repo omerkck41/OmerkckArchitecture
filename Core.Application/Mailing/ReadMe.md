@@ -1,6 +1,4 @@
-﻿Tabii, son güncellemelerle birlikte `ReadMe.md` dosyanızı güncelleyelim. Özellikle `IEmailRequest` arayüzü ve `EmailSendingBehavior`'ın genişletilmiş kullanımına odaklanarak, README dosyasını daha detaylı ve kullanıcı dostu hale getireceğim.
-
----
+﻿---
 
 # Mail Gönderme Kütüphanesi
 
