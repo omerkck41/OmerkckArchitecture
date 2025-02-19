@@ -21,7 +21,7 @@ Mailing Service, uygulamanızdan e-posta gönderimi yapabilmenizi sağlayan, mod
 ## Neden Kullanılır?
 - **Merkezi Konfigürasyon:** Tüm e-posta gönderim ayarları EmailSettings adlı strongly-typed model üzerinden yönetilir.
 - **Çoklu Sağlayıcı Desteği:** SMTP, SendGrid ve Amazon SES gibi farklı e-posta sağlayıcıları desteklenir; böylece ihtiyaç duyduğunuzda sağlayıcılar arasında geçiş yapabilirsiniz.
-- **Varsayılan Değerlerin Uygulanması: EmailSendingService içerisinde yer alan ApplyDefaults metodu ile, e-posta mesajları oluşturulurken otomatik olarak varsayılan From ve FromName değerleri eklenir.
+- **Varsayılan Değerlerin Uygulanması:** EmailSendingService içerisinde yer alan ApplyDefaults metodu ile, e-posta mesajları oluşturulurken otomatik olarak varsayılan From ve FromName değerleri eklenir.
 - **Modüler Yapı:** Yeni e-posta sağlayıcılarını sisteme eklemek ve mevcut olanları güncellemek oldukça kolaydır.
 - **Test Edilebilirlik ve Bakım Kolaylığı:** Bağımsız servis ve sağlayıcıların kullanılması, birim testler ve ileride yapılacak bakım işlemlerini basitleştirir.
 
@@ -81,7 +81,7 @@ Projenizin kök dizininde bulunan appsettings.json dosyanıza aşağıdaki örne
 
 Mailing servisi ve ilgili bağımlılıkları DI container’a eklemek için ServiceCollectionExtensions sınıfını kullanabilirsiniz.
 
-Program.cs (.NET 6 ve sonrası) Örneği:
+**Program.cs (.NET 6 ve sonrası) Örneği:**
 ```csharp
 var builder = WebApplication.CreateBuilder(args);
 
@@ -100,7 +100,7 @@ app.Run();
 ```
 ---
 
-Startup.cs (.NET Core 3.1 veya .NET 5) Örneği:
+**Startup.cs (.NET Core 3.1 veya .NET 5) Örneği:**
 ```csharp
 public class Startup
 {
@@ -303,6 +303,6 @@ Farklı e-posta gönderim yöntemlerini destekleyen sağlayıcı sınıfları:
 
 **AmazonSesEmailProvider:** Amazon SES üzerinden e-posta gönderimi gerçekleştirir.
 
-**ISmtpClientSelector (Opsiyonel):**SMTP istemcileri arasında rate-limiting uygulanmasını sağlayan yardımcı sınıftır.
+**ISmtpClientSelector (Opsiyonel):** SMTP istemcileri arasında rate-limiting uygulanmasını sağlayan yardımcı sınıftır.
 
 ---
