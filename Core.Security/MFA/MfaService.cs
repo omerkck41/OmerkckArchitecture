@@ -22,7 +22,7 @@ public class MfaService(IOtpService totpService) : IMfaService
     // TOTP kodu üretir.
     public async Task<string> GenerateOtpCodeAsync(string secretKey) => await _totpService.GenerateOtpCodeAsync(secretKey);
     // TOTP kodunu doğrular.
-    public async Task<bool> ValidateOtpCodeAsync(string inputCode, string secretKey) => await _totpService.ValidateOtpCodeAsync(inputCode, secretKey);
+    public async Task<bool> ValidateOtpCodeAsync(string inputCode, string secretKey) => await _totpService.ValidateOtpCodeAsync(secretKey, inputCode);
 
 
 
