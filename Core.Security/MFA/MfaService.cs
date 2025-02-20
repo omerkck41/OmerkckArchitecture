@@ -2,41 +2,36 @@
 
 namespace Core.Security.MFA;
 
-public class MfaService : IMfaService
+public class MfaService(IOtpService totpService) : IMfaService
 {
-    private readonly ITotpService _totpService;
+    private readonly IOtpService _totpService = totpService;
 
-    public MfaService(ITotpService totpService)
+    private static async Task<string> GenerateRandomCodeAsync()
     {
-        _totpService = totpService;
-    }
-
-    private Task<string> GenerateRandomCodeAsync()
-    {
-        return Task.FromResult(RandomNumberGenerator.GetInt32(100000, 999999).ToString());
+        return await Task.FromResult(RandomNumberGenerator.GetInt32(100000, 999999).ToString());
     }
 
     // 6 haneli rastgele Authenticator kodu üretir.
-    public Task<string> GenerateAuthenticatorCodeAsync() => GenerateRandomCodeAsync();
+    public async Task<string> GenerateAuthenticatorCodeAsync() => await GenerateRandomCodeAsync();
 
     // Authenticator kodunu doğrular.
-    public Task<bool> ValidateAuthenticatorCodeAsync(string inputCode, string expectedCode) => Task.FromResult(inputCode == expectedCode);
+    public async Task<bool> ValidateAuthenticatorCodeAsync(string inputCode, string expectedCode) => await Task.FromResult(inputCode == expectedCode);
 
     // TOTP kodu üretir.
-    public Task<string> GenerateTotpCodeAsync(string secretKey) => _totpService.GenerateTotpCodeAsync(secretKey);
+    public async Task<string> GenerateOtpCodeAsync(string secretKey) => await _totpService.GenerateOtpCodeAsync(secretKey);
 
     // TOTP kodunu doğrular.
-    public Task<bool> ValidateTotpCodeAsync(string inputCode, string secretKey) => _totpService.ValidateTotpCodeAsync(inputCode, secretKey);
+    public async Task<bool> ValidateOtpCodeAsync(string inputCode, string secretKey) => await _totpService.ValidateOtpCodeAsync(inputCode, secretKey);
 
     // 6 haneli rastgele e-posta kodu üretir.
-    public Task<string> GenerateEmailCodeAsync() => GenerateRandomCodeAsync();
+    public async Task<string> GenerateEmailCodeAsync() => await GenerateRandomCodeAsync();
 
     // E-posta kodunu doğrular.
-    public Task<bool> ValidateEmailCodeAsync(string inputCode, string expectedCode) => Task.FromResult(inputCode == expectedCode);
+    public async Task<bool> ValidateEmailCodeAsync(string inputCode, string expectedCode) => await Task.FromResult(inputCode == expectedCode);
 
     // 6 haneli rastgele SMS kodu üretir.
-    public Task<string> GenerateSmsCodeAsync() => GenerateRandomCodeAsync();
+    public async Task<string> GenerateSmsCodeAsync() => await GenerateRandomCodeAsync();
 
     // SMS kodunu doğrular.
-    public Task<bool> ValidateSmsCodeAsync(string inputCode, string expectedCode) => Task.FromResult(inputCode == expectedCode);
+    public async Task<bool> ValidateSmsCodeAsync(string inputCode, string expectedCode) => await Task.FromResult(inputCode == expectedCode);
 }

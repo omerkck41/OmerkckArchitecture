@@ -9,10 +9,10 @@ public interface IMfaService
     Task<bool> ValidateAuthenticatorCodeAsync(string inputCode, string expectedCode);
 
     // TOTP (Time-Based One-Time Password) üretir.
-    Task<string> GenerateTotpCodeAsync(string secretKey);
+    Task<string> GenerateOtpCodeAsync(string secretKey);
 
     // TOTP kodunu doğrular.
-    Task<bool> ValidateTotpCodeAsync(string inputCode, string secretKey);
+    Task<bool> ValidateOtpCodeAsync(string inputCode, string secretKey);
 
     // E-posta ile gönderilecek 6 haneli rastgele kod üretir.
     Task<string> GenerateEmailCodeAsync();

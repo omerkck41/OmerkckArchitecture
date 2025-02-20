@@ -11,7 +11,7 @@ public static class SecurityServiceRegistration
     public static IServiceCollection AddSecurityServices(this IServiceCollection services, IConfiguration configuration)
     {
         // MFA Servisleri
-        services.AddSingleton<ITotpService, TotpService>();
+        services.AddSingleton<IOtpService, TotpService>();
         services.AddSingleton<IMfaService, MfaService>();
 
         // EmailAuthenticatorHelper
