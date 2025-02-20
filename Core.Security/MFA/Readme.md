@@ -1,163 +1,102 @@
-﻿---
+﻿# OTP & MFA Authentication Service
 
-# Core.Security.MFA
+## 📌 Nedir?
+Bu proje, güvenli kimlik doğrulama işlemlerini sağlamak için **OTP (One-Time Password)** ve **MFA (Multi-Factor Authentication)** mekanizmalarını kullanır. **TOTP (Time-Based One-Time Password)** algoritması temel alınarak **Google Authenticator, Microsoft Authenticator, Email ve SMS doğrulama** gibi yöntemleri destekler.
 
-Bu kütüphane, **Multi-Factor Authentication (MFA)** işlemlerini kolayca uygulayabilmeniz için geliştirilmiştir. TOTP (Time-Based One-Time Password), Authenticator, E-posta ve SMS tabanlı doğrulama işlemlerini destekler. Büyük ölçekli projelerde rahatça kullanılabilir ve genişletilebilir bir yapıya sahiptir.
+## 🎯 Neden Kullanılır?
+- **İki Faktörlü Kimlik Doğrulama (2FA)** gerektiren uygulamalarda,
+- **Google Authenticator gibi TOTP tabanlı doğrulama uygulamalarıyla** entegrasyon sağlamak için,
+- **E-posta ve SMS doğrulama** işlemlerinde,
+- **OTP ile kullanıcı girişini güvenli hale getirmek** için kullanılır.
 
----
-
-## Nedir?
-
-**Core.Security.MFA**, kullanıcıların kimlik doğrulama sürecini güçlendirmek için kullanılan bir kütüphanedir. Aşağıdaki özellikleri sunar:
-
-- **TOTP (Time-Based One-Time Password)**: Zaman tabanlı tek kullanımlık şifre üretimi ve doğrulaması.
-- **Authenticator**: 6 haneli rastgele kod üretimi ve doğrulaması.
-- **E-posta ve SMS Doğrulama**: E-posta veya SMS ile gönderilecek 6 haneli rastgele kod üretimi ve doğrulaması.
-
----
-
-## Neden Kullanılır?
-
-- **Güvenlik Artışı**: MFA, kullanıcı hesaplarını yetkisiz erişimlere karşı korur.
-- **Esneklik**: Farklı doğrulama yöntemleri (TOTP, Authenticator, E-posta, SMS) destekler.
-- **Kolay Entegrasyon**: Basit ve anlaşılır bir API ile projelerinize kolayca entegre edilebilir.
-- **Genişletilebilirlik**: Yeni doğrulama yöntemleri eklenebilir.
+## 🚀 Avantajları
+- **Modüler ve genişletilebilir yapı** sayesinde farklı kimlik doğrulama yöntemleri eklenebilir.
+- **TOTP (Google Authenticator) desteği** ile güvenliği artırır.
+- **Email ve SMS OTP desteği** ile kullanıcıya çoklu doğrulama yöntemi sunar.
+- **Dependency Injection (DI) ile kolay yönetilebilir**.
 
 ---
 
-## Avantajları
+## 🔧 Projeye Nasıl Eklenir?
 
-- **Clean Code**: Best practice'lere uygun, temiz ve anlaşılır kod yapısı.
-- **Async Destek**: Tüm metotlar asenkron olarak çalışır.
-- **Yapılandırılabilirlik**: TOTP zaman adımı (time step) gibi parametreler yapılandırılabilir.
-- **Hata Yönetimi**: Tüm metotlarda hata yönetimi ve loglama desteği.
+### **1️⃣ NuGet Paketlerini Yükleyin**
+Projeye OTP desteği için aşağıdaki NuGet paketlerini ekleyin:
+```shell
+ dotnet add package Otp.NET
+```
 
----
-
-## Projeye Ekleme ve Ayarlar
-
-### 1. **Projeye Ekleme**
-
-Kütüphaneyi projenize eklemek için aşağıdaki adımları izleyin:
-
-1. **Core.Security.MFA** klasörünü projenize ekleyin.
-2. `IMfaService`, `MfaService` ve `ITotpService` sınıflarını kullanmak için gerekli bağımlılıkları ekleyin.
-
-### 2. **Program.cs Ayarları**
-
-`Program.cs` dosyasında `MfaService` ve `TotpService` sınıflarını dependency injection ile kaydedin:
-
+### **2️⃣ Dependency Injection Ayarları (Program.cs)**
+Aşağıdaki kod ile servisleri `Program.cs` dosyanızda kaydedin:
 ```csharp
-using Core.Security.MFA;
-
 var builder = WebApplication.CreateBuilder(args);
 
-// Servisleri kaydet
-builder.Services.AddSingleton<ITotpService, TotpService>();
-builder.Services.AddSingleton<IMfaService, MfaService>();
+builder.Services.AddScoped<IOtpService, TotpService>();
+builder.Services.AddScoped<IMfaService, MfaService>();
 
 var app = builder.Build();
-
-// Uygulama başlatma
 app.Run();
 ```
 
-### 3. **appsettings.json Ayarları**
+---
 
-`appsettings.json` dosyasında TOTP için gerekli ayarları ekleyin:
-
+## 📂 **appsettings.json Konfigürasyonu**
+Eğer OTP doğrulamalarında süre veya uzunluk gibi özel ayarlamalar yapacaksanız, `appsettings.json` dosyanıza aşağıdaki gibi bir yapı ekleyebilirsiniz:
 ```json
 {
-  "MfaSettings": {
-    "TotpTimeStep": 30 // TOTP zaman adımı (saniye cinsinden)
+  "OtpSettings": {
+    "OtpLength": 6,
+    "OtpExpirySeconds": 30
   }
 }
 ```
 
 ---
 
-## Detaylı Kullanım Örnekleri
+## 📌 **Detaylı Kullanım Örnekleri**
 
-### 1. **Authenticator Kodu Üretme ve Doğrulama**
-
+### 🔹 **1️⃣ OTP Kodu Üretme ve Doğrulama**
 ```csharp
-public class AuthController : ControllerBase
-{
-    private readonly IMfaService _mfaService;
+var otpService = serviceProvider.GetRequiredService<IOtpService>();
+string secretKey = await otpService.GenerateSecretKey();
+string otp = await otpService.GenerateOtpCodeAsync(secretKey);
 
-    public AuthController(IMfaService mfaService)
-    {
-        _mfaService = mfaService;
-    }
+Console.WriteLine($"OTP Kodu: {otp}");
 
-    [HttpGet("generate-authenticator-code")]
-    public async Task<IActionResult> GenerateAuthenticatorCode()
-    {
-        var code = await _mfaService.GenerateAuthenticatorCodeAsync();
-        return Ok(new { Code = code });
-    }
-
-    [HttpPost("validate-authenticator-code")]
-    public async Task<IActionResult> ValidateAuthenticatorCode([FromBody] string inputCode, [FromBody] string expectedCode)
-    {
-        var isValid = await _mfaService.ValidateAuthenticatorCodeAsync(inputCode, expectedCode);
-        return Ok(new { IsValid = isValid });
-    }
-}
+bool isValid = await otpService.ValidateOtpCodeAsync(secretKey, otp);
+Console.WriteLine(isValid ? "✅ OTP Geçerli!" : "❌ Hatalı OTP!");
 ```
 
-### 2. **TOTP Kodu Üretme ve Doğrulama**
-
+### 🔹 **2️⃣ Google Authenticator ile Entegrasyon**
 ```csharp
-public class TotpController : ControllerBase
-{
-    private readonly IMfaService _mfaService;
+var otpService = serviceProvider.GetRequiredService<IOtpService>();
+string secretKey = await otpService.GenerateSecretKey();
+string otpAuthUrl = await otpService.GenerateOtpAuthUrlAsync("user@example.com", "MyApp", secretKey);
 
-    public TotpController(IMfaService mfaService)
-    {
-        _mfaService = mfaService;
-    }
-
-    [HttpGet("generate-totp-code")]
-    public async Task<IActionResult> GenerateTotpCode([FromQuery] string secretKey)
-    {
-        var code = await _mfaService.GenerateTotpCodeAsync(secretKey);
-        return Ok(new { Code = code });
-    }
-
-    [HttpPost("validate-totp-code")]
-    public async Task<IActionResult> ValidateTotpCode([FromBody] string inputCode, [FromBody] string secretKey)
-    {
-        var isValid = await _mfaService.ValidateTotpCodeAsync(inputCode, secretKey);
-        return Ok(new { IsValid = isValid });
-    }
-}
+Console.WriteLine("Google Authenticator için aşağıdaki QR kodu taratın:");
+Console.WriteLine(otpAuthUrl);
 ```
 
-### 3. **E-posta ve SMS Kodu Üretme ve Doğrulama**
-
+### 🔹 **3️⃣ Email & SMS OTP Kullanımı**
 ```csharp
-public class NotificationController : ControllerBase
-{
-    private readonly IMfaService _mfaService;
+var mfaService = serviceProvider.GetRequiredService<IMfaService>();
 
-    public NotificationController(IMfaService mfaService)
-    {
-        _mfaService = mfaService;
-    }
+string emailOtp = await mfaService.GenerateEmailCodeAsync();
+Console.WriteLine($"Email OTP: {emailOtp}");
 
-    [HttpGet("generate-email-code")]
-    public async Task<IActionResult> GenerateEmailCode()
-    {
-        var code = await _mfaService.GenerateEmailCodeAsync();
-        return Ok(new { Code = code });
-    }
+bool isEmailValid = await mfaService.ValidateEmailCodeAsync(emailOtp, emailOtp);
+Console.WriteLine(isEmailValid ? "✅ Email OTP Geçerli!" : "❌ Hatalı Email OTP!");
 
-    [HttpPost("validate-email-code")]
-    public async Task<IActionResult> ValidateEmailCode([FromBody] string inputCode, [FromBody] string expectedCode)
-    {
-        var isValid = await _mfaService.ValidateEmailCodeAsync(inputCode, expectedCode);
-        return Ok(new { IsValid = isValid });
-    }
-}
+string smsOtp = await mfaService.GenerateSmsCodeAsync();
+Console.WriteLine($"SMS OTP: {smsOtp}");
+
+bool isSmsValid = await mfaService.ValidateSmsCodeAsync(smsOtp, smsOtp);
+Console.WriteLine(isSmsValid ? "✅ SMS OTP Geçerli!" : "❌ Hatalı SMS OTP!");
 ```
+
+---
+
+## 📌 **Sonuç**
+Bu yapı, **OTP tabanlı güvenli kimlik doğrulama işlemlerini yönetmek için esnek ve ölçeklenebilir bir çözüm sunar**. Projeye kolayca entegre edilebilir ve **Google Authenticator, Email ve SMS doğrulama işlemleriyle güvenliği artırabilir**.
+
+🔹 **Daha fazla geliştirme veya ekleme yapmak isterseniz, haber verin!** 🚀
+

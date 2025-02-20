@@ -10,7 +10,10 @@ public static class SecurityServiceRegistration
 {
     public static IServiceCollection AddSecurityServices(this IServiceCollection services, IConfiguration configuration)
     {
+        services.Configure<OtpSettings>(configuration.GetSection("OtpSettings"));
+
         // MFA Servisleri
+        services.AddSingleton<OtpSettings>();
         services.AddSingleton<IOtpService, TotpService>();
         services.AddSingleton<IMfaService, MfaService>();
 
