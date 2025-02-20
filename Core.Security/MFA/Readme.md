@@ -28,13 +28,12 @@ Projeye OTP desteği için aşağıdaki NuGet paketlerini ekleyin:
 ### **2️⃣ Dependency Injection Ayarları (Program.cs)**
 Aşağıdaki kod ile servisleri `Program.cs` dosyanızda kaydedin:
 ```csharp
-var builder = WebApplication.CreateBuilder(args);
+services.Configure<OtpSettings>(configuration.GetSection("OtpSettings"));
 
-builder.Services.AddScoped<IOtpService, TotpService>();
-builder.Services.AddScoped<IMfaService, MfaService>();
-
-var app = builder.Build();
-app.Run();
+// MFA Servisleri
+services.AddSingleton<OtpSettings>();
+services.AddSingleton<IOtpService, TotpService>();
+services.AddSingleton<IMfaService, MfaService>();
 ```
 
 ---
@@ -97,6 +96,3 @@ Console.WriteLine(isSmsValid ? "✅ SMS OTP Geçerli!" : "❌ Hatalı SMS OTP!")
 
 ## 📌 **Sonuç**
 Bu yapı, **OTP tabanlı güvenli kimlik doğrulama işlemlerini yönetmek için esnek ve ölçeklenebilir bir çözüm sunar**. Projeye kolayca entegre edilebilir ve **Google Authenticator, Email ve SMS doğrulama işlemleriyle güvenliği artırabilir**.
-
-🔹 **Daha fazla geliştirme veya ekleme yapmak isterseniz, haber verin!** 🚀
-
