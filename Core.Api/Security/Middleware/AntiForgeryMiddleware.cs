@@ -39,7 +39,12 @@ public class AntiForgeryMiddleware
         // POST, PUT, DELETE gibi isteklerde CSRF token kontrolü yap
         if (context.Request.Method == "POST" || context.Request.Method == "PUT" || context.Request.Method == "DELETE")
         {
-            if (!context.Request.Headers.ContainsKey("X-CSRF-TOKEN"))
+            // CSRF Token'ı Cookie'den oku
+            var csrfTokenFromCookie = context.Request.Cookies["X-CSRF-TOKEN"];
+            var csrfTokenFromHeader = context.Request.Headers["X-CSRF-TOKEN"].FirstOrDefault();
+
+            // Eğer token eksikse veya eşleşmiyorsa, erişimi reddet
+            if (string.IsNullOrEmpty(csrfTokenFromHeader) || csrfTokenFromHeader != csrfTokenFromCookie)
             {
                 context.Response.StatusCode = StatusCodes.Status403Forbidden;
                 await context.Response.WriteAsync("CSRF token is required.");
@@ -50,6 +55,7 @@ public class AntiForgeryMiddleware
         await _next(context);
     }
 }
+
 [AttributeUsage(AttributeTargets.Method)]
 public class IgnoreCsrfAttribute : Attribute
 {
