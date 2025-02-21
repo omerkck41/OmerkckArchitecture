@@ -1,67 +1,28 @@
-﻿# Core.Api.Security - API Güvenlik Katmanı
+﻿# API Güvenlik Kütüphanesi Kullanım Kılavuzu
 
-## 📌 **Genel Bakış**
-**Core.Api.Security**, .NET tabanlı API projelerinde güvenliği artırmak amacıyla geliştirilmiş bir modüldür. 
-Bu kütüphane, API’nizin saldırılara karşı korunmasına yardımcı olmak için çeşitli **Middleware’ler** ve **Servisler** sağlar. 
-Özellikle büyük ölçekli projelerde güvenliği sağlamak için kritik öneme sahiptir.
+## 📌 **Proje Hakkında**
+Bu kütüphane, **ASP.NET Core API** projelerinde güvenliği sağlamak için geliştirilmiştir. **Middleware tabanlı bir yapı** kullanılarak şu güvenlik mekanizmaları sağlanır:
 
----
-
-## 🎯 **Neden Core.Api.Security Kullanılmalı?**
-
-Güvenli bir API geliştirmek için **Core.Api.Security** kullanmanın başlıca avantajları:
-
-✅ **IP Whitelist**: API’ye yalnızca belirli IP’lerin erişmesine izin verir. 
-✅ **Rate Limiting**: API isteklerini sınırlayarak **DoS ve Brute-Force saldırılarını** önler. 
-✅ **HTTPS Enforcement**: API’nin yalnızca **HTTPS üzerinden çalışmasını zorunlu kılar**.
-✅ **Gelişmiş Güvenlik Başlıkları**: **XSS, Clickjacking, CSRF gibi saldırılara** karşı ekstra güvenlik sağlar.
-✅ **Request Validation**: Zararlı SQL Injection veya kötü niyetli istekleri otomatik olarak engeller.
-✅ **CORS Yönetimi**: API'ye sadece **belirlenen domainlerden** erişimi sağlar.
-
-### ⚠ **Olası Dezavantajlar**
-- Tüm güvenlik önlemleri **performans açısından bir miktar yük getirebilir**.
-- Yanlış yapılandırılırsa **meşru istekleri de engelleyebilir**.
-- Rate Limiting gibi mekanizmalar, çok fazla eş zamanlı isteğe sahip projelerde **dikkatle ayarlanmalıdır**.
+- **CORS Yönetimi** → Belirtilen domainlerden gelen istekleri kabul eder.
+- **IP Whitelist** → Belirtilen IP adreslerinden erişime izin verir.
+- **Rate Limiting** → Kötüye kullanımı önlemek için istekleri sınırlar.
+- **HTTPS Zorunluluğu** → API’nin sadece HTTPS üzerinden çalışmasını sağlar.
+- **Brute Force Koruması** → Tekrarlayan başarısız giriş denemelerini sınırlar.
+- **CSRF Koruması** → Cross-Site Request Forgery saldırılarını engeller.
+- **Gelişmiş Güvenlik Başlıkları** → XSS, Clickjacking gibi saldırılara karşı ekstra koruma sağlar.
 
 ---
 
-## 🛠 **Projeye Entegrasyon**
+## 🔧 **Kurulum ve Kullanım**
 
-### **1️⃣. Manuel Kurulum (Kütüphaneyi Projeye Dahil Etme)**
-Eğer NuGet üzerinden yüklemek yerine doğrudan projeye entegre etmek istiyorsanız, **Core.Api.Security klasörünü** projenize dahil edin:
+### **1️⃣ SecuritySettings Yapılandırması**
+📌 **Projenin `appsettings.json` dosyasına şu ayarları ekleyin:**
 
-📂 **Proje Yapısı:**
-```
-Core.Api/
-│── Security/
-│   │── Middleware/  
-│   │   ├── IpWhitelistMiddleware.cs
-│   │   ├── RateLimiterMiddleware.cs
-│   │   ├── HttpsEnforcerMiddleware.cs
-│   │   ├── SecurityHeadersMiddleware.cs
-│   │   ├── RequestValidationMiddleware.cs
-│   │   ├── AntiForgeryMiddleware.cs
-│   │   ├── BruteForceProtectionMiddleware.cs
-│   │── Services/
-│   │   ├── CorsManager.cs
-│   │── Extensions/
-│   │   ├── SecurityExtensions.cs
-```
-
-### **3️⃣. `appsettings.json` Üzerinden Yapılandırma**
-
-📌 **Güvenlik ayarları için** `appsettings.json` içinde aşağıdaki bölümü ekleyin:
 ```json
 {
   "SecuritySettings": {
-    "AllowedIPs": [
-      "127.0.0.1",
-      "::1"
-    ],
-    "AddCorsPolicy": [
-      "https://localhost:3000",
-      "https://localhost:5001"
-    ],
+    "AllowedIPs": ["127.0.0.1", "::1"],
+    "AddCorsPolicy": ["https://localhost:3000"],
     "RateLimit": 100,
     "MaxLoginAttempts": 5,
     "LockoutTime": 5,
@@ -72,67 +33,105 @@ Core.Api/
 }
 ```
 
-### **4️⃣. `Program.cs` İçinde Middleware ve Güvenlik Yapılandırmasını Aktif Etme**
+---
 
-📌 **`Program.cs` dosyanıza aşağıdaki kodları ekleyin:**
+### **2️⃣ Security Middleware ve Servislerini Projeye Entegre Etme**
+📌 **`Program.cs` içinde `SecurityExtensions` ve `CorsManager` çağırılmalıdır.**
+
 ```csharp
 var builder = WebApplication.CreateBuilder(args);
-
-// Güvenlik ayarlarını servis olarak ekleyin
-builder.Services.AddSecurityServices(builder.Configuration);
-
 var app = builder.Build();
 
-// Middleware’leri API’ye entegre et
+// Security Middleware'leri ekle
+builder.Services.AddSecurityServices(builder.Configuration);
+
+// CORS ayarlarını uygula
+app.UseCors("DefaultCorsPolicy");
+
+// Middleware’leri uygula
 app.UseSecurityMiddlewares(builder.Configuration);
 
-app.MapControllers();
 app.Run();
 ```
 
 ---
 
-## 🚀 **Middleware Kullanımı ve Detayları**
+## 🚀 **Middleware Açıklamaları ve Kullanımı**
 
-### **IP Whitelist Kullanımı (IpWhitelistMiddleware)**
-Belirtilen IP adresleri dışındaki tüm erişimleri engeller.
+### **1️⃣ IP Whitelist Middleware (`IpWhitelistMiddleware`)**
+📌 **Sadece belirlenen IP’lerin API’ye erişmesine izin verir.**
+
+**💡 Kullanım:** `SecuritySettings.AllowedIPs` listesinde belirtilen IP adresleri haricindeki istekler engellenir.
+
+---
+
+### **2️⃣ Rate Limiting Middleware (`RateLimiterMiddleware`)**
+📌 **Belirli bir zaman diliminde yapılan istek sayısını sınırlandırır.**
+
+**💡 Kullanım:** `SecuritySettings.RateLimit` değeri kullanılarak her IP için saniyelik istek limiti belirlenir.
+
+---
+
+### **3️⃣ HTTPS Zorunluluğu (`HttpsEnforcerMiddleware`)**
+📌 **Sadece HTTPS bağlantılarını kabul eder.**
+
+**💡 Kullanım:** `SecuritySettings.EnforceHttps` değeri `true` ise API sadece HTTPS üzerinden çalışır.
+
+---
+
+### **4️⃣ Brute Force Koruması (`BruteForceProtectionMiddleware`)**
+📌 **Belirli sayıda başarısız giriş denemesinden sonra kullanıcıyı bloke eder.**
+
+**💡 Kullanım:** `SecuritySettings.MaxLoginAttempts` ve `SecuritySettings.LockoutTime` kullanılarak yapılandırılır.
+
+---
+
+### **5️⃣ CSRF Koruması (`AntiForgeryMiddleware`)**
+📌 **CSRF saldırılarını engellemek için isteklerde `X-CSRF-TOKEN` başlığını doğrular.**
+
+**💡 Kullanım:**
+- `SecuritySettings.EnableCsrfProtection = true` olmalı.
+- CSRF’den muaf tutulacak endpointler `SecuritySettings.CsrfExcludedEndpoints` listesine eklenmelidir.
+
+**💡 Login İşlemi Sonrası CSRF Token Üretme ve Kullanma:**
+
 ```csharp
-app.UseMiddleware<IpWhitelistMiddleware>();
+private void setRefreshTokenToCookie(RefreshToken refreshToken)
+{
+    Response.Cookies.Append("X-CSRF-TOKEN", Guid.NewGuid().ToString(), new CookieOptions
+    {
+        HttpOnly = false,
+        SameSite = SameSiteMode.Strict,
+        Expires = DateTime.UtcNow.AddDays(7)
+    });
+}
 ```
 
-### **Rate Limiting Kullanımı (RateLimiterMiddleware)**
-Aşırı istek atan kullanıcıları engeller.
-```csharp
-app.UseMiddleware<RateLimiterMiddleware>();
-```
-
-### **HTTPS Zorunluluğu (HttpsEnforcerMiddleware)**
-API’ye yalnızca **HTTPS üzerinden erişime** izin verir.
-```csharp
-app.UseMiddleware<HttpsEnforcerMiddleware>();
-```
-
-### **Gelişmiş Güvenlik Başlıkları (SecurityHeadersMiddleware)**
-Clickjacking, XSS, CSRF gibi saldırılara karşı ek başlıklar ekler.
-```csharp
-app.UseMiddleware<SecurityHeadersMiddleware>();
-```
-
-### **Gelişmiş Güvenlik Başlıkları (AntiForgeryMiddleware)**
-CSRF Token saldırılara karşıönlem.
-```csharp
-[HttpPost("Login")]
-[IgnoreCsrf] // ✅ Bu metot CSRF kontrolünden muaf tutulacak
-public async Task<IActionResult> Login([FromBody] UserForLoginDto userForLoginDto)
+**Frontend CSRF Token Gönderme Örneği (JavaScript - Fetch API)**
+```javascript
+const csrfToken = document.cookie.split('; ').find(row => row.startsWith('X-CSRF-TOKEN'))?.split('=')[1];
+fetch("https://localhost:5001/api/user/profile", {
+    method: "GET",
+    headers: {
+        "Authorization": "Bearer " + localStorage.getItem("accessToken"),
+        "X-CSRF-TOKEN": csrfToken
+    }
+})
+.then(response => response.json())
+.then(data => console.log(data))
+.catch(error => console.error("Hata:", error));
 ```
 
 ---
 
-## 🎯 **Sonuç**
-✅ **Core.Api.Security**, API güvenliğini artırmak için modüler ve genişletilebilir bir çözümdür. 
-Bu kütüphane, saldırılara karşı ek bir katman oluştururken, API’nizin daha güvenli ve ölçeklenebilir olmasını sağlar.**
+### **6️⃣ Gelişmiş Güvenlik Başlıkları (`SecurityHeadersMiddleware`)**
+📌 **API yanıtlarına aşağıdaki güvenlik başlıklarını ekler:**
+- `X-Frame-Options: DENY`
+- `X-XSS-Protection: 1; mode=block`
+- `X-Content-Type-Options: nosniff`
+- `Strict-Transport-Security: max-age=31536000; includeSubDomains` (Sadece HTTPS için)
 
-📌 **Özetle:**
-- 🚀 **IP Whitelist, Rate Limiting, HTTPS Zorunluluğu gibi mekanizmalar içerir.**
-- 🔐 **XSS, Clickjacking, CSRF saldırılarına karşı ek güvenlik başlıkları sağlar.**
-- 🛠 **Kolay entegrasyon ve esnek yapılandırma seçenekleri sunar.**
+---
+
+## 🔗 **Sonuç ve Özet**
+Bu kütüphane sayesinde **ASP.NET Core API projelerinde güvenliği artırabilir**, **yetkisiz erişimi engelleyebilir** ve **daha sağlam bir altyapı oluşturabilirsin**.
