@@ -16,7 +16,6 @@ Güvenli bir API geliştirmek için **Core.Api.Security** kullanmanın başlıca
 ✅ **HTTPS Enforcement**: API’nin yalnızca **HTTPS üzerinden çalışmasını zorunlu kılar**.
 ✅ **Gelişmiş Güvenlik Başlıkları**: **XSS, Clickjacking, CSRF gibi saldırılara** karşı ekstra güvenlik sağlar.
 ✅ **Request Validation**: Zararlı SQL Injection veya kötü niyetli istekleri otomatik olarak engeller.
-✅ **JWT Blacklist**: Blacklist’e alınan JWT Token’ların tekrar kullanılmasını engeller.
 ✅ **CORS Yönetimi**: API'ye sadece **belirlenen domainlerden** erişimi sağlar.
 
 ### ⚠ **Olası Dezavantajlar**
@@ -43,7 +42,6 @@ Core.Api/
 │   │   ├── RequestValidationMiddleware.cs
 │   │   ├── AntiForgeryMiddleware.cs
 │   │   ├── BruteForceProtectionMiddleware.cs
-│   │   ├── BlacklistedTokensMiddleware.cs
 │   │── Services/
 │   │   ├── CorsManager.cs
 │   │── Extensions/
@@ -115,12 +113,6 @@ Clickjacking, XSS, CSRF gibi saldırılara karşı ek başlıklar ekler.
 app.UseMiddleware<SecurityHeadersMiddleware>();
 ```
 
-### **JWT Token Kara Liste Kontrolü (BlacklistedTokensMiddleware)**
-Blacklist’e alınmış token’ların tekrar kullanılmasını engeller.
-```csharp
-app.UseMiddleware<BlacklistedTokensMiddleware>();
-```
-
 ---
 
 ## 🎯 **Sonuç**
@@ -128,6 +120,6 @@ app.UseMiddleware<BlacklistedTokensMiddleware>();
 Bu kütüphane, saldırılara karşı ek bir katman oluştururken, API’nizin daha güvenli ve ölçeklenebilir olmasını sağlar.**
 
 📌 **Özetle:**
-- 🚀 **IP Whitelist, Rate Limiting, JWT Blacklist, HTTPS Zorunluluğu gibi mekanizmalar içerir.**
+- 🚀 **IP Whitelist, Rate Limiting, HTTPS Zorunluluğu gibi mekanizmalar içerir.**
 - 🔐 **XSS, Clickjacking, CSRF saldırılarına karşı ek güvenlik başlıkları sağlar.**
 - 🛠 **Kolay entegrasyon ve esnek yapılandırma seçenekleri sunar.**
