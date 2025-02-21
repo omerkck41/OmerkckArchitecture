@@ -1,5 +1,6 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Configuration;
+﻿using Core.Api.Security.Config;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Options;
 using System.Net;
 
 namespace Core.Api.Security.Middleware;
@@ -9,10 +10,10 @@ public class IpWhitelistMiddleware
     private readonly RequestDelegate _next;
     private readonly List<string> _allowedIps;
 
-    public IpWhitelistMiddleware(RequestDelegate next, IConfiguration configuration)
+    public IpWhitelistMiddleware(RequestDelegate next, IOptions<SecuritySettings> securitySettings)
     {
         _next = next;
-        _allowedIps = configuration.GetSection("AllowedIPs").Get<List<string>>() ?? new();
+        _allowedIps = securitySettings.Value.AllowedIPs ?? new List<string>();
     }
 
     public async Task Invoke(HttpContext context)
@@ -21,7 +22,7 @@ public class IpWhitelistMiddleware
         if (!_allowedIps.Contains(remoteIp))
         {
             context.Response.StatusCode = (int)HttpStatusCode.Forbidden;
-            await context.Response.WriteAsync("Erişim reddedildi. Yetkili IP adresi değil.");
+            await context.Response.WriteAsync("Access denied. Not authorized IP address.");
             return;
         }
         await _next(context);

@@ -2,7 +2,9 @@
 
 public class SecuritySettings
 {
-    public string[] AllowedIPs { get; set; } = Array.Empty<string>();
-    public string[] AddCorsPolicy { get; set; } = Array.Empty<string>();
-    public int RateLimit { get; set; } = 100;
+    public List<string> AllowedIPs { get; set; } = new List<string>();
+    public List<string> AddCorsPolicy { get; set; } = new List<string>();
+    public int RateLimit { get; set; } = 100;           // Rate Limiting için eklendi
+    public int MaxLoginAttempts { get; set; } = 5;      // Brute Force için eklendi
+    public int LockoutTime { get; set; } = 5;           // Brute Force için eklendi (dakika cinsinden)
 }

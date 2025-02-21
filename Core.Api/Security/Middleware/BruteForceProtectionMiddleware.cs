@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Core.Api.Security.Config;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Options;
 
 namespace Core.Api.Security.Middleware;
 
@@ -6,10 +8,15 @@ public class BruteForceProtectionMiddleware
 {
     private readonly RequestDelegate _next;
     private static readonly Dictionary<string, (int AttemptCount, DateTime LastAttempt)> LoginAttempts = new();
-    private const int MaxAttempts = 5;
-    private static readonly TimeSpan LockoutTime = TimeSpan.FromMinutes(5);
+    private readonly int _maxLoginAttempts;
+    private readonly TimeSpan _lockoutTime;
 
-    public BruteForceProtectionMiddleware(RequestDelegate next) => _next = next;
+    public BruteForceProtectionMiddleware(RequestDelegate next, IOptions<SecuritySettings> securitySettings)
+    {
+        _next = next;
+        _maxLoginAttempts = securitySettings.Value.MaxLoginAttempts;
+        _lockoutTime = TimeSpan.FromMinutes(securitySettings.Value.LockoutTime);
+    }
 
     public async Task Invoke(HttpContext context)
     {
@@ -20,7 +27,7 @@ public class BruteForceProtectionMiddleware
             {
                 if (LoginAttempts.TryGetValue(ipAddress, out var attemptData))
                 {
-                    if (attemptData.AttemptCount >= MaxAttempts && DateTime.UtcNow - attemptData.LastAttempt < LockoutTime)
+                    if (attemptData.AttemptCount >= _maxLoginAttempts && DateTime.UtcNow - attemptData.LastAttempt < _lockoutTime)
                     {
                         context.Response.StatusCode = StatusCodes.Status429TooManyRequests;
                         await context.Response.WriteAsync("Too many failed login attempts. Try again later.");
