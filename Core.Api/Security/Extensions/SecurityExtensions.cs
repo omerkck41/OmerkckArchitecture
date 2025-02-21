@@ -11,30 +11,19 @@ public static class SecurityExtensions
     public static IServiceCollection AddSecurityServices(this IServiceCollection services, IConfiguration configuration)
     {
         // CORS Yönetimi
-        var allowedOrigins = configuration.GetSection("AddCorsPolicy").Get<string[]>();
-        if (allowedOrigins != null)
+        var allowedOrigins = configuration.GetSection("AddCorsPolicy").Get<string[]>() ?? new string[0];
+        services.AddCors(options =>
         {
-            services.AddCors(options =>
+            options.AddPolicy("DefaultCorsPolicy", builder =>
             {
-                options.AddPolicy("DefaultCorsPolicy", builder =>
-                {
-                    builder.WithOrigins(allowedOrigins)
-                           .AllowAnyMethod()
-                           .AllowAnyHeader();
-                });
+                builder.WithOrigins(allowedOrigins)
+                       .AllowAnyMethod()
+                       .AllowAnyHeader();
             });
-        }
+        });
 
-        // IP Whitelist
+        // SecuritySettings yapılandırmasını ekleyelim
         services.Configure<SecuritySettings>(options => configuration.GetSection("SecuritySettings").Bind(options));
-
-        services.AddTransient<IpWhitelistMiddleware>();
-        services.AddTransient<RateLimiterMiddleware>();
-        services.AddTransient<HttpsEnforcerMiddleware>();
-        services.AddTransient<SecurityHeadersMiddleware>();
-        services.AddTransient<RequestValidationMiddleware>();
-        services.AddTransient<AntiForgeryMiddleware>();
-        services.AddTransient<BruteForceProtectionMiddleware>();
 
         return services;
     }
@@ -49,11 +38,8 @@ public static class SecurityExtensions
         app.UseMiddleware<AntiForgeryMiddleware>();
         app.UseMiddleware<BruteForceProtectionMiddleware>();
 
-        var allowedOrigins = configuration.GetSection("AddCorsPolicy").Get<string[]>();
-        if (allowedOrigins != null)
-        {
-            app.UseCors("DefaultCorsPolicy");
-        }
+        app.UseCors("DefaultCorsPolicy");
+
         return app;
     }
 }
