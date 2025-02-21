@@ -65,7 +65,9 @@ Core.Api/
     "RateLimit": 100,
     "MaxLoginAttempts": 5,
     "LockoutTime": 5,
-    "EnforceHttps": false
+    "EnforceHttps": false,
+    "EnableCsrfProtection": true,
+    "CsrfExcludedEndpoints": ["/api/Auth/Login", "/api/Auth/Register"]
   }
 }
 ```
@@ -114,6 +116,14 @@ app.UseMiddleware<HttpsEnforcerMiddleware>();
 Clickjacking, XSS, CSRF gibi saldırılara karşı ek başlıklar ekler.
 ```csharp
 app.UseMiddleware<SecurityHeadersMiddleware>();
+```
+
+### **Gelişmiş Güvenlik Başlıkları (AntiForgeryMiddleware)**
+CSRF Token saldırılara karşıönlem.
+```csharp
+[HttpPost("Login")]
+[IgnoreCsrf] // ✅ Bu metot CSRF kontrolünden muaf tutulacak
+public async Task<IActionResult> Login([FromBody] UserForLoginDto userForLoginDto)
 ```
 
 ---

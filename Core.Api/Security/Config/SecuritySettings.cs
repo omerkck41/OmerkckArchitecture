@@ -8,4 +8,6 @@ public class SecuritySettings
     public int MaxLoginAttempts { get; set; } = 5;      // Brute Force için eklendi
     public int LockoutTime { get; set; } = 5;           // Brute Force için eklendi (dakika cinsinden)
     public bool EnforceHttps { get; set; } = true;
+    public bool EnableCsrfProtection { get; set; } = true;
+    public List<string> CsrfExcludedEndpoints { get; set; } = new List<string>();
 }

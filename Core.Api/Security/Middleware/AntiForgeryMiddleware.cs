@@ -1,23 +1,56 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Core.Api.Security.Config;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc.Controllers;
+using Microsoft.Extensions.Options;
 
 namespace Core.Api.Security.Middleware;
 
 public class AntiForgeryMiddleware
 {
     private readonly RequestDelegate _next;
-    public AntiForgeryMiddleware(RequestDelegate next) => _next = next;
+    private readonly bool _enableCsrfProtection;
+    private readonly List<string> _excludedEndpoints;
+
+    public AntiForgeryMiddleware(RequestDelegate next, IOptions<SecuritySettings> securitySettings)
+    {
+        _next = next;
+        _enableCsrfProtection = securitySettings.Value.EnableCsrfProtection;
+        _excludedEndpoints = securitySettings.Value.CsrfExcludedEndpoints ?? new List<string>();
+    }
 
     public async Task Invoke(HttpContext context)
     {
-        if (context.Request.Method == HttpMethods.Post || context.Request.Method == HttpMethods.Put)
+        // Eğer CSRF koruması kapalıysa veya bu endpoint muaf tutulmuşsa CSRF kontrolü yapmadan devam et
+        if (!_enableCsrfProtection || _excludedEndpoints.Contains(context.Request.Path.Value))
         {
-            if (!context.Request.Headers.ContainsKey("X-CSRF-Token"))
+            await _next(context);
+            return;
+        }
+
+        // Controller'daki metotta [IgnoreCsrf] attribute'u varsa, CSRF kontrolü yapmadan devam et
+        var endpoint = context.GetEndpoint();
+        var controllerActionDescriptor = endpoint?.Metadata.GetMetadata<ControllerActionDescriptor>();
+        if (controllerActionDescriptor?.MethodInfo.GetCustomAttributes(typeof(IgnoreCsrfAttribute), false).Length > 0)
+        {
+            await _next(context);
+            return;
+        }
+
+        // POST, PUT, DELETE gibi isteklerde CSRF token kontrolü yap
+        if (context.Request.Method == "POST" || context.Request.Method == "PUT" || context.Request.Method == "DELETE")
+        {
+            if (!context.Request.Headers.ContainsKey("X-CSRF-TOKEN"))
             {
                 context.Response.StatusCode = StatusCodes.Status403Forbidden;
                 await context.Response.WriteAsync("CSRF token is required.");
                 return;
             }
         }
+
         await _next(context);
     }
+}
+[AttributeUsage(AttributeTargets.Method)]
+public class IgnoreCsrfAttribute : Attribute
+{
 }
