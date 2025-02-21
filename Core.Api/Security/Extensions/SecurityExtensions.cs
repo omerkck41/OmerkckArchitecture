@@ -27,13 +27,14 @@ public static class SecurityExtensions
 
         // IP Whitelist
         services.Configure<SecuritySettings>(options => configuration.GetSection("SecuritySettings").Bind(options));
-        services.AddSingleton<IpWhitelistMiddleware>();
-        services.AddSingleton<RateLimiterMiddleware>();
-        services.AddSingleton<HttpsEnforcerMiddleware>();
-        services.AddSingleton<SecurityHeadersMiddleware>();
-        services.AddSingleton<RequestValidationMiddleware>();
-        services.AddSingleton<AntiForgeryMiddleware>();
-        services.AddSingleton<BruteForceProtectionMiddleware>();
+
+        services.AddTransient<IpWhitelistMiddleware>();
+        services.AddTransient<RateLimiterMiddleware>();
+        services.AddTransient<HttpsEnforcerMiddleware>();
+        services.AddTransient<SecurityHeadersMiddleware>();
+        services.AddTransient<RequestValidationMiddleware>();
+        services.AddTransient<AntiForgeryMiddleware>();
+        services.AddTransient<BruteForceProtectionMiddleware>();
 
         return services;
     }
