@@ -55,14 +55,17 @@ Core.Api/
 {
   "SecuritySettings": {
     "AllowedIPs": [
-      "192.168.1.100",
-      "203.0.113.42"
+      "127.0.0.1",
+      "::1"
     ],
     "AddCorsPolicy": [
-      "https://yourfrontend.com",
-      "https://yourfrontend2.com"
+      "https://localhost:3000",
+      "https://localhost:5001"
     ],
-    "RateLimit": 100
+    "RateLimit": 100,
+    "MaxLoginAttempts": 5,
+    "LockoutTime": 5,
+    "EnforceHttps": false
   }
 }
 ```
