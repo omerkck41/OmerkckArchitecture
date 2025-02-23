@@ -14,19 +14,28 @@ public class TotpService : BaseOtpService
 
     protected override OtpHashMode HashAlgorithm => OtpHashMode.Sha256;
     protected override int OtpSize => _otpSettings.OtpLength;
+    protected override int OtpPeriod => _otpSettings.OtpExpirySeconds;
 
 
 
     public override async Task<string> GenerateOtpCodeAsync(string secretKey)
     {
-        var totp = new Totp(Base32Encoding.ToBytes(secretKey), step: _otpSettings.OtpExpirySeconds, totpSize: OtpSize, mode: HashAlgorithm);
+        var totp = new Totp(Base32Encoding.ToBytes(secretKey),
+            step: _otpSettings.OtpExpirySeconds,
+            totpSize: OtpSize,
+            mode: HashAlgorithm);
+
         return totp.ComputeTotp();
     }
 
     public override async Task<bool> ValidateOtpCodeAsync(string secretKey, string otp)
     {
-        var totp = new Totp(Base32Encoding.ToBytes(secretKey), step: _otpSettings.OtpExpirySeconds, totpSize: OtpSize, mode: HashAlgorithm);
-        return totp.VerifyTotp(otp, out _);
+        var totp = new Totp(Base32Encoding.ToBytes(secretKey),
+            step: _otpSettings.OtpExpirySeconds,
+            totpSize: OtpSize,
+            mode: HashAlgorithm);
+
+        return totp.VerifyTotp(otp, out _, new VerificationWindow(1, 1)); // Önceki ve sonraki 1 kodu da kontrol eder
     }
 }
 

@@ -7,6 +7,7 @@ public abstract class BaseOtpService : IOtpService
 {
     protected abstract OtpHashMode HashAlgorithm { get; }
     protected abstract int OtpSize { get; }
+    protected abstract int OtpPeriod { get; }
 
     public async Task<string> GenerateSecretKey()
     {
@@ -26,7 +27,7 @@ public abstract class BaseOtpService : IOtpService
                                         $"&issuer={encodedIssuer}" +
                                         $"&algorithm={HashAlgorithm.ToString().ToUpperInvariant()}" + // Daha güvenli UpperCase
                                         $"&digits={OtpSize}" +
-                                        $"&period=30"
+                                        $"&period={OtpPeriod}"
                                     );
     }
 }
