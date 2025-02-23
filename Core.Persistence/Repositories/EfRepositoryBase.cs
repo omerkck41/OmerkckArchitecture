@@ -229,9 +229,11 @@ public class EfRepositoryBase<TEntity, TId, TContext> : IAsyncRepository<TEntity
         return entity;
     }
 
-    public async Task<TEntity> DeleteAsync(Expression<Func<TEntity, bool>> predicate, CancellationToken cancellationToken = default)
+    public async Task<TEntity?> DeleteAsync(Expression<Func<TEntity, bool>> predicate, CancellationToken cancellationToken = default)
     {
-        var entity = _dbSet.FirstOrDefault(predicate);
+        var entity = await _dbSet.FirstOrDefaultAsync(predicate, cancellationToken);
+        if (entity == null)
+            return null;
 
         _dbSet.Remove(entity);
         await _context.SaveChangesAsync(cancellationToken);
