@@ -20,6 +20,13 @@ public abstract class BaseOtpService : IOtpService
     {
         string encodedIssuer = HttpUtility.UrlEncode(issuer);
         string encodedAccount = HttpUtility.UrlEncode(account);
-        return await Task.FromResult($"otpauth://totp/{encodedIssuer}:{encodedAccount}?secret={secretKey}&issuer={encodedIssuer}&algorithm={HashAlgorithm}&digits={OtpSize}&period=30");
+        return await Task.FromResult(
+                                        $"otpauth://totp/{encodedIssuer}:{encodedAccount}" +
+                                        $"?secret={secretKey}" +
+                                        $"&issuer={encodedIssuer}" +
+                                        $"&algorithm={HashAlgorithm.ToString().ToUpperInvariant()}" + // Daha güvenli UpperCase
+                                        $"&digits={OtpSize}" +
+                                        $"&period=30"
+                                    );
     }
 }
