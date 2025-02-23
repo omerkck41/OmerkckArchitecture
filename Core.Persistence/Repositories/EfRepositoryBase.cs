@@ -222,40 +222,73 @@ public class EfRepositoryBase<TEntity, TId, TContext> : IAsyncRepository<TEntity
         await _context.SaveChangesAsync(cancellationToken);
     }
 
-    public async Task<TEntity> DeleteAsync(TEntity entity, CancellationToken cancellationToken = default)
+    public async Task<TEntity?> DeleteAsync(TEntity entity, string? deletedBy = null, CancellationToken cancellationToken = default)
     {
+        if (entity == null)
+            return null;
+
+        var entry = _context.Entry(entity);
+        if (entry.State == EntityState.Detached)
+        {
+            _dbSet.Attach(entity);
+        }
+
+        // Eğer entity soft delete destekliyorsa, soft delete işlemi yap
+        if (typeof(TEntity).GetProperty("IsDeleted") != null)
+        {
+            return await SoftDeleteAsync(entity, deletedBy, cancellationToken);
+        }
+
+        // Soft delete desteklemeyen entity'ler için hard delete
         _dbSet.Remove(entity);
         await _context.SaveChangesAsync(cancellationToken);
         return entity;
     }
 
-    public async Task<TEntity?> DeleteAsync(Expression<Func<TEntity, bool>> predicate, CancellationToken cancellationToken = default)
+    public async Task<TEntity?> DeleteAsync(Expression<Func<TEntity, bool>> predicate, string? deletedBy = null, CancellationToken cancellationToken = default)
     {
         var entity = await _dbSet.FirstOrDefaultAsync(predicate, cancellationToken);
         if (entity == null)
             return null;
 
+        // Eğer entity soft delete destekliyorsa, soft delete işlemi yap
+        if (typeof(TEntity).GetProperty("IsDeleted") != null)
+        {
+            return await SoftDeleteAsync(entity, deletedBy, cancellationToken);
+        }
+
         _dbSet.Remove(entity);
         await _context.SaveChangesAsync(cancellationToken);
         return entity;
     }
-    public async Task<TEntity> DeleteAsync(int id, CancellationToken cancellationToken = default)
+    public async Task<TEntity?> DeleteAsync(int id, string? deletedBy = null, CancellationToken cancellationToken = default)
     {
-        // CancellationToken destekleyen bir LINQ sorgusu ile entity aranır
-        var entity = await _dbSet.AsQueryable()
-                                 .Where(e => e.Id != null && e.Id.Equals(id))
-                                 .FirstOrDefaultAsync(cancellationToken)
-                                 ?? throw new KeyNotFoundException($"{typeof(TEntity).Name} with id {id} was not found.");
+        var entity = await _dbSet.FindAsync(new object[] { id }, cancellationToken);
+        if (entity == null)
+            throw new KeyNotFoundException($"{typeof(TEntity).Name} with id {id} was not found.");
 
-        // Entity veritabanından kaldırılır
+        // Eğer entity soft delete destekliyorsa, soft delete işlemi yap
+        if (typeof(TEntity).GetProperty("IsDeleted") != null)
+        {
+            return await SoftDeleteAsync(entity, deletedBy, cancellationToken);
+        }
+
         _dbSet.Remove(entity);
-
-        // Asenkron olarak kaldırılan entity döndürülür
         await _context.SaveChangesAsync(cancellationToken);
         return entity;
     }
-    public async Task DeleteRangeAsync(IEnumerable<TEntity> entities, CancellationToken cancellationToken = default)
+    public async Task DeleteRangeAsync(IEnumerable<TEntity> entities, string deletedBy = "System", CancellationToken cancellationToken = default)
     {
+        if (entities == null || !entities.Any())
+            return;
+
+        // Eğer entity'ler soft delete destekliyorsa, SoftDeleteRangeAsync metodunu çağır
+        if (typeof(TEntity).GetProperty("IsDeleted") != null)
+        {
+            await SoftDeleteRangeAsync(entities, deletedBy, cancellationToken);
+            return;
+        }
+
         _dbSet.RemoveRange(entities);
         await _context.SaveChangesAsync(cancellationToken);
     }
@@ -268,31 +301,24 @@ public class EfRepositoryBase<TEntity, TId, TContext> : IAsyncRepository<TEntity
 
         entity.IsDeleted = true;
         entity.DeletedDate = DateTime.UtcNow;
-        entity.DeletedBy = deletedBy;
+        entity.DeletedBy = deletedBy ?? "System"; // Default değer "System"
 
         _dbSet.Update(entity);
         await _context.SaveChangesAsync(cancellationToken);
-
         return entity;
-    }
-    public async Task SoftDeleteRangeAsync(IEnumerable<TEntity> entities, CancellationToken cancellationToken = default)
-    {
-        foreach (var entity in entities)
-        {
-            entity.IsDeleted = true; // Soft Delete işlemi
-            entity.DeletedDate = DateTime.UtcNow;
-        }
-        _dbSet.UpdateRange(entities);
-        await _context.SaveChangesAsync(cancellationToken);
     }
     public async Task SoftDeleteRangeAsync(IEnumerable<TEntity> entities, string deletedBy = "System", CancellationToken cancellationToken = default)
     {
+        if (entities == null || !entities.Any())
+            return;
+
         foreach (var entity in entities)
         {
             entity.IsDeleted = true;
             entity.DeletedDate = DateTime.UtcNow;
             entity.DeletedBy = deletedBy;
         }
+
         _dbSet.UpdateRange(entities);
         await _context.SaveChangesAsync(cancellationToken);
     }

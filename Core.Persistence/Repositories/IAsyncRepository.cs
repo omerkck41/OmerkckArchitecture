@@ -75,17 +75,17 @@ public interface IAsyncRepository<T, TId> : IQuery<T> where T : Entity<TId>
     /// <summary>
     /// Bir varlığı siler.
     /// </summary>
-    Task<T> DeleteAsync(T entity, CancellationToken cancellationToken = default);
+    Task<T> DeleteAsync(T entity, string? deletedBy = null, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Koşullu bir varlığı siler.
     /// </summary>
-    Task<T> DeleteAsync(Expression<Func<T, bool>> predicate, CancellationToken cancellationToken = default);
+    Task<T> DeleteAsync(Expression<Func<T, bool>> predicate, string? deletedBy = null, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Birden fazla varlığı siler.
     /// </summary>
-    Task DeleteRangeAsync(IEnumerable<T> entities, CancellationToken cancellationToken = default);
+    Task DeleteRangeAsync(IEnumerable<T> entities, string deletedBy = "System", CancellationToken cancellationToken = default);
 
-    Task SoftDeleteRangeAsync(IEnumerable<T> entities, CancellationToken cancellationToken = default);
+    Task SoftDeleteRangeAsync(IEnumerable<T> entities, string deletedBy = "System", CancellationToken cancellationToken = default);
 }
