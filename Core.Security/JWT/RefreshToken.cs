@@ -13,42 +13,42 @@ public class RefreshToken<TId, TUserId> : Entity<TId>
     /// <summary>
     /// Refresh token'ın ilişkilendirildiği kullanıcı ID'sini alır.
     /// </summary>
-    public TUserId UserId { get; }
+    public TUserId UserId { get; set; }
 
     /// <summary>
     /// Refresh token string'ini alır.
     /// </summary>
-    public string Token { get; }
+    public string Token { get; set; }
 
     /// <summary>
     /// Refresh token'ın son kullanma tarihini alır.
     /// </summary>
-    public DateTime ExpirationDate { get; }
+    public DateTime ExpirationDate { get; set; }
 
     /// <summary>
     /// Refresh token'ı oluşturan IP adresini alır.
     /// </summary>
-    public string CreatedByIp { get; }
+    public string CreatedByIp { get; set; }
 
     /// <summary>
     /// Refresh token'ın iptal edildiği tarihi alır veya ayarlar.
     /// </summary>
-    public DateTime? RevokedDate { get; private set; }
+    public DateTime? RevokedDate { get; set; }
 
     /// <summary>
     /// Refresh token'ı iptal eden IP adresini alır veya ayarlar.
     /// </summary>
-    public string? RevokedByIp { get; private set; }
+    public string? RevokedByIp { get; set; }
 
     /// <summary>
     /// Bu refresh token'ın yerine geçen token'ı alır veya ayarlar.
     /// </summary>
-    public string? ReplacedByToken { get; private set; }
+    public string? ReplacedByToken { get; set; }
 
     /// <summary>
     /// Refresh token'ın neden iptal edildiğini açıklayan nedeni alır veya ayarlar.
     /// </summary>
-    public string? ReasonRevoked { get; private set; }
+    public string? ReasonRevoked { get; set; }
 
     public virtual User<TId> User { get; set; }
 
