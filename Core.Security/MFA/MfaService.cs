@@ -21,6 +21,8 @@ public class MfaService(IOtpService totpService) : IMfaService
     public async Task<string> GenerateOtpSecretKey() => await _totpService.GenerateSecretKey();
     // TOTP kodu üretir.
     public async Task<string> GenerateOtpCodeAsync(string secretKey) => await _totpService.GenerateOtpCodeAsync(secretKey);
+    // TOTP for Google
+    public async Task<string> GenerateOtpAuthUrlAsync(string account, string issuer, string secretKey) => await GenerateOtpAuthUrlAsync(account, issuer, secretKey);
     // TOTP kodunu doğrular.
     public async Task<bool> ValidateOtpCodeAsync(string inputCode, string secretKey) => await _totpService.ValidateOtpCodeAsync(secretKey, inputCode);
 

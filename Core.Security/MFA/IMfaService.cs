@@ -13,6 +13,8 @@ public interface IMfaService
     Task<string> GenerateOtpSecretKey();
     // TOTP (Time-Based One-Time Password) üretir.
     Task<string> GenerateOtpCodeAsync(string secretKey);
+    // TOTP for Google
+    Task<string> GenerateOtpAuthUrlAsync(string account, string issuer, string secretKey);
     // TOTP kodunu doğrular.
     Task<bool> ValidateOtpCodeAsync(string inputCode, string secretKey);
 
