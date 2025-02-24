@@ -13,6 +13,12 @@ public static class ModelBuilderExtensions
             var clrType = entityType.ClrType;
             if (clrType == null) continue;
 
+            // Eğer Entity Generic ise (örneğin OperationClaim<int> gibi) atla
+            if (clrType.IsGenericType || clrType.BaseType?.IsGenericType == true)
+            {
+                Console.WriteLine($"[DEBUG] Query Filter EKLENMEDİ (Generic): {clrType.Name}");
+                continue;
+            }
 
             var isDeletedProperty = clrType.GetProperty("IsDeleted", BindingFlags.Public | BindingFlags.Instance);
             if (isDeletedProperty != null && isDeletedProperty.PropertyType == typeof(bool))
