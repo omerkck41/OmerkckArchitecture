@@ -87,5 +87,6 @@ public interface IAsyncRepository<T, TId> : IQuery<T> where T : Entity<TId>
     /// </summary>
     Task DeleteRangeAsync(IEnumerable<T> entities, string deletedBy = "System", CancellationToken cancellationToken = default);
 
+    Task<T> SoftDeleteAsync(T entity, string? deletedBy = null, CancellationToken cancellationToken = default);
     Task SoftDeleteRangeAsync(IEnumerable<T> entities, string deletedBy = "System", CancellationToken cancellationToken = default);
 }
