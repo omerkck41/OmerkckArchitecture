@@ -1,4 +1,6 @@
 ﻿
+using Core.CrossCuttingConcerns.GlobalException.Exceptions;
+
 namespace Core.Persistence.Paging;
 
 public class Paginate<T> : IPaginate<T>
@@ -6,7 +8,7 @@ public class Paginate<T> : IPaginate<T>
     public Paginate(IEnumerable<T> source, int index, int size, int from)
     {
         if (from > index)
-            throw new ArgumentException($"indexFrom: {from} > pageIndex: {index}, must indexFrom <= pageIndex");
+            throw new CustomException($"indexFrom: {from} > pageIndex: {index}, must indexFrom <= pageIndex");
 
         Index = index;
         Size = size;

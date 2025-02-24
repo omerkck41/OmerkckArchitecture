@@ -11,29 +11,36 @@ public static class ModelBuilderExtensions
         foreach (var entityType in modelBuilder.Model.GetEntityTypes())
         {
             var clrType = entityType.ClrType;
-            var isDeletedProperty = clrType.GetProperty("IsDeleted", BindingFlags.Public | BindingFlags.Instance);
-            if (isDeletedProperty != null && isDeletedProperty.PropertyType == typeof(bool))
+            if (clrType == null) continue;
+
+            var method = typeof(ModelBuilder)
+                .GetMethods()
+                .FirstOrDefault(m => m.Name == nameof(ModelBuilder.Entity) && m.GetParameters().Length == 0)?
+                .MakeGenericMethod(clrType);
+
+            if (method == null) continue;
+
+            var entityTypeBuilder = method.Invoke(modelBuilder, null);
+            var hasQueryFilterMethod = entityTypeBuilder.GetType().GetMethod("HasQueryFilter");
+
+            if (hasQueryFilterMethod != null)
             {
-                // Parametre: e =>
                 var parameter = Expression.Parameter(clrType, "e");
 
-                // Expression: EF.Property<bool>(e, "IsDeleted")
+                // EF.Property<bool>(e, "IsDeleted")
                 var propertyMethodInfo = typeof(EF)
-                    .GetMethod("Property", BindingFlags.Static | BindingFlags.Public)
-                    ?.MakeGenericMethod(typeof(bool));
-                if (propertyMethodInfo == null)
-                    continue;
+                    .GetMethod("Property", BindingFlags.Static | BindingFlags.Public)?
+                    .MakeGenericMethod(typeof(bool));
+
+                if (propertyMethodInfo == null) continue;
 
                 var propertyAccess = Expression.Call(propertyMethodInfo, parameter, Expression.Constant("IsDeleted"));
 
-                // Expression: EF.Property<bool>(e, "IsDeleted") == false
+                // EF.Property<bool>(e, "IsDeleted") == false
                 var compareExpression = Expression.Equal(propertyAccess, Expression.Constant(false));
-
-                // Lambda: e => EF.Property<bool>(e, "IsDeleted") == false
                 var lambda = Expression.Lambda(compareExpression, parameter);
 
-                // Global query filter ekle
-                modelBuilder.Entity(clrType).HasQueryFilter(lambda);
+                hasQueryFilterMethod.Invoke(entityTypeBuilder, new object[] { lambda });
             }
         }
     }
