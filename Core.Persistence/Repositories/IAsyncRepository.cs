@@ -73,20 +73,40 @@ public interface IAsyncRepository<T, TId> : IQuery<T> where T : Entity<TId>
     Task UpdateRangeAsync(IEnumerable<T> entities, CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Bir varlığı siler.
+    /// Bir varlığı siler. permanent false ise soft delete, true ise hard delete uygulanır.
     /// </summary>
-    Task<T> DeleteAsync(T entity, string? deletedBy = null, CancellationToken cancellationToken = default);
+    Task<T> DeleteAsync(T entity, bool permanent = false, CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Koşullu bir varlığı siler.
+    /// soft delete kaldırma (yani geri alma) işlemi de yapılmak istenirse, aynı metodu softDelete parametresini false olarak çağırabilirsiniz:
     /// </summary>
-    Task<T> DeleteAsync(Expression<Func<T, bool>> predicate, string? deletedBy = null, CancellationToken cancellationToken = default);
+    /// <param name="entity"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    Task<T> RevertSoftDeleteAsync(T entity, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Koşula göre bir varlığı siler.
+    /// </summary>
+    Task<T> DeleteAsync(Expression<Func<T, bool>> predicate, bool permanent = false, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Id Sütununa göre silme işlemi
+    /// </summary>
+    Task<T> DeleteAsync(TId id, bool permanent = false, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// soft delete kaldırma (yani geri alma) işlemi de yapılmak istenirse, aynı metodu softDelete parametresini false olarak çağırabilirsiniz:
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    Task<T> RevertSoftDeleteAsync(TId id, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Birden fazla varlığı siler.
     /// </summary>
-    Task DeleteRangeAsync(IEnumerable<T> entities, string deletedBy = "System", CancellationToken cancellationToken = default);
+    Task DeleteRangeAsync(IEnumerable<T> entities, bool permanent = false, CancellationToken cancellationToken = default);
 
-    Task<T> SoftDeleteAsync(T entity, string? deletedBy = null, CancellationToken cancellationToken = default);
-    Task SoftDeleteRangeAsync(IEnumerable<T> entities, string deletedBy = "System", CancellationToken cancellationToken = default);
+
 }

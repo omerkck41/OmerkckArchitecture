@@ -8,16 +8,23 @@ public class Paginate<T> : IPaginate<T>
         if (from > index)
             throw new ArgumentException($"indexFrom: {from} > pageIndex: {index}, must indexFrom <= pageIndex");
 
-        var queryable = source as IQueryable<T> ?? source.AsQueryable();
-
         Index = index;
         Size = size;
         From = from;
-        Count = queryable.Count();
         Pages = (int)Math.Ceiling(Count / (double)Size);
         TotalRecords = Count;
 
-        Items = queryable.Skip((Index - From) * Size).Take(Size).ToList();
+        if (source is IQueryable<T> queryable)
+        {
+            Count = queryable.Count();
+            Items = queryable.Skip((Index - From) * Size).Take(Size).ToList();
+        }
+        else
+        {
+            T[] enumerable = source as T[] ?? source.ToArray();
+            Count = enumerable.Count();
+            Items = enumerable.Skip((Index - From) * Size).Take(Size).ToList();
+        }
     }
 
     public Paginate()
@@ -35,5 +42,5 @@ public class Paginate<T> : IPaginate<T>
     public bool HasNext => Index - From + 1 < Pages;
     public int TotalRecords { get; set; }
     public bool IsFirstPage => Index == 1;
-    public bool IsLastPage => Index == Pages;
+    public bool IsLastPage => Index + 1 == Pages;
 }

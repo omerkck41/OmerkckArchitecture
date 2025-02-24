@@ -1,4 +1,5 @@
-﻿using Core.Persistence.Entities;
+﻿using Core.CrossCuttingConcerns.GlobalException.Exceptions;
+using Core.Persistence.Entities;
 using Core.Persistence.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -19,28 +20,36 @@ public class UnitOfWork<TContext>(TContext context) : IUnitOfWork where TContext
 
     public async Task<int> SaveChangesAsync(bool autoCommitTransaction = false)
     {
-        var result = await _context.SaveChangesAsync();
-
-        if (autoCommitTransaction && _transaction != null)
+        try
         {
-            try
-            {
-                await CommitAsync();
-            }
-            catch
-            {
-                await RollbackAsync();
-                throw;
-            }
-        }
+            var result = await _context.SaveChangesAsync();
 
-        return result;
+            if (autoCommitTransaction && _transaction != null)
+            {
+                try
+                {
+                    await CommitAsync();
+                }
+                catch
+                {
+                    await RollbackAsync();
+                    throw;
+                }
+            }
+
+            return result;
+        }
+        catch (DbUpdateConcurrencyException ex)
+        {
+            // Concurrency conflict durumunda özel exception fırlatılabilir veya loglama yapılabilir.
+            throw new CustomException("Concurrency conflict occurred during save operation.", ex);
+        }
     }
 
     public async Task<int> SaveChangesWithoutTransactionAsync()
     {
         if (_transaction != null)
-            throw new InvalidOperationException("Cannot save changes without committing the active transaction.");
+            throw new CustomException("Cannot save changes without committing the active transaction.");
 
         return await _context.SaveChangesAsync();
     }
@@ -48,7 +57,7 @@ public class UnitOfWork<TContext>(TContext context) : IUnitOfWork where TContext
     public async Task CommitAsync()
     {
         if (_transaction == null)
-            throw new InvalidOperationException("No transaction has been started.");
+            throw new CustomException("No transaction has been started.");
 
         await _transaction.CommitAsync();
         await _transaction.DisposeAsync();
@@ -58,7 +67,7 @@ public class UnitOfWork<TContext>(TContext context) : IUnitOfWork where TContext
     public async Task RollbackAsync()
     {
         if (_transaction == null)
-            throw new InvalidOperationException("No transaction has been started.");
+            throw new CustomException("No transaction has been started.");
 
         await _transaction.RollbackAsync();
         await _transaction.DisposeAsync();

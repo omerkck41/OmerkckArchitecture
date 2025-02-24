@@ -1,4 +1,5 @@
-﻿using Core.Persistence.Dynamic;
+﻿using Core.CrossCuttingConcerns.GlobalException.Exceptions;
+using Core.Persistence.Dynamic;
 using Core.Persistence.Entities;
 using Core.Persistence.Paging;
 using Microsoft.EntityFrameworkCore;
@@ -158,7 +159,7 @@ public class EfRepositoryBase<TEntity, TId, TContext> : IAsyncRepository<TEntity
 
         return entity switch
         {
-            null => throw new KeyNotFoundException($"{typeof(TEntity).Name} with id {id} was not found."),
+            null => throw new CustomException($"{typeof(TEntity).Name} with id {id} was not found."),
             _ => entity,
         };
     }
@@ -222,104 +223,198 @@ public class EfRepositoryBase<TEntity, TId, TContext> : IAsyncRepository<TEntity
         await _context.SaveChangesAsync(cancellationToken);
     }
 
-    public async Task<TEntity?> DeleteAsync(TEntity entity, string? deletedBy = null, CancellationToken cancellationToken = default)
+
+    /// <summary>
+    /// Tek bir varlığı siler. permanent false ise soft delete uygulanır; true ise hard delete yapılır.
+    /// </summary>
+    public async Task<TEntity> DeleteAsync(TEntity entity, bool permanent = false, CancellationToken cancellationToken = default)
     {
         if (entity == null)
-            return null;
+            throw new CustomException(nameof(entity), $"{typeof(TEntity).Name} cannot be null.");
 
-        var entry = _context.Entry(entity);
-        if (entry.State == EntityState.Detached)
+        if (!permanent && typeof(TEntity).GetProperty("IsDeleted") != null)
         {
-            _dbSet.Attach(entity);
+            // Soft delete işlemi
+            entity.IsDeleted = true;
+            entity.DeletedDate = DateTime.UtcNow;
+            entity.DeletedBy = entity.DeletedBy ?? "System";
+
+            // Cascade soft delete: Bağlı entity’lerde de soft delete uygulaması
+            await CascadeSoftDeleteAsync(entity, true, cancellationToken);
+
+            _dbSet.Update(entity);
+        }
+        else
+        {
+            _dbSet.Remove(entity);
         }
 
-        // Eğer entity soft delete destekliyorsa, soft delete işlemi yap
-        if (typeof(TEntity).GetProperty("IsDeleted") != null)
-        {
-            return await SoftDeleteAsync(entity, deletedBy, cancellationToken);
-        }
-
-        // Soft delete desteklemeyen entity'ler için hard delete
-        _dbSet.Remove(entity);
         await _context.SaveChangesAsync(cancellationToken);
         return entity;
     }
-
-    public async Task<TEntity?> DeleteAsync(Expression<Func<TEntity, bool>> predicate, string? deletedBy = null, CancellationToken cancellationToken = default)
-    {
-        var entity = await _dbSet.FirstOrDefaultAsync(predicate, cancellationToken);
-        if (entity == null)
-            return null;
-
-        // Eğer entity soft delete destekliyorsa, soft delete işlemi yap
-        if (typeof(TEntity).GetProperty("IsDeleted") != null)
-        {
-            return await SoftDeleteAsync(entity, deletedBy, cancellationToken);
-        }
-
-        _dbSet.Remove(entity);
-        await _context.SaveChangesAsync(cancellationToken);
-        return entity;
-    }
-    public async Task<TEntity?> DeleteAsync(int id, string? deletedBy = null, CancellationToken cancellationToken = default)
-    {
-        var entity = await _dbSet.FindAsync(new object[] { id }, cancellationToken);
-        if (entity == null)
-            throw new KeyNotFoundException($"{typeof(TEntity).Name} with id {id} was not found.");
-
-        // Eğer entity soft delete destekliyorsa, soft delete işlemi yap
-        if (typeof(TEntity).GetProperty("IsDeleted") != null)
-        {
-            return await SoftDeleteAsync(entity, deletedBy, cancellationToken);
-        }
-
-        _dbSet.Remove(entity);
-        await _context.SaveChangesAsync(cancellationToken);
-        return entity;
-    }
-    public async Task DeleteRangeAsync(IEnumerable<TEntity> entities, string deletedBy = "System", CancellationToken cancellationToken = default)
-    {
-        if (entities == null || !entities.Any())
-            return;
-
-        // Eğer entity'ler soft delete destekliyorsa, SoftDeleteRangeAsync metodunu çağır
-        if (typeof(TEntity).GetProperty("IsDeleted") != null)
-        {
-            await SoftDeleteRangeAsync(entities, deletedBy, cancellationToken);
-            return;
-        }
-
-        _dbSet.RemoveRange(entities);
-        await _context.SaveChangesAsync(cancellationToken);
-    }
-
-
-    public async Task<TEntity> SoftDeleteAsync(TEntity entity, string? deletedBy = null, CancellationToken cancellationToken = default)
+    public async Task<TEntity> RevertSoftDeleteAsync(TEntity entity, CancellationToken cancellationToken = default)
     {
         if (entity == null)
-            throw new ArgumentNullException(nameof(entity), $"{typeof(TEntity).Name} entity cannot be null.");
+            throw new CustomException(nameof(entity), $"{typeof(TEntity).Name} cannot be null.");
 
-        entity.IsDeleted = true;
-        entity.DeletedDate = DateTime.UtcNow;
-        entity.DeletedBy = deletedBy ?? "System"; // Default değer "System"
+        if (typeof(TEntity).GetProperty("IsDeleted") == null)
+            throw new CustomException("Entity does not support soft delete.");
 
+        // Soft delete kaldırma işlemi
+        entity.IsDeleted = false;
+        entity.DeletedDate = null;
+        entity.DeletedBy = null;
+
+        // Cascade revert soft delete: Bağlı entity'lerde de soft delete kaldırma
+        await CascadeSoftDeleteAsync(entity, false, cancellationToken);
         _dbSet.Update(entity);
         await _context.SaveChangesAsync(cancellationToken);
         return entity;
     }
-    public async Task SoftDeleteRangeAsync(IEnumerable<TEntity> entities, string deletedBy = "System", CancellationToken cancellationToken = default)
+    /// <summary>
+    /// Belirtilen koşula göre ilk bulunan varlığı siler.
+    /// </summary>
+    public async Task<TEntity> DeleteAsync(Expression<Func<TEntity, bool>> predicate, bool permanent = false, CancellationToken cancellationToken = default)
+    {
+        var entity = await _dbSet.FirstOrDefaultAsync(predicate, cancellationToken);
+        if (entity == null)
+            throw new CustomException($"{typeof(TEntity).Name} satisfying the condition was not found.");
+
+        return await DeleteAsync(entity, permanent, cancellationToken);
+    }
+
+    /// <summary>
+    /// Belirtilen Id'ye göre varlığı siler.
+    /// </summary>
+    public async Task<TEntity> DeleteAsync(TId id, bool permanent = false, CancellationToken cancellationToken = default)
+    {
+        // FindAsync optimizasyon sağladığı için tercih ediliyor.
+        var entity = await _dbSet.FindAsync(new object[] { id }, cancellationToken);
+        if (entity == null)
+            throw new CustomException($"{typeof(TEntity).Name} with id {id} was not found.");
+
+        if (!permanent && typeof(TEntity).GetProperty("IsDeleted") != null)
+        {
+            // Entity'yi soft delete olarak işaretle
+            entity.IsDeleted = true;
+            entity.DeletedDate = DateTime.UtcNow;
+            entity.DeletedBy = entity.DeletedBy ?? "System";
+
+            // Cascade soft delete: bağlı entity'lerde de soft delete işlemi uygula
+            await CascadeSoftDeleteAsync(entity, true, cancellationToken);
+            _dbSet.Update(entity);
+        }
+        else
+        {
+            _dbSet.Remove(entity);
+        }
+
+        await _context.SaveChangesAsync(cancellationToken);
+        return entity;
+    }
+    public async Task<TEntity> RevertSoftDeleteAsync(TId id, CancellationToken cancellationToken = default)
+    {
+        var entity = await _dbSet.FindAsync(new object[] { id }, cancellationToken);
+        if (entity == null)
+            throw new CustomException($"{typeof(TEntity).Name} with id {id} was not found.");
+
+        if (typeof(TEntity).GetProperty("IsDeleted") != null)
+        {
+            // Soft delete kaldırılıyor
+            entity.IsDeleted = false;
+            entity.DeletedDate = null;
+            entity.DeletedBy = null;
+
+            await CascadeSoftDeleteAsync(entity, false, cancellationToken);
+            _dbSet.Update(entity);
+        }
+        else
+        {
+            throw new CustomException("Entity does not support soft delete.");
+        }
+
+        await _context.SaveChangesAsync(cancellationToken);
+        return entity;
+    }
+
+    /// <summary>
+    /// Birden fazla varlığı siler. permanent false ise soft delete, true ise hard delete yapılır.
+    /// </summary>
+    public async Task DeleteRangeAsync(IEnumerable<TEntity> entities, bool permanent = false, CancellationToken cancellationToken = default)
     {
         if (entities == null || !entities.Any())
             return;
 
-        foreach (var entity in entities)
+        if (!permanent && typeof(TEntity).GetProperty("IsDeleted") != null)
         {
-            entity.IsDeleted = true;
-            entity.DeletedDate = DateTime.UtcNow;
-            entity.DeletedBy = deletedBy;
+            foreach (var entity in entities)
+            {
+                entity.IsDeleted = true;
+                entity.DeletedDate = DateTime.UtcNow;
+                entity.DeletedBy = entity.DeletedBy ?? "System";
+                await CascadeSoftDeleteAsync(entity, true, cancellationToken);
+            }
+            _dbSet.UpdateRange(entities);
+        }
+        else
+        {
+            _dbSet.RemoveRange(entities);
         }
 
-        _dbSet.UpdateRange(entities);
         await _context.SaveChangesAsync(cancellationToken);
+    }
+
+
+
+    // Cascade soft delete veya geri alma işlemini uygulayan yardımcı metot.
+    private async Task CascadeSoftDeleteAsync(object entity, bool softDelete, CancellationToken cancellationToken = default, HashSet<object>? visited = null)
+    {
+        visited ??= new HashSet<object>();
+        if (visited.Contains(entity))
+            return;
+        visited.Add(entity);
+
+        var entry = _context.Entry(entity);
+        foreach (var navigation in entry.Navigations)
+        {
+            if (!navigation.IsLoaded)
+                await navigation.LoadAsync(cancellationToken);
+
+            var related = navigation.CurrentValue;
+            if (related == null)
+                continue;
+
+            if (related is IEnumerable<object> collection)
+            {
+                foreach (var item in collection)
+                {
+                    if (item == null) continue;
+
+                    var delegates = ReflectionDelegateCache.GetDelegates(item.GetType());
+                    if (delegates.SetIsDeleted != null)
+                    {
+                        delegates.SetIsDeleted(item, softDelete);
+                        delegates.SetDeletedDate?.Invoke(item, softDelete ? DateTime.UtcNow : null);
+                        delegates.SetDeletedBy?.Invoke(item, softDelete ? "System" : null);
+
+                        _context.Update(item);
+                        await CascadeSoftDeleteAsync(item, softDelete, cancellationToken, visited);
+                    }
+                }
+            }
+            else
+            {
+                var delegates = ReflectionDelegateCache.GetDelegates(related.GetType());
+                if (delegates.SetIsDeleted != null)
+                {
+                    delegates.SetIsDeleted(related, softDelete);
+                    delegates.SetDeletedDate?.Invoke(related, softDelete ? DateTime.UtcNow : null);
+                    delegates.SetDeletedBy?.Invoke(related, softDelete ? "System" : null);
+
+                    _context.Update(related);
+                    await CascadeSoftDeleteAsync(related, softDelete, cancellationToken, visited);
+                }
+            }
+        }
     }
 }

@@ -1,217 +1,211 @@
-Aşağıda, projeniz için detaylı bir **README.md** dosyası örneği bulabilirsiniz. Bu dosya, projenin mimarisini, nasıl kurulacağını, nasıl kullanılacağını ve örnek metotları içermektedir.
-
----
 
 # Core.Persistence Library
 
-**Core.Persistence**, .NET projelerinde kullanılmak üzere geliştirilmiş bir persistence (kalıcılık) katmanıdır. Bu kütüphane, generic repository pattern, unit of work pattern, dinamik sorgulama, sayfalama ve soft delete gibi özellikleri destekler. Entity Framework Core ile entegre çalışır ve .NET 9.0 üzerinde geliştirilmiştir.
+**Core.Persistence**, Core Persistence Library, .NET Core projelerinde veri erişim katmanını (repository, unit of work) merkezi ve modüler bir şekilde yönetmek için tasarlanmış bir kütüphanedir. Ayrıca, soft delete/hard delete, dinamik filtreleme, sıralama ve paging (sayfalama) gibi işlevsellikleri de içerir. Bu kütüphane, karmaşık veri erişim operasyonlarını basitleştirerek, kod tekrarını azaltır ve uygulamanın bakımını kolaylaştırır.
 
 ---
 
-## Teknolojiler ve Mimari
+## Neden Kullanılır?
 
-### Kullanılan Teknolojiler
-- **.NET 9.0**: Proje, .NET 9.0 üzerinde geliştirilmiştir.
-- **Entity Framework Core**: Veritabanı işlemleri için EF Core kullanılmıştır.
-- **Generic Repository Pattern**: Veritabanı işlemleri için genel bir repository yapısı sunar.
-- **Unit of Work Pattern**: Transaction yönetimi ve repository'lerin yaşam döngüsünü yönetir.
-- **Dynamic Query**: Dinamik filtreleme ve sıralama işlemlerini destekler.
-- **Pagination**: Sayfalama işlemleri için güçlü bir yapı sunar.
-- **Soft Delete**: Veritabanından silinen kayıtları fiziksel olarak silmek yerine işaretleyerek saklar.
+- **Temiz Kod ve Modülerlik**:
+Veri erişim mantığınızı merkezi repository ve unit of work desenleri ile yöneterek, kodunuzu daha okunabilir ve test edilebilir hale getirir.
+
+- **Genişletilebilirlik**:
+Soft delete/hard delete, cascade delete, dinamik filtreleme, sıralama ve paging gibi ek işlevsellikleri barındırır. Bu sayede, veri erişim ihtiyaçlarınızı esnek ve genişletilebilir bir yapı ile karşılayabilirsiniz.
+
+- **Performans ve Güvenilirlik**:
+Reflection cache, derlenmiş sorgular, global query filter gibi teknikler sayesinde yüksek performans ve tutarlı veri erişimi sağlar. Ayrıca, audit mekanizması ile değişiklikler izlenebilir ve hata yönetimi kolaylaşır.
+
+---
+
+## Avantajları
+
+- **Merkezi Veri Erişimi:**
+Tüm CRUD işlemlerini ve ek işlevsellikleri tek bir katmanda toplar.
+
+- **Soft / Hard Delete Desteği:**
+Her tablo için soft delete veya hard delete seçenekleri sunar; deletion türü, permanent parametresi ile kolayca yönetilir.
+
+- **Dinamik Filtreleme ve Sıralama:**
+Dinamik sorgu oluşturma desteği ile, runtime esnasında filtre ve sıralama kriterlerini belirleyebilirsiniz.
+
+- **Paging (Sayfalama):**
+IPaginate arayüzü ve ilgili extension metodları sayesinde, büyük veri setlerinde sayfalama işlemlerini kolayca gerçekleştirebilirsiniz.
+
+- **Performans Optimizasyonları:**
+Reflection delegate cacheleme, derlenmiş sorgular ve global query filter uygulamaları ile veri erişiminde verimlilik sağlar.
+
+- **Test Edilebilirlik:**
+Repository ve UnitOfWork desenlerinin kullanımı, birim testlerin kolayca yazılmasını sağlar. Ayrı bir test projesi ile kütüphanenizin tüm işlevselliği kapsamlı şekilde doğrulanabilir.
 
 ---
 
 ## Projeye Nasıl Eklenir?
 
-### 1. **Projeye Ekleme**
-- **Core.Persistence** kütüphanesini projenize eklemek için, proje dosyanıza (`csproj`) aşağıdaki paket referanslarını ekleyin:
+### 1. **Proje Referansı Eklemek**
 
-```xml
-<ItemGroup>
-  <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.1" />
-</ItemGroup>
-```
+- **Core.Persistence** Eğer kütüphanenizi doğrudan kaynak kod olarak projeye dahil edecekseniz, aşağıdaki adımları izleyin:
 
-- **Core.Persistence** katmanını projenize referans olarak ekleyin.
+- **1. Solution Explorer'da Sağ Tıklayın:**
+Ana çözüm (Solution) üzerinde sağ tıklayıp "Add" > "Existing Project…" seçeneği ile kütüphane projesini ekleyin.
+
+- **2. Ana Projeye Referans Ekleyin:**
+Ana projenizin referanslarına sağ tıklayıp "Add Reference…" seçeneği ile kütüphane projesini seçin.
 
 ---
 
-### 2. **Program.cs Ayarları**
-- **Program.cs** dosyasında, Entity Framework Core ve UnitOfWork yapılandırmasını yapın:
+### Ayar Dosyaları Düzenleme
+
+- program.cs Örneği
+Program.cs dosyanızda kütüphanenizin servislerini DI container’a ekleyin. Örneğin:
 
 ```csharp
+using Microsoft.EntityFrameworkCore;
+using Core.Persistence.Repositories;
+using Core.Persistence.UnitOfWork;
+using Core.Persistence.Extensions;
+using MyProject.Data; // DbContext'inizin bulunduğu namespace
+
 var builder = WebApplication.CreateBuilder(args);
 
-// DbContext ve UnitOfWork yapılandırması
-builder.Services.AddDbContext<YourDbContext>(options =>
+// DbContext ve InMemory/SQL Server gibi sağlayıcıların eklenmesi:
+builder.Services.AddDbContext<MyAppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-builder.Services.AddScoped<IUnitOfWork, UnitOfWork<YourDbContext>>();
+// Repository ve UnitOfWork desenlerini DI container'a ekleyin:
+builder.Services.AddScoped(typeof(IAsyncRepository<,>), typeof(EfRepositoryBase<,,>));
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork<MyAppDbContext>>();
+
+// Diğer servislerin eklenmesi...
+builder.Services.AddControllers();
 
 var app = builder.Build();
-```
 
+// Global query filter (OnModelCreating içinde uygulandı)
+// Uygulamanın diğer middleware ayarları...
+
+app.MapControllers();
+
+app.Run();
+```
 ---
 
-### 3. **appsettings.json Ayarları**
-- **appsettings.json** dosyasında, veritabanı bağlantı dizesini ekleyin:
+### appsettings.json Örneği
+Bağlantı dizesi gibi ayarları appsettings.json içinde tanımlayabilirsiniz:
 
 ```json
 {
   "ConnectionStrings": {
-    "DefaultConnection": "Server=your_server;Database=your_database;User Id=your_user;Password=your_password;"
-  }
+    "DefaultConnection": "Server=YOUR_SERVER;Database=YourDatabase;User Id=YourUser;Password=YourPassword;"
+  },
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft": "Warning",
+      "Microsoft.Hosting.Lifetime": "Information"
+    }
+  },
+  "AllowedHosts": "*"
 }
-```
 
+```
 ---
 
-## Nasıl Kullanılır?
+## Detaylı Kullanım Örnekleri
 
-### 1. **Repository ve UnitOfWork Kullanımı**
-- **UnitOfWork** ve **Repository** yapısını kullanarak veritabanı işlemlerini gerçekleştirebilirsiniz.
+### 1. CRUD İşlemleri
+Repository Kullanarak Ekleme:
 
 ```csharp
-public class ProductService
+// Bir controller içinde örnek kullanım:
+[ApiController]
+[Route("api/[controller]")]
+public class TestController : ControllerBase
 {
+    private readonly IAsyncRepository<TestEntity, int> _repository;
     private readonly IUnitOfWork _unitOfWork;
 
-    public ProductService(IUnitOfWork unitOfWork)
+    public TestController(IAsyncRepository<TestEntity, int> repository, IUnitOfWork unitOfWork)
     {
+        _repository = repository;
         _unitOfWork = unitOfWork;
     }
 
-    public async Task<Product> GetProductByIdAsync(int id)
+    [HttpPost]
+    public async Task<IActionResult> Create(TestEntity model)
     {
-        var repository = _unitOfWork.Repository<Product, int>();
-        return await repository.GetByIdAsync(id);
-    }
-
-    public async Task AddProductAsync(Product product)
-    {
-        var repository = _unitOfWork.Repository<Product, int>();
-        await repository.AddAsync(product);
+        var entity = await _repository.AddAsync(model);
         await _unitOfWork.SaveChangesAsync();
+        return Ok(entity);
     }
-}
-```
 
----
-
-### 2. **Dinamik Sorgulama ve Sayfalama**
-- **Dynamic** sınıfı ile dinamik filtreleme ve sıralama işlemleri yapabilirsiniz.
-
-```csharp
-public async Task<IPaginate<Product>> GetProductsAsync(string filterField, string filterValue, string sortField, string sortDir)
-{
-    var repository = _unitOfWork.Repository<Product, int>();
-
-    var dynamic = new Dynamic(
-        sort: new List<Sort> { new Sort { Field = sortField, Dir = sortDir } },
-        filter: new Filter { Field = filterField, Operator = "eq", Value = filterValue }
-    );
-
-    return await repository.GetListByDynamicAsync(dynamic);
-}
-```
-
----
-
-### 3. **Soft Delete İşlemleri**
-- **SoftDeleteAsync** metodu ile kayıtları fiziksel olarak silmek yerine işaretleyebilirsiniz.
-
-```csharp
-public async Task SoftDeleteProductAsync(int id)
-{
-    var repository = _unitOfWork.Repository<Product, int>();
-    var product = await repository.GetByIdAsync(id);
-
-    if (product != null)
+    [HttpPut("{id}")]
+    public async Task<IActionResult> Update(int id, TestEntity model)
     {
-        await repository.SoftDeleteAsync(product);
+        var entity = await _repository.GetByIdAsync(id);
+        entity.Name = model.Name;
+        var updatedEntity = await _repository.UpdateAsync(entity);
         await _unitOfWork.SaveChangesAsync();
+        return Ok(updatedEntity);
+    }
+
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> Delete(int id, [FromQuery] bool permanent = false)
+    {
+        var entity = await _repository.GetByIdAsync(id);
+        await _repository.DeleteAsync(entity, permanent);
+        await _unitOfWork.SaveChangesAsync();
+        return NoContent();
     }
 }
+
 ```
 
 ---
 
-### 4. **Toplu Güncelleme İşlemleri**
-- **BulkUpdateAsync** metodu ile toplu güncelleme işlemleri yapabilirsiniz.
+### 2. Dinamik Sorgu (Filtre ve Sıralama)
+Dinamik sorguları uygulamak için Dynamic, Filter ve Sort sınıflarını kullanabilirsiniz:
 
 ```csharp
-public async Task BulkUpdateProductPricesAsync(decimal newPrice)
+// Dinamik filtre ve sıralama örneği:
+var filter = new Filter
 {
-    var repository = _unitOfWork.Repository<Product, int>();
+    Field = "Name",
+    Operator = "contains",
+    Value = "Test"
+};
 
-    await repository.BulkUpdateAsync(
-        predicate: p => p.Price < newPrice,
-        updates: new[] { (p => p.Price, newPrice) }
-    );
-
-    await _unitOfWork.SaveChangesAsync();
-}
-```
-
----
-
-### 5. **Sayfalama İşlemleri**
-- **ToPaginateAsync** metodu ile sayfalama işlemleri yapabilirsiniz.
-
-```csharp
-public async Task<IPaginate<Product>> GetProductsPaginatedAsync(int pageIndex, int pageSize)
+var sorts = new List<Sort>
 {
-    var repository = _unitOfWork.Repository<Product, int>();
-    return await repository.GetListAsync(index: pageIndex, size: pageSize);
-}
+    new Sort { Field = "Name", Dir = "asc", Priority = 0 }
+};
+
+var dynamicQuery = new Dynamic(sorts, filter);
+
+// IQueryable üzerinde dinamik sorgu uygulanması:
+var filteredData = await _repository.GetListByDynamicAsync(dynamicQuery, index: 1, size: 10);
+
 ```
 
 ---
 
-## Metot Örnekleri
+### 3. Sayfalama (Paging)
+Paging işlemleri için IPaginate arayüzü ve extension metodları kullanılmaktadır:
 
-### 1. **GetByIdAsync**
 ```csharp
-var product = await repository.GetByIdAsync(1);
-```
+// Sayfalama örneği:
+var pageRequest = new PageRequest { Page = 1, PageSize = 5 };
+var pagedData = await _repository.GetListAsync(index: pageRequest.Page, size: pageRequest.PageSize);
 
-### 2. **AddAsync**
-```csharp
-var product = new Product { Name = "New Product", Price = 100 };
-await repository.AddAsync(product);
-await _unitOfWork.SaveChangesAsync();
 ```
+---
 
-### 3. **UpdateAsync**
-```csharp
-var product = await repository.GetByIdAsync(1);
-product.Price = 200;
-await repository.UpdateAsync(product);
-await _unitOfWork.SaveChangesAsync();
-```
+## Test Projesi
 
-### 4. **DeleteAsync**
-```csharp
-var product = await repository.GetByIdAsync(1);
-await repository.DeleteAsync(product);
-await _unitOfWork.SaveChangesAsync();
-```
+Kütüphanenizin işlevselliğini doğrulamak için ayrı bir test projesi oluşturmanız önerilir. Bu test projesi, yukarıda anlatılan CRUD, dinamik filtre, sıralama, paging gibi tüm senaryoları kapsamlı şekilde test eden bir test modülünü içerecektir. Test projesi eklemek için Visual Studio'da yeni bir xUnit Test Project oluşturun, ana kütüphanenize referans ekleyin ve yukarıdaki test örneklerini kullanarak testlerinizi yazın.
 
-### 5. **SoftDeleteAsync**
-```csharp
-var product = await repository.GetByIdAsync(1);
-await repository.SoftDeleteAsync(product, deletedBy: "Admin");
-await _unitOfWork.SaveChangesAsync();
-```
+## Sonuç
 
-### 6. **GetListByDynamicAsync**
-```csharp
-var dynamic = new Dynamic(
-    sort: new List<Sort> { new Sort { Field = "Name", Dir = "asc" } },
-    filter: new Filter { Field = "Price", Operator = "gt", Value = 100 }
-);
-
-var products = await repository.GetListByDynamicAsync(dynamic);
-```
+Core Persistence Library, veri erişim katmanınızı merkezi, modüler ve genişletilebilir hale getirirken; soft/hard delete, dinamik sorgulama, sıralama ve paging gibi gelişmiş özellikler sunar. Bu README dosyası ile kütüphanenin ne olduğu, neden kullanıldığı, avantajları, projeye nasıl entegre edileceği ve kullanım örnekleri detaylı şekilde açıklanmıştır.
 
 ---
