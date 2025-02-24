@@ -13,34 +13,20 @@ public static class ModelBuilderExtensions
             var clrType = entityType.ClrType;
             if (clrType == null) continue;
 
-            var method = typeof(ModelBuilder)
-                .GetMethods()
-                .FirstOrDefault(m => m.Name == nameof(ModelBuilder.Entity) && m.GetParameters().Length == 0)?
-                .MakeGenericMethod(clrType);
-
-            if (method == null) continue;
-
-            var entityTypeBuilder = method.Invoke(modelBuilder, null);
-            var hasQueryFilterMethod = entityTypeBuilder.GetType().GetMethod("HasQueryFilter");
-
-            if (hasQueryFilterMethod != null)
+            var isDeletedProperty = clrType.GetProperty("IsDeleted", BindingFlags.Public | BindingFlags.Instance);
+            if (isDeletedProperty != null && isDeletedProperty.PropertyType == typeof(bool))
             {
+                Console.WriteLine($"Adding Query Filter: {clrType.Name}"); // Debug için ekledik
+
+                // Direkt ModelBuilder üzerinden çağırarak hata ihtimalini ortadan kaldırıyoruz.
+                var entity = modelBuilder.Entity(clrType);
+
                 var parameter = Expression.Parameter(clrType, "e");
-
-                // EF.Property<bool>(e, "IsDeleted")
-                var propertyMethodInfo = typeof(EF)
-                    .GetMethod("Property", BindingFlags.Static | BindingFlags.Public)?
-                    .MakeGenericMethod(typeof(bool));
-
-                if (propertyMethodInfo == null) continue;
-
-                var propertyAccess = Expression.Call(propertyMethodInfo, parameter, Expression.Constant("IsDeleted"));
-
-                // EF.Property<bool>(e, "IsDeleted") == false
+                var propertyAccess = Expression.Property(parameter, "IsDeleted");
                 var compareExpression = Expression.Equal(propertyAccess, Expression.Constant(false));
                 var lambda = Expression.Lambda(compareExpression, parameter);
 
-                hasQueryFilterMethod.Invoke(entityTypeBuilder, new object[] { lambda });
+                entity.HasQueryFilter(lambda);
             }
         }
     }
