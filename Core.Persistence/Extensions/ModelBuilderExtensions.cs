@@ -13,12 +13,12 @@ public static class ModelBuilderExtensions
             var clrType = entityType.ClrType;
             if (clrType == null) continue;
 
+
             var isDeletedProperty = clrType.GetProperty("IsDeleted", BindingFlags.Public | BindingFlags.Instance);
             if (isDeletedProperty != null && isDeletedProperty.PropertyType == typeof(bool))
             {
-                Console.WriteLine($"Adding Query Filter: {clrType.Name}"); // Debug için ekledik
+                Console.WriteLine($"[DEBUG] Query Filter Ekleniyor: {clrType.Name}");
 
-                // Direkt ModelBuilder üzerinden çağırarak hata ihtimalini ortadan kaldırıyoruz.
                 var entity = modelBuilder.Entity(clrType);
 
                 var parameter = Expression.Parameter(clrType, "e");
