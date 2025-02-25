@@ -1,4 +1,6 @@
-﻿namespace Core.Security.OAuth;
+﻿using Core.CrossCuttingConcerns.GlobalException.Exceptions;
+
+namespace Core.Security.OAuth;
 
 public class OAuthConfiguration
 {
@@ -22,17 +24,17 @@ public class OAuthConfiguration
         string[] scopes)
     {
         if (string.IsNullOrEmpty(clientId))
-            throw new ArgumentNullException(nameof(clientId));
+            throw new CustomException(nameof(clientId));
         if (string.IsNullOrEmpty(clientSecret))
-            throw new ArgumentNullException(nameof(clientSecret));
+            throw new CustomException(nameof(clientSecret));
         if (string.IsNullOrEmpty(authorizationEndpoint))
-            throw new ArgumentNullException(nameof(authorizationEndpoint));
+            throw new CustomException(nameof(authorizationEndpoint));
         if (string.IsNullOrEmpty(tokenEndpoint))
-            throw new ArgumentNullException(nameof(tokenEndpoint));
+            throw new CustomException(nameof(tokenEndpoint));
         if (string.IsNullOrEmpty(redirectUri))
-            throw new ArgumentNullException(nameof(redirectUri));
+            throw new CustomException(nameof(redirectUri));
         if (string.IsNullOrEmpty(userInfoEndpoint)) // Yeni eklenen kontrol
-            throw new ArgumentNullException(nameof(userInfoEndpoint));
+            throw new CustomException(nameof(userInfoEndpoint));
 
         ClientId = clientId;
         ClientSecret = clientSecret;

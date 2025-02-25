@@ -1,4 +1,5 @@
-﻿using Microsoft.IdentityModel.Tokens;
+﻿using Core.CrossCuttingConcerns.GlobalException.Exceptions;
+using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Net.Http.Headers;
 using System.Security.Claims;
@@ -12,8 +13,8 @@ public class OAuthService
 
     public OAuthService(OAuthConfiguration configuration, HttpClient httpClient)
     {
-        _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
-        _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
+        _configuration = configuration ?? throw new CustomException(nameof(configuration));
+        _httpClient = httpClient ?? throw new CustomException(nameof(httpClient));
     }
 
     // Generates the authorization URL for the OAuth flow

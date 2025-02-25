@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using Core.CrossCuttingConcerns.GlobalException.Exceptions;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -37,7 +38,7 @@ public static class ServiceCollectionExtensions
             .AddJwtBearer(options =>
             {
                 var tokenOptions = services.BuildServiceProvider().GetRequiredService<IOptions<TokenOptions>>().Value
-                ?? throw new InvalidOperationException("TokenOptions yapılandırması bulunamadı.");
+                ?? throw new CustomException("TokenOptions yapılandırması bulunamadı.");
 
                 options.TokenValidationParameters = new TokenValidationParameters
                 {

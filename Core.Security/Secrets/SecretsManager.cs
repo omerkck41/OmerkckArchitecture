@@ -1,4 +1,6 @@
-﻿namespace Core.Security.Secrets;
+﻿using Core.CrossCuttingConcerns.GlobalException.Exceptions;
+
+namespace Core.Security.Secrets;
 
 public class SecretsManager
 {
@@ -11,6 +13,6 @@ public class SecretsManager
 
     public string GetSecret(string key)
     {
-        return _secrets.ContainsKey(key) ? _secrets[key] : throw new KeyNotFoundException($"Secret with key '{key}' not found.");
+        return _secrets.ContainsKey(key) ? _secrets[key] : throw new CustomException($"Secret with key '{key}' not found.");
     }
 }

@@ -1,4 +1,6 @@
-﻿namespace Core.Security.JWT;
+﻿using Core.CrossCuttingConcerns.GlobalException.Exceptions;
+
+namespace Core.Security.JWT;
 
 /// <summary>
 /// Kimlik doğrulama ve yetkilendirme için kullanılan bir erişim token'ını temsil eder.
@@ -19,10 +21,10 @@ public class AccessToken
     /// </summary>
     /// <param name="token">JWT token string'i.</param>
     /// <param name="expirationDate">Token'ın son kullanma tarihi.</param>
-    /// <exception cref="ArgumentNullException">Token null ise fırlatılır.</exception>
+    /// <exception cref="CustomException">Token null ise fırlatılır.</exception>
     public AccessToken(string token, DateTime expirationDate)
     {
-        Token = token ?? throw new ArgumentNullException(nameof(token));
+        Token = token ?? throw new CustomException(nameof(token));
         ExpirationDate = expirationDate;
     }
 }

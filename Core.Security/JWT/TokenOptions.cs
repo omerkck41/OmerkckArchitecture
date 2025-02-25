@@ -1,4 +1,6 @@
-﻿namespace Core.Security.JWT;
+﻿using Core.CrossCuttingConcerns.GlobalException.Exceptions;
+
+namespace Core.Security.JWT;
 
 /// <summary>
 /// JWT token'ları için yapılandırma seçeneklerini temsil eder.
@@ -44,13 +46,13 @@ public class TokenOptions
     /// <param name="accessTokenExpiration">Erişim token'ının dakika cinsinden son kullanma süresi.</param>
     /// <param name="securityKey">Token'ı imzalamak için kullanılan güvenlik anahtarı.</param>
     /// <param name="refreshTokenTtl">Refresh token'ın gün cinsinden yaşam süresi (TTL).</param>
-    /// <exception cref="ArgumentNullException">Gerekli parametrelerden herhangi biri null ise fırlatılır.</exception>
+    /// <exception cref="CustomException">Gerekli parametrelerden herhangi biri null ise fırlatılır.</exception>
     public TokenOptions(string audience, string issuer, int accessTokenExpiration, string securityKey, int refreshTokenTtl)
     {
-        Audience = audience ?? throw new ArgumentNullException(nameof(audience));
-        Issuer = issuer ?? throw new ArgumentNullException(nameof(issuer));
+        Audience = audience ?? throw new CustomException(nameof(audience));
+        Issuer = issuer ?? throw new CustomException(nameof(issuer));
         AccessTokenExpiration = accessTokenExpiration;
-        SecurityKey = securityKey ?? throw new ArgumentNullException(nameof(securityKey));
+        SecurityKey = securityKey ?? throw new CustomException(nameof(securityKey));
         RefreshTokenTTL = refreshTokenTtl;
     }
 }
