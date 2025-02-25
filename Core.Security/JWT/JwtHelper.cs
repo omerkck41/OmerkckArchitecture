@@ -96,7 +96,6 @@ public class JwtHelper<TUserId, TOperationClaimId, TRefreshTokenId> : ITokenHelp
         if (_tokenBlacklistManager.IsTokenRevoked(token))
             return false;
 
-
         try
         {
             new JwtSecurityTokenHandler().ValidateToken(token, new TokenValidationParameters
@@ -105,14 +104,21 @@ public class JwtHelper<TUserId, TOperationClaimId, TRefreshTokenId> : ITokenHelp
                 ValidateAudience = true,
                 ValidateLifetime = true,
                 ValidateIssuerSigningKey = true,
+                ClockSkew = TimeSpan.Zero,
+                RequireExpirationTime = true,
                 ValidIssuer = _tokenOptions.Issuer,
                 ValidAudience = _tokenOptions.Audience,
-                IssuerSigningKey = _securityKey.Value
+                IssuerSigningKey = _securityKey.Value,
+                LifetimeValidator = (notBefore, expires, securityToken, validationParameters) =>
+                {
+                    // Eğer tokenın bitiş tarihi (expires) varsa ve şu anki zaman ondan küçükse token geçerli kabul edilir.
+                    return expires != null && expires > DateTime.UtcNow;
+                }
             }, out _);
 
             return true;
         }
-        catch (SecurityTokenException)
+        catch (Exception)
         {
             return false;
         }

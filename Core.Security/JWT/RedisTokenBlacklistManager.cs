@@ -5,7 +5,6 @@ namespace Core.Security.JWT;
 public class RedisTokenBlacklistManager<TUserId> : ITokenBlacklistManager<TUserId>
 {
     private readonly IDatabase _redisDatabase;
-    private const string BlacklistKeyPrefix = "user_token_";
 
     public RedisTokenBlacklistManager(IConnectionMultiplexer redis)
     {
@@ -14,26 +13,44 @@ public class RedisTokenBlacklistManager<TUserId> : ITokenBlacklistManager<TUserI
 
     public void RevokeToken(string token, TUserId userId, TimeSpan expiration)
     {
-        _redisDatabase.StringSet($"{BlacklistKeyPrefix}{userId}_{token}", "revoked", expiration);
+        var key = TokenKeyHelper.BuildKey(userId, token);
+        _redisDatabase.StringSet(key, "revoked", expiration);
     }
 
     public bool IsTokenRevoked(string token)
     {
-        return _redisDatabase.KeyExists($"{BlacklistKeyPrefix}_*_" + token);
+        // Token'ın benzersiz olduğunu varsayarak, ilgili key'yi aramak için tüm userId'leri taramak yerine,
+        // revoke işlemi sırasında token'ın hangi kullanıcıya ait olduğunu kaydedersen daha sağlıklı bir kontrol yapabilirsin.
+        // Basit örnek için, pattern araması kullanılıyor (üretim ortamında performans açısından dikkatli kullanılmalı):
+        var server = _redisDatabase.Multiplexer.GetServer(_redisDatabase.Multiplexer.GetEndPoints().First());
+        var pattern = $"user_token_*_{token}";
+        return server.Keys(pattern: pattern).Any();
     }
 
     public bool IsUserRevoked(TUserId userId)
     {
-        return _redisDatabase.KeyExists($"{BlacklistKeyPrefix}{userId}_*");
+        var server = _redisDatabase.Multiplexer.GetServer(_redisDatabase.Multiplexer.GetEndPoints().First());
+        var pattern = $"user_token_{userId}_*";
+        return server.Keys(pattern: pattern).Any();
     }
 
     public void RemoveFromBlacklist(string token)
     {
-        _redisDatabase.KeyDelete($"token_{token}");
+        var server = _redisDatabase.Multiplexer.GetServer(_redisDatabase.Multiplexer.GetEndPoints().First());
+        var pattern = $"user_token_*_{token}";
+        foreach (var key in server.Keys(pattern: pattern))
+        {
+            _redisDatabase.KeyDelete(key);
+        }
     }
 
     public void RemoveUserFromBlacklist(TUserId userId)
     {
-        _redisDatabase.KeyDelete($"user_{userId}");
+        var server = _redisDatabase.Multiplexer.GetServer(_redisDatabase.Multiplexer.GetEndPoints().First());
+        var pattern = $"user_token_{userId}_*";
+        foreach (var key in server.Keys(pattern: pattern))
+        {
+            _redisDatabase.KeyDelete(key);
+        }
     }
 }

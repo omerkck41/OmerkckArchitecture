@@ -23,6 +23,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core.Api", "Core.Api\Core.A
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core.Test.Persistence", "TestPersistence\Core.Test.Persistence.csproj", "{146E7E67-2AC4-4162-8EE2-FFD9BF313BF9}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core.Test.SecurityJWT", "Core.Test.SecurityJWT\Core.Test.SecurityJWT.csproj", "{E767139B-2ADF-48E8-8CB9-4C2B2A8908C3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -69,6 +71,10 @@ Global
 		{146E7E67-2AC4-4162-8EE2-FFD9BF313BF9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{146E7E67-2AC4-4162-8EE2-FFD9BF313BF9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{146E7E67-2AC4-4162-8EE2-FFD9BF313BF9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E767139B-2ADF-48E8-8CB9-4C2B2A8908C3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E767139B-2ADF-48E8-8CB9-4C2B2A8908C3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E767139B-2ADF-48E8-8CB9-4C2B2A8908C3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E767139B-2ADF-48E8-8CB9-4C2B2A8908C3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
