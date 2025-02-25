@@ -20,9 +20,14 @@ public class EfRepositoryBase<TEntity, TId, TContext> : IAsyncRepository<TEntity
         _dbSet = _context.Set<TEntity>();
     }
 
-    public IQueryable<TEntity> Query(Expression<Func<TEntity, bool>>? filter = null, Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>>? orderBy = null)
+    public IQueryable<TEntity> Query(Expression<Func<TEntity, bool>>? filter = null, Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>>? orderBy = null,
+        bool withDeleted = false,
+        bool enableTracking = false)
     {
-        IQueryable<TEntity> query = _dbSet.AsQueryable();
+        IQueryable<TEntity> query = enableTracking ? _dbSet : _dbSet.AsNoTracking();
+
+        if (!withDeleted && typeof(TEntity).GetProperty("IsDeleted") != null)
+            query = query.Where(e => EF.Property<bool>(e, "IsDeleted") == false);
 
         if (filter != null)
             query = query.Where(filter);
@@ -37,10 +42,11 @@ public class EfRepositoryBase<TEntity, TId, TContext> : IAsyncRepository<TEntity
 
     public async Task<TEntity?> GetAsync(Expression<Func<TEntity, bool>> predicate,
                                             Func<IQueryable<TEntity>, IIncludableQueryable<TEntity, object>>[]? includes = null,
+                                            bool withDeleted = false,
                                             bool enableTracking = true,
                                             CancellationToken cancellationToken = default)
     {
-        var query = enableTracking ? Query() : Query().AsNoTracking();
+        var query = Query(withDeleted: withDeleted, enableTracking: enableTracking);
 
         if (includes != null)
             foreach (var include in includes)
@@ -52,26 +58,22 @@ public class EfRepositoryBase<TEntity, TId, TContext> : IAsyncRepository<TEntity
     public async Task<IPaginate<TEntity>> GetListAsync(Expression<Func<TEntity, bool>>? predicate = null,
                                                          Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>>? orderBy = null,
                                                          Func<IQueryable<TEntity>, IIncludableQueryable<TEntity, object>>[]? includes = null,
-                                                         int index = 0, int size = 10, bool enableTracking = true,
+                                                         int index = 0, int size = 10,
+                                                         bool withDeleted = false,
+                                                         bool enableTracking = true,
                                                          CancellationToken cancellationToken = default)
     {
-        // Sorgu başlangıcı (tracking durumu kontrol ediliyor)
-        IQueryable<TEntity> query = enableTracking ? Query() : Query().AsNoTracking();
+        IQueryable<TEntity> query = Query(withDeleted: withDeleted, enableTracking: enableTracking);
 
-        // Predicate varsa, sorguya ekleniyor
-        if (predicate != null) query = query.Where(predicate);
+        if (predicate != null)
+            query = query.Where(predicate);
 
-        // Includes dizisi varsa, her bir include uygulanıyor
         if (includes != null)
             foreach (var include in includes)
                 query = include(query);
 
-        // OrderBy varsa sıralama yapılıyor, yoksa default olarak ToPaginateAsync çağrılıyor
-        var paginatedQuery = orderBy != null
-            ? orderBy(query)
-            : query;
+        var paginatedQuery = orderBy != null ? orderBy(query) : query;
 
-        // ToPaginateAsync kullanılarak sonuç dönüyor
         return await paginatedQuery.ToPaginateAsync(index, size, 0, cancellationToken);
     }
 
@@ -79,24 +81,21 @@ public class EfRepositoryBase<TEntity, TId, TContext> : IAsyncRepository<TEntity
                                                                 Expression<Func<TEntity, bool>>? predicate = null,
                                                                 Func<IQueryable<TEntity>, IIncludableQueryable<TEntity, object>>[]? includes = null,
                                                                 int index = 0, int size = 10,
+                                                                bool withDeleted = false,
                                                                 bool enableTracking = true,
                                                                 CancellationToken cancellationToken = default)
     {
-        // Başlangıç sorgusu: Tracking durumu kontrol ediliyor
-        IQueryable<TEntity> query = enableTracking ? Query() : Query().AsNoTracking();
+        IQueryable<TEntity> query = Query(withDeleted: withDeleted, enableTracking: enableTracking);
 
-        // Predicate varsa, sorguya ekleniyor
-        if (predicate != null) query = query.Where(predicate);
+        if (predicate != null)
+            query = query.Where(predicate);
 
-        // Dinamik sorgu uygulanıyor
         query = query.ToDynamic(dynamic);
 
-        // Includes dizisi varsa, her bir include uygulanıyor
         if (includes != null)
             foreach (var include in includes)
                 query = include(query);
 
-        // ToPaginateAsync kullanılarak sayfalama yapılıyor
         return await query.ToPaginateAsync(index, size, 0, cancellationToken);
     }
 
@@ -114,13 +113,14 @@ public class EfRepositoryBase<TEntity, TId, TContext> : IAsyncRepository<TEntity
                                                                        Func<IQueryable<TEntity>, IIncludableQueryable<TEntity, object>>? include = null,
                                                                        int index = 0,
                                                                        int size = 10,
+                                                                       bool withDeleted = false,
                                                                        bool enableTracking = true,
                                                                        CancellationToken cancellationToken = default)
     {
-        IQueryable<TEntity> query = enableTracking ? Query() : Query().AsNoTracking();
+        IQueryable<TEntity> query = Query(withDeleted: withDeleted, enableTracking: enableTracking);
 
         if (include != null)
-            query = include(query); // Eager Loading burada uygulanır
+            query = include(query);
 
         if (predicate != null)
             query = query.Where(predicate);
@@ -138,38 +138,41 @@ public class EfRepositoryBase<TEntity, TId, TContext> : IAsyncRepository<TEntity
     /// <returns>Kayıt varsa true, yoksa false.</returns>
     public async Task<bool> AnyAsync(Expression<Func<TEntity, bool>>? predicate = null,
                                     Func<IQueryable<TEntity>, IIncludableQueryable<TEntity, object>>? include = null,
+                                    bool withDeleted = false,
                                     bool enableTracking = false,
                                     CancellationToken cancellationToken = default)
     {
-        IQueryable<TEntity> query = enableTracking ? Query() : Query().IgnoreQueryFilters();
+        IQueryable<TEntity> query = Query(withDeleted: withDeleted, enableTracking: enableTracking);
 
         if (include != null)
             query = include(query);
 
         if (predicate != null)
             query = query.Where(predicate);
+
         return await query.AnyAsync(cancellationToken);
     }
 
-    public async Task<TEntity?> GetByIdAsync(TId id, CancellationToken cancellationToken = default)
+    public async Task<TEntity?> GetByIdAsync(TId id, bool withDeleted = false, bool enableTracking = false, CancellationToken cancellationToken = default)
     {
-        var entity = await _dbSet.AsQueryable()
-                                 .Where(e => e.Id != null && e.Id.Equals(id))
-                                 .FirstOrDefaultAsync(cancellationToken);
+        if (id == null)
+            throw new ArgumentNullException(nameof(id), "Id cannot be null.");
 
-        return entity switch
-        {
-            null => throw new CustomException($"{typeof(TEntity).Name} with id {id} was not found."),
-            _ => entity,
-        };
+        var entity = await Query(withDeleted: withDeleted, enableTracking: enableTracking)
+                            .FirstOrDefaultAsync(e => e.Id.Equals(id), cancellationToken);
+
+        return entity ?? throw new CustomException($"{typeof(TEntity).Name} with id {id} was not found.");
     }
 
 
-    public async Task<int> CountAsync(Expression<Func<TEntity, bool>>? predicate = null)
+    public async Task<int> CountAsync(Expression<Func<TEntity, bool>>? predicate = null, bool withDeleted = false, bool enableTracking = false, CancellationToken cancellationToken = default)
     {
-        return predicate == null
-            ? await _dbSet.CountAsync()
-            : await _dbSet.CountAsync(predicate);
+        IQueryable<TEntity> query = Query(withDeleted: withDeleted, enableTracking: enableTracking);
+
+        if (predicate != null)
+            query = query.Where(predicate);
+
+        return await query.CountAsync(cancellationToken);
     }
 
     public async Task<TEntity> AddAsync(TEntity entity, CancellationToken cancellationToken = default)
