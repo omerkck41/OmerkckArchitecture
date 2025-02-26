@@ -1,45 +1,36 @@
 ﻿---
 
-# Core.Security.OAuth
+# OAuth 2.0 Servisi
 
-## Nedir?
-`Core.Security.OAuth`, OAuth 2.0 protokolünü kullanarak kimlik doğrulama ve yetkilendirme işlemlerini kolayca gerçekleştirmek için tasarlanmış bir .NET kütüphanesidir. Bu kütüphane, OAuth 2.0 akışlarını (Authorization Code, Refresh Token, vb.) destekler ve token yönetimi, kullanıcı bilgileri alımı gibi işlemleri basitleştirir.
-
-## Neden Kullanılır?
-- **Kolay Entegrasyon**: OAuth 2.0 akışlarını hızlı ve kolay bir şekilde projelerinize entegre edebilirsiniz.
-- **Güvenlik**: Token'ların güvenli bir şekilde yönetilmesini sağlar ve token'ların geçerliliğini otomatik olarak kontrol eder.
-- **Esneklik**: Farklı OAuth sağlayıcılarıyla (Google, Facebook, GitHub, vb.) çalışabilir ve özelleştirilebilir yapısı sayesinde farklı senaryolara uyum sağlar.
-- **Best Practice'lere Uygun**: Clean code ve async/await prensiplerine uygun olarak tasarlanmıştır.
-
-## Avantajları
-- **Token Yönetimi**: Token'ların alınması, yenilenmesi ve geçerliliğinin kontrol edilmesi gibi işlemler otomatik olarak yönetilir.
-- **Kullanıcı Bilgileri**: Token kullanarak kullanıcı bilgilerini kolayca alabilirsiniz.
-- **Genişletilebilirlik**: Yeni OAuth sağlayıcıları veya özelleştirilmiş akışlar eklemek kolaydır.
-- **Hata Yönetimi**: Detaylı hata mesajları ve exception handling mekanizmaları sayesinde sorunları hızlıca tespit edebilirsiniz.
+Bu proje, **OAuth 2.0** protokolünü kullanarak kimlik doğrulama ve yetkilendirme işlemlerini gerçekleştirmek için geliştirilmiş bir servistir. Facebook, Google, GitHub gibi popüler OAuth sağlayıcılarıyla entegre çalışabilir ve kullanıcıların üçüncü taraf hesaplarıyla giriş yapmasını sağlar.
 
 ---
 
-## Kurulum ve Yapılandırma
+## **Özellikler**
 
-### 1. Projeye Ekleme
-Projenize `Core.Security.OAuth` kütüphanesini eklemek için aşağıdaki adımları izleyin:
-
-#### NuGet Paketi Olarak Ekleme
-Eğer bu kütüphane bir NuGet paketi olarak yayınlandıysa, aşağıdaki komutla projenize ekleyebilirsiniz:
-
-```bash
-dotnet add package Core.Security.OAuth
-```
-
-#### Manuel Ekleme
-Eğer NuGet paketi olarak yayınlanmadıysa, `OAuthConfiguration.cs` ve `OAuthService.cs` dosyalarını projenize manuel olarak ekleyebilirsiniz.
+- **OAuth 2.0 Akışı:** Yetkilendirme kodu (authorization code) ve erişim token'ı (access token) yönetimi.
+- **Token Doğrulama:** JWT token'larının imza ve süre (expiration) kontrolü.
+- **Token Yenileme:** Refresh token'ları kullanarak erişim token'larını yenileme.
+- **Kullanıcı Bilgisi Çekme:** Erişim token'ı ile kullanıcı bilgilerini çekme.
+- **JSON Tabanlı Yapılandırma:** Yapılandırma bilgileri `appsettings.json` dosyasından alınır.
+- **SOLID Prensipleri:** Modüler, genişletilebilir ve test edilebilir bir yapı.
+- **Dependency Injection:** Bağımlılıklar DI üzerinden yönetilir.
 
 ---
 
-### 2. Yapılandırma Dosyaları
+## **Neden Kullanılmalı?**
 
-#### `appsettings.json`
-OAuth yapılandırması için gerekli bilgileri `appsettings.json` dosyasında tanımlayın:
+- **Güvenlik:** Kullanıcıların şifrelerini uygulamanıza vermesine gerek yoktur. Sadece erişim token'ı paylaşılır.
+- **Kullanıcı Dostu:** Kullanıcılar, yeni bir hesap oluşturmak yerine mevcut hesaplarıyla (Facebook, Google) hızlıca giriş yapabilir.
+- **Standart ve Yaygın:** OAuth 2.0, Facebook, Google, GitHub gibi birçok büyük platform tarafından desteklenir.
+- **Esneklik:** Farklı OAuth sağlayıcılarıyla kolayca entegre olabilir ve yeni özellikler eklenebilir.
+
+---
+
+## **Kurulum ve Kullanım**
+
+### **1. Yapılandırma**
+`appsettings.json` dosyasına OAuth yapılandırma bilgilerini ekleyin:
 
 ```json
 {
@@ -48,170 +39,96 @@ OAuth yapılandırması için gerekli bilgileri `appsettings.json` dosyasında t
     "ClientSecret": "YOUR_CLIENT_SECRET",
     "AuthorizationEndpoint": "https://provider.com/oauth/authorize",
     "TokenEndpoint": "https://provider.com/oauth/token",
+    "RedirectUri": "https://yourapp.com/auth/callback",
     "UserInfoEndpoint": "https://provider.com/oauth/userinfo",
-    "RedirectUri": "https://yourapp.com/callback",
-    "Scopes": ["openid", "profile", "email"]
+    "Scopes": [ "email", "profile" ]
   }
 }
 ```
 
----
-
-#### `Program.cs` veya `Startup.cs`
-OAuth servisini dependency injection ile projenize ekleyin:
+### **2. Dependency Injection Ayarları**
+`Startup.cs` veya `Program.cs` dosyasında servisleri kaydedin:
 
 ```csharp
-using Core.Security.OAuth;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
+public void ConfigureServices(IServiceCollection services)
+{
+    // OAuthSettings'i appsettings.json'dan yükle
+    services.Configure<OAuthSettings>(Configuration.GetSection("OAuthSettings"));
 
-var builder = WebApplication.CreateBuilder(args);
+    // OAuthConfiguration'ı oluştur ve DI'ye kaydet
+    services.AddSingleton(sp =>
+    {
+        var settings = sp.GetRequiredService<IOptions<OAuthSettings>>().Value;
+        return new OAuthConfiguration(settings);
+    });
 
-// OAuth yapılandırmasını appsettings.json'dan yükle
-var oauthConfig = builder.Configuration.GetSection("OAuthSettings").Get<OAuthConfiguration>();
-
-// HttpClient ve OAuthService'i dependency injection'a ekle
-builder.Services.AddHttpClient();
-builder.Services.AddSingleton(oauthConfig);
-builder.Services.AddScoped<OAuthService>();
-
-var app = builder.Build();
-
-// Uygulama rotalarını ve middleware'leri burada tanımlayın
-app.Run();
+    // HttpClient ve OAuthService'i DI'ye kaydet
+    services.AddHttpClient<IOAuthService, OAuthService>();
+}
 ```
 
----
-
-## Detaylı Kullanım Örnekleri
-
-### 1. Authorization URL Oluşturma
-Kullanıcıyı OAuth sağlayıcısına yönlendirmek için authorization URL'sini oluşturun:
+### **3. Örnek Login Yönetimi**
+Aşağıda, OAuth servisini kullanarak bir login işlemi gerçekleştiren örnek bir controller bulunmaktadır:
 
 ```csharp
+using Microsoft.AspNetCore.Mvc;
+
+namespace YourNamespace.Controllers;
+
+[ApiController]
+[Route("api/auth")]
 public class AuthController : ControllerBase
 {
-    private readonly OAuthService _oauthService;
+    private readonly IOAuthService _oauthService;
 
-    public AuthController(OAuthService oauthService)
+    public AuthController(IOAuthService oauthService)
     {
         _oauthService = oauthService;
     }
 
+    // Kullanıcıyı OAuth sağlayıcısının giriş sayfasına yönlendir
     [HttpGet("login")]
     public IActionResult Login()
     {
-        var authUrl = _oauthService.GetAuthorizationUrl();
-        return Redirect(authUrl);
+        var authorizationUrl = _oauthService.GetAuthorizationUrl();
+        return Redirect(authorizationUrl);
     }
-}
-```
 
----
-
-### 2. Authorization Code ile Token Alma
-Kullanıcı OAuth sağlayıcısından geri döndüğünde, authorization code'u kullanarak token'ı alın:
-
-```csharp
-[HttpGet("callback")]
-public async Task<IActionResult> Callback(string code)
-{
-    try
+    // OAuth sağlayıcısından gelen yetkilendirme kodunu işle
+    [HttpGet("callback")]
+    public async Task<IActionResult> Callback(string code)
     {
-        var tokenResponse = await _oauthService.ExchangeCodeForTokenAsync(code);
-        return Ok(tokenResponse);
-    }
-    catch (HttpRequestException ex)
-    {
-        return BadRequest($"Token alınamadı: {ex.Message}");
-    }
-}
-```
+        // Yetkilendirme kodunu kullanarak erişim token'ı al
+        var token = await _oauthService.ExchangeCodeForTokenAsync(code);
 
----
-
-### 3. Token Yenileme
-Eğer token'ın süresi dolmuşsa, refresh token kullanarak yeni bir token alın:
-
-```csharp
-public async Task<string> RefreshTokenAsync(string refreshToken)
-{
-    try
-    {
-        var newToken = await _oauthService.RefreshAccessTokenAsync(refreshToken);
-        return newToken;
-    }
-    catch (HttpRequestException ex)
-    {
-        throw new Exception($"Token yenilenemedi: {ex.Message}");
-    }
-}
-```
-
----
-
-### 4. Kullanıcı Bilgilerini Alma
-Token kullanarak kullanıcı bilgilerini alın:
-
-```csharp
-public async Task<IActionResult> GetUserInfo(string token)
-{
-    try
-    {
+        // Erişim token'ı ile kullanıcı bilgilerini çek
         var userInfo = await _oauthService.GetUserInfoAsync(token);
+
+        // Kullanıcı bilgilerini işle ve oturum aç
         return Ok(userInfo);
     }
-    catch (HttpRequestException ex)
-    {
-        return BadRequest($"Kullanıcı bilgileri alınamadı: {ex.Message}");
-    }
 }
 ```
 
 ---
 
-### 5. Token Geçerliliğini Kontrol Etme
-Token'ın geçerli olup olmadığını kontrol edin:
+## **Avantajlar**
 
-```csharp
-public async Task<bool> ValidateToken(string token)
-{
-    return await _oauthService.ValidateTokenAsync(token);
-}
-```
+- **Modüler Yapı:** Farklı OAuth sağlayıcılarıyla kolayca entegre olabilir.
+- **Güvenlik:** Token'ların imza ve süre kontrolü otomatik olarak yapılır.
+- **Esneklik:** JSON tabanlı yapılandırma ile farklı ortamlar için farklı ayarlar kolayca yönetilir.
+- **Test Edilebilirlik:** DI ve interface'ler sayesinde unit test ve integration test yapmak kolaydır.
 
 ---
 
-### 6. Token Süresinin Dolup Dolmadığını Kontrol Etme
-Token'ın süresinin dolup dolmadığını kontrol edin:
+## **Örnek Senaryo: Facebook ile Giriş**
 
-```csharp
-public bool IsTokenExpired(string token)
-{
-    return _oauthService.IsTokenExpired(token);
-}
-```
-
----
-
-## Örnek Proje Yapısı
-Örnek bir proje yapısı aşağıdaki gibi olabilir:
-
-```
-/YourProject
-│
-├── /Controllers
-│   └── AuthController.cs
-│
-├── /Models
-│   └── OAuthConfiguration.cs
-│
-├── /Services
-│   └── OAuthService.cs
-│
-├── appsettings.json
-├── Program.cs
-└── README.md
-```
+1. Kullanıcı, uygulamanızda **"Facebook ile Giriş Yap"** butonuna tıklar.
+2. Uygulamanız, kullanıcıyı Facebook'un giriş sayfasına yönlendirir.
+3. Kullanıcı, Facebook'ta giriş yapar ve uygulamanıza erişim izni verir.
+4. Facebook, uygulamanıza bir yetkilendirme kodu gönderir.
+5. Uygulamanız, bu kodu kullanarak bir erişim token'ı alır.
+6. Uygulamanız, erişim token'ı ile Facebook'tan kullanıcı bilgilerini çeker.
+7. Kullanıcı bilgileri kullanılarak oturum açılır veya kullanıcı kaydedilir.
 
 ---

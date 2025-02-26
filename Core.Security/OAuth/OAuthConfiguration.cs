@@ -14,34 +14,30 @@ public class OAuthConfiguration
     public string[] Scopes { get; init; } = Array.Empty<string>();
 
     // Constructor for initializing required properties
-    public OAuthConfiguration(
-        string clientId,
-        string clientSecret,
-        string authorizationEndpoint,
-        string tokenEndpoint,
-        string redirectUri,
-        string userInfoEndpoint, // Yeni eklenen parametre
-        string[] scopes)
+    public OAuthConfiguration(OAuthSettings settings)
     {
-        if (string.IsNullOrEmpty(clientId))
-            throw new CustomException(nameof(clientId));
-        if (string.IsNullOrEmpty(clientSecret))
-            throw new CustomException(nameof(clientSecret));
-        if (string.IsNullOrEmpty(authorizationEndpoint))
-            throw new CustomException(nameof(authorizationEndpoint));
-        if (string.IsNullOrEmpty(tokenEndpoint))
-            throw new CustomException(nameof(tokenEndpoint));
-        if (string.IsNullOrEmpty(redirectUri))
-            throw new CustomException(nameof(redirectUri));
-        if (string.IsNullOrEmpty(userInfoEndpoint)) // Yeni eklenen kontrol
-            throw new CustomException(nameof(userInfoEndpoint));
+        if (settings == null)
+            throw new CustomException(nameof(settings));
 
-        ClientId = clientId;
-        ClientSecret = clientSecret;
-        AuthorizationEndpoint = authorizationEndpoint;
-        TokenEndpoint = tokenEndpoint;
-        RedirectUri = redirectUri;
-        UserInfoEndpoint = userInfoEndpoint; // Yeni eklenen özellik ataması
-        Scopes = scopes ?? Array.Empty<string>();
+        if (string.IsNullOrEmpty(settings.ClientId))
+            throw new CustomException(nameof(settings.ClientId));
+        if (string.IsNullOrEmpty(settings.ClientSecret))
+            throw new CustomException(nameof(settings.ClientSecret));
+        if (string.IsNullOrEmpty(settings.AuthorizationEndpoint))
+            throw new CustomException(nameof(settings.AuthorizationEndpoint));
+        if (string.IsNullOrEmpty(settings.TokenEndpoint))
+            throw new CustomException(nameof(settings.TokenEndpoint));
+        if (string.IsNullOrEmpty(settings.RedirectUri))
+            throw new CustomException(nameof(settings.RedirectUri));
+        if (string.IsNullOrEmpty(settings.UserInfoEndpoint))
+            throw new CustomException(nameof(settings.UserInfoEndpoint));
+
+        ClientId = settings.ClientId;
+        ClientSecret = settings.ClientSecret;
+        AuthorizationEndpoint = settings.AuthorizationEndpoint;
+        TokenEndpoint = settings.TokenEndpoint;
+        RedirectUri = settings.RedirectUri;
+        UserInfoEndpoint = settings.UserInfoEndpoint;
+        Scopes = settings.Scopes ?? Array.Empty<string>();
     }
 }

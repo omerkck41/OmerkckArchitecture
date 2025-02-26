@@ -6,7 +6,7 @@ using System.Security.Claims;
 
 namespace Core.Security.OAuth;
 
-public class OAuthService
+public class OAuthService : IOAuthService
 {
     private readonly OAuthConfiguration _configuration;
     private readonly HttpClient _httpClient;
@@ -17,16 +17,12 @@ public class OAuthService
         _httpClient = httpClient ?? throw new CustomException(nameof(httpClient));
     }
 
-    // Generates the authorization URL for the OAuth flow
     public string GetAuthorizationUrl()
     {
-        string scope = string.Join(" ", _configuration.Scopes.Select(Uri.EscapeDataString));
-        var url = $"{_configuration.AuthorizationEndpoint}?client_id={_configuration.ClientId}&redirect_uri={_configuration.RedirectUri}&response_type=code&scope={scope}";
-
-        return url;
+        var scopes = string.Join(" ", _configuration.Scopes.Select(Uri.EscapeDataString));
+        return $"{_configuration.AuthorizationEndpoint}?client_id={_configuration.ClientId}&redirect_uri={_configuration.RedirectUri}&response_type=code&scope={scopes}";
     }
 
-    // Exchanges the authorization code for an access token
     public async Task<string> ExchangeCodeForTokenAsync(string authorizationCode)
     {
         var requestContent = new FormUrlEncodedContent(new[]
@@ -39,17 +35,11 @@ public class OAuthService
         });
 
         var response = await _httpClient.PostAsync(_configuration.TokenEndpoint, requestContent);
-
-        if (!response.IsSuccessStatusCode)
-        {
-            var errorContent = await response.Content.ReadAsStringAsync();
-            throw new HttpRequestException($"Failed to exchange token: {response.StatusCode}. Error: {errorContent}");
-        }
+        response.EnsureSuccessStatusCode();
 
         return await response.Content.ReadAsStringAsync();
     }
 
-    // Refreshes the access token using a refresh token
     public async Task<string> RefreshAccessTokenAsync(string refreshToken)
     {
         var requestContent = new FormUrlEncodedContent(new[]
@@ -61,36 +51,26 @@ public class OAuthService
         });
 
         var response = await _httpClient.PostAsync(_configuration.TokenEndpoint, requestContent);
-
-        if (!response.IsSuccessStatusCode)
-        {
-            var errorContent = await response.Content.ReadAsStringAsync();
-            throw new HttpRequestException($"Failed to refresh token: {response.StatusCode}. Error: {errorContent}");
-        }
+        response.EnsureSuccessStatusCode();
 
         return await response.Content.ReadAsStringAsync();
     }
 
-    // Validates the token (e.g., checks expiration and signature)
     public async Task<bool> ValidateTokenAsync(string token)
     {
         var handler = new JwtSecurityTokenHandler();
 
         try
         {
-            // Validate token signature and expiration
             var validationParameters = new TokenValidationParameters
             {
                 ValidateIssuerSigningKey = true,
-                ValidateIssuer = false, // Set to true if you want to validate the issuer
-                ValidateAudience = false, // Set to true if you want to validate the audience
-                ClockSkew = TimeSpan.Zero // No tolerance for expiration time
+                ValidateIssuer = false,
+                ValidateAudience = false,
+                ClockSkew = TimeSpan.Zero
             };
 
-            SecurityToken validatedToken;
-            var principal = handler.ValidateToken(token, validationParameters, out validatedToken);
-
-            // Additional custom validation logic can be added here
+            handler.ValidateToken(token, validationParameters, out _);
             return true;
         }
         catch (SecurityTokenException)
@@ -99,24 +79,17 @@ public class OAuthService
         }
     }
 
-    // Fetches user information using the access token
     public async Task<string> GetUserInfoAsync(string token)
     {
         var request = new HttpRequestMessage(HttpMethod.Get, _configuration.UserInfoEndpoint);
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
         var response = await _httpClient.SendAsync(request);
-
-        if (!response.IsSuccessStatusCode)
-        {
-            var errorContent = await response.Content.ReadAsStringAsync();
-            throw new HttpRequestException($"Failed to fetch user info: {response.StatusCode}. Error: {errorContent}");
-        }
+        response.EnsureSuccessStatusCode();
 
         return await response.Content.ReadAsStringAsync();
     }
 
-    // Checks if the token is expired
     public bool IsTokenExpired(string token)
     {
         var handler = new JwtSecurityTokenHandler();
@@ -125,7 +98,6 @@ public class OAuthService
         return jwtToken.ValidTo < DateTime.UtcNow;
     }
 
-    // Parses the token and returns the claims
     public IEnumerable<Claim> ParseTokenClaims(string token)
     {
         var handler = new JwtSecurityTokenHandler();

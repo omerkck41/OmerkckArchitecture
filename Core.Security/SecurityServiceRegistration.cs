@@ -3,6 +3,7 @@ using Core.Security.MFA;
 using Core.Security.OAuth;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 
 namespace Core.Security;
 
@@ -23,11 +24,16 @@ public static class SecurityServiceRegistration
 
         // OAuth Servisleri
         // OAuth yapılandırmasını appsettings.json'dan yükle
-        var oauthConfig = configuration.GetSection("OAuthSettings").Get<OAuthConfiguration>();
-        // HttpClient ve OAuthService'i dependency injection'a ekle
-        services.AddHttpClient();
-        services.AddSingleton(oauthConfig);
-        services.AddScoped<OAuthService>();
+        // OAuthSettings'i appsettings.json'dan yükle
+        services.Configure<OAuthSettings>(configuration.GetSection("OAuthSettings"));
+        // OAuthSettings'i kullanarak OAuthConfiguration'ı oluştur ve DI'ye kaydet
+        services.AddSingleton(sp =>
+        {
+            var settings = sp.GetRequiredService<IOptions<OAuthSettings>>().Value;
+            return new OAuthConfiguration(settings);
+        });
+        // HttpClient ve OAuthService'i DI'ye kaydet
+        services.AddHttpClient<IOAuthService, OAuthService>();
 
         return services;
     }
