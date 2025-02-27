@@ -13,7 +13,7 @@ public class TokenBlacklist<TId, TUserId> : Entity<TId>
     public DateTime RevokedDate { get; set; }  // Token'ın iptal edildiği tarih
     public string? Reason { get; set; }  // İptal sebebi (Opsiyonel)
 
-    public TokenBlacklist() { UserId = default!; Token = string.Empty; RevokedDate = DateTime.UtcNow; Reason = string.Empty; }
+    public TokenBlacklist() { UserId = default!; Token = string.Empty; Reason = string.Empty; }
 
     public TokenBlacklist(TId id, TUserId userId, string token, string? reason = null) : base(id)
     {
