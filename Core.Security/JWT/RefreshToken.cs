@@ -52,6 +52,13 @@ public class RefreshToken<TId, TUserId> : Entity<TId>
 
     public virtual User<TId> User { get; set; }
 
+    public RefreshToken()
+    {
+        UserId = default!;
+        Token = string.Empty;
+        CreatedByIp = string.Empty;
+    }
+
     /// <summary>
     /// <see cref="RefreshToken{TId, TUserId}"/> sınıfının yeni bir örneğini başlatır.
     /// </summary>
