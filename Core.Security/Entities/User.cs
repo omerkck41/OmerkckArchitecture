@@ -1,5 +1,6 @@
 ﻿using Core.Persistence.Entities;
 using Core.Security.Enums;
+using Core.Security.JWT;
 
 namespace Core.Security.Entities;
 
@@ -12,6 +13,10 @@ public class User<TId> : Entity<TId>
     public byte[] PasswordHash { get; set; }
     public bool Status { get; set; }
     public AuthenticatorType AuthenticatorType { get; set; }
+
+
+    // Kullanıcının sahip olduğu refresh token'lar
+    public ICollection<RefreshToken<TId, TId>> RefreshTokens { get; set; } = new List<RefreshToken<TId, TId>>();
 
     public User()
     {

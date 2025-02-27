@@ -1,5 +1,4 @@
 ﻿using Core.Persistence.Entities;
-using Core.Security.Entities;
 
 namespace Core.Security.JWT;
 
@@ -49,8 +48,6 @@ public class RefreshToken<TId, TUserId> : Entity<TId>
     /// Refresh token'ın neden iptal edildiğini açıklayan nedeni alır veya ayarlar.
     /// </summary>
     public string? ReasonRevoked { get; set; }
-
-    public virtual User<TId> User { get; set; }
 
     public RefreshToken()
     {
