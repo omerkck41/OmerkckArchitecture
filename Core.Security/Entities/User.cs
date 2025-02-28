@@ -1,6 +1,7 @@
 ﻿using Core.Persistence.Entities;
 using Core.Security.Enums;
 using Core.Security.JWT;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Core.Security.Entities;
 
@@ -15,12 +16,18 @@ public class User<TId> : Entity<TId>
     public AuthenticatorType AuthenticatorType { get; set; }
 
 
-    // Kullanıcının sahip olduğu refresh token'lar
-    public virtual ICollection<RefreshToken<TId, TId>> RefreshTokens { get; set; } = new List<RefreshToken<TId, TId>>();
+    [NotMapped]
+    public virtual ICollection<RefreshToken<TId, TId>> RefreshTokens { get; set; }
+
+    [NotMapped]
+    public virtual ICollection<UserOperationClaim<TId, TId, TId>> UserOperationClaims { get; set; }
 
 
     public User()
     {
+        RefreshTokens = new List<RefreshToken<TId, TId>>();
+        UserOperationClaims = new List<UserOperationClaim<TId, TId, TId>>();
+
         Email = string.Empty;
         PasswordHash = Array.Empty<byte>();
         PasswordSalt = Array.Empty<byte>();
