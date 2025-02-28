@@ -1,5 +1,4 @@
 ﻿using Core.Persistence.Entities;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Core.Security.Entities;
 
@@ -8,10 +7,10 @@ public class UserOperationClaim<TId, TUserId, TOperationClaimId> : Entity<TId>
     public TUserId UserId { get; set; }
     public TOperationClaimId OperationClaimId { get; set; }
 
-    [NotMapped]
+
     public virtual User<TUserId> User { get; set; }
-    [NotMapped]
     public virtual OperationClaim<TOperationClaimId> OperationClaim { get; set; }
+
 
     public UserOperationClaim()
     {

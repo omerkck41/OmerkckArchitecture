@@ -8,6 +8,7 @@ public class OtpAuthenticator<TUserId> : Entity<TUserId>
     public string SecretKey { get; set; }
     public bool IsVerified { get; set; }
 
+
     public OtpAuthenticator()
     {
         UserId = default!;

@@ -7,11 +7,12 @@ namespace Core.Security.JWT;
 /// </summary>
 public class TokenBlacklist<TId, TUserId> : Entity<TId>
 {
-    public TUserId UserId { get; } // Kullanıcı bazlı sorgulama için UserId eklendi
+    public TUserId UserId { get; set; }
 
-    public string Token { get; set; }  // İptal edilen token
-    public DateTime RevokedDate { get; set; }  // Token'ın iptal edildiği tarih
-    public string? Reason { get; set; }  // İptal sebebi (Opsiyonel)
+    public string Token { get; set; }
+    public DateTime RevokedDate { get; set; }
+    public string? Reason { get; set; }
+
 
     public TokenBlacklist() { UserId = default!; Token = string.Empty; Reason = string.Empty; }
 
