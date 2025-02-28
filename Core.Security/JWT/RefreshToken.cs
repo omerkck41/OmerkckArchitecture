@@ -53,7 +53,8 @@ public class RefreshToken<TId, TUserId> : Entity<TId>
     /// <summary>
     /// Refresh token'ın ilişkilendirildiği kullanıcı.
     /// </summary>
-    public User<TUserId> User { get; set; }
+    public virtual User<TUserId> User { get; set; }
+
 
     public RefreshToken()
     {

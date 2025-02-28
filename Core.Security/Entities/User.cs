@@ -16,7 +16,8 @@ public class User<TId> : Entity<TId>
 
 
     // Kullanıcının sahip olduğu refresh token'lar
-    public ICollection<RefreshToken<TId, TId>> RefreshTokens { get; set; } = new List<RefreshToken<TId, TId>>();
+    public virtual ICollection<RefreshToken<TId, TId>> RefreshTokens { get; set; } = new List<RefreshToken<TId, TId>>();
+
 
     public User()
     {
