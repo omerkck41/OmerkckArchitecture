@@ -1,5 +1,5 @@
 ﻿using Core.Application.Authorization.Models;
-using Core.Security.Extensions;
+using Core.Application.Authorization.Services;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 
@@ -18,26 +18,7 @@ public class AuthorizationBehavior<TRequest, TResponse> : IPipelineBehavior<TReq
     {
         var user = _httpContextAccessor.HttpContext?.User;
 
-        if (user == null || !user.Identity!.IsAuthenticated)
-        {
-            throw new AuthorizationException("You are not authenticated.");
-        }
-
-        // Role-based authorization
-        var userRoles = user.GetRoles();
-        if (!userRoles.Any(role => request.Roles.Contains(role) || role == GeneralOperationClaims.Admin))
-        {
-            throw new AuthorizationException("You are not authorized.");
-        }
-
-        // Claim-based authorization
-        foreach (var claim in request.Claims)
-        {
-            if (!user.HasClaim(c => c.Type == claim.Key && c.Value == claim.Value))
-            {
-                throw new AuthorizationException($"Missing required claim: {claim.Key} - {claim.Value}");
-            }
-        }
+        AuthorizationValidator.ValidateAuthorization(user, request.Roles, request.Claims);
 
         return await next();
     }
