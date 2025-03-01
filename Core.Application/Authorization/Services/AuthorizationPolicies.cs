@@ -5,23 +5,33 @@ namespace Core.Application.Authorization.Services;
 
 public class AuthorizationPolicies
 {
-    public const string ViewOrders = "ViewOrdersPolicy";
-    public const string ManageOrders = "ManageOrdersPolicy";
+    public const string ViewUsersPolicy = "ViewUsersPolicy";
+    public const string ManageUsersPolicy = "ManageUsersPolicy";
+    public const string ViewOperationClaimsPolicy = "ViewOperationClaimsPolicy";
+    public const string ManageOperationClaimsPolicy = "ManageOperationClaimsPolicy";
+    public const string ViewDataPolicy = "ViewDataPolicy";
+    public const string ManageDataPolicy = "ManageDataPolicy";
 
     public static void ConfigurePolicies(AuthorizationOptions options)
     {
-        options.AddPolicy(ViewOrders, policy =>
-        {
-            policy.RequireAuthenticatedUser();
-            policy.RequireRole(GeneralOperationClaims.Admin, GeneralOperationClaims.Manager);
-            policy.RequireClaim("Permission", "ViewOrders");
-        });
+        // Ortak policy tanımlama metodu kullanılarak politikalar ekleniyor.
+        AddPolicy(options, ViewUsersPolicy, [GeneralOperationClaims.Admin, GeneralOperationClaims.Manager], "ViewUsers");
+        AddPolicy(options, ManageUsersPolicy, [GeneralOperationClaims.Admin, GeneralOperationClaims.Manager], "ManageUsers");
+        AddPolicy(options, ViewOperationClaimsPolicy, [GeneralOperationClaims.Admin, GeneralOperationClaims.Manager], "ViewOperationClaims");
+        AddPolicy(options, ManageOperationClaimsPolicy, [GeneralOperationClaims.Admin, GeneralOperationClaims.Manager], "ManageOperationClaims");
+        AddPolicy(options, ViewDataPolicy, [GeneralOperationClaims.Admin, GeneralOperationClaims.Manager], "ViewData");
+        AddPolicy(options, ManageDataPolicy, [GeneralOperationClaims.Admin, GeneralOperationClaims.Manager], "ManageData");
 
-        options.AddPolicy(ManageOrders, policy =>
+    }
+
+    // Ortak policy ekleme metodu
+    private static void AddPolicy(AuthorizationOptions options, string policyName, string[] roles, string permission)
+    {
+        options.AddPolicy(policyName, policy =>
         {
             policy.RequireAuthenticatedUser();
-            policy.RequireRole(GeneralOperationClaims.Admin);
-            policy.RequireClaim("Permission", "ManageOrders");
+            policy.RequireRole(roles);
+            policy.RequireClaim("Permission", permission);
         });
     }
 }
