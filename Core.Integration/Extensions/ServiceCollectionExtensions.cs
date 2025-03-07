@@ -6,7 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Core.Integration.Extensions;
 
-public static class IntegrationServiceExtensions
+public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddIntegrationServices(this IServiceCollection services, IConfiguration configuration)
     {

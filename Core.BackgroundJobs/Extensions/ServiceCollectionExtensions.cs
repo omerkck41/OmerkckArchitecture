@@ -1,8 +1,7 @@
-﻿using Core.BackgroundJobs.Interfaces;
+﻿using Core.BackgroundJobs.Factories;
+using Core.BackgroundJobs.Interfaces;
 using Core.BackgroundJobs.Services;
 using Hangfire;
-using Hangfire.MySql;
-using Hangfire.SqlServer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Quartz;
@@ -10,7 +9,7 @@ using Quartz.Impl;
 
 namespace Core.BackgroundJobs.Extensions;
 
-public static class BackgroundJobExtensions
+public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddHangfireJobs(this IServiceCollection services, IConfiguration configuration)
     {
@@ -34,17 +33,5 @@ public static class BackgroundJobExtensions
         });
         services.AddSingleton<IJobScheduler, QuartzJobScheduler>();
         return services;
-    }
-}
-public static class HangfireStorageFactory
-{
-    public static JobStorage CreateStorage(string storageType, string connectionString)
-    {
-        return storageType switch
-        {
-            "SqlServer" => new SqlServerStorage(connectionString),
-            "MySql" => new MySqlStorage(connectionString, new MySqlStorageOptions()),
-            _ => throw new NotSupportedException($"Storage type '{storageType}' is not supported.")
-        };
     }
 }
