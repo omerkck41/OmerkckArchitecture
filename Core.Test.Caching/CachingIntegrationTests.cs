@@ -32,31 +32,31 @@ public class CachingIntegrationTests
         Assert.Equal(value, retrieved);
     }
 
-    //[Fact]
-    //public async Task DistributedCacheService_Integration_Test()
-    //{
-    //    var services = new ServiceCollection();
-    //    var inMemorySettings = new Dictionary<string, string>
-    //        {
-    //            {"ConnectionStrings:Redis", "localhost"},
-    //            {"ConnectionStrings:InstanceName", "TestInstance"}
-    //        };
-    //    var configuration = new ConfigurationBuilder().AddInMemoryCollection(inMemorySettings).Build();
-    //    services.AddCachingServices(configuration, settings =>
-    //    {
-    //        settings.Provider = CacheProvider.Distributed;
-    //        settings.DefaultExpiration = TimeSpan.FromMinutes(10);
-    //    });
-    //    var provider = services.BuildServiceProvider();
-    //    var cacheService = provider.GetService<ICacheService>();
-    //    Assert.NotNull(cacheService);
+    [Fact]
+    public async Task DistributedCacheService_Integration_Test()
+    {
+        var services = new ServiceCollection();
+        var inMemorySettings = new Dictionary<string, string>
+            {
+                {"ConnectionStrings:Redis", "localhost"},
+                {"ConnectionStrings:InstanceName", "TestInstance"}
+            };
+        var configuration = new ConfigurationBuilder().AddInMemoryCollection(inMemorySettings).Build();
+        services.AddCachingServices(configuration, settings =>
+        {
+            settings.Provider = CacheProvider.Distributed;
+            settings.DefaultExpiration = TimeSpan.FromMinutes(10);
+        });
+        var provider = services.BuildServiceProvider();
+        var cacheService = provider.GetService<ICacheService>();
+        Assert.NotNull(cacheService);
 
-    //    string key = "distributedTestKey";
-    //    string value = "distributedTestValue";
-    //    await cacheService.SetAsync(key, value, TimeSpan.FromMinutes(5));
-    //    var retrieved = await cacheService.GetAsync<string>(key);
-    //    Assert.Equal(value, retrieved);
-    //}
+        string key = "distributedTestKey";
+        string value = "distributedTestValue";
+        await cacheService.SetAsync(key, value, TimeSpan.FromMinutes(5));
+        var retrieved = await cacheService.GetAsync<string>(key);
+        Assert.Equal(value, retrieved);
+    }
 }
 
 // Hata yönetimi testleri: Cache işlemleri sırasında oluşabilecek hata durumlarını simüle ediyoruz.
