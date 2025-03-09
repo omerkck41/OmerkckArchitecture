@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Core.Api.ApiHelperLibrary.Responses;
+namespace Core.Api.ApiControllerBase.Responses;
 
 public static class ApiResponseExtensions
 {

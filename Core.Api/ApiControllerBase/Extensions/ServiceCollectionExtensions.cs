@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 
-namespace Core.Api.ApiHelperLibrary.Extensions;
+namespace Core.Api.ApiControllerBase.Extensions;
 
 public static class ServiceCollectionExtensions
 {

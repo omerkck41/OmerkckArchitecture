@@ -1,7 +1,7 @@
-﻿using Core.Api.ApiHelperLibrary.Responses;
+﻿using Core.Api.ApiControllerBase.Responses;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Core.Api.ApiHelperLibrary.Controllers;
+namespace Core.Api.ApiControllerBase.Controllers;
 
 public abstract class ApiControllerBase : ControllerBase
 {
