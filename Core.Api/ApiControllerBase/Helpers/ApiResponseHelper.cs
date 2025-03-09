@@ -10,13 +10,17 @@ public static class ApiResponseHelper
     public static ApiResponse<T> CreateSuccessResponse<T>(T data, string message = "", HttpContext httpContext = null, object resourceId = null)
     {
         if (httpContext == null || string.IsNullOrWhiteSpace(httpContext.Request?.Method))
-            throw new CustomException(nameof(httpContext), "HttpContext veya Request Method boş olamaz.");
+            throw new CustomException(nameof(httpContext), "HttpContext or Request Method cannot be empty.");
 
         var method = httpContext.Request.Method.ToUpperInvariant();
         int statusCode = method switch
         {
             "GET" => data != null ? StatusCodes.Status200OK : StatusCodes.Status404NotFound,
-            "POST" => StatusCodes.Status201Created,
+            "POST" =>
+                    statusCode = resourceId != null
+                    ? StatusCodes.Status201Created
+                    : StatusCodes.Status200OK,
+
             "PUT" => StatusCodes.Status200OK,
             "PATCH" => StatusCodes.Status200OK,
             "DELETE" => StatusCodes.Status204NoContent,
@@ -30,13 +34,13 @@ public static class ApiResponseHelper
             locationHeader = $"{httpContext.Request.GetEncodedUrl().TrimEnd('/')}/{resourceId}";
         }
 
-        return new ApiResponse<T>(true, message, data, statusCode, locationHeader);
+        return new ApiResponse<T>(true, message, data, statusCode, LocationHeader: locationHeader ?? string.Empty);
     }
 
     public static ApiResponse<T> CreateFailResponse<T>(string message, HttpContext httpContext = null)
     {
         if (httpContext == null || string.IsNullOrWhiteSpace(httpContext.Request?.Method))
-            throw new ArgumentNullException(nameof(httpContext), "HttpContext veya Request Method boş olamaz.");
+            throw new CustomException(nameof(httpContext), "HttpContext or Request Method cannot be empty.");
 
         var method = httpContext.Request.Method.ToUpperInvariant();
         int statusCode = method switch
