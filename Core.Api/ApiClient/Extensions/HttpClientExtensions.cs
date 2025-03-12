@@ -10,17 +10,21 @@ public static class HttpClientExtensions
 {
     public static IServiceCollection AddApiClient(this IServiceCollection services, string baseAddress)
     {
-        // Polly ile yeniden deneme mekanizması
         var retryPolicy = HttpPolicyExtensions
             .HandleTransientHttpError()
             .WaitAndRetryAsync(3, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)));
 
+        var circuitBreakerPolicy = Policy<HttpResponseMessage>
+            .Handle<HttpRequestException>()
+            .CircuitBreakerAsync(2, TimeSpan.FromMinutes(1));
+
         services.AddHttpClient<IApiClientService, ApiClientService>(client =>
         {
             client.BaseAddress = new Uri(baseAddress);
-            client.Timeout = TimeSpan.FromSeconds(10);
+            client.Timeout = TimeSpan.FromSeconds(15);
         })
-        .AddPolicyHandler(retryPolicy);
+        .AddPolicyHandler(retryPolicy)
+        .AddPolicyHandler(circuitBreakerPolicy);
 
         return services;
     }
