@@ -2,7 +2,7 @@
 
 namespace Core.Persistence.Entities;
 
-public abstract class Entity<TId> : IEntity<TId>
+public abstract class Entity<TId> : IEntity<TId>, IAuditable
 {
     public Entity() { Id = default!; }
 
