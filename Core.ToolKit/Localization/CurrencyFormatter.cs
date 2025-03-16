@@ -4,7 +4,7 @@ namespace Core.ToolKit.Localization;
 
 public static class CurrencyFormatter
 {
-    private static string _globalCurrencySymbol;
+    private static string _globalCurrencySymbol = string.Empty;
 
     public static string GlobalCurrencySymbol
     {

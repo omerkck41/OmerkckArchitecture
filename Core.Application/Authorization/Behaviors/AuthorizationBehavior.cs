@@ -17,6 +17,10 @@ public class AuthorizationBehavior<TRequest, TResponse> : IPipelineBehavior<TReq
     public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
     {
         var user = _httpContextAccessor.HttpContext?.User;
+        if (user is null)
+        {
+            throw new UnauthorizedAccessException("No authenticated user found in the current context.");
+        }
 
         AuthorizationValidator.ValidateAuthorization(user, request.Roles, request.Claims);
 

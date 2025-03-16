@@ -9,9 +9,9 @@
   <ItemGroup>
 	  <FrameworkReference Include="Microsoft.AspNetCore.App" />
 	  
-    <PackageReference Include="AWSSDK.SimpleEmailV2" Version="3.7.408.11" />
-    <PackageReference Include="Elastic.Clients.Elasticsearch" Version="8.17.1" />
-    <PackageReference Include="Elastic.Transport" Version="0.5.8" />
+    <PackageReference Include="AWSSDK.SimpleEmailV2" Version="3.7.408.16" />
+    <PackageReference Include="Elastic.Clients.Elasticsearch" Version="8.17.2" />
+    <PackageReference Include="Elastic.Transport" Version="0.5.9" />
     <PackageReference Include="MediatR" Version="12.4.1" />
     <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="9.0.2" />
     

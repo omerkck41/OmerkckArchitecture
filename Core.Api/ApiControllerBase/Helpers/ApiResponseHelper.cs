@@ -7,7 +7,11 @@ namespace Core.Api.ApiControllerBase.Helpers;
 
 public static class ApiResponseHelper
 {
-    public static ApiResponse<T> CreateSuccessResponse<T>(T data, string message = "", HttpContext httpContext = null, object resourceId = null)
+    public static ApiResponse<T> CreateSuccessResponse<T>(
+        T data,
+        string message = "",
+        HttpContext? httpContext = null,
+        object? resourceId = null)
     {
         if (httpContext == null || string.IsNullOrWhiteSpace(httpContext.Request?.Method))
             throw new CustomException(nameof(httpContext), "HttpContext or Request Method cannot be empty.");
@@ -16,18 +20,14 @@ public static class ApiResponseHelper
         int statusCode = method switch
         {
             "GET" => data != null ? StatusCodes.Status200OK : StatusCodes.Status404NotFound,
-            "POST" =>
-                    statusCode = resourceId != null
-                    ? StatusCodes.Status201Created
-                    : StatusCodes.Status200OK,
-
+            "POST" => resourceId != null ? StatusCodes.Status201Created : StatusCodes.Status200OK,
             "PUT" => StatusCodes.Status200OK,
             "PATCH" => StatusCodes.Status200OK,
             "DELETE" => StatusCodes.Status204NoContent,
             _ => StatusCodes.Status200OK
         };
 
-        string locationHeader = null;
+        string? locationHeader = null;
         if (method == "POST" && resourceId != null)
         {
             // .NET'in hazır extension metodunu kullanarak URL oluşturma
@@ -37,7 +37,7 @@ public static class ApiResponseHelper
         return new ApiResponse<T>(true, message, data, statusCode, LocationHeader: locationHeader ?? string.Empty);
     }
 
-    public static ApiResponse<T> CreateFailResponse<T>(string message, HttpContext httpContext = null)
+    public static ApiResponse<T> CreateFailResponse<T>(string message, HttpContext? httpContext = null)
     {
         if (httpContext == null || string.IsNullOrWhiteSpace(httpContext.Request?.Method))
             throw new CustomException(nameof(httpContext), "HttpContext or Request Method cannot be empty.");
@@ -53,6 +53,8 @@ public static class ApiResponseHelper
             _ => StatusCodes.Status400BadRequest
         };
 
-        return new ApiResponse<T>(false, message, default, statusCode, string.Empty);
+        // Eğer ApiResponse<T> yapısı Data'yı non-nullable olarak bekliyorsa,
+        // başarısız durumda Data'ya default! geçerek uyarıyı bastırabilirsiniz.
+        return new ApiResponse<T>(false, message, default!, statusCode, string.Empty);
     }
 }

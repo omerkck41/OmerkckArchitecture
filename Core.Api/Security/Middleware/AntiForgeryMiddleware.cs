@@ -20,8 +20,9 @@ public class AntiForgeryMiddleware
 
     public async Task Invoke(HttpContext context)
     {
-        // Eğer CSRF koruması kapalıysa veya bu endpoint muaf tutulmuşsa CSRF kontrolü yapmadan devam et
-        if (!_enableCsrfProtection || _excludedEndpoints.Contains(context.Request.Path.Value))
+        // CSRF koruması kapalıysa veya endpoint muaf tutulmuşsa CSRF kontrolü yapmadan devam et
+        var requestPathValue = context.Request.Path.Value;
+        if (!_enableCsrfProtection || (requestPathValue != null && _excludedEndpoints.Contains(requestPathValue)))
         {
             await _next(context);
             return;
@@ -39,10 +40,7 @@ public class AntiForgeryMiddleware
         // POST, PUT, DELETE gibi isteklerde CSRF token kontrolü yap
         if (context.Request.Method == "POST" || context.Request.Method == "PUT" || context.Request.Method == "DELETE")
         {
-            // Cookie'den CSRF token'ı oku
             var csrfTokenFromCookie = context.Request.Cookies["X-CSRF-TOKEN"];
-
-            // Eğer Header'dan gelmiyorsa, sadece Cookie'den kontrol et
             if (string.IsNullOrEmpty(csrfTokenFromCookie))
             {
                 context.Response.StatusCode = StatusCodes.Status403Forbidden;

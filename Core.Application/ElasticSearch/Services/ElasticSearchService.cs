@@ -120,7 +120,7 @@ public class ElasticSearchService : IElasticSearchService
 
             if (!string.IsNullOrEmpty(sortField))
             {
-                searchDescriptor.Sort(s => s.Field(sortField, new FieldSort { Order = isAscending ? SortOrder.Asc : SortOrder.Desc }));
+                searchDescriptor.Sort(s => s.Field(sortField!, new FieldSort { Order = isAscending ? SortOrder.Asc : SortOrder.Desc }));
             }
 
             var response = await _client.SearchAsync<T>(searchDescriptor);

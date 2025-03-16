@@ -56,7 +56,7 @@ public class OAuthService : IOAuthService
         return await response.Content.ReadAsStringAsync();
     }
 
-    public async Task<bool> ValidateTokenAsync(string token)
+    public Task<bool> ValidateTokenAsync(string token)
     {
         var handler = new JwtSecurityTokenHandler();
 
@@ -71,11 +71,11 @@ public class OAuthService : IOAuthService
             };
 
             handler.ValidateToken(token, validationParameters, out _);
-            return true;
+            return Task.FromResult(true);
         }
         catch (SecurityTokenException)
         {
-            return false;
+            return Task.FromResult(false);
         }
     }
 

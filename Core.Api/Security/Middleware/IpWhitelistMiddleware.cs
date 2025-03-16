@@ -19,7 +19,9 @@ public class IpWhitelistMiddleware
     public async Task Invoke(HttpContext context)
     {
         var remoteIp = context.Connection.RemoteIpAddress?.ToString();
-        if (!_allowedIps.Contains(remoteIp))
+
+        // remoteIp null veya boş ise de erişim reddedilir.
+        if (string.IsNullOrEmpty(remoteIp) || !_allowedIps.Contains(remoteIp))
         {
             context.Response.StatusCode = (int)HttpStatusCode.Forbidden;
             await context.Response.WriteAsync("Access denied. Not authorized IP address.");

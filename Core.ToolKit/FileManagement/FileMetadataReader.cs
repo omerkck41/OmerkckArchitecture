@@ -1,4 +1,8 @@
-﻿namespace Core.ToolKit.FileManagement;
+﻿using System.Runtime.InteropServices;
+using System.Runtime.Versioning;
+using System.Security.Principal;
+
+namespace Core.ToolKit.FileManagement;
 
 public static class FileMetadataReader
 {
@@ -52,13 +56,21 @@ public static class FileMetadataReader
         return File.GetAttributes(filePath);
     }
 
+    [SupportedOSPlatform("windows")]
     public static string GetFileOwner(string filePath)
     {
         if (!File.Exists(filePath))
             throw new FileNotFoundException($"File not found at path: {filePath}");
 
+        // Çalışma zamanında platform kontrolü
+        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            throw new PlatformNotSupportedException("File owner retrieval is only supported on Windows.");
+
         var fileInfo = new FileInfo(filePath);
         var fileSecurity = fileInfo.GetAccessControl();
-        return fileSecurity.GetOwner(typeof(System.Security.Principal.NTAccount)).ToString();
+        var owner = fileSecurity.GetOwner(typeof(NTAccount));
+        if (owner is null)
+            throw new InvalidOperationException("File owner could not be determined.");
+        return owner.ToString();
     }
 }

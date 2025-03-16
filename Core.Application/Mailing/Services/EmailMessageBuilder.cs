@@ -21,7 +21,7 @@ public class EmailMessageBuilder
         return this;
     }
 
-    public EmailMessageBuilder AddRecipient(string email, RecipientType type, string name = null)
+    public EmailMessageBuilder AddRecipient(string email, RecipientType type, string? name = null)
     {
         if (string.IsNullOrWhiteSpace(email))
             throw new CustomException("Email cannot be empty.", nameof(email));
@@ -29,9 +29,10 @@ public class EmailMessageBuilder
         if (!IsValidEmail(email))
             throw new CustomException("Invalid email format.");
 
-        _emailMessage.Recipients.Add(new EmailRecipient { Name = name, Email = email, Type = type });
+        _emailMessage.Recipients.Add(new EmailRecipient { Name = name ?? string.Empty, Email = email, Type = type });
         return this;
     }
+
 
     public EmailMessageBuilder AddSubject(string subject)
     {

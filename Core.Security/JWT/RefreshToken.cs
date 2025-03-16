@@ -79,7 +79,7 @@ public class RefreshToken<TId, TUserId> : Entity<TId>
     /// <param name="revokedByIp">Token'ı iptal eden IP adresi.</param>
     /// <param name="reasonRevoked">Token'ın iptal edilme nedeni.</param>
     /// <param name="replacedByToken">Bu token'ın yerine geçen token (opsiyonel).</param>
-    public void Revoke(string revokedByIp, string reasonRevoked, string replacedByToken = null)
+    public void Revoke(string revokedByIp, string reasonRevoked, string? replacedByToken = null)
     {
         RevokedDate = DateTime.UtcNow;
         RevokedByIp = revokedByIp;

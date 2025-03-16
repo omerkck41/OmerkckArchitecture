@@ -14,7 +14,13 @@ public static class AuthorizationValidator
             throw new AuthorizationException("You are not authenticated.");
         }
 
-        var userRoles = user.GetRoles();
+        if (requiredRoles is null)
+            throw new ArgumentNullException(nameof(requiredRoles));
+
+        if (requiredClaims is null)
+            throw new ArgumentNullException(nameof(requiredClaims));
+
+        var userRoles = user.GetRoles() ?? Enumerable.Empty<string>();
 
         // Eğer kullanıcı Admin veya Manager rolüne sahipse, zorunlu roller kontrolünü bypass ediyoruz.
         if (!userRoles.Contains(GeneralOperationClaims.Admin) &&

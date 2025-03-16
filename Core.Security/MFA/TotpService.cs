@@ -18,24 +18,24 @@ public class TotpService : BaseOtpService
 
 
 
-    public override async Task<string> GenerateOtpCodeAsync(string secretKey)
+    public override Task<string> GenerateOtpCodeAsync(string secretKey)
     {
         var totp = new Totp(Base32Encoding.ToBytes(secretKey),
             step: _otpSettings.OtpExpirySeconds,
             totpSize: OtpSize,
             mode: HashAlgorithm);
 
-        return totp.ComputeTotp();
+        return Task.FromResult(totp.ComputeTotp());
     }
 
-    public override async Task<bool> ValidateOtpCodeAsync(string secretKey, string otp)
+    public override Task<bool> ValidateOtpCodeAsync(string secretKey, string otp)
     {
         var totp = new Totp(Base32Encoding.ToBytes(secretKey),
             step: _otpSettings.OtpExpirySeconds,
             totpSize: OtpSize,
             mode: HashAlgorithm);
 
-        return totp.VerifyTotp(otp, out _, new VerificationWindow(1, 1)); // Önceki ve sonraki 1 kodu da kontrol eder
+        return Task.FromResult(totp.VerifyTotp(otp, out _, new VerificationWindow(1, 1)));
     }
 }
 

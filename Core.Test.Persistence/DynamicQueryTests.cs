@@ -87,7 +87,7 @@ public class DynamicQueryTests : IDisposable
         var result = query.ToList();
 
         // Assert: "Charlie" 'a' içeriyor (case-sensitive). Artan sıralama:  "Charlie".
-        Assert.Equal(1, result.Count);
+        Assert.Single(result);
         Assert.Equal("Charlie", result[0].Name);
     }
 

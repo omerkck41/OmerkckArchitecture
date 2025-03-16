@@ -27,9 +27,9 @@ public static class IQueryableDynamicFilterExtensions
             FilterOperator.Lte => Expression.LessThanOrEqual(property, value),
             FilterOperator.Gt => Expression.GreaterThan(property, value),
             FilterOperator.Gte => Expression.GreaterThanOrEqual(property, value),
-            FilterOperator.Contains => Expression.Call(property, typeof(string).GetMethod("Contains", [typeof(string)]), value),
-            FilterOperator.StartsWith => Expression.Call(property, typeof(string).GetMethod("StartsWith", [typeof(string)]), value),
-            FilterOperator.EndsWith => Expression.Call(property, typeof(string).GetMethod("EndsWith", [typeof(string)]), value),
+            FilterOperator.Contains => Expression.Call(property, typeof(string).GetMethod("Contains", [typeof(string)])!, value),
+            FilterOperator.StartsWith => Expression.Call(property, typeof(string).GetMethod("StartsWith", [typeof(string)])!, value),
+            FilterOperator.EndsWith => Expression.Call(property, typeof(string).GetMethod("EndsWith", [typeof(string)])!, value),
             FilterOperator.IsNull => Expression.Equal(property, Expression.Constant(null)),
             FilterOperator.IsNotNull => Expression.NotEqual(property, Expression.Constant(null)),
             _ => throw new CustomException($"Operator '{filter.Operator}' is not supported.")

@@ -2,6 +2,6 @@
 
 public class ExcelWorksheetModel
 {
-    public string WorksheetName { get; set; }
+    public string WorksheetName { get; set; } = default!;
     public List<ExcelRow> Rows { get; set; } = [];
 }

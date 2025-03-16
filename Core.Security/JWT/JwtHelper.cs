@@ -42,7 +42,7 @@ public class JwtHelper<TUserId, TOperationClaimId, TRefreshTokenId> : ITokenHelp
     /// <param name="operationClaims">Kullanıcının operasyon yetkileri.</param>
     /// <param name="customClaims">Ekstra claim'ler (isteğe bağlı).</param>
     /// <returns>Oluşturulan access token.</returns>
-    public AccessToken CreateToken(User<TUserId> user, IList<OperationClaim<TOperationClaimId>> operationClaims, IDictionary<string, string> customClaims = null)
+    public AccessToken CreateToken(User<TUserId> user, IList<OperationClaim<TOperationClaimId>> operationClaims, IDictionary<string, string>? customClaims = null)
     {
         var expirationDate = DateTime.UtcNow.AddMinutes(_tokenOptions.AccessTokenExpiration);
         var claims = SetClaims(user, operationClaims);

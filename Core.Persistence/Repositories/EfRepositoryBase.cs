@@ -156,10 +156,10 @@ public class EfRepositoryBase<TEntity, TId, TContext> : IAsyncRepository<TEntity
     public async Task<TEntity?> GetByIdAsync(TId id, bool withDeleted = false, bool enableTracking = false, CancellationToken cancellationToken = default)
     {
         if (id == null)
-            throw new ArgumentNullException(nameof(id), "Id cannot be null.");
+            throw new CustomException(nameof(id), "Id cannot be null.");
 
         var entity = await Query(withDeleted: withDeleted, enableTracking: enableTracking)
-                            .FirstOrDefaultAsync(e => e.Id.Equals(id), cancellationToken);
+                            .FirstOrDefaultAsync(e => e.Id!.Equals(id), cancellationToken);
 
         return entity ?? throw new CustomException($"{typeof(TEntity).Name} with id {id} was not found.");
     }
@@ -198,7 +198,7 @@ public class EfRepositoryBase<TEntity, TId, TContext> : IAsyncRepository<TEntity
         await _context.SaveChangesAsync(cancellationToken);
     }
 
-    private void ApplyUpdates<TEntity>(TEntity entity, params (Expression<Func<TEntity, object>> Property, object Value)[] updates)
+    private void ApplyUpdates(TEntity entity, params (Expression<Func<TEntity, object>> Property, object? Value)[] updates)
     {
         foreach (var (Property, Value) in updates)
         {
@@ -213,7 +213,7 @@ public class EfRepositoryBase<TEntity, TId, TContext> : IAsyncRepository<TEntity
         await _context.SaveChangesAsync(cancellationToken);
         return entity;
     }
-    public async Task BulkUpdateAsync(Expression<Func<TEntity, bool>> predicate, CancellationToken cancellationToken = default, params (Expression<Func<TEntity, object>> Property, object Value)[] updates)
+    public async Task BulkUpdateAsync(Expression<Func<TEntity, bool>> predicate, CancellationToken cancellationToken = default, params (Expression<Func<TEntity, object>> Property, object? Value)[] updates)
     {
         var entities = await _dbSet.Where(predicate).ToListAsync(cancellationToken);
 
@@ -240,10 +240,10 @@ public class EfRepositoryBase<TEntity, TId, TContext> : IAsyncRepository<TEntity
             // Soft delete işlemi
             entity.IsDeleted = true;
             entity.DeletedDate = DateTime.UtcNow;
-            entity.DeletedBy = entity.DeletedBy ?? "System";
+            entity.DeletedBy ??= "System";
 
             // Cascade soft delete: Bağlı entity’lerde de soft delete uygulaması
-            await CascadeSoftDeleteAsync(entity, true, cancellationToken);
+            await CascadeSoftDeleteAsync(entity, true, cancellationToken: cancellationToken);
 
             _dbSet.Update(entity);
         }
@@ -269,7 +269,7 @@ public class EfRepositoryBase<TEntity, TId, TContext> : IAsyncRepository<TEntity
         entity.DeletedBy = null;
 
         // Cascade revert soft delete: Bağlı entity'lerde de soft delete kaldırma
-        await CascadeSoftDeleteAsync(entity, false, cancellationToken);
+        await CascadeSoftDeleteAsync(entity, false, cancellationToken: cancellationToken);
         _dbSet.Update(entity);
         await _context.SaveChangesAsync(cancellationToken);
         return entity;
@@ -280,10 +280,10 @@ public class EfRepositoryBase<TEntity, TId, TContext> : IAsyncRepository<TEntity
     public async Task<TEntity> DeleteAsync(Expression<Func<TEntity, bool>> predicate, bool permanent = false, CancellationToken cancellationToken = default)
     {
         var entity = await _dbSet.FirstOrDefaultAsync(predicate, cancellationToken);
-        if (entity == null)
-            throw new CustomException($"{typeof(TEntity).Name} satisfying the condition was not found.");
 
-        return await DeleteAsync(entity, permanent, cancellationToken);
+        return entity == null
+            ? throw new CustomException($"{typeof(TEntity).Name} satisfying the condition was not found.")
+            : await DeleteAsync(entity, permanent, cancellationToken);
     }
 
     /// <summary>
@@ -292,19 +292,18 @@ public class EfRepositoryBase<TEntity, TId, TContext> : IAsyncRepository<TEntity
     public async Task<TEntity> DeleteAsync(TId id, bool permanent = false, CancellationToken cancellationToken = default)
     {
         // FindAsync optimizasyon sağladığı için tercih ediliyor.
-        var entity = await _dbSet.FindAsync(new object[] { id }, cancellationToken);
-        if (entity == null)
-            throw new CustomException($"{typeof(TEntity).Name} with id {id} was not found.");
+        var entity = await _dbSet.FindAsync([id], cancellationToken)
+            ?? throw new CustomException($"{typeof(TEntity).Name} with id {id} was not found.");
 
         if (!permanent && typeof(TEntity).GetProperty("IsDeleted") != null)
         {
             // Entity'yi soft delete olarak işaretle
             entity.IsDeleted = true;
             entity.DeletedDate = DateTime.UtcNow;
-            entity.DeletedBy = entity.DeletedBy ?? "System";
+            entity.DeletedBy ??= "System";
 
             // Cascade soft delete: bağlı entity'lerde de soft delete işlemi uygula
-            await CascadeSoftDeleteAsync(entity, true, cancellationToken);
+            await CascadeSoftDeleteAsync(entity, true, cancellationToken: cancellationToken);
             _dbSet.Update(entity);
         }
         else
@@ -317,9 +316,8 @@ public class EfRepositoryBase<TEntity, TId, TContext> : IAsyncRepository<TEntity
     }
     public async Task<TEntity> RevertSoftDeleteAsync(TId id, CancellationToken cancellationToken = default)
     {
-        var entity = await _dbSet.FindAsync(new object[] { id }, cancellationToken);
-        if (entity == null)
-            throw new CustomException($"{typeof(TEntity).Name} with id {id} was not found.");
+        var entity = await _dbSet.FindAsync([id], cancellationToken)
+            ?? throw new CustomException($"{typeof(TEntity).Name} with id {id} was not found.");
 
         if (typeof(TEntity).GetProperty("IsDeleted") != null)
         {
@@ -328,7 +326,7 @@ public class EfRepositoryBase<TEntity, TId, TContext> : IAsyncRepository<TEntity
             entity.DeletedDate = null;
             entity.DeletedBy = null;
 
-            await CascadeSoftDeleteAsync(entity, false, cancellationToken);
+            await CascadeSoftDeleteAsync(entity, false, cancellationToken: cancellationToken);
             _dbSet.Update(entity);
         }
         else
@@ -354,8 +352,8 @@ public class EfRepositoryBase<TEntity, TId, TContext> : IAsyncRepository<TEntity
             {
                 entity.IsDeleted = true;
                 entity.DeletedDate = DateTime.UtcNow;
-                entity.DeletedBy = entity.DeletedBy ?? "System";
-                await CascadeSoftDeleteAsync(entity, true, cancellationToken);
+                entity.DeletedBy ??= "System";
+                await CascadeSoftDeleteAsync(entity, true, cancellationToken: cancellationToken);
             }
             _dbSet.UpdateRange(entities);
         }
@@ -370,7 +368,7 @@ public class EfRepositoryBase<TEntity, TId, TContext> : IAsyncRepository<TEntity
 
 
     // Cascade soft delete veya geri alma işlemini uygulayan yardımcı metot.
-    private async Task CascadeSoftDeleteAsync(object entity, bool softDelete, CancellationToken cancellationToken = default, HashSet<object>? visited = null)
+    private async Task CascadeSoftDeleteAsync(object entity, bool softDelete, HashSet<object>? visited = null, CancellationToken cancellationToken = default)
     {
         visited ??= new HashSet<object>();
         if (visited.Contains(entity))
@@ -393,29 +391,29 @@ public class EfRepositoryBase<TEntity, TId, TContext> : IAsyncRepository<TEntity
                 {
                     if (item == null) continue;
 
-                    var delegates = ReflectionDelegateCache.GetDelegates(item.GetType());
-                    if (delegates.SetIsDeleted != null)
+                    var (GetIsDeleted, SetIsDeleted, GetDeletedDate, SetDeletedDate, GetDeletedBy, SetDeletedBy) = ReflectionDelegateCache.GetDelegates(item.GetType());
+                    if (SetIsDeleted != null)
                     {
-                        delegates.SetIsDeleted(item, softDelete);
-                        delegates.SetDeletedDate?.Invoke(item, softDelete ? DateTime.UtcNow : null);
-                        delegates.SetDeletedBy?.Invoke(item, softDelete ? "System" : null);
+                        SetIsDeleted(item, softDelete);
+                        SetDeletedDate?.Invoke(item, softDelete ? DateTime.UtcNow : null);
+                        SetDeletedBy?.Invoke(item, softDelete ? "System" : null);
 
                         _context.Update(item);
-                        await CascadeSoftDeleteAsync(item, softDelete, cancellationToken, visited);
+                        await CascadeSoftDeleteAsync(item, softDelete, visited, cancellationToken);
                     }
                 }
             }
             else
             {
-                var delegates = ReflectionDelegateCache.GetDelegates(related.GetType());
-                if (delegates.SetIsDeleted != null)
+                var (GetIsDeleted, SetIsDeleted, GetDeletedDate, SetDeletedDate, GetDeletedBy, SetDeletedBy) = ReflectionDelegateCache.GetDelegates(related.GetType());
+                if (SetIsDeleted != null)
                 {
-                    delegates.SetIsDeleted(related, softDelete);
-                    delegates.SetDeletedDate?.Invoke(related, softDelete ? DateTime.UtcNow : null);
-                    delegates.SetDeletedBy?.Invoke(related, softDelete ? "System" : null);
+                    SetIsDeleted(related, softDelete);
+                    SetDeletedDate?.Invoke(related, softDelete ? DateTime.UtcNow : null);
+                    SetDeletedBy?.Invoke(related, softDelete ? "System" : null);
 
                     _context.Update(related);
-                    await CascadeSoftDeleteAsync(related, softDelete, cancellationToken, visited);
+                    await CascadeSoftDeleteAsync(related, softDelete, visited, cancellationToken);
                 }
             }
         }

@@ -7,7 +7,7 @@ public static class ReflectionDelegateCache
 {
     private static readonly Dictionary<Type, (Func<object, object?>? GetIsDeleted, Action<object, object?>? SetIsDeleted,
         Func<object, object?>? GetDeletedDate, Action<object, object?>? SetDeletedDate,
-        Func<object, object?>? GetDeletedBy, Action<object, object?>? SetDeletedBy)> _cache = new();
+        Func<object, object?>? GetDeletedBy, Action<object, object?>? SetDeletedBy)> _cache = [];
 
     public static (Func<object, object?>? GetIsDeleted, Action<object, object?>? SetIsDeleted,
         Func<object, object?>? GetDeletedDate, Action<object, object?>? SetDeletedDate,
@@ -35,7 +35,7 @@ public static class ReflectionDelegateCache
     private static Func<object, object?> CreateGetter(PropertyInfo property)
     {
         var instance = Expression.Parameter(typeof(object), "instance");
-        var convert = Expression.Convert(instance, property.DeclaringType);
+        var convert = Expression.Convert(instance, property.DeclaringType!);
         var propertyAccess = Expression.Property(convert, property);
         var convertResult = Expression.Convert(propertyAccess, typeof(object));
         var lambda = Expression.Lambda<Func<object, object?>>(convertResult, instance);
@@ -46,7 +46,7 @@ public static class ReflectionDelegateCache
     {
         var instance = Expression.Parameter(typeof(object), "instance");
         var value = Expression.Parameter(typeof(object), "value");
-        var convertInstance = Expression.Convert(instance, property.DeclaringType);
+        var convertInstance = Expression.Convert(instance, property.DeclaringType!);
         var convertValue = Expression.Convert(value, property.PropertyType);
         var propertyAccess = Expression.Property(convertInstance, property);
         var assign = Expression.Assign(propertyAccess, convertValue);

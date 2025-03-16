@@ -11,7 +11,7 @@ public interface ITokenHelper<TUserId, TOperationClaimId, TRefreshTokenId>
     /// <param name="user">Token oluşturulacak kullanıcı.</param>
     /// <param name="operationClaims">Kullanıcının operasyon yetkileri.</param>
     /// <param name="customClaims">Ekstra claim'ler (isteğe bağlı).</param>
-    AccessToken CreateToken(User<TUserId> user, IList<OperationClaim<TOperationClaimId>> operationClaims, IDictionary<string, string> customClaims = null);
+    AccessToken CreateToken(User<TUserId> user, IList<OperationClaim<TOperationClaimId>> operationClaims, IDictionary<string, string>? customClaims = null);
 
     /// <summary>
     /// Yeni bir refresh token oluşturur.

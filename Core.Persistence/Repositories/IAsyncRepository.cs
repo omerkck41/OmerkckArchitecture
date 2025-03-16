@@ -71,7 +71,7 @@ public interface IAsyncRepository<T, TId> : IQuery<T> where T : Entity<TId>
     /// <summary>
     /// Toplu güncellemeler için kullanılır
     /// </summary>
-    Task BulkUpdateAsync(Expression<Func<T, bool>> predicate, CancellationToken cancellationToken = default, params (Expression<Func<T, object>> Property, object Value)[] updates);
+    Task BulkUpdateAsync(Expression<Func<T, bool>> predicate, CancellationToken cancellationToken = default, params (Expression<Func<T, object>> Property, object? Value)[] updates);
 
     /// <summary>
     /// Birden fazla varlığı günceller.
