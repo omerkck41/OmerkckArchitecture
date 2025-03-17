@@ -94,13 +94,13 @@ public class UnitOfWork<TContext>(TContext context) : IUnitOfWork where TContext
     }
 
 
-    public void Dispose()
+    public async ValueTask DisposeAsync()
     {
-        // Managed kaynakları serbest bırak
-        _transaction?.Dispose();
-        _context.Dispose();
-
-        // Garbage collector'ün finalize çağrısını önler
+        if (_transaction != null)
+        {
+            await _transaction.DisposeAsync();
+        }
+        await _context.DisposeAsync();
         GC.SuppressFinalize(this);
     }
 }

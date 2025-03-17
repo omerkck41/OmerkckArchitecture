@@ -13,11 +13,13 @@ public abstract class Entity<TId> : IEntity<TId>, IAuditable
 
 
     public virtual TId Id { get; set; }
-    public virtual string CreatedBy { get; set; } = string.Empty;
+    public virtual string CreatedBy { get; private set; } = string.Empty;
+    public virtual DateTime CreatedDate { get; private set; } = DateTime.UtcNow;
+
+
     public virtual string? ModifiedBy { get; set; }
     public virtual bool IsDeleted { get; set; } = false;
     public virtual string? DeletedBy { get; set; }
-    public virtual DateTime CreatedDate { get; set; } = DateTime.UtcNow;
     public virtual DateTime? ModifiedDate { get; set; }
     public virtual DateTime? DeletedDate { get; set; }
 
@@ -25,15 +27,35 @@ public abstract class Entity<TId> : IEntity<TId>, IAuditable
     // Concurrency token: EF Core, bu alanı otomatik olarak güncelleyecektir.
     [Timestamp]
     public virtual byte[]? RowVersion { get; set; }
-}
 
-/*
- protected override void OnModelCreating(ModelBuilder modelBuilder)
-{
-    base.OnModelCreating(modelBuilder);
 
-    modelBuilder.Entity<YourEntity>()  // Bu ayarı tüm entity'ler için döngüyle de uygulayabilirsiniz.
-        .Property(e => e.RowVersion)
-        .IsRowVersion();
+    // Explicit interface implementasyonu:
+    string IAuditable.CreatedBy
+    {
+        get => CreatedBy;
+        set => SetCreatedBy(value);
+    }
+
+    DateTime IAuditable.CreatedDate
+    {
+        get => CreatedDate;
+        set => SetCreatedDate(value);
+    }
+
+    // İsteğe bağlı: CreatedBy ve CreatedDate'in yalnızca ilk atamada set edilmesini sağlayan yardımcı metotlar:
+    protected void SetCreatedBy(string value)
+    {
+        if (string.IsNullOrEmpty(CreatedBy))
+        {
+            CreatedBy = value;
+        }
+    }
+
+    protected void SetCreatedDate(DateTime value)
+    {
+        if (CreatedDate == default)
+        {
+            CreatedDate = value;
+        }
+    }
 }
- */

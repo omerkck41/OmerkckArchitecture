@@ -413,17 +413,28 @@ public class EfRepositoryBase<TEntity, TId, TContext> : IAsyncRepository<TEntity
     /// </summary>
     private async Task SoftDeleteAndCascadeAsync(object entity, bool softDelete, HashSet<object> visited, CancellationToken cancellationToken)
     {
-        var (GetIsDeleted, SetIsDeleted, GetDeletedDate, SetDeletedDate, GetDeletedBy, SetDeletedBy) =
-            ReflectionDelegateCache.GetDelegates(entity.GetType());
-
-        if (SetIsDeleted != null)
+        if (entity is IAuditable auditable)
         {
-            SetIsDeleted(entity, softDelete);
-            SetDeletedDate?.Invoke(entity, softDelete ? DateTime.UtcNow : null);
-            SetDeletedBy?.Invoke(entity, softDelete ? "OmerkckArchitecture" : null);
+            auditable.IsDeleted = softDelete;
+            auditable.DeletedDate = softDelete ? DateTime.UtcNow : null;
+            auditable.DeletedBy = softDelete ? "OmerkckArchitecture" : null;
 
-            _context.Update(entity);
-            await CascadeSoftDeleteAsync(entity, softDelete, visited, cancellationToken);
+            _context.Update((object)auditable);
         }
+        else
+        {
+            // Eğer entity IAuditable değilse, ReflectionDelegateCache kullanımı devam edebilir.
+            var (GetIsDeleted, SetIsDeleted, GetDeletedDate, SetDeletedDate, GetDeletedBy, SetDeletedBy) =
+                ReflectionDelegateCache.GetDelegates(entity.GetType());
+
+            if (SetIsDeleted != null)
+            {
+                SetIsDeleted(entity, softDelete);
+                SetDeletedDate?.Invoke(entity, softDelete ? DateTime.UtcNow : null);
+                SetDeletedBy?.Invoke(entity, softDelete ? "OmerkckArchitecture" : null);
+                _context.Update(entity);
+            }
+        }
+        await CascadeSoftDeleteAsync(entity, softDelete, visited, cancellationToken);
     }
 }

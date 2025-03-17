@@ -3,7 +3,7 @@ using Core.Persistence.Repositories;
 
 namespace Core.Persistence.UnitOfWork;
 
-public interface IUnitOfWork : IDisposable
+public interface IUnitOfWork : IAsyncDisposable
 {
     /// <summary>
     /// Bir transaction başlatır.
@@ -29,5 +29,6 @@ public interface IUnitOfWork : IDisposable
     /// İlgili repository'yi döner.
     /// </summary>
     IAsyncRepository<T, TId> Repository<T, TId>() where T : Entity<TId>;
-    new void Dispose();
+
+    new ValueTask DisposeAsync();
 }
