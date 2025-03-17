@@ -1,192 +1,133 @@
 ﻿---
 
-# Core.Application.Authorization Kütüphanesi
+# Core.Application.Authorization Kütüphanesi Yetkilendirme Modülü
 
-Bu kütüphane, **rol tabanlı** ve **claim tabanlı** yetkilendirme işlemlerini kolayca yönetmek için geliştirilmiştir. Büyük projelerde kullanılabilecek şekilde tasarlanmış olup, **MediatR pipeline'ı**, **middleware** ve **policy-based authorization** gibi modern yaklaşımları destekler.
+Bu modül, ASP.NET Core uygulamalarınızda güvenli, modüler ve ölçeklenebilir yetkilendirme işlemleri gerçekleştirmek amacıyla geliştirilmiştir. Hem MediatR pipeline üzerinden hem de ASP.NET Core’un policy tabanlı yetkilendirme mekanizması ile entegrasyon sağlanacak şekilde tasarlanmıştır.
 
----
+## İçerik
 
-## **Neden Bu Kütüphane Kullanılmalı?**
+- [Genel Bakış](#genel-bakış)
+- [Özellikler](#özellikler)
+- [Kurulum](#kurulum)
+- [Kullanım Senaryoları](#kullanım-senaryoları)
+  - [MediatR Pipeline Üzerinde Yetkilendirme](#mediatr-pipeline-üzerinde-yetkilendirme)
+  - [ASP.NET Core Policy Tabanlı Yetkilendirme](#aspnet-core-policy-tabanlı-yetkilendirme)
+- [Hata Yönetimi ve Loglama](#hata-yönetimi-ve-loglama)
 
-- **Modüler Yapı**: Rol ve claim tabanlı yetkilendirme işlemlerini merkezi bir şekilde yönetir.
-- **Esneklik**: Hem MediatR pipeline'ı hem de HTTP middleware'ı ile entegre çalışabilir.
-- **Policy-Based Authorization**: Yetkilendirme kurallarını policy'ler üzerinden tanımlayarak, daha esnek ve yönetilebilir bir yapı sunar.
-- **Büyük Projeler İçin Uygun**: Performans optimizasyonu ve genişletilebilirlik özellikleriyle büyük projelerde rahatlıkla kullanılabilir.
+## Genel Bakış
 
----
+Bu modül, kullanıcıların roller ve claim’ler üzerinden yetkilendirilmesini sağlamak için aşağıdaki prensiplere dayanmaktadır:
+- **Modülerlik:** Rol ve claim kontrolleri ayrı metotlar ve sınıflar halinde organize edilmiştir.
+- **Genişletilebilirlik:** Yeni roller, claim’ler ve politikalar eklenebilmesi için esnek bir yapı sunar.
+- **Modern Yaklaşım:** .NET 9.0 ve güncel C# özellikleri (target-typed new, minimal API'ler vs.) kullanılarak yazılmıştır.
 
-## **Kütüphanenin Temel Özellikleri**
+## Özellikler
 
-1. **Rol Tabanlı Yetkilendirme**:
-   - Kullanıcının belirli rollere sahip olup olmadığını kontrol eder.
-   - Örneğin: `Admin`, `Manager`, `User` gibi roller.
-
-2. **Claim Tabanlı Yetkilendirme**:
-   - Kullanıcının belirli claim'lere sahip olup olmadığını kontrol eder.
-   - Örneğin: `Permission:ViewOrders`, `Permission:ManageOrders` gibi claim'ler.
-
-3. **Policy-Based Authorization**:
-   - Yetkilendirme kurallarını policy'ler üzerinden tanımlar.
-   - Örneğin: `ViewOrdersPolicy`, `ManageOrdersPolicy`.
-
-4. **MediatR Pipeline Entegrasyonu**:
-   - MediatR request'leri öncesinde otomatik yetkilendirme kontrolü yapar.
-
-5. **HTTP Middleware**:
-   - HTTP istekleri sırasında yetkilendirme kontrolü yapar.
+- **Rol ve Claim Kontrolleri:** Kullanıcıların sahip olduğu roller ve claim’ler, ayrı metotlarla kontrol edilmekte ve “Admin” veya “Manager” gibi özel roller için bypass mekanizması sunulmaktadır.
+- **MediatR Pipeline Entegrasyonu:** Yetkilendirme, MediatR isteklerinin işlenmesi sırasında otomatik olarak devreye girer.
+- **Policy Tabanlı Yetkilendirme:** ASP.NET Core AuthorizationPolicy ile esnek politika yapılandırması yapılır.
+- **Özel Middleware:** HTTP isteklerinde kimlik doğrulama kontrolünü sağlayan middleware yer almaktadır.
+- **Unit Test Desteği:** Soyutlanmış servis yapısı sayesinde bileşenlerin unit testleri kolayca yazılabilir.
 
 ---
 
-## **Kurulum**
 
-Kütüphaneyi projenize eklemek için aşağıdaki adımları izleyin:
+## Kurulum
 
-1. **Service Collection'a Ekleme**:
-   - `Startup.cs` veya `Program.cs` dosyasında gerekli servisleri ekleyin.
+1. **Proje Entegrasyonu:**  
+   Yetkilendirme modülünü, projenize dahil edin. Modül, .NET 9.0 uyumlu olacak şekilde güncellenmiştir.
+
+2. **Bağımlılıkların Yüklenmesi:**  
+   Projede aşağıdaki NuGet paketlerine ihtiyaç duyulmaktadır:
+   - `Microsoft.AspNetCore.Http`
+   - `MediatR`
+   - `Microsoft.Extensions.Logging`
+
+3. **Startup (Program.cs) Ayarları:**  
+   Aşağıda minimal API kullanılarak modül entegrasyonuna ilişkin örnek yapılandırma yer almaktadır:
+
    ```csharp
-   public void ConfigureServices(IServiceCollection services)
-   {
-       services.AddAuthorizationPipeline();
-       services.AddAuthorization(options =>
-       {
-           AuthorizationPolicies.ConfigurePolicies(options);
-       });
-   }
+   using Microsoft.AspNetCore.Authorization;
+   using Microsoft.Extensions.DependencyInjection;
+   using Core.Application.Authorization.Services;
+   using Core.Application.Authorization.Behaviors;
+   using Core.Application.Authorization.Middleware;
+
+   var builder = WebApplication.CreateBuilder(args);
+
+   // Servis eklemeleri
+   builder.Services.AddHttpContextAccessor();
+   builder.Services.AddLogging();
+
+   // MediatR entegrasyonu ve AuthorizationBehavior eklenmesi
+   builder.Services.AddMediatR(typeof(AuthorizationBehavior<,>).Assembly);
+   builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(AuthorizationBehavior<,>));
+
+   // Policy'leri yapılandırın
+   builder.Services.AddAuthorization(options => {
+       AuthorizationPolicies.ConfigurePolicies(options);
+   });
+
+   var app = builder.Build();
+
+   // Custom HTTP Authorization Middleware ekleniyor
+   app.UseMiddleware<HttpAuthorizationMiddleware>();
+
+   // Minimal API örneği: Yetkilendirilmiş endpoint
+   app.MapGet("/secure-data", [Authorize(Policy = AuthorizationPolicies.ViewDataPolicy)] () => {
+       return Results.Ok("Güvenli veri erişildi.");
+   });
+
+   app.Run();
    ```
 
-2. **Middleware'ı Ekleyin**:
-   - HTTP pipeline'ına yetkilendirme middleware'ını ekleyin.
-   ```csharp
-   public void Configure(IApplicationBuilder app)
-   {
-       app.UseHttpAuthorizationMiddleware();
-   }
-   ```
-
----
-
-## **Kullanım Örnekleri**
-
-### 1. **Policy-Based Authorization**
-
-Policy'ler üzerinden yetkilendirme kurallarını tanımlayabilir ve bu policy'leri controller veya endpoint'lerde kullanabilirsiniz.
+## Kullanım Senaryoları
+### MediatR Pipeline Üzerinde Yetkilendirme
+### Örnek İstek Sınıfı (Query):
 
 ```csharp
-[Authorize(Policy = AuthorizationPolicies.ViewOrders)]
-public IActionResult GetOrders()
+using MediatR;
+using Core.Application.Authorization.Models;
+
+public class GetSecureDataQuery : IRequest<string>, ISecuredRequest
 {
-    // Orders logic
-}
-```
-
-### 2. **MediatR Pipeline ile Yetkilendirme**
-
-MediatR request'leri öncesinde otomatik yetkilendirme kontrolü yapabilirsiniz.
-
-```csharp
-public class GetOrdersQuery : IRequest<List<string>>, ISecuredRequest
-{
-    public string[] Roles => [GeneralOperationClaims.Admin, GeneralOperationClaims.Manager];
-    public Dictionary<string, string> Claims => new() { { "Permission", "ViewOrders" } };
-}
-```
-
-### 3. **HTTP Middleware ile Yetkilendirme**
-
-HTTP istekleri sırasında yetkilendirme kontrolü yapabilirsiniz.
-
-```csharp
-public void Configure(IApplicationBuilder app)
-{
-    app.UseHttpAuthorizationMiddleware();
-}
-```
-
-### 4. **Manuel Yetkilendirme Kontrolü**
-
-`AuthorizationService` sınıfını kullanarak manuel yetkilendirme kontrolü yapabilirsiniz.
-
-```csharp
-public class OrdersController : ControllerBase
-{
-    private readonly IAuthorizationService _authorizationService;
-
-    public OrdersController(IAuthorizationService authorizationService)
+    // Bu istek için gerekli roller ve claim'ler
+    public string[] Roles => new[] { GeneralOperationClaims.User };
+    public Dictionary<string, string> Claims => new Dictionary<string, string>
     {
-        _authorizationService = authorizationService;
-    }
+        { "Permission", "ViewData" }
+    };
+}
+```
 
-    public IActionResult GetOrders()
+### İstek İşleyici (Handler):
+
+```csharp
+using MediatR;
+
+public class GetSecureDataQueryHandler : IRequestHandler<GetSecureDataQuery, string>
+{
+    public Task<string> Handle(GetSecureDataQuery request, CancellationToken cancellationToken)
     {
-        var user = HttpContext.User;
-        var requiredRoles = new[] { GeneralOperationClaims.Admin, GeneralOperationClaims.Manager };
-        var requiredClaims = new Dictionary<string, string> { { "Permission", "ViewOrders" } };
-
-        _authorizationService.Authorize(user, requiredRoles, requiredClaims);
-
-        // Orders logic
+        // MediatR pipeline'ı içerisindeki AuthorizationBehavior, 
+        // burada gerekli yetkilendirme kontrollerini otomatik olarak yapacaktır.
+        return Task.FromResult("Güvenli veri işleniyor.");
     }
 }
 ```
+---
+## ASP.NET Core Policy Tabanlı Yetkilendirme
+Endpoint'lerde, [Authorize(Policy = "PolicyName")] attribute'u kullanılarak kullanıcıların erişim yetkileri denetlenir. Yukarıdaki örnekte, /secure-data endpoint’i ViewDataPolicy ile korunmuştur. Bu politika, yalnızca "ViewData" iznine sahip Admin veya Manager rollerine erişim sağlar.
+
+## Hata Yönetimi ve Loglama
+AuthorizationException:
+Yetkilendirme kontrollerinde bir hata meydana geldiğinde, AuthorizationException fırlatılır. Bu sayede, hangi kontrollerin başarısız olduğu detaylıca loglanır.
+
+
+## Politika Yapılandırması:
+AuthorizationPolicies sınıfı, yeni roller ve claim'ler eklenerek genişletilebilir. Ek parametrelerle daha esnek yapılandırmalar oluşturabilirsiniz.
+
+## Unit Test Desteği:
+Tüm bileşenler soyutlanmış arayüzler ve modüler yapılar sayesinde unit test yazımına uygundur. Bu sayede, her bileşenin izole bir şekilde test edilmesi kolaylaşır.
 
 ---
-
-## **Genişletilebilirlik**
-
-Kütüphaneyi genişletmek için aşağıdaki adımları izleyebilirsiniz:
-
-1. **Yeni Policy'ler Ekleyin**:
-   - `AuthorizationPolicies` sınıfına yeni policy'ler ekleyebilirsiniz.
-   ```csharp
-   public static void ConfigurePolicies(AuthorizationOptions options)
-   {
-       options.AddPolicy("DeleteOrdersPolicy", policy =>
-       {
-           policy.RequireAuthenticatedUser();
-           policy.RequireRole(GeneralOperationClaims.Admin);
-           policy.RequireClaim("Permission", "DeleteOrders");
-       });
-   }
-   ```
-
-2. **Özel Yetkilendirme Kuralları**:
-   - `AuthorizationService` sınıfını genişleterek, özel yetkilendirme kuralları ekleyebilirsiniz.
-
----
-
-## **Test Etme**
-
-Kütüphaneyi test etmek için unit test ve integration testler yazabilirsiniz. Özellikle `AuthorizationBehavior` ve `AuthorizationService` sınıfları için testler yazılmalıdır.
-
-```csharp
-[Fact]
-public void Authorize_ShouldThrowException_WhenUserIsNotAuthenticated()
-{
-    var user = new ClaimsPrincipal();
-    var requiredRoles = new[] { GeneralOperationClaims.Admin };
-    var requiredClaims = new Dictionary<string, string>();
-
-    var authorizationService = new AuthorizationService();
-
-    Assert.Throws<AuthorizationException>(() =>
-    {
-        authorizationService.Authorize(user, requiredRoles, requiredClaims);
-    });
-}
-```
-
----
-
-## **Katkıda Bulunma**
-
-Bu kütüphaneye katkıda bulunmak isterseniz, lütfen bir **pull request** gönderin. Katkılarınızı bekliyoruz!
-
----
-
-## **Lisans**
-
-Bu proje [MIT Lisansı](LICENSE) altında lisanslanmıştır.
-
----
-
-Bu **README.md** dosyası, kütüphanenizin ne işe yaradığını, nasıl kullanılacağını ve genişletilebileceğini açıklayan detaylı bir rehber sunar. Bu şablonu projenize uygun şekilde özelleştirebilirsiniz.

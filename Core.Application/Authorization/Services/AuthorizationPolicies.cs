@@ -15,12 +15,12 @@ public class AuthorizationPolicies
     public static void ConfigurePolicies(AuthorizationOptions options)
     {
         // Ortak policy tanımlama metodu kullanılarak politikalar ekleniyor.
-        AddPolicy(options, ViewUsersPolicy, [GeneralOperationClaims.Admin, GeneralOperationClaims.Manager], "ViewUsers");
-        AddPolicy(options, ManageUsersPolicy, [GeneralOperationClaims.Admin, GeneralOperationClaims.Manager], "ManageUsers");
-        AddPolicy(options, ViewOperationClaimsPolicy, [GeneralOperationClaims.Admin, GeneralOperationClaims.Manager], "ViewOperationClaims");
-        AddPolicy(options, ManageOperationClaimsPolicy, [GeneralOperationClaims.Admin, GeneralOperationClaims.Manager], "ManageOperationClaims");
-        AddPolicy(options, ViewDataPolicy, [GeneralOperationClaims.Admin, GeneralOperationClaims.Manager], "ViewData");
-        AddPolicy(options, ManageDataPolicy, [GeneralOperationClaims.Admin, GeneralOperationClaims.Manager], "ManageData");
+        AddPolicy(options, ViewUsersPolicy, new[] { GeneralOperationClaims.Admin, GeneralOperationClaims.Manager }, "ViewUsers");
+        AddPolicy(options, ManageUsersPolicy, new[] { GeneralOperationClaims.Admin, GeneralOperationClaims.Manager }, "ManageUsers");
+        AddPolicy(options, ViewOperationClaimsPolicy, new[] { GeneralOperationClaims.Admin, GeneralOperationClaims.Manager }, "ViewOperationClaims");
+        AddPolicy(options, ManageOperationClaimsPolicy, new[] { GeneralOperationClaims.Admin, GeneralOperationClaims.Manager }, "ManageOperationClaims");
+        AddPolicy(options, ViewDataPolicy, new[] { GeneralOperationClaims.Admin, GeneralOperationClaims.Manager }, "ViewData");
+        AddPolicy(options, ManageDataPolicy, new[] { GeneralOperationClaims.Admin, GeneralOperationClaims.Manager }, "ManageData");
 
     }
 

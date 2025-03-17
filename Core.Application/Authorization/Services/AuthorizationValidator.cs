@@ -9,27 +9,34 @@ public static class AuthorizationValidator
 {
     public static void ValidateAuthorization(ClaimsPrincipal user, IEnumerable<string> requiredRoles, IDictionary<string, string> requiredClaims)
     {
-        if (user is not { Identity: { IsAuthenticated: true } })
+        if (user is null || !user.Identity?.IsAuthenticated == true)
         {
-            throw new AuthorizationException("You are not authenticated.");
+            throw new AuthorizationException("You are not authenticated...");
         }
-
         if (requiredRoles is null)
             throw new ArgumentNullException(nameof(requiredRoles));
-
         if (requiredClaims is null)
             throw new ArgumentNullException(nameof(requiredClaims));
 
+        ValidateRoles(user, requiredRoles);
+        ValidateClaims(user, requiredClaims);
+    }
+
+    private static void ValidateRoles(ClaimsPrincipal user, IEnumerable<string> requiredRoles)
+    {
         var userRoles = user.GetRoles() ?? Enumerable.Empty<string>();
 
-        // Eğer kullanıcı Admin veya Manager rolüne sahipse, zorunlu roller kontrolünü bypass ediyoruz.
+        // Eğer kullanıcı Admin veya Manager rolüne sahipse, rol kontrolünü bypass ediyoruz.
         if (!userRoles.Contains(GeneralOperationClaims.Admin) &&
             !userRoles.Contains(GeneralOperationClaims.Manager) &&
-            !userRoles.Any(role => requiredRoles.Contains(role)))
+            !userRoles.Intersect(requiredRoles).Any())
         {
-            throw new AuthorizationException("You are not authorized.");
+            throw new AuthorizationException("You are not authorized for the required roles...");
         }
+    }
 
+    private static void ValidateClaims(ClaimsPrincipal user, IDictionary<string, string> requiredClaims)
+    {
         foreach (var claim in requiredClaims)
         {
             if (!user.HasClaim(c => c.Type == claim.Key && c.Value == claim.Value))
