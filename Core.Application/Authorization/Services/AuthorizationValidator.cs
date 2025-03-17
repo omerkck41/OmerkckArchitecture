@@ -27,9 +27,10 @@ public static class AuthorizationValidator
         var userRoles = user.GetRoles() ?? Enumerable.Empty<string>();
 
         // Eğer kullanıcı Admin veya Manager rolüne sahipse, rol kontrolünü bypass ediyoruz.
-        if (!userRoles.Contains(GeneralOperationClaims.Admin) &&
-            !userRoles.Contains(GeneralOperationClaims.Manager) &&
-            !userRoles.Intersect(requiredRoles).Any())
+        bool isAdminOrManager = userRoles.Contains(GeneralOperationClaims.Admin) || userRoles.Contains(GeneralOperationClaims.Manager);
+        bool hasAnyRequiredRole = userRoles.Intersect(requiredRoles).Any();
+
+        if (!isAdminOrManager && !hasAnyRequiredRole)
         {
             throw new AuthorizationException("You are not authorized for the required roles...");
         }
