@@ -1,23 +1,25 @@
-﻿using System.Linq.Expressions;
+﻿using System.Collections.Concurrent;
+using System.Linq.Expressions;
 using System.Reflection;
 
 namespace Core.Persistence.Repositories;
 
 public static class ReflectionDelegateCache
 {
-    private static readonly Dictionary<Type, (Func<object, object?>? GetIsDeleted, Action<object, object?>? SetIsDeleted,
-        Func<object, object?>? GetDeletedDate, Action<object, object?>? SetDeletedDate,
-        Func<object, object?>? GetDeletedBy, Action<object, object?>? SetDeletedBy)> _cache = [];
+    private static readonly ConcurrentDictionary<Type, (Func<object, object?>? GetIsDeleted, Action<object, object?>? SetIsDeleted,
+           Func<object, object?>? GetDeletedDate, Action<object, object?>? SetDeletedDate,
+           Func<object, object?>? GetDeletedBy, Action<object, object?>? SetDeletedBy)> _cache =
+           new ConcurrentDictionary<Type, (Func<object, object?>?, Action<object, object?>?, Func<object, object?>?, Action<object, object?>?, Func<object, object?>?, Action<object, object?>?)>();
 
     public static (Func<object, object?>? GetIsDeleted, Action<object, object?>? SetIsDeleted,
         Func<object, object?>? GetDeletedDate, Action<object, object?>? SetDeletedDate,
         Func<object, object?>? GetDeletedBy, Action<object, object?>? SetDeletedBy) GetDelegates(Type type)
     {
-        if (!_cache.TryGetValue(type, out var delegates))
+        return _cache.GetOrAdd(type, t =>
         {
-            var isDeletedProp = type.GetProperty("IsDeleted");
-            var deletedDateProp = type.GetProperty("DeletedDate");
-            var deletedByProp = type.GetProperty("DeletedBy");
+            var isDeletedProp = t.GetProperty("IsDeleted");
+            var deletedDateProp = t.GetProperty("DeletedDate");
+            var deletedByProp = t.GetProperty("DeletedBy");
 
             var getIsDeleted = isDeletedProp != null ? CreateGetter(isDeletedProp) : null;
             var setIsDeleted = isDeletedProp != null ? CreateSetter(isDeletedProp) : null;
@@ -26,10 +28,8 @@ public static class ReflectionDelegateCache
             var getDeletedBy = deletedByProp != null ? CreateGetter(deletedByProp) : null;
             var setDeletedBy = deletedByProp != null ? CreateSetter(deletedByProp) : null;
 
-            delegates = (getIsDeleted, setIsDeleted, getDeletedDate, setDeletedDate, getDeletedBy, setDeletedBy);
-            _cache[type] = delegates;
-        }
-        return delegates;
+            return (getIsDeleted, setIsDeleted, getDeletedDate, setDeletedDate, getDeletedBy, setDeletedBy);
+        });
     }
 
     private static Func<object, object?> CreateGetter(PropertyInfo property)

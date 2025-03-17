@@ -4,6 +4,7 @@ using Core.Persistence.Entities;
 using Core.Persistence.Paging;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query;
 using System.Linq.Expressions;
 
@@ -240,7 +241,7 @@ public class EfRepositoryBase<TEntity, TId, TContext> : IAsyncRepository<TEntity
             // Soft delete işlemi
             entity.IsDeleted = true;
             entity.DeletedDate = DateTime.UtcNow;
-            entity.DeletedBy ??= "System";
+            entity.DeletedBy ??= "OmerkckArchitecture";
 
             // Cascade soft delete: Bağlı entity’lerde de soft delete uygulaması
             await CascadeSoftDeleteAsync(entity, true, cancellationToken: cancellationToken);
@@ -300,7 +301,7 @@ public class EfRepositoryBase<TEntity, TId, TContext> : IAsyncRepository<TEntity
             // Entity'yi soft delete olarak işaretle
             entity.IsDeleted = true;
             entity.DeletedDate = DateTime.UtcNow;
-            entity.DeletedBy ??= "System";
+            entity.DeletedBy ??= "OmerkckArchitecture";
 
             // Cascade soft delete: bağlı entity'lerde de soft delete işlemi uygula
             await CascadeSoftDeleteAsync(entity, true, cancellationToken: cancellationToken);
@@ -352,7 +353,7 @@ public class EfRepositoryBase<TEntity, TId, TContext> : IAsyncRepository<TEntity
             {
                 entity.IsDeleted = true;
                 entity.DeletedDate = DateTime.UtcNow;
-                entity.DeletedBy ??= "System";
+                entity.DeletedBy ??= "OmerkckArchitecture";
                 await CascadeSoftDeleteAsync(entity, true, cancellationToken: cancellationToken);
             }
             _dbSet.UpdateRange(entities);
@@ -367,7 +368,9 @@ public class EfRepositoryBase<TEntity, TId, TContext> : IAsyncRepository<TEntity
 
 
 
-    // Cascade soft delete veya geri alma işlemini uygulayan yardımcı metot.
+    /// <summary>
+    /// Cascade soft delete veya geri alma işlemini uygulayan yardımcı metot.
+    /// </summary>
     private async Task CascadeSoftDeleteAsync(object entity, bool softDelete, HashSet<object>? visited = null, CancellationToken cancellationToken = default)
     {
         visited ??= new HashSet<object>();
@@ -378,6 +381,10 @@ public class EfRepositoryBase<TEntity, TId, TContext> : IAsyncRepository<TEntity
         var entry = _context.Entry(entity);
         foreach (var navigation in entry.Navigations)
         {
+            // Eğer navigation property, dependent (yani parent'a işaret eden) ise cascade işlemine dahil edilmesin.
+            if (navigation.Metadata is INavigation navMetadata && navMetadata.IsOnDependent)
+                continue;
+
             if (!navigation.IsLoaded)
                 await navigation.LoadAsync(cancellationToken);
 
@@ -389,33 +396,34 @@ public class EfRepositoryBase<TEntity, TId, TContext> : IAsyncRepository<TEntity
             {
                 foreach (var item in collection)
                 {
-                    if (item == null) continue;
-
-                    var (GetIsDeleted, SetIsDeleted, GetDeletedDate, SetDeletedDate, GetDeletedBy, SetDeletedBy) = ReflectionDelegateCache.GetDelegates(item.GetType());
-                    if (SetIsDeleted != null)
-                    {
-                        SetIsDeleted(item, softDelete);
-                        SetDeletedDate?.Invoke(item, softDelete ? DateTime.UtcNow : null);
-                        SetDeletedBy?.Invoke(item, softDelete ? "System" : null);
-
-                        _context.Update(item);
-                        await CascadeSoftDeleteAsync(item, softDelete, visited, cancellationToken);
-                    }
+                    if (item == null)
+                        continue;
+                    await SoftDeleteAndCascadeAsync(item, softDelete, visited, cancellationToken);
                 }
             }
             else
             {
-                var (GetIsDeleted, SetIsDeleted, GetDeletedDate, SetDeletedDate, GetDeletedBy, SetDeletedBy) = ReflectionDelegateCache.GetDelegates(related.GetType());
-                if (SetIsDeleted != null)
-                {
-                    SetIsDeleted(related, softDelete);
-                    SetDeletedDate?.Invoke(related, softDelete ? DateTime.UtcNow : null);
-                    SetDeletedBy?.Invoke(related, softDelete ? "System" : null);
-
-                    _context.Update(related);
-                    await CascadeSoftDeleteAsync(related, softDelete, visited, cancellationToken);
-                }
+                await SoftDeleteAndCascadeAsync(related, softDelete, visited, cancellationToken);
             }
+        }
+    }
+
+    /// <summary>
+    /// Belirtilen entity üzerinde soft delete ayarlarını uygulayıp, cascade işlemini başlatır.
+    /// </summary>
+    private async Task SoftDeleteAndCascadeAsync(object entity, bool softDelete, HashSet<object> visited, CancellationToken cancellationToken)
+    {
+        var (GetIsDeleted, SetIsDeleted, GetDeletedDate, SetDeletedDate, GetDeletedBy, SetDeletedBy) =
+            ReflectionDelegateCache.GetDelegates(entity.GetType());
+
+        if (SetIsDeleted != null)
+        {
+            SetIsDeleted(entity, softDelete);
+            SetDeletedDate?.Invoke(entity, softDelete ? DateTime.UtcNow : null);
+            SetDeletedBy?.Invoke(entity, softDelete ? "OmerkckArchitecture" : null);
+
+            _context.Update(entity);
+            await CascadeSoftDeleteAsync(entity, softDelete, visited, cancellationToken);
         }
     }
 }
