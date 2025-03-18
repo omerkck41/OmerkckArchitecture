@@ -13,10 +13,12 @@ public static class AuthorizationValidator
         {
             throw new AuthorizationException("You are not authenticated...");
         }
-        if (requiredRoles is null)
-            throw new ArgumentNullException(nameof(requiredRoles));
-        if (requiredClaims is null)
-            throw new ArgumentNullException(nameof(requiredClaims));
+
+        // Eğer requiredRoles tanımlı değilse (boşsa), rol kontrolünü atla.
+        if (!requiredRoles.Any())
+        {
+            return;
+        }
 
         ValidateRoles(user, requiredRoles);
         ValidateClaims(user, requiredClaims);
