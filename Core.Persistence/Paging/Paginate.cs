@@ -41,8 +41,8 @@ public class Paginate<T> : IPaginate<T>
     public int Pages { get; set; }
     public IList<T> Items { get; set; }
     public bool HasPrevious => Index - From > 0;
-    public bool HasNext => Index - From + 1 < Pages;
+    public bool HasNext => Index - From < Pages - 1;
     public int TotalRecords { get; set; }
-    public bool IsFirstPage => Index == 1;
-    public bool IsLastPage => Index + 1 == Pages;
+    public bool IsFirstPage => Index == 0;
+    public bool IsLastPage => Index == Pages - 1;
 }
