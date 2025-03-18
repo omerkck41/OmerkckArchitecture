@@ -46,6 +46,12 @@ public static class AuthorizationValidator
             return;
         }
 
+        // Eğer requiredClaims null veya boş ise claim kontrolünü yapmadan çık.
+        if (requiredClaims == null || !requiredClaims.Any())
+        {
+            return;
+        }
+
         foreach (var claim in requiredClaims)
         {
             if (!user.HasClaim(c => c.Type == claim.Key && c.Value == claim.Value))

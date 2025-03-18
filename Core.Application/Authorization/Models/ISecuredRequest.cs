@@ -2,6 +2,6 @@
 
 public interface ISecuredRequest
 {
-    string[] Roles => Array.Empty<string>();
-    Dictionary<string, string> Claims => new();
+    string[] Roles => [];
+    Dictionary<string, string> Claims => [];
 }
