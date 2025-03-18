@@ -2,19 +2,12 @@
 
 public abstract class BasePageableModel<T>
 {
-    public MetaData metaData { get; set; } = new MetaData();
-    public IList<T> Items { get; set; } = [];
+    public PageMetaData MetaData { get; set; }
+    public IList<T> Items { get; set; }
 
-    public class MetaData
+    protected BasePageableModel()
     {
-        public int Index { get; set; }
-        public int Size { get; set; }
-        public int Count { get; set; }
-        public int Pages { get; set; }
-        public bool HasPrevious { get; set; }
-        public bool HasNext { get; set; }
-        public int TotalRecords { get; set; }
-        public bool IsFirstPage { get; set; }
-        public bool IsLastPage { get; set; }
+        MetaData = new PageMetaData();
+        Items = new List<T>();
     }
 }

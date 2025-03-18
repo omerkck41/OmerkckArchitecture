@@ -2,11 +2,18 @@
 
 public class GetListResponse<T> : BasePageableModel<T>
 {
-    public new IList<T> Items
-    {
-        get => _items ??= new List<T>();
-        set => _items = value;
-    }
+    // Parametresiz yapıcı (opsiyonel kullanım için)
+    public GetListResponse() : base() { }
 
-    private IList<T>? _items;
+    // IPaginate'den gelen veriyi alan yapıcı
+    public GetListResponse(IPaginate<T> paginate) : base()
+    {
+        Items = paginate.Items;
+        MetaData.Index = paginate.Index;
+        MetaData.Size = paginate.Size;
+        MetaData.TotalRecords = paginate.TotalRecords;
+        MetaData.Pages = paginate.Pages;
+        // İsteğe bağlı olarak validasyonu çalıştırabilirsiniz
+        MetaData.Validate();
+    }
 }
