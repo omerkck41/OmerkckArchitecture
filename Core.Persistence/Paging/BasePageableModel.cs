@@ -1,9 +1,9 @@
 ﻿namespace Core.Persistence.Paging;
 
-public class BasePageableModel
+public abstract class BasePageableModel<T>
 {
     public MetaData metaData { get; set; } = new MetaData();
-    public IEnumerable<object> Items { get; set; } = [];
+    public IList<T> Items { get; set; } = [];
 
     public class MetaData
     {

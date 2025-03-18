@@ -1,6 +1,6 @@
 ﻿namespace Core.Persistence.Paging;
 
-public class GetListResponse<T> : BasePageableModel
+public class GetListResponse<T> : BasePageableModel<T>
 {
     public new IList<T> Items
     {
