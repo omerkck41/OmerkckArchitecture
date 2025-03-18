@@ -14,8 +14,6 @@ public class Paginate<T> : IPaginate<T>
         Size = size;
         From = from;
 
-
-
         if (source is IQueryable<T> queryable)
         {
             Count = queryable.Count();

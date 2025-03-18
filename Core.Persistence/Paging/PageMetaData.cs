@@ -7,11 +7,13 @@ public class PageMetaData
     public int TotalRecords { get; set; }
     public int Pages { get; set; }
 
+    public int From { get; set; }
+
     // Hesaplanan property'ler
-    public bool HasPrevious => Index > 1;
-    public bool HasNext => Index < Pages;
-    public bool IsFirstPage => Index == 1;
-    public bool IsLastPage => Index == Pages;
+    public bool HasPrevious => Index - From > 0;
+    public bool HasNext => Index - From < Pages - 1;
+    public bool IsFirstPage => Index - From == 0;
+    public bool IsLastPage => Index - From == Pages - 1;
 
     // Validasyon metodu (isteğe bağlı)
     public void Validate()
