@@ -38,6 +38,14 @@ public static class AuthorizationValidator
 
     private static void ValidateClaims(ClaimsPrincipal user, IDictionary<string, string> requiredClaims)
     {
+        // Eğer kullanıcı Admin veya Manager rolündeyse, claim kontrollerini atla.
+        var userRoles = user.GetRoles() ?? Enumerable.Empty<string>();
+        if (userRoles.Contains(GeneralOperationClaims.Admin) ||
+            userRoles.Contains(GeneralOperationClaims.Manager))
+        {
+            return;
+        }
+
         foreach (var claim in requiredClaims)
         {
             if (!user.HasClaim(c => c.Type == claim.Key && c.Value == claim.Value))
