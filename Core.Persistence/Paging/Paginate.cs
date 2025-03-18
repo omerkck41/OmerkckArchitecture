@@ -13,8 +13,8 @@ public class Paginate<T> : IPaginate<T>
         Index = index;
         Size = size;
         From = from;
-        Pages = (int)Math.Ceiling(Count / (double)Size);
-        TotalRecords = Count;
+
+
 
         if (source is IQueryable<T> queryable)
         {
@@ -27,6 +27,9 @@ public class Paginate<T> : IPaginate<T>
             Count = enumerable.Count();
             Items = enumerable.Skip((Index - From) * Size).Take(Size).ToList();
         }
+
+        TotalRecords = Count;
+        Pages = (int)Math.Ceiling(Count / (double)Size);
     }
 
     public Paginate()
@@ -41,8 +44,8 @@ public class Paginate<T> : IPaginate<T>
     public int Pages { get; set; }
     public IList<T> Items { get; set; }
     public int TotalRecords { get; set; }
-    public bool HasPrevious => Index > 0;
-    public bool HasNext => Index < Pages - 1;
-    public bool IsFirstPage => Index == 0;
-    public bool IsLastPage => Index == Pages - 1;
+    public bool HasPrevious => Index - From > 0;
+    public bool HasNext => Index - From < Pages - 1;
+    public bool IsFirstPage => Index - From == 0;
+    public bool IsLastPage => Index - From == Pages - 1;
 }
