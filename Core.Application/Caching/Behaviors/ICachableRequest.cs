@@ -5,7 +5,7 @@ public interface ICachableRequest
     /// <summary>
     /// Cache kullanılıp kullanılmayacağını belirtir.
     /// </summary>
-    bool UseCache { get; }
+    bool UseCache => true;
 
     /// <summary>
     /// Cache anahtarı.
@@ -15,5 +15,5 @@ public interface ICachableRequest
     /// <summary>
     /// Cache'in süresini belirtir.
     /// </summary>
-    TimeSpan? CacheExpiration { get; }
+    TimeSpan? CacheExpiration => null;
 }
