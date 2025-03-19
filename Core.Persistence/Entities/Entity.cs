@@ -13,8 +13,8 @@ public abstract class Entity<TId> : IEntity<TId>, IAuditable
 
 
     public virtual TId Id { get; set; }
-    public virtual string CreatedBy { get; private set; } = string.Empty;
-    public virtual DateTime CreatedDate { get; private set; } = DateTime.UtcNow;
+    public virtual string CreatedBy { get; set; } = string.Empty;
+    public virtual DateTime CreatedDate { get; set; } = DateTime.UtcNow;
 
 
     public virtual string? ModifiedBy { get; set; }
