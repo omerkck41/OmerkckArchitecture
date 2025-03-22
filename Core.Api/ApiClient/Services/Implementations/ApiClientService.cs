@@ -1,4 +1,5 @@
 ﻿using Core.Api.ApiClient.Exceptions;
+using Core.Api.ApiClient.Models;
 using Core.Api.ApiClient.Services.Interfaces;
 using System.Net.Http.Json;
 
@@ -23,7 +24,7 @@ public class ApiClientService : IApiClientService
                 var errorMessage = await response.Content.ReadAsStringAsync();
                 throw new ApiException($"GET {requestUri} failed: {response.StatusCode} - {errorMessage}");
             }
-            return await response.Content.ReadFromJsonAsync<T>(cancellationToken) ?? throw new ApiException("Null response received.");
+            return await ReadResponseContentAsync<T>(response, cancellationToken);
         }
         catch (Exception ex)
         {
@@ -41,7 +42,7 @@ public class ApiClientService : IApiClientService
                 var errorMessage = await response.Content.ReadAsStringAsync();
                 throw new ApiException($"POST {requestUri} failed: {response.StatusCode} - {errorMessage}");
             }
-            return await response.Content.ReadFromJsonAsync<TResponse>(cancellationToken) ?? throw new ApiException("Null response received.");
+            return await ReadResponseContentAsync<TResponse>(response, cancellationToken);
         }
         catch (Exception ex)
         {
@@ -59,7 +60,7 @@ public class ApiClientService : IApiClientService
                 var errorMessage = await response.Content.ReadAsStringAsync();
                 throw new ApiException($"PUT {requestUri} failed: {response.StatusCode} - {errorMessage}");
             }
-            return await response.Content.ReadFromJsonAsync<TResponse>(cancellationToken) ?? throw new ApiException("Null response received.");
+            return await ReadResponseContentAsync<TResponse>(response, cancellationToken);
         }
         catch (Exception ex)
         {
@@ -77,7 +78,7 @@ public class ApiClientService : IApiClientService
                 var errorMessage = await response.Content.ReadAsStringAsync();
                 throw new ApiException($"PATCH {requestUri} failed: {response.StatusCode} - {errorMessage}");
             }
-            return await response.Content.ReadFromJsonAsync<TResponse>(cancellationToken) ?? throw new ApiException("Null response received.");
+            return await ReadResponseContentAsync<TResponse>(response, cancellationToken);
         }
         catch (Exception ex)
         {
@@ -100,5 +101,15 @@ public class ApiClientService : IApiClientService
         {
             throw new ApiException($"Error in DELETE {requestUri}: {ex.Message}", ex);
         }
+    }
+
+    private async Task<T> ReadResponseContentAsync<T>(HttpResponseMessage response, CancellationToken cancellationToken)
+    {
+        var wrapper = await response.Content.ReadFromJsonAsync<ApiResponseWrapper<T>>(cancellationToken);
+        if (wrapper == null)
+        {
+            throw new ApiException("Null response wrapper received.");
+        }
+        return wrapper.Data;
     }
 }
