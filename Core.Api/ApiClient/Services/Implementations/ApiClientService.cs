@@ -103,7 +103,7 @@ public class ApiClientService : IApiClientService
         }
     }
 
-    private async Task<T> ReadResponseContentAsync<T>(HttpResponseMessage response, CancellationToken cancellationToken)
+    private static async Task<T> ReadResponseContentAsync<T>(HttpResponseMessage response, CancellationToken cancellationToken)
     {
         var wrapper = await response.Content.ReadFromJsonAsync<ApiResponseWrapper<T>>(cancellationToken);
         if (wrapper == null)
