@@ -21,7 +21,7 @@ public static class HttpClientExtensions
         services.AddHttpClient<IApiClientService, ApiClientService>(client =>
         {
             client.BaseAddress = new Uri(baseAddress);
-            client.Timeout = TimeSpan.FromSeconds(15);
+            client.Timeout = TimeSpan.FromSeconds(20);
         })
         .AddPolicyHandler(retryPolicy)
         .AddPolicyHandler(circuitBreakerPolicy);
