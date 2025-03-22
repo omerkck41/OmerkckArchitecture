@@ -107,9 +107,8 @@ public class ApiClientService : IApiClientService
     {
         var wrapper = await response.Content.ReadFromJsonAsync<ApiResponseWrapper<T>>(cancellationToken);
         if (wrapper == null)
-        {
             throw new ApiException("Null response wrapper received.");
-        }
+
         return wrapper.Data;
     }
 }
