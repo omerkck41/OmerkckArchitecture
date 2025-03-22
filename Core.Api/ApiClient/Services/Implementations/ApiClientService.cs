@@ -14,21 +14,37 @@ public class ApiClientService : IApiClientService
         _httpClient = httpClient;
     }
 
+    private static async Task<ApiResponseWrapper<T>> HandleResponseAsync<T>(HttpResponseMessage response, CancellationToken cancellationToken)
+    {
+        var responseContent = await response.Content.ReadAsStringAsync(cancellationToken);
+
+        try
+        {
+            var apiResponse = System.Text.Json.JsonSerializer.Deserialize<ApiResponseWrapper<T>>(responseContent);
+            if (apiResponse == null)
+                throw new ApiException("API response deserialization failed.");
+
+            if (!apiResponse.IsSuccessful)
+                throw new ApiException(apiResponse.Message);
+
+            return apiResponse;
+        }
+        catch (Exception ex)
+        {
+            throw new ApiException($"Failed to process response: {ex.Message} - {responseContent}", ex);
+        }
+    }
+
     public async Task<T> GetAsync<T>(string requestUri, CancellationToken cancellationToken = default)
     {
         try
         {
             var response = await _httpClient.GetAsync(requestUri, cancellationToken);
-            if (!response.IsSuccessStatusCode)
-            {
-                var errorMessage = await response.Content.ReadAsStringAsync();
-                throw new ApiException($"GET {requestUri} failed: {response.StatusCode} - {errorMessage}");
-            }
-            return await ReadResponseContentAsync<T>(response, cancellationToken);
+            return (await HandleResponseAsync<T>(response, cancellationToken)).Data!;
         }
         catch (Exception ex)
         {
-            throw new ApiException($"Error in GET {requestUri}: {ex.Message}", ex);
+            throw new ApiException($"GET {requestUri} failed: {ex.Message}", ex);
         }
     }
 
@@ -37,16 +53,11 @@ public class ApiClientService : IApiClientService
         try
         {
             var response = await _httpClient.PostAsJsonAsync(requestUri, data, cancellationToken);
-            if (!response.IsSuccessStatusCode)
-            {
-                var errorMessage = await response.Content.ReadAsStringAsync();
-                throw new ApiException($"POST {requestUri} failed: {response.StatusCode} - {errorMessage}");
-            }
-            return await ReadResponseContentAsync<TResponse>(response, cancellationToken);
+            return (await HandleResponseAsync<TResponse>(response, cancellationToken)).Data!;
         }
         catch (Exception ex)
         {
-            throw new ApiException($"Error in POST {requestUri}: {ex.Message}", ex);
+            throw new ApiException($"POST {requestUri} failed: {ex.Message}", ex);
         }
     }
 
@@ -55,16 +66,11 @@ public class ApiClientService : IApiClientService
         try
         {
             var response = await _httpClient.PutAsJsonAsync(requestUri, data, cancellationToken);
-            if (!response.IsSuccessStatusCode)
-            {
-                var errorMessage = await response.Content.ReadAsStringAsync();
-                throw new ApiException($"PUT {requestUri} failed: {response.StatusCode} - {errorMessage}");
-            }
-            return await ReadResponseContentAsync<TResponse>(response, cancellationToken);
+            return (await HandleResponseAsync<TResponse>(response, cancellationToken)).Data!;
         }
         catch (Exception ex)
         {
-            throw new ApiException($"Error in PUT {requestUri}: {ex.Message}", ex);
+            throw new ApiException($"PUT {requestUri} failed: {ex.Message}", ex);
         }
     }
 
@@ -73,16 +79,11 @@ public class ApiClientService : IApiClientService
         try
         {
             var response = await _httpClient.PatchAsJsonAsync(requestUri, data, cancellationToken);
-            if (!response.IsSuccessStatusCode)
-            {
-                var errorMessage = await response.Content.ReadAsStringAsync();
-                throw new ApiException($"PATCH {requestUri} failed: {response.StatusCode} - {errorMessage}");
-            }
-            return await ReadResponseContentAsync<TResponse>(response, cancellationToken);
+            return (await HandleResponseAsync<TResponse>(response, cancellationToken)).Data!;
         }
         catch (Exception ex)
         {
-            throw new ApiException($"Error in PATCH {requestUri}: {ex.Message}", ex);
+            throw new ApiException($"PATCH {requestUri} failed: {ex.Message}", ex);
         }
     }
 
@@ -91,24 +92,11 @@ public class ApiClientService : IApiClientService
         try
         {
             var response = await _httpClient.DeleteAsync(requestUri, cancellationToken);
-            if (!response.IsSuccessStatusCode)
-            {
-                var errorMessage = await response.Content.ReadAsStringAsync();
-                throw new ApiException($"DELETE {requestUri} failed: {response.StatusCode} - {errorMessage}");
-            }
+            await HandleResponseAsync<object>(response, cancellationToken);
         }
         catch (Exception ex)
         {
-            throw new ApiException($"Error in DELETE {requestUri}: {ex.Message}", ex);
+            throw new ApiException($"DELETE {requestUri} failed: {ex.Message}", ex);
         }
-    }
-
-    private static async Task<T> ReadResponseContentAsync<T>(HttpResponseMessage response, CancellationToken cancellationToken)
-    {
-        var wrapper = await response.Content.ReadFromJsonAsync<ApiResponseWrapper<T>>(cancellationToken);
-        if (wrapper == null)
-            throw new ApiException("Null response wrapper received.");
-
-        return wrapper.Data;
     }
 }
