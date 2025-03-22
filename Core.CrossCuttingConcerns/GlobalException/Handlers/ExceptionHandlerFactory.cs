@@ -28,6 +28,7 @@ public class ExceptionHandlerFactory : IExceptionHandlerFactory
         {
             var handler = _serviceProvider.GetServices<IExceptionHandler>()
                 .FirstOrDefault(h => h.GetType() == handlerType);
+
             if (handler != null)
                 return handler;
         }
@@ -35,6 +36,7 @@ public class ExceptionHandlerFactory : IExceptionHandlerFactory
         // Eğer eşleşen özel handler bulunamazsa, GlobalExceptionHandler'ı döndür.
         var globalHandler = _serviceProvider.GetServices<IExceptionHandler>()
             .OfType<GlobalExceptionHandler>().FirstOrDefault();
+
         if (globalHandler != null)
             return globalHandler;
 

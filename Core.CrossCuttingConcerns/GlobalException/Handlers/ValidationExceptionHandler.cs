@@ -1,6 +1,7 @@
 ﻿using Core.CrossCuttingConcerns.GlobalException.Exceptions;
+using Core.CrossCuttingConcerns.GlobalException.Models;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+using System.Text.Json;
 
 namespace Core.CrossCuttingConcerns.GlobalException.Handlers;
 
@@ -13,18 +14,17 @@ public class ValidationExceptionHandler : IExceptionHandler
             context.Response.ContentType = "application/json";
             context.Response.StatusCode = StatusCodes.Status400BadRequest;
 
-            var problemDetails = new ProblemDetails
+            var errorResponse = new UnifiedApiErrorResponse
             {
-                Status = StatusCodes.Status400BadRequest,
-                Title = "Validation error",
+                StatusCode = StatusCodes.Status400BadRequest,
+                Message = "Validation error",
+                ErrorType = nameof(ValidationException),
                 Detail = "Validation failed for one or more fields.",
-                Extensions =
-                {
-                    ["errors"] = validationException.Errors
-                }
+                AdditionalData = validationException.Errors
             };
 
-            await context.Response.WriteAsJsonAsync(problemDetails);
+            JsonSerializerOptions options = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
+            await context.Response.WriteAsync(JsonSerializer.Serialize(errorResponse, options));
         }
     }
 }

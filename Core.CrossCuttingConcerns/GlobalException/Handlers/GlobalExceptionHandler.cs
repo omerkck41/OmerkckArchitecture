@@ -1,6 +1,7 @@
 ﻿using Core.CrossCuttingConcerns.GlobalException.Exceptions;
+using Core.CrossCuttingConcerns.GlobalException.Models;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+using System.Text.Json;
 using TimeoutException = Core.CrossCuttingConcerns.GlobalException.Exceptions.TimeoutException;
 using ValidationException = Core.CrossCuttingConcerns.GlobalException.Exceptions.ValidationException;
 
@@ -11,8 +12,7 @@ public class GlobalExceptionHandler : IExceptionHandler
 {
     public async Task HandleExceptionAsync(HttpContext context, System.Exception exception)
     {
-        context.Response.ContentType = "application/json";
-
+        // Hata tipi bazında status kodu belirleme
         var statusCode = exception switch
         {
             ValidationException => StatusCodes.Status400BadRequest,
@@ -25,22 +25,24 @@ public class GlobalExceptionHandler : IExceptionHandler
             _ => StatusCodes.Status500InternalServerError
         };
 
+        context.Response.ContentType = "application/json";
         context.Response.StatusCode = statusCode;
 
-        var problemDetails = new ProblemDetails
+        var errorResponse = new UnifiedApiErrorResponse
         {
-            Status = statusCode,
-            Title = statusCode == StatusCodes.Status500InternalServerError ? "Unexpected error occurred" : "Error",
-            Detail = exception.Message,
-            Extensions = { ["errorType"] = exception.GetType().Name }
+            StatusCode = statusCode,
+            Message = statusCode == StatusCodes.Status500InternalServerError ? "Unexpected error occurred" : "Error occurred",
+            ErrorType = exception.GetType().Name,
+            Detail = exception.Message
         };
 
         // Eğer exception, CustomException ise ve ek veri varsa bunu da ekle.
         if (exception is CustomException customException && customException.AdditionalData != null)
         {
-            problemDetails.Extensions["additionalData"] = customException.AdditionalData;
+            errorResponse.AdditionalData = customException.AdditionalData;
         }
 
-        await context.Response.WriteAsJsonAsync(problemDetails);
+        JsonSerializerOptions options = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
+        await context.Response.WriteAsync(JsonSerializer.Serialize(errorResponse, options));
     }
 }
