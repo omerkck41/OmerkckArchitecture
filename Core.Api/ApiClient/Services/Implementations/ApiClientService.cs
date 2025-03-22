@@ -2,6 +2,7 @@
 using Core.Api.ApiClient.Models;
 using Core.Api.ApiClient.Services.Interfaces;
 using System.Net.Http.Json;
+using System.Text.Json;
 
 namespace Core.Api.ApiClient.Services.Implementations;
 
@@ -20,12 +21,18 @@ public class ApiClientService : IApiClientService
 
         try
         {
-            var apiResponse = System.Text.Json.JsonSerializer.Deserialize<ApiResponseWrapper<T>>(responseContent);
+            JsonSerializerOptions options = new()
+            {
+                PropertyNameCaseInsensitive = true // camelCase ile PascalCase'i eşleştir
+            };
+
+            var apiResponse = JsonSerializer.Deserialize<ApiResponseWrapper<T>>(responseContent, options);
+
             if (apiResponse == null)
                 throw new ApiException("API response deserialization failed.");
 
             if (!apiResponse.IsSuccessful)
-                throw new ApiException(apiResponse.Message);
+                throw new ApiException(apiResponse.Message, apiResponse.StatusCode, apiResponse.ErrorType, apiResponse.Detail, apiResponse.AdditionalData);
 
             return apiResponse;
         }
@@ -42,8 +49,14 @@ public class ApiClientService : IApiClientService
             var response = await _httpClient.GetAsync(requestUri, cancellationToken);
             return (await HandleResponseAsync<T>(response, cancellationToken)).Data!;
         }
+        catch (HttpRequestException httpEx)
+        {
+            // HttpRequestException için özel işlemler
+            throw new ApiException($"GET {requestUri} failed due to a network error: {httpEx.Message}", httpEx);
+        }
         catch (Exception ex)
         {
+            // Diğer tüm hatalar için genel işlemler
             throw new ApiException($"GET {requestUri} failed: {ex.Message}", ex);
         }
     }
@@ -55,8 +68,14 @@ public class ApiClientService : IApiClientService
             var response = await _httpClient.PostAsJsonAsync(requestUri, data, cancellationToken);
             return (await HandleResponseAsync<TResponse>(response, cancellationToken)).Data!;
         }
+        catch (HttpRequestException httpEx)
+        {
+            // HttpRequestException için özel işlemler
+            throw new ApiException($"POST {requestUri} failed due to a network error: {httpEx.Message}", httpEx);
+        }
         catch (Exception ex)
         {
+            // Diğer tüm hatalar için genel işlemler
             throw new ApiException($"POST {requestUri} failed: {ex.Message}", ex);
         }
     }
@@ -68,8 +87,14 @@ public class ApiClientService : IApiClientService
             var response = await _httpClient.PutAsJsonAsync(requestUri, data, cancellationToken);
             return (await HandleResponseAsync<TResponse>(response, cancellationToken)).Data!;
         }
+        catch (HttpRequestException httpEx)
+        {
+            // HttpRequestException için özel işlemler
+            throw new ApiException($"PUT {requestUri} failed due to a network error: {httpEx.Message}", httpEx);
+        }
         catch (Exception ex)
         {
+            // Diğer tüm hatalar için genel işlemler
             throw new ApiException($"PUT {requestUri} failed: {ex.Message}", ex);
         }
     }
@@ -81,8 +106,14 @@ public class ApiClientService : IApiClientService
             var response = await _httpClient.PatchAsJsonAsync(requestUri, data, cancellationToken);
             return (await HandleResponseAsync<TResponse>(response, cancellationToken)).Data!;
         }
+        catch (HttpRequestException httpEx)
+        {
+            // HttpRequestException için özel işlemler
+            throw new ApiException($"PATCH {requestUri} failed due to a network error: {httpEx.Message}", httpEx);
+        }
         catch (Exception ex)
         {
+            // Diğer tüm hatalar için genel işlemler
             throw new ApiException($"PATCH {requestUri} failed: {ex.Message}", ex);
         }
     }
@@ -94,8 +125,14 @@ public class ApiClientService : IApiClientService
             var response = await _httpClient.DeleteAsync(requestUri, cancellationToken);
             await HandleResponseAsync<object>(response, cancellationToken);
         }
+        catch (HttpRequestException httpEx)
+        {
+            // HttpRequestException için özel işlemler
+            throw new ApiException($"DELETE {requestUri} failed due to a network error: {httpEx.Message}", httpEx);
+        }
         catch (Exception ex)
         {
+            // Diğer tüm hatalar için genel işlemler
             throw new ApiException($"DELETE {requestUri} failed: {ex.Message}", ex);
         }
     }
