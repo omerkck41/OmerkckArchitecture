@@ -12,16 +12,26 @@ public static class HttpClientExtensions
     {
         var retryPolicy = HttpPolicyExtensions
             .HandleTransientHttpError()
-            .WaitAndRetryAsync(3, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)));
+            .WaitAndRetryAsync(
+                retryCount: 3,
+                sleepDurationProvider: retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)),
+                onRetry: (outcome, timespan, retryAttempt, context) =>
+                {
+                    // İsteğe bağlı loglama yapılabilir.
+                });
 
+        // Circuit breaker süresini 30 saniyeye indirerek daha hızlı açılması sağlandı.
         var circuitBreakerPolicy = Policy<HttpResponseMessage>
             .Handle<HttpRequestException>()
-            .CircuitBreakerAsync(2, TimeSpan.FromMinutes(1));
+            .CircuitBreakerAsync(2, TimeSpan.FromSeconds(30));
 
         services.AddHttpClient<IApiClientService, ApiClientService>(client =>
         {
             client.BaseAddress = new Uri(baseAddress);
             client.Timeout = TimeSpan.FromSeconds(20);
+            // HTTP/2 desteği etkinleştirildi.
+            client.DefaultRequestVersion = new Version(2, 0);
+            client.DefaultVersionPolicy = HttpVersionPolicy.RequestVersionOrLower;
         })
         .AddPolicyHandler(retryPolicy)
         .AddPolicyHandler(circuitBreakerPolicy);

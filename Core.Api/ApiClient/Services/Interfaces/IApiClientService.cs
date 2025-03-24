@@ -7,4 +7,6 @@ public interface IApiClientService
     Task<TResponse> PutAsync<TRequest, TResponse>(string requestUri, TRequest data, CancellationToken cancellationToken = default);
     Task<TResponse> PatchAsync<TRequest, TResponse>(string requestUri, TRequest data, CancellationToken cancellationToken = default);
     Task DeleteAsync(string requestUri, CancellationToken cancellationToken = default);
+
+    Task<IEnumerable<T>> GetMultipleAsync<T>(IEnumerable<string> requestUris, CancellationToken cancellationToken = default);
 }
