@@ -7,6 +7,11 @@ namespace Core.CrossCuttingConcerns.GlobalException.Handlers;
 
 public class ValidationExceptionHandler : IExceptionHandler
 {
+    private static readonly JsonSerializerOptions _jsonOptions = new JsonSerializerOptions
+    {
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+    };
+
     public async Task HandleExceptionAsync(HttpContext context, Exception exception)
     {
         if (exception is ValidationException validationException)
@@ -23,8 +28,7 @@ public class ValidationExceptionHandler : IExceptionHandler
                 AdditionalData = validationException.Errors
             };
 
-            JsonSerializerOptions options = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
-            await context.Response.WriteAsync(JsonSerializer.Serialize(errorResponse, options));
+            await context.Response.WriteAsync(JsonSerializer.Serialize(errorResponse, _jsonOptions));
         }
     }
 }
