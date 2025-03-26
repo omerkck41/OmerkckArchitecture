@@ -32,6 +32,13 @@ public class ApiClientService : IApiClientService
     {
         try
         {
+            // 401 ise UnauthorizedException fırlat
+            if (response.StatusCode == HttpStatusCode.Unauthorized)
+            {
+                var unauthorizedContent = await response.Content.ReadAsStringAsync(cancellationToken);
+                throw new UnauthorizedException($"Unauthorized: {unauthorizedContent}");
+            }
+
             // ReadFromJsonAsync ile doğrudan stream üzerinden deserialize işlemi yapılır.
             var apiResponse = await response.Content.ReadFromJsonAsync<ApiResponseWrapper<T>>(_jsonOptions, cancellationToken);
 
@@ -85,15 +92,17 @@ public class ApiClientService : IApiClientService
         {
             var response = await _httpClient.PostAsJsonAsync(requestUri, data, cancellationToken);
 
-            // Yanıtı işlemeye başlamadan önce statü kodunu kontrol edelim
+            // Eğer 401 dönüyorsa, UnauthorizedException fırlatıyoruz
             if (response.StatusCode == HttpStatusCode.Unauthorized)
             {
-                // 401 durumunda, direkt olarak UnauthorizedException fırlat
-                var jsonData = await response.Content.ReadAsStringAsync(cancellationToken);
-                throw new UnauthorizedException($"POST {requestUri} failed: {jsonData}");
+                var content = await response.Content.ReadAsStringAsync(cancellationToken);
+                // İçerikte dönen hata mesajını ekliyoruz
+                throw new UnauthorizedException($"POST {requestUri} failed: {content}");
             }
 
-            return (await HandleResponseAsync<TResponse>(response, cancellationToken)).Data!;
+            // 401 haricindeki hatalar için yine HandleResponseAsync kullanılabilir
+            var apiResponse = await HandleResponseAsync<TResponse>(response, cancellationToken);
+            return apiResponse.Data!;
         }
         catch (HttpRequestException httpEx)
         {
