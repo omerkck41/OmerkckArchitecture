@@ -5,6 +5,9 @@ namespace Core.Api.ApiControllerBase.Responses;
 
 public static class ApiResponseExtensions
 {
+    /// <summary>
+    /// ApiResponse nesnesini ObjectResult'a dönüştürür ve gerekirse Location header ekler.
+    /// </summary>
     public static IActionResult ToActionResult<T>(this ApiResponse<T> response, HttpContext? httpContext = null)
     {
         var result = new ObjectResult(response)
@@ -14,7 +17,11 @@ public static class ApiResponseExtensions
 
         if (!string.IsNullOrEmpty(response.LocationHeader) && httpContext is not null)
         {
-            httpContext.Response.Headers.Append("Location", response.LocationHeader);
+            // Eğer Location header zaten varsa üzerine eklemeden önce kontrol edilebilir.
+            if (!httpContext.Response.Headers.ContainsKey("Location"))
+            {
+                httpContext.Response.Headers.Append("Location", response.LocationHeader);
+            }
         }
 
         return result;
