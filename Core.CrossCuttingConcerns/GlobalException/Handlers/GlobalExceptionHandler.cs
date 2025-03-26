@@ -10,11 +10,6 @@ namespace Core.CrossCuttingConcerns.GlobalException.Handlers;
 
 public class GlobalExceptionHandler : IExceptionHandler
 {
-    private static readonly JsonSerializerOptions _jsonOptions = new JsonSerializerOptions
-    {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-    };
-
     public async Task HandleExceptionAsync(HttpContext context, Exception exception)
     {
         var statusCode = exception switch
@@ -35,18 +30,14 @@ public class GlobalExceptionHandler : IExceptionHandler
         var errorResponse = new UnifiedApiErrorResponse
         {
             StatusCode = statusCode,
-            Message = statusCode == StatusCodes.Status500InternalServerError
-                        ? "Unexpected error occurred"
-                        : "Error occurred",
+            Message = exception is UnauthorizedException ? exception.Message : "Unexpected error occurred",
             ErrorType = exception.GetType().Name,
             Detail = exception.Message
         };
 
-        if (exception is CustomException customException && customException.AdditionalData != null)
+        await context.Response.WriteAsync(JsonSerializer.Serialize(errorResponse, new JsonSerializerOptions
         {
-            errorResponse.AdditionalData = customException.AdditionalData;
-        }
-
-        await context.Response.WriteAsync(JsonSerializer.Serialize(errorResponse, _jsonOptions));
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+        }));
     }
 }

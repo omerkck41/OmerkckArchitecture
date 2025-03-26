@@ -1,7 +1,9 @@
 ﻿using Core.Api.ApiClient.Exceptions;
 using Core.Api.ApiClient.Models;
 using Core.Api.ApiClient.Services.Interfaces;
+using Core.CrossCuttingConcerns.GlobalException.Exceptions;
 using Microsoft.Extensions.Caching.Memory;
+using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
 
@@ -82,6 +84,15 @@ public class ApiClientService : IApiClientService
         try
         {
             var response = await _httpClient.PostAsJsonAsync(requestUri, data, cancellationToken);
+
+            // Yanıtı işlemeye başlamadan önce statü kodunu kontrol edelim
+            if (response.StatusCode == HttpStatusCode.Unauthorized)
+            {
+                // 401 durumunda, direkt olarak UnauthorizedException fırlat
+                var jsonData = await response.Content.ReadAsStringAsync(cancellationToken);
+                throw new UnauthorizedException($"POST {requestUri} failed: {jsonData}");
+            }
+
             return (await HandleResponseAsync<TResponse>(response, cancellationToken)).Data!;
         }
         catch (HttpRequestException httpEx)
