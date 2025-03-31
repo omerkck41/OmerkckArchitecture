@@ -1,11 +1,13 @@
 ﻿using Core.CrossCuttingConcerns.GlobalException.Exceptions;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using StackExchange.Redis;
 using System.Text;
+using System.Text.Json;
 
 namespace Core.Security.JWT;
 
@@ -33,12 +35,12 @@ public static class ServiceCollectionExtensions
         services.Configure<TokenOptions>(configuration.GetSection("TokenOptions"));
         services.AddSingleton(sp => sp.GetRequiredService<IOptions<TokenOptions>>().Value);
 
-        // JWT Authentication yapılandırması
+        // JWT Authentication yapılandırması (Cookie ayarları kullanılmayacak)
         services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             .AddJwtBearer(options =>
             {
                 var tokenOptions = services.BuildServiceProvider().GetRequiredService<IOptions<TokenOptions>>().Value
-                ?? throw new CustomException("TokenOptions yapılandırması bulunamadı.");
+                ?? throw new CustomException("TokenOptions configuration not found.");
 
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
@@ -51,6 +53,27 @@ public static class ServiceCollectionExtensions
                     ValidAudience = tokenOptions.Audience,
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(tokenOptions.SecurityKey))
                 };
+
+                // AJAX istekleri ve API tüketicileri için yönlendirme yerine 401 yanıtı ve kullanıcı dostu mesaj döndür
+                options.Events = new JwtBearerEvents
+                {
+                    OnChallenge = context =>
+                    {
+                        // Varsayılan challenge davranışını iptal ediyoruz
+                        context.HandleResponse();
+                        context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                        context.Response.ContentType = "application/json";
+
+                        var response = JsonSerializer.Serialize(new
+                        {
+                            success = false,
+                            message = "Please login to access this page."
+                        });
+
+                        return context.Response.WriteAsync(response);
+                    }
+                };
+
             });
 
         var redisConfig = configuration.GetSection("Redis:Connection").Value;
