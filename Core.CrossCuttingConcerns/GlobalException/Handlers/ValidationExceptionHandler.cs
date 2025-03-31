@@ -1,16 +1,23 @@
 ﻿using Core.CrossCuttingConcerns.GlobalException.Exceptions;
 using Core.CrossCuttingConcerns.GlobalException.Models;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 using System.Text.Json;
 
 namespace Core.CrossCuttingConcerns.GlobalException.Handlers;
 
 public class ValidationExceptionHandler : IExceptionHandler
 {
+    private readonly ILogger<ValidationExceptionHandler> _logger;
     private static readonly JsonSerializerOptions _jsonOptions = new JsonSerializerOptions
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase
     };
+
+    public ValidationExceptionHandler(ILogger<ValidationExceptionHandler> logger)
+    {
+        _logger = logger;
+    }
 
     public async Task HandleExceptionAsync(HttpContext context, Exception exception)
     {
@@ -19,13 +26,17 @@ public class ValidationExceptionHandler : IExceptionHandler
             context.Response.ContentType = "application/json";
             context.Response.StatusCode = StatusCodes.Status400BadRequest;
 
+            // Hata kimliği oluşturma
+            var errorId = Guid.NewGuid().ToString();
+            _logger.LogWarning(exception, "Validation error occurred. ErrorId: {ErrorId}", errorId);
+
             var errorResponse = new UnifiedApiErrorResponse
             {
                 StatusCode = StatusCodes.Status400BadRequest,
                 Message = "Validation error",
                 ErrorType = nameof(ValidationException),
                 Detail = "Validation failed for one or more fields.",
-                AdditionalData = validationException.Errors
+                AdditionalData = new { ErrorId = errorId, Errors = validationException.Errors }
             };
 
             await context.Response.WriteAsync(JsonSerializer.Serialize(errorResponse, _jsonOptions));

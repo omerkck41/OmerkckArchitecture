@@ -7,11 +7,11 @@ public class ExceptionHandlerFactory : IExceptionHandlerFactory
 {
     private readonly IServiceProvider _serviceProvider;
     private static readonly Dictionary<Type, Type> ExceptionHandlerMapping = new()
-        {
-            // Özel handler eşlemeleri: eğer ValidationException fırlatılırsa, ValidationExceptionHandler kullanılacak.
-            { typeof(ValidationException), typeof(ValidationExceptionHandler) }
-            // İleride diğer exception tiplerini de ekleyebilirsiniz.
-        };
+    {
+        // Özel handler eşlemeleri: eğer ValidationException fırlatılırsa, ValidationExceptionHandler kullanılacak.
+        { typeof(ValidationException), typeof(ValidationExceptionHandler) }
+        // İleride diğer exception tiplerini de ekleyebilirsiniz.
+    };
 
     public ExceptionHandlerFactory(IServiceProvider serviceProvider)
     {
