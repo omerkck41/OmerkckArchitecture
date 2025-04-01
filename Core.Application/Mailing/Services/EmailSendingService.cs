@@ -49,7 +49,7 @@ public class EmailSendingService : IMailService
             }
         }
 
-        throw new CustomException("All email providers failed to send the email.");
+        throw new CustomArgumentException("All email providers failed to send the email.");
     }
 
     /// <summary>

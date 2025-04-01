@@ -1,4 +1,5 @@
 ﻿using Core.BackgroundJobs.Interfaces;
+using Core.CrossCuttingConcerns.GlobalException.Exceptions;
 using Hangfire;
 using Quartz;
 
@@ -9,9 +10,9 @@ public class HangfireJobScheduler : IJobScheduler
     public async Task ScheduleRecurringJob<T>(string jobId, string cronExpression) where T : IJob
     {
         if (string.IsNullOrEmpty(jobId))
-            throw new ArgumentException("Job ID cannot be null or empty.", nameof(jobId));
+            throw new CustomArgumentException("Job ID cannot be null or empty.", nameof(jobId));
         if (string.IsNullOrEmpty(cronExpression))
-            throw new ArgumentException("Cron expression cannot be null or empty.", nameof(cronExpression));
+            throw new CustomArgumentException("Cron expression cannot be null or empty.", nameof(cronExpression));
 
         RecurringJob.AddOrUpdate<T>(jobId, job => job.Execute(null!), cronExpression);
         await Task.CompletedTask;

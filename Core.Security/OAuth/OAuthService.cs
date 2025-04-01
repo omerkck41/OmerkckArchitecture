@@ -14,8 +14,8 @@ public class OAuthService : IOAuthService
 
     public OAuthService(OAuthConfiguration configuration, HttpClient httpClient)
     {
-        _configuration = configuration ?? throw new CustomException(nameof(configuration));
-        _httpClient = httpClient ?? throw new CustomException(nameof(httpClient));
+        _configuration = configuration ?? throw new CustomArgumentException(nameof(configuration));
+        _httpClient = httpClient ?? throw new CustomArgumentException(nameof(httpClient));
     }
 
     public string GetAuthorizationUrl()

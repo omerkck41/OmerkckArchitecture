@@ -27,14 +27,14 @@ public class RateLimitingSmtpClientSelector : ISmtpClientSelector
                 _sendCounts[client]++;
                 return client;
             }
-            throw new CustomException("No available SMTP client within the rate limit.");
+            throw new CustomArgumentException("No available SMTP client within the rate limit.");
         }
     }
 
     public void RegisterSend(SmtpClient smtpClient)
     {
         if (!_sendCounts.TryGetValue(smtpClient, out int value))
-            throw new CustomException("SMTP client not registered.");
+            throw new CustomArgumentException("SMTP client not registered.");
 
         _sendCounts[smtpClient] = value + 1;
     }

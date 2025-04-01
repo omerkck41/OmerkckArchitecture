@@ -17,20 +17,20 @@ public class OAuthConfiguration
     public OAuthConfiguration(OAuthSettings settings)
     {
         if (settings == null)
-            throw new CustomException(nameof(settings));
+            throw new CustomArgumentException(nameof(settings));
 
         if (string.IsNullOrEmpty(settings.ClientId))
-            throw new CustomException(nameof(settings.ClientId));
+            throw new CustomArgumentException(nameof(settings.ClientId));
         if (string.IsNullOrEmpty(settings.ClientSecret))
-            throw new CustomException(nameof(settings.ClientSecret));
+            throw new CustomArgumentException(nameof(settings.ClientSecret));
         if (string.IsNullOrEmpty(settings.AuthorizationEndpoint))
-            throw new CustomException(nameof(settings.AuthorizationEndpoint));
+            throw new CustomArgumentException(nameof(settings.AuthorizationEndpoint));
         if (string.IsNullOrEmpty(settings.TokenEndpoint))
-            throw new CustomException(nameof(settings.TokenEndpoint));
+            throw new CustomArgumentException(nameof(settings.TokenEndpoint));
         if (string.IsNullOrEmpty(settings.RedirectUri))
-            throw new CustomException(nameof(settings.RedirectUri));
+            throw new CustomArgumentException(nameof(settings.RedirectUri));
         if (string.IsNullOrEmpty(settings.UserInfoEndpoint))
-            throw new CustomException(nameof(settings.UserInfoEndpoint));
+            throw new CustomArgumentException(nameof(settings.UserInfoEndpoint));
 
         ClientId = settings.ClientId;
         ClientSecret = settings.ClientSecret;

@@ -13,6 +13,6 @@ public class SecretsManager
 
     public string GetSecret(string key)
     {
-        return _secrets.ContainsKey(key) ? _secrets[key] : throw new CustomException($"Secret with key '{key}' not found.");
+        return _secrets.ContainsKey(key) ? _secrets[key] : throw new CustomArgumentException($"Secret with key '{key}' not found.");
     }
 }

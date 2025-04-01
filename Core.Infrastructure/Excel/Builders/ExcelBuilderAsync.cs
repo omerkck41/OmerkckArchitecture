@@ -1,4 +1,5 @@
 ﻿using ClosedXML.Excel;
+using Core.CrossCuttingConcerns.GlobalException.Exceptions;
 using Core.Infrastructure.Excel.Interfaces;
 using System.Text;
 
@@ -256,10 +257,10 @@ public class ExcelBuilderAsync : IExcelBuilderAsync
         return Task.Run(async () =>
         {
             if (string.IsNullOrEmpty(filePath))
-                throw new ArgumentException("File path cannot be empty or null.", nameof(filePath));
+                throw new CustomArgumentException("File path cannot be empty or null.", nameof(filePath));
 
             if (data == null || data.Count == 0)
-                throw new ArgumentException("Data cannot be empty or null.", nameof(data));
+                throw new CustomArgumentException("Data cannot be empty or null.", nameof(data));
 
             await AddWorksheetAsync("Export");
 
@@ -308,10 +309,10 @@ public class ExcelBuilderAsync : IExcelBuilderAsync
     public Task<List<T>> ImportToEntityAsync<T>(string filePath)
     {
         if (string.IsNullOrEmpty(filePath))
-            throw new ArgumentException("File path cannot be empty or null.", nameof(filePath));
+            throw new CustomArgumentException("File path cannot be empty or null.", nameof(filePath));
 
         if (!File.Exists(filePath))
-            throw new FileNotFoundException("The specified file was not found.", filePath);
+            throw new NotFoundException("The specified file was not found.", filePath);
 
         var result = new List<T>();
         var properties = typeof(T).GetProperties();
@@ -319,7 +320,7 @@ public class ExcelBuilderAsync : IExcelBuilderAsync
         return Task.Run(() =>
         {
             using var workbook = new XLWorkbook(filePath);
-            var worksheet = workbook.Worksheet(1) ?? throw new InvalidOperationException("No worksheets found in the Excel file.");
+            var worksheet = workbook.Worksheet(1) ?? throw new CustomInvalidOperationException("No worksheets found in the Excel file.");
             var rows = worksheet.RowsUsed().ToList();
             var headerRow = rows.First();
             var headers = headerRow.CellsUsed()
@@ -373,7 +374,7 @@ public class ExcelBuilderAsync : IExcelBuilderAsync
         }
         else
         {
-            throw new NotSupportedException($"The format '{format}' is not supported.");
+            throw new CustomException($"The format '{format}' is not supported.");
         }
 
         if (exportToPdf)
@@ -407,18 +408,18 @@ public class ExcelBuilderAsync : IExcelBuilderAsync
 
                 if (process.ExitCode != 0)
                 {
-                    throw new InvalidOperationException("Error occurred during PDF export process.");
+                    throw new CustomInvalidOperationException("Error occurred during PDF export process.");
                 }
 
                 // PDF'nin başarıyla oluşup oluşmadığını kontrol et
                 if (!File.Exists(pdfFilePath))
                 {
-                    throw new FileNotFoundException("PDF export failed. Output file not created.", pdfFilePath);
+                    throw new NotFoundException("PDF export failed. Output file not created.", pdfFilePath);
                 }
             }
             catch (Exception ex)
             {
-                throw new InvalidOperationException($"Failed to export Excel to PDF: {ex.Message}", ex);
+                throw new CustomInvalidOperationException($"Failed to export Excel to PDF: {ex.Message}", ex);
             }
             finally
             {
@@ -436,7 +437,7 @@ public class ExcelBuilderAsync : IExcelBuilderAsync
         return Task.Run(() =>
         {
             if (string.IsNullOrEmpty(filePath))
-                throw new ArgumentException("File path cannot be empty or null.", nameof(filePath));
+                throw new CustomArgumentException("File path cannot be empty or null.", nameof(filePath));
 
             EnsureWorksheetSelectedAsync();
             var csvContent = new StringBuilder();
@@ -469,7 +470,7 @@ public class ExcelBuilderAsync : IExcelBuilderAsync
         {
             if (_currentWorksheet == null)
             {
-                throw new InvalidOperationException("No worksheet is currently selected. Use AddWorksheetAsync or SelectWorksheetAsync first.");
+                throw new CustomInvalidOperationException("No worksheet is currently selected. Use AddWorksheetAsync or SelectWorksheetAsync first.");
             }
         });
     }
@@ -479,7 +480,7 @@ public static class EnumerableExtensions
 {
     public static IEnumerable<IEnumerable<T>> Batch<T>(this IEnumerable<T> source, int size)
     {
-        if (size <= 0) throw new ArgumentException("Batch size must be greater than 0.", nameof(size));
+        if (size <= 0) throw new CustomArgumentException("Batch size must be greater than 0.", nameof(size));
 
         List<T> batch = new(size);
         foreach (var item in source)

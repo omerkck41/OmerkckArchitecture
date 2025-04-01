@@ -1,4 +1,5 @@
-﻿using Core.Infrastructure.UniversalFTP.Services.Implementations;
+﻿using Core.CrossCuttingConcerns.GlobalException.Exceptions;
+using Core.Infrastructure.UniversalFTP.Services.Implementations;
 using Core.Infrastructure.UniversalFTP.Services.Models;
 
 namespace Core.Infrastructure.UniversalFTP.Factories;
@@ -9,7 +10,7 @@ public class DefaultFtpClientFactory : IFtpClientFactory
 
     public DefaultFtpClientFactory(FtpConnectionPool connectionPool)
     {
-        _connectionPool = connectionPool ?? throw new ArgumentNullException(nameof(connectionPool));
+        _connectionPool = connectionPool ?? throw new CustomArgumentException(nameof(connectionPool));
     }
 
     public FluentFtpService CreateFtpService(FtpSettings settings)

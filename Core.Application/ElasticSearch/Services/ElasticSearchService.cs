@@ -1,4 +1,5 @@
 ﻿using Core.Application.ElasticSearch.Interfaces;
+using Core.CrossCuttingConcerns.GlobalException.Exceptions;
 using Elastic.Clients.Elasticsearch;
 using Elastic.Transport;
 using Microsoft.Extensions.Configuration;
@@ -16,7 +17,7 @@ public class ElasticSearchService : IElasticSearchService
         _logger = logger;
 
         var settings = configuration.GetSection("ElasticSearchSettings").Get<ElasticSearchSettings>()
-                      ?? throw new InvalidOperationException("ElasticSearch settings are not configured.");
+                      ?? throw new CustomInvalidOperationException("ElasticSearch settings are not configured.");
 
         var clientSettings = new ElasticsearchClientSettings(new Uri(settings.ConnectionString))
             .DefaultIndex(settings.DefaultIndex)

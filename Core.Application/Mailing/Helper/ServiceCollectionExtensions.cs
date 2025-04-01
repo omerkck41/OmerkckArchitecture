@@ -16,7 +16,7 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddMailingServicesFromJson(this IServiceCollection services, IConfiguration configuration)
     {
         if (configuration == null)
-            throw new CustomException(nameof(configuration));
+            throw new CustomArgumentException(nameof(configuration));
 
         // IOptions pattern ile EmailSettings strongly-typed olarak register ediliyor
         services.Configure<EmailSettings>(configuration.GetSection("EmailSettings"));
@@ -30,7 +30,7 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddMailingServicesFromObject(this IServiceCollection services, EmailSettings emailSettings)
     {
         if (emailSettings == null)
-            throw new CustomException(nameof(emailSettings), "EmailSettings cannot be null.");
+            throw new CustomArgumentException(nameof(emailSettings), "EmailSettings cannot be null.");
 
         // Options.Create ile EmailSettings'i IOptions olarak register ediyoruz
         services.AddSingleton(Options.Create(emailSettings));

@@ -22,14 +22,14 @@ public class JwtHelper<TUserId, TOperationClaimId, TRefreshTokenId> : ITokenHelp
     /// <param name="tokenOptions">JWT token yapılandırma seçenekleri.</param>
     /// <param name="tokenBlacklist">Token kara liste kontrolü için kullanılacak sınıf.</param>
     /// <param name="refreshTokenRepository">Refresh token yönetimi için kullanılacak repository.</param>
-    /// <exception cref="CustomException">Token yapılandırma seçenekleri yüklenemezse fırlatılır.</exception>
+    /// <exception cref="CustomInvalidOperationException">Token yapılandırma seçenekleri yüklenemezse fırlatılır.</exception>
     public JwtHelper(IOptions<TokenOptions> tokenOptions, ITokenBlacklistManager<TUserId> tokenBlacklistManager)
     {
-        _tokenOptions = tokenOptions.Value ?? throw new CustomException("Token options are not configured.");
+        _tokenOptions = tokenOptions.Value ?? throw new CustomInvalidOperationException("Token options are not configured.");
         _tokenBlacklistManager = tokenBlacklistManager;
 
         if (string.IsNullOrWhiteSpace(_tokenOptions.SecurityKey))
-            throw new CustomException("SecurityKey is not configured properly.");
+            throw new CustomInvalidOperationException("SecurityKey is not configured properly.");
 
         _securityKey = new Lazy<SymmetricSecurityKey>(() => new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_tokenOptions.SecurityKey)));
         _signingCredentials = new Lazy<SigningCredentials>(() => new SigningCredentials(_securityKey.Value, SecurityAlgorithms.HmacSha512Signature));
@@ -152,7 +152,7 @@ public class JwtHelper<TUserId, TOperationClaimId, TRefreshTokenId> : ITokenHelp
         var userIdClaim = claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
 
         if (userIdClaim == null)
-            throw new CustomException("User ID claim not found in token.");
+            throw new CustomInvalidOperationException("User ID claim not found in token.");
 
         return (TUserId)Convert.ChangeType(userIdClaim, typeof(TUserId));
     }

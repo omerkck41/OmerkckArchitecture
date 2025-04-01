@@ -1,4 +1,5 @@
 ﻿using ClosedXML.Excel;
+using Core.CrossCuttingConcerns.GlobalException.Exceptions;
 using Core.Infrastructure.Excel.Interfaces;
 using System.Reflection;
 using System.Text;
@@ -130,16 +131,16 @@ public class ExcelBuilder : IExcelBuilder
         EnsureWorksheetSelected();
 
         if (_currentWorksheet == null)
-            throw new InvalidOperationException("Worksheet is not selected.");
+            throw new CustomInvalidOperationException("Worksheet is not selected.");
 
-        var row = _currentWorksheet.Row(startRow) ?? throw new InvalidOperationException($"Row {startRow} does not exist in the worksheet.");
+        var row = _currentWorksheet.Row(startRow) ?? throw new CustomInvalidOperationException($"Row {startRow} does not exist in the worksheet.");
         row.InsertRowsAbove(numberOfRows);
 
         var lastColumn = _currentWorksheet.LastColumnUsed()?.ColumnNumber();
         if (lastColumn != null)
             SetRangeValues(startRow, 1, startRow + numberOfRows - 1, lastColumn.Value, defaultValue);
         else
-            throw new InvalidOperationException("No columns found in the worksheet.");
+            throw new CustomInvalidOperationException("No columns found in the worksheet.");
     }
 
     public void BatchInsertColumns(int startColumn, int numberOfColumns, object defaultValue)
@@ -147,16 +148,16 @@ public class ExcelBuilder : IExcelBuilder
         EnsureWorksheetSelected();
 
         if (_currentWorksheet == null)
-            throw new InvalidOperationException("Worksheet is not selected.");
+            throw new CustomInvalidOperationException("Worksheet is not selected.");
 
-        var column = _currentWorksheet.Column(startColumn) ?? throw new InvalidOperationException($"Column {startColumn} does not exist in the worksheet.");
+        var column = _currentWorksheet.Column(startColumn) ?? throw new CustomInvalidOperationException($"Column {startColumn} does not exist in the worksheet.");
         column.InsertColumnsBefore(numberOfColumns);
 
         var lastRow = _currentWorksheet.LastRowUsed()?.RowNumber();
         if (lastRow != null)
             SetRangeValues(1, startColumn, lastRow.Value, startColumn + numberOfColumns - 1, defaultValue);
         else
-            throw new InvalidOperationException("No rows found in the worksheet.");
+            throw new CustomInvalidOperationException("No rows found in the worksheet.");
     }
     public void BatchInsertData<T>(string startCell, IEnumerable<T> data, int batchSize = 1000)
     {
@@ -249,9 +250,9 @@ public class ExcelBuilder : IExcelBuilder
     public void ExportToExcel<T>(string filePath, List<T> data)
     {
         if (string.IsNullOrEmpty(filePath))
-            throw new ArgumentException("File path cannot be empty or null.", nameof(filePath));
+            throw new CustomArgumentException("File path cannot be empty or null.", nameof(filePath));
         if (data == null || data.Count == 0)
-            throw new ArgumentException("Data cannot be empty or null.", nameof(data));
+            throw new CustomArgumentException("Data cannot be empty or null.", nameof(data));
 
         AddWorksheet("Export");
         var properties = typeof(T).GetProperties();
@@ -295,10 +296,10 @@ public class ExcelBuilder : IExcelBuilder
     public Task<List<T>> ImportToEntityAsync<T>(string filePath)
     {
         if (string.IsNullOrEmpty(filePath))
-            throw new ArgumentException("File path cannot be empty or null.", nameof(filePath));
+            throw new CustomArgumentException("File path cannot be empty or null.", nameof(filePath));
 
         if (!File.Exists(filePath))
-            throw new FileNotFoundException("The specified file was not found.", filePath);
+            throw new NotFoundException("The specified file was not found.", filePath);
 
         var result = new List<T>();
         var properties = typeof(T).GetProperties();
@@ -306,7 +307,7 @@ public class ExcelBuilder : IExcelBuilder
         return Task.Run(() =>
         {
             using var workbook = new XLWorkbook(filePath);
-            var worksheet = workbook.Worksheet(1) ?? throw new InvalidOperationException("No worksheets found in the Excel file.");
+            var worksheet = workbook.Worksheet(1) ?? throw new CustomInvalidOperationException("No worksheets found in the Excel file.");
             var rows = worksheet.RowsUsed().ToList();
             var headerRow = rows.First();
             var headers = headerRow.CellsUsed()
@@ -350,7 +351,7 @@ public class ExcelBuilder : IExcelBuilder
     public void SaveAs(string filePath, string format = "xlsx", bool exportToPdf = false)
     {
         if (string.IsNullOrEmpty(filePath))
-            throw new ArgumentException("File path cannot be empty or null.", nameof(filePath));
+            throw new CustomArgumentException("File path cannot be empty or null.", nameof(filePath));
 
         if (format.Equals("xlsx", StringComparison.OrdinalIgnoreCase))
         {
@@ -362,7 +363,7 @@ public class ExcelBuilder : IExcelBuilder
         }
         else
         {
-            throw new NotSupportedException($"The format '{format}' is not supported.");
+            throw new CustomException($"The format '{format}' is not supported.");
         }
 
         // Optionally export to PDF
@@ -376,7 +377,7 @@ public class ExcelBuilder : IExcelBuilder
     public void SaveAsCsv(string filePath)
     {
         if (string.IsNullOrEmpty(filePath))
-            throw new ArgumentException("File path cannot be empty or null.", nameof(filePath));
+            throw new CustomArgumentException("File path cannot be empty or null.", nameof(filePath));
 
         EnsureWorksheetSelected();
         var csvContent = new StringBuilder();
@@ -415,18 +416,18 @@ public class ExcelBuilder : IExcelBuilder
 
             if (process.ExitCode != 0)
             {
-                throw new InvalidOperationException("Error occurred during PDF export process.");
+                throw new CustomInvalidOperationException("Error occurred during PDF export process.");
             }
 
             // PDF'nin başarıyla oluşup oluşmadığını kontrol et
             if (!File.Exists(pdfFilePath))
             {
-                throw new FileNotFoundException("PDF export failed. Output file not created.", pdfFilePath);
+                throw new NotFoundException("PDF export failed. Output file not created.", pdfFilePath);
             }
         }
         catch (Exception ex)
         {
-            throw new InvalidOperationException($"Failed to export Excel to PDF: {ex.Message}", ex);
+            throw new CustomInvalidOperationException($"Failed to export Excel to PDF: {ex.Message}", ex);
         }
         finally
         {
@@ -457,7 +458,7 @@ public class ExcelBuilder : IExcelBuilder
     {
         if (_currentWorksheet == null)
         {
-            throw new InvalidOperationException("No worksheet is currently selected. Use AddWorksheet or SelectWorksheet first.");
+            throw new CustomInvalidOperationException("No worksheet is currently selected. Use AddWorksheet or SelectWorksheet first.");
         }
     }
 }

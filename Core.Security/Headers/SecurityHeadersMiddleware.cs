@@ -28,10 +28,10 @@ public class SecurityHeadersMiddleware
     {
         var headers = context.Response.Headers;
 
-        headers["X-Content-Type-Options"] = "nosniff";
-        headers["X-Frame-Options"] = "DENY";
-        headers["Content-Security-Policy"] = "default-src 'self'; script-src 'self'; style-src 'self';";
+        headers.XContentTypeOptions = "nosniff";
+        headers.XFrameOptions = "DENY";
+        headers.ContentSecurityPolicy = "default-src 'self'; script-src 'self'; style-src 'self';";
         headers["Referrer-Policy"] = "no-referrer";
-        headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains";
+        headers.StrictTransportSecurity = "max-age=31536000; includeSubDomains";
     }
 }

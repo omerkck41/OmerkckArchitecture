@@ -1,4 +1,6 @@
-﻿namespace Core.Infrastructure.UniversalFTP.Helper;
+﻿using Core.CrossCuttingConcerns.GlobalException.Exceptions;
+
+namespace Core.Infrastructure.UniversalFTP.Helper;
 
 public static class RetryHelper
 {
@@ -17,6 +19,6 @@ public static class RetryHelper
                 await Task.Delay(delay);
             }
         }
-        throw new InvalidOperationException("Retry mechanism failed.");
+        throw new CustomInvalidOperationException("Retry mechanism failed.");
     }
 }

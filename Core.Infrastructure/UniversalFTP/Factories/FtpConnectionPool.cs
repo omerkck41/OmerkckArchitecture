@@ -1,4 +1,5 @@
-﻿using Core.Infrastructure.UniversalFTP.Services.Models;
+﻿using Core.CrossCuttingConcerns.GlobalException.Exceptions;
+using Core.Infrastructure.UniversalFTP.Services.Models;
 using FluentFTP;
 using Microsoft.Extensions.Options;
 using System.Collections.Concurrent;
@@ -15,7 +16,7 @@ public class FtpConnectionPool
 
     public FtpConnectionPool(IOptions<FtpSettings> options, int maxConnections = 10)
     {
-        _ftpSettings = options.Value ?? throw new ArgumentNullException(nameof(options));
+        _ftpSettings = options.Value ?? throw new CustomArgumentException(nameof(options));
         _availableClients = new ConcurrentBag<FtpClient>();
         _usedClients = new HashSet<FtpClient>();
         _semaphore = new SemaphoreSlim(maxConnections);
@@ -50,7 +51,7 @@ public class FtpConnectionPool
 
     public void ReleaseClient(FtpClient client)
     {
-        if (client == null) throw new ArgumentNullException(nameof(client));
+        if (client == null) throw new CustomArgumentException(nameof(client));
 
         lock (_usedClients)
         {

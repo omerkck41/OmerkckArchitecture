@@ -8,7 +8,7 @@ public static class IQueryablePaginateExtensions
     public static async Task<IPaginate<T>> ToPaginateAsync<T>(this IQueryable<T> source, int index, int size, int from = 0,
                                                               CancellationToken cancellationToken = default)
     {
-        if (from > index) throw new CustomException($"From: {from} > Index: {index}, must from <= Index");
+        if (from > index) throw new CustomArgumentException($"From: {from} > Index: {index}, must from <= Index");
 
 
         int count = await source.CountAsync(cancellationToken).ConfigureAwait(false);
@@ -29,7 +29,7 @@ public static class IQueryablePaginateExtensions
 
     public static IPaginate<T> ToPaginate<T>(this IQueryable<T> source, int index, int size, int from = 0)
     {
-        if (from > index) throw new CustomException($"From: {from} > Index: {index}, must from <= Index");
+        if (from > index) throw new CustomArgumentException($"From: {from} > Index: {index}, must from <= Index");
 
         int count = source.Count();
         int skip = (index - from) * size;

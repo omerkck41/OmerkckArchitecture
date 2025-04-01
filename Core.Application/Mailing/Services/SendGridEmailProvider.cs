@@ -36,7 +36,7 @@ public class SendGridEmailProvider : IEmailProvider
 
         if (response.StatusCode != System.Net.HttpStatusCode.Accepted)
         {
-            throw new CustomException("Failed to send email via SendGrid.");
+            throw new CustomArgumentException("Failed to send email via SendGrid.");
         }
     }
 }

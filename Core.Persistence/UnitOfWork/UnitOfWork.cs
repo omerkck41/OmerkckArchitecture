@@ -49,7 +49,7 @@ public class UnitOfWork<TContext>(TContext context) : IUnitOfWork where TContext
     public async Task<int> SaveChangesWithoutTransactionAsync()
     {
         if (_transaction != null)
-            throw new CustomException("Cannot save changes without committing the active transaction.");
+            throw new CustomInvalidOperationException("Cannot save changes without committing the active transaction.");
 
         return await _context.SaveChangesAsync();
     }
@@ -57,7 +57,7 @@ public class UnitOfWork<TContext>(TContext context) : IUnitOfWork where TContext
     public async Task CommitAsync()
     {
         if (_transaction == null)
-            throw new CustomException("No transaction has been started.");
+            throw new CustomInvalidOperationException("No transaction has been started.");
 
         await _transaction.CommitAsync();
         await _transaction.DisposeAsync();
@@ -67,7 +67,7 @@ public class UnitOfWork<TContext>(TContext context) : IUnitOfWork where TContext
     public async Task RollbackAsync()
     {
         if (_transaction == null)
-            throw new CustomException("No transaction has been started.");
+            throw new CustomInvalidOperationException("No transaction has been started.");
 
         await _transaction.RollbackAsync();
         await _transaction.DisposeAsync();

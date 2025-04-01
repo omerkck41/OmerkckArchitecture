@@ -1,4 +1,5 @@
 ﻿using ClosedXML.Excel;
+using Core.CrossCuttingConcerns.GlobalException.Exceptions;
 using Core.Infrastructure.Excel.Helpers;
 using Core.Infrastructure.Excel.Interfaces;
 
@@ -17,13 +18,13 @@ public class ExcelTemplateManager : IExcelTemplateManager
 
     public void SaveTemplate(string destinationPath)
     {
-        if (_workbook == null) throw new InvalidOperationException("Template is not loaded.");
+        if (_workbook == null) throw new CustomInvalidOperationException("Template is not loaded.");
         _workbook.SaveAs(destinationPath);
     }
 
     public void FillTemplateData(Dictionary<string, object> data)
     {
-        if (_templateWorksheet == null) throw new InvalidOperationException("Template is not loaded.");
+        if (_templateWorksheet == null) throw new CustomInvalidOperationException("Template is not loaded.");
         ExcelTemplateHelper.FillTemplate(_templateWorksheet, data);
     }
 }

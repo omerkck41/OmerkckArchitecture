@@ -40,7 +40,7 @@ public static class ServiceCollectionExtensions
             .AddJwtBearer(options =>
             {
                 var tokenOptions = services.BuildServiceProvider().GetRequiredService<IOptions<TokenOptions>>().Value
-                ?? throw new CustomException("TokenOptions configuration not found.");
+                ?? throw new CustomInvalidOperationException("TokenOptions configuration not found.");
 
                 options.TokenValidationParameters = new TokenValidationParameters
                 {

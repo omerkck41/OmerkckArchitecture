@@ -157,12 +157,12 @@ public class EfRepositoryBase<TEntity, TId, TContext> : IAsyncRepository<TEntity
     public async Task<TEntity?> GetByIdAsync(TId id, bool withDeleted = false, bool enableTracking = false, CancellationToken cancellationToken = default)
     {
         if (id == null)
-            throw new CustomException(nameof(id), "Id cannot be null.");
+            throw new CustomArgumentException(nameof(id), "Id cannot be null.");
 
         var entity = await Query(withDeleted: withDeleted, enableTracking: enableTracking)
                             .FirstOrDefaultAsync(e => e.Id!.Equals(id), cancellationToken);
 
-        return entity ?? throw new CustomException($"{typeof(TEntity).Name} with id {id} was not found.");
+        return entity ?? throw new NotFoundException($"{typeof(TEntity).Name} with id {id} was not found.");
     }
 
 
@@ -234,7 +234,7 @@ public class EfRepositoryBase<TEntity, TId, TContext> : IAsyncRepository<TEntity
     public async Task<TEntity> DeleteAsync(TEntity entity, bool permanent = false, CancellationToken cancellationToken = default)
     {
         if (entity == null)
-            throw new CustomException(nameof(entity), $"{typeof(TEntity).Name} cannot be null.");
+            throw new CustomArgumentException(nameof(entity), $"{typeof(TEntity).Name} cannot be null.");
 
         if (!permanent && typeof(TEntity).GetProperty("IsDeleted") != null)
         {
@@ -259,10 +259,10 @@ public class EfRepositoryBase<TEntity, TId, TContext> : IAsyncRepository<TEntity
     public async Task<TEntity> RevertSoftDeleteAsync(TEntity entity, CancellationToken cancellationToken = default)
     {
         if (entity == null)
-            throw new CustomException(nameof(entity), $"{typeof(TEntity).Name} cannot be null.");
+            throw new CustomArgumentException(nameof(entity), $"{typeof(TEntity).Name} cannot be null.");
 
         if (typeof(TEntity).GetProperty("IsDeleted") == null)
-            throw new CustomException("Entity does not support soft delete.");
+            throw new CustomInvalidOperationException("Entity does not support soft delete.");
 
         // Soft delete kaldırma işlemi
         entity.IsDeleted = false;
@@ -283,7 +283,7 @@ public class EfRepositoryBase<TEntity, TId, TContext> : IAsyncRepository<TEntity
         var entity = await _dbSet.FirstOrDefaultAsync(predicate, cancellationToken);
 
         return entity == null
-            ? throw new CustomException($"{typeof(TEntity).Name} satisfying the condition was not found.")
+            ? throw new NotFoundException($"{typeof(TEntity).Name} satisfying the condition was not found.")
             : await DeleteAsync(entity, permanent, cancellationToken);
     }
 
@@ -294,7 +294,7 @@ public class EfRepositoryBase<TEntity, TId, TContext> : IAsyncRepository<TEntity
     {
         // FindAsync optimizasyon sağladığı için tercih ediliyor.
         var entity = await _dbSet.FindAsync([id], cancellationToken)
-            ?? throw new CustomException($"{typeof(TEntity).Name} with id {id} was not found.");
+            ?? throw new NotFoundException($"{typeof(TEntity).Name} with id {id} was not found.");
 
         if (!permanent && typeof(TEntity).GetProperty("IsDeleted") != null)
         {
@@ -318,7 +318,7 @@ public class EfRepositoryBase<TEntity, TId, TContext> : IAsyncRepository<TEntity
     public async Task<TEntity> RevertSoftDeleteAsync(TId id, CancellationToken cancellationToken = default)
     {
         var entity = await _dbSet.FindAsync([id], cancellationToken)
-            ?? throw new CustomException($"{typeof(TEntity).Name} with id {id} was not found.");
+            ?? throw new NotFoundException($"{typeof(TEntity).Name} with id {id} was not found.");
 
         if (typeof(TEntity).GetProperty("IsDeleted") != null)
         {

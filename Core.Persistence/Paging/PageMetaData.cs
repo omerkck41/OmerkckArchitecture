@@ -1,4 +1,6 @@
-﻿namespace Core.Persistence.Paging;
+﻿using Core.CrossCuttingConcerns.GlobalException.Exceptions;
+
+namespace Core.Persistence.Paging;
 
 public class PageMetaData
 {
@@ -19,8 +21,8 @@ public class PageMetaData
     public void Validate()
     {
         if (Index < 1)
-            throw new ArgumentException("Page index should be at least 1.");
+            throw new CustomArgumentException("Page index should be at least 1.");
         if (Size < 1)
-            throw new ArgumentException("Page size should be at least 1.");
+            throw new CustomArgumentException("Page size should be at least 1.");
     }
 }

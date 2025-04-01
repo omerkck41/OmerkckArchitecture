@@ -19,14 +19,14 @@ public class AmazonSesEmailProvider : IEmailProvider
 
 
         if (string.IsNullOrWhiteSpace(_emailSettings.DefaultFromAddress))
-            throw new CustomException("DefaultFromAddress must be specified.", nameof(_emailSettings.DefaultFromAddress));
+            throw new CustomArgumentException("DefaultFromAddress must be specified.", nameof(_emailSettings.DefaultFromAddress));
 
         // Amazon SES Client oluşturuluyor
         if (string.IsNullOrWhiteSpace(_emailSettings.AwsRegion) ||
             string.IsNullOrWhiteSpace(_emailSettings.AwsAccessKey) ||
             string.IsNullOrWhiteSpace(_emailSettings.AwsSecretKey))
         {
-            throw new CustomException("AWS configuration is missing.");
+            throw new CustomArgumentException("AWS configuration is missing.");
         }
 
         _client = new AmazonSimpleEmailServiceV2Client(
@@ -53,7 +53,7 @@ public class AmazonSesEmailProvider : IEmailProvider
         if (response.HttpStatusCode != HttpStatusCode.OK)
         {
             // Hata loglanabilir
-            throw new CustomException("Failed to send email with Amazon SES.");
+            throw new CustomArgumentException("Failed to send email with Amazon SES.");
         }
     }
 

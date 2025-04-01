@@ -1,4 +1,5 @@
-﻿using Core.Infrastructure.UniversalFTP.Factories;
+﻿using Core.CrossCuttingConcerns.GlobalException.Exceptions;
+using Core.Infrastructure.UniversalFTP.Factories;
 using Core.Infrastructure.UniversalFTP.Services.Implementations;
 using Core.Infrastructure.UniversalFTP.Services.Interfaces;
 using Core.Infrastructure.UniversalFTP.Services.Models;
@@ -13,7 +14,7 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddUniversalFtpServices(this IServiceCollection services, FtpSettings settings)
     {
         if (settings == null)
-            throw new ArgumentNullException(nameof(settings), "FtpSettings cannot be null.");
+            throw new CustomArgumentException(nameof(settings), "FtpSettings cannot be null.");
 
         // FtpSettings'i IOptions<FtpSettings> olarak kaydet
         services.Configure<FtpSettings>(opts =>
@@ -47,7 +48,7 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddFtpServices(this IServiceCollection services, IConfiguration configuration)
     {
         if (configuration.GetSection("FtpSettings") == null)
-            throw new InvalidOperationException("FtpSettings configuration section is missing.");
+            throw new CustomInvalidOperationException("FtpSettings configuration section is missing.");
 
         // FtpSettings'i JSON'dan oku ve IOptions<FtpSettings> olarak kaydet
         services.Configure<FtpSettings>(configuration.GetSection("FtpSettings"));

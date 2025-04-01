@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Caching.Distributed;
+﻿using Core.CrossCuttingConcerns.GlobalException.Exceptions;
+using Microsoft.Extensions.Caching.Distributed;
 using System.Text.Json;
 
 namespace Core.Application.Caching.Services;
@@ -9,7 +10,7 @@ public class DistributedCacheService : ICacheService
 
     public DistributedCacheService(IDistributedCache distributedCache)
     {
-        _distributedCache = distributedCache ?? throw new ArgumentNullException(nameof(distributedCache));
+        _distributedCache = distributedCache ?? throw new CustomArgumentException(nameof(distributedCache));
     }
 
     public async Task<T?> GetAsync<T>(string key, CancellationToken cancellationToken = default)

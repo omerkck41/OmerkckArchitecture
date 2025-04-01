@@ -1,5 +1,6 @@
 ﻿using Core.Application.Caching.Behaviors;
 using Core.Application.Caching.Services;
+using Core.CrossCuttingConcerns.GlobalException.Exceptions;
 using MediatR;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -11,10 +12,10 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddCachingServices(this IServiceCollection services, IConfiguration configuration, Action<CacheSettings> configureSettings)
     {
         if (services == null)
-            throw new ArgumentNullException(nameof(services));
+            throw new CustomArgumentException(nameof(services));
 
         if (configureSettings == null)
-            throw new ArgumentNullException(nameof(configureSettings));
+            throw new CustomArgumentException(nameof(configureSettings));
 
         CacheSettings settings = new CacheSettings();
         configureSettings(settings);

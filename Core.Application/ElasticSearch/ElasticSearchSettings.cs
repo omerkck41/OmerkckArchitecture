@@ -1,4 +1,6 @@
-﻿namespace Core.Application.ElasticSearch;
+﻿using Core.CrossCuttingConcerns.GlobalException.Exceptions;
+
+namespace Core.Application.ElasticSearch;
 
 public class ElasticSearchSettings
 {
@@ -9,9 +11,9 @@ public class ElasticSearchSettings
 
     public ElasticSearchSettings(string connectionString, string defaultIndex, string username, string password)
     {
-        ConnectionString = connectionString ?? throw new ArgumentNullException(nameof(connectionString));
-        DefaultIndex = defaultIndex ?? throw new ArgumentNullException(nameof(defaultIndex));
-        Username = username ?? throw new ArgumentNullException(nameof(username));
-        Password = password ?? throw new ArgumentNullException(nameof(password));
+        ConnectionString = connectionString ?? throw new CustomArgumentException(nameof(connectionString));
+        DefaultIndex = defaultIndex ?? throw new CustomArgumentException(nameof(defaultIndex));
+        Username = username ?? throw new CustomArgumentException(nameof(username));
+        Password = password ?? throw new CustomArgumentException(nameof(password));
     }
 }

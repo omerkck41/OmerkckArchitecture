@@ -1,4 +1,5 @@
-﻿using Core.Integration.Interfaces;
+﻿using Core.CrossCuttingConcerns.GlobalException.Exceptions;
+using Core.Integration.Interfaces;
 using Core.Integration.Models;
 using System.Text;
 using System.Text.Json;
@@ -35,7 +36,7 @@ public class ApiClient : IApiClient
 
             if (response.IsSuccessStatusCode && deserializedData == null)
             {
-                throw new InvalidOperationException("Deserialization returned null for a successful response.");
+                throw new CustomInvalidOperationException("Deserialization returned null for a successful response.");
             }
 
             return new ApiResponse<T>
