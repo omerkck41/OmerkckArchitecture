@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System.Text.Json;
+using ArgumentException = Core.CrossCuttingConcerns.GlobalException.Exceptions.ArgumentException;
+using InvalidOperationException = Core.CrossCuttingConcerns.GlobalException.Exceptions.InvalidOperationException;
 using TimeoutException = Core.CrossCuttingConcerns.GlobalException.Exceptions.TimeoutException;
 using ValidationException = Core.CrossCuttingConcerns.GlobalException.Exceptions.ValidationException;
 
@@ -35,13 +37,15 @@ public class GlobalExceptionHandler : IExceptionHandler
         int statusCode = exception switch
         {
             ValidationException => StatusCodes.Status400BadRequest,
-            NotFoundException => StatusCodes.Status404NotFound,
-            UnauthorizedException => StatusCodes.Status401Unauthorized,
-            ConflictException => StatusCodes.Status409Conflict,
-            ForbiddenException => StatusCodes.Status403Forbidden,
             BadRequestException => StatusCodes.Status400BadRequest,
-            TimeoutException => StatusCodes.Status408RequestTimeout,
+            UnauthorizedException => StatusCodes.Status401Unauthorized,
+            SecurityTokenException => StatusCodes.Status401Unauthorized,
+            ArgumentException argEx when argEx.Message.Contains("IDX10703") => StatusCodes.Status401Unauthorized,
             InvalidOperationException ioe when ioe.Message.Contains("No authenticationScheme was specified") => StatusCodes.Status401Unauthorized,
+            NotFoundException => StatusCodes.Status404NotFound,
+            ForbiddenException => StatusCodes.Status403Forbidden,
+            TimeoutException => StatusCodes.Status408RequestTimeout,
+            ConflictException => StatusCodes.Status409Conflict,
             _ => StatusCodes.Status500InternalServerError
         };
 
