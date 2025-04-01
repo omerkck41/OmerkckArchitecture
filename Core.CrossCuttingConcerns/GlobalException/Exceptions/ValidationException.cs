@@ -1,42 +1,34 @@
-﻿using Core.CrossCuttingConcerns.GlobalException.Models;
+﻿using Core.CrossCuttingConcerns.GlobalException.Attributes;
+using Core.CrossCuttingConcerns.GlobalException.Models;
+using Microsoft.AspNetCore.Http;
 
 namespace Core.CrossCuttingConcerns.GlobalException.Exceptions;
 
+[HttpStatusCode(StatusCodes.Status400BadRequest)]
 public class ValidationException : CustomException
 {
     public IEnumerable<ValidationExceptionModel> Errors { get; }
 
-    public ValidationException()
-        : base("One or more validation failures have occurred.")
-    {
-        Errors = Array.Empty<ValidationExceptionModel>();
-    }
-
-    public ValidationException(string? message)
-        : base(message ?? "One or more validation failures have occurred.")
-    {
-        Errors = Array.Empty<ValidationExceptionModel>();
-    }
-
-    public ValidationException(string? message, Exception? innerException)
-        : base(message ?? "One or more validation failures have occurred.",
-               innerException ?? new Exception("No inner exception provided."))
-    {
-        Errors = Array.Empty<ValidationExceptionModel>();
-    }
-
     public ValidationException(IEnumerable<ValidationExceptionModel> errors)
-        : base(BuildErrorMessage(errors))
+        : base(BuildErrorMessage(errors), explicitStatusCode: null, additionalData: errors, innerException: null)
     {
         Errors = errors;
     }
 
-    private static string BuildErrorMessage(IEnumerable<ValidationExceptionModel> errors)
+    public ValidationException(string message, IEnumerable<ValidationExceptionModel> errors)
+        : base(message, explicitStatusCode: null, additionalData: errors, innerException: null)
     {
-        IEnumerable<string> arr = errors.Select(x =>
-            $"{Environment.NewLine} -- {x.Property}: {string.Join(Environment.NewLine, x.Errors ?? Array.Empty<string>())}"
-        );
-        return $"Validation failed: {string.Join(string.Empty, arr)}";
+        Errors = errors;
     }
 
+    public ValidationException(string message, Exception innerException)
+        : base(message, explicitStatusCode: null, additionalData: null, innerException: innerException)
+    {
+        Errors = Array.Empty<ValidationExceptionModel>();
+    }
+
+    private static string BuildErrorMessage(IEnumerable<ValidationExceptionModel> errors)
+    {
+        return $"Validation failed: {string.Join(", ", errors.Select(e => $"{e.Property}: {string.Join(", ", e.Errors)}"))}";
+    }
 }

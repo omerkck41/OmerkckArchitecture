@@ -1,13 +1,11 @@
-﻿using Core.CrossCuttingConcerns.GlobalException.Exceptions;
+﻿using Core.CrossCuttingConcerns.GlobalException.Attributes;
+using Core.CrossCuttingConcerns.GlobalException.Exceptions;
 using Core.CrossCuttingConcerns.GlobalException.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using System.Reflection;
 using System.Text.Json;
-using ArgumentException = Core.CrossCuttingConcerns.GlobalException.Exceptions.ArgumentException;
-using InvalidOperationException = Core.CrossCuttingConcerns.GlobalException.Exceptions.InvalidOperationException;
-using TimeoutException = Core.CrossCuttingConcerns.GlobalException.Exceptions.TimeoutException;
-using ValidationException = Core.CrossCuttingConcerns.GlobalException.Exceptions.ValidationException;
 
 
 namespace Core.CrossCuttingConcerns.GlobalException.Handlers;
@@ -24,61 +22,65 @@ public class GlobalExceptionHandler : IExceptionHandler
         _env = env;
         _jsonOptions = new JsonSerializerOptions
         {
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            WriteIndented = _env.IsDevelopment()
         };
     }
 
     public async Task HandleExceptionAsync(HttpContext context, Exception exception)
     {
-        // Benzersiz hata kimliği oluştur
         var errorId = Guid.NewGuid().ToString();
+        LogException(exception, errorId);
 
-        // Hata türüne göre HTTP durum kodunu belirle
-        int statusCode = exception switch
+        int statusCode = GetStatusCode(exception);
+
+        UnifiedApiErrorResponse response = exception is CustomException customEx
+            ? CreateCustomErrorResponse(customEx, errorId, statusCode)
+            : CreateDefaultErrorResponse(exception, errorId, statusCode);
+
+        await WriteResponseAsync(context, response);
+    }
+
+    private void LogException(Exception exception, string errorId)
+    {
+        if (exception is CustomException)
+            _logger.LogWarning(exception, "Handled exception. ErrorId: {ErrorId}", errorId);
+        else
+            _logger.LogError(exception, "Unhandled exception. ErrorId: {ErrorId}", errorId);
+    }
+
+    private int GetStatusCode(Exception exception)
+    {
+        if (exception is CustomException customEx && customEx.ExplicitStatusCode.HasValue)
+            return customEx.ExplicitStatusCode.Value;
+
+        var attr = exception.GetType().GetCustomAttribute<HttpStatusCodeAttribute>();
+        return attr?.StatusCode ?? StatusCodes.Status500InternalServerError;
+    }
+
+
+    private UnifiedApiErrorResponse CreateCustomErrorResponse(CustomException exception, string errorId, int statusCode)
+    {
+        var response = UnifiedApiErrorResponse.FromException(exception)
+            .WithDetail(_env.IsDevelopment() ? exception.ToString() : exception.Message);
+        return response with
         {
-            ValidationException => StatusCodes.Status400BadRequest,
-            BadRequestException => StatusCodes.Status400BadRequest,
-            UnauthorizedException => StatusCodes.Status401Unauthorized,
-            SecurityTokenException => StatusCodes.Status401Unauthorized,
-            ArgumentException argEx when argEx.Message.Contains("IDX10703") => StatusCodes.Status401Unauthorized,
-            InvalidOperationException ioe when ioe.Message.Contains("No authenticationScheme was specified") => StatusCodes.Status401Unauthorized,
-            NotFoundException => StatusCodes.Status404NotFound,
-            ForbiddenException => StatusCodes.Status403Forbidden,
-            TimeoutException => StatusCodes.Status408RequestTimeout,
-            ConflictException => StatusCodes.Status409Conflict,
-            _ => StatusCodes.Status500InternalServerError
-        };
-
-        // Loglama: Hata detaylarını errorId ile birlikte loglayın
-        _logger.LogError(exception, "Error occurred. ErrorId: {ErrorId}", errorId);
-
-        context.Response.ContentType = "application/json";
-        context.Response.StatusCode = statusCode;
-
-        // Kullanıcı dostu mesaj üretme
-        string userFriendlyMessage = statusCode switch
-        {
-            StatusCodes.Status400BadRequest => "Invalid request.",
-            StatusCodes.Status401Unauthorized => "Please login to access this page.",
-            StatusCodes.Status403Forbidden => "You are not authorized to take this action.",
-            StatusCodes.Status404NotFound => "The requested resource was not found.",
-            _ => "An unexpected error occurred. Please try again later."
-        };
-
-        // Detay: Geliştirme ortamındaysanız daha fazla detay sunabilirsiniz
-        string detail = _env.IsDevelopment() ? exception.ToString() : exception.Message;
-
-        var errorResponse = new UnifiedApiErrorResponse
-        {
-            Success = false,
             StatusCode = statusCode,
-            Message = userFriendlyMessage,
-            ErrorType = exception.GetType().Name,
-            Detail = detail,
-            AdditionalData = new { ErrorId = errorId } // Destek taleplerinde kullanılabilir
+            AdditionalData = new { ErrorId = errorId, exception.AdditionalData }
         };
+    }
 
-        string jsonResponse = JsonSerializer.Serialize(errorResponse, _jsonOptions);
-        await context.Response.WriteAsync(jsonResponse);
+    private UnifiedApiErrorResponse CreateDefaultErrorResponse(Exception exception, string errorId, int statusCode)
+    {
+        return UnifiedApiErrorResponse.CreateInternalServerError(errorId, _env.IsDevelopment() ? exception.ToString() : null)
+            with
+        { StatusCode = statusCode };
+    }
+
+    private async Task WriteResponseAsync(HttpContext context, UnifiedApiErrorResponse response)
+    {
+        context.Response.ContentType = "application/problem+json";
+        context.Response.StatusCode = response.StatusCode;
+        await context.Response.WriteAsync(JsonSerializer.Serialize(response, _jsonOptions));
     }
 }

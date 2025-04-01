@@ -1,8 +1,11 @@
-﻿namespace Core.Application.Authorization.Behaviors;
+﻿using Core.CrossCuttingConcerns.GlobalException.Exceptions;
 
-public class AuthorizationException : Exception
+namespace Core.Application.Authorization.Behaviors;
+
+public abstract class AuthorizationException : CustomException
 {
-    public AuthorizationException(string message) : base(message)
+    protected AuthorizationException(string message, int explicitStatusCode)
+        : base(message, explicitStatusCode, additionalData: null, innerException: null)
     {
     }
 }

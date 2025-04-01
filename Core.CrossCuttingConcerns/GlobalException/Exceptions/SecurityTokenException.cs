@@ -1,7 +1,18 @@
-﻿namespace Core.CrossCuttingConcerns.GlobalException.Exceptions;
+﻿using Core.CrossCuttingConcerns.GlobalException.Attributes;
+using Microsoft.AspNetCore.Http;
 
+namespace Core.CrossCuttingConcerns.GlobalException.Exceptions;
+
+[HttpStatusCode(StatusCodes.Status401Unauthorized)]
 public class SecurityTokenException : CustomException
 {
-    public SecurityTokenException(string message) : base(message) { }
-    public SecurityTokenException(string message, Exception innerException) : base(message, innerException) { }
+    public SecurityTokenException(string message)
+        : base(message, explicitStatusCode: null, additionalData: null, innerException: null)
+    {
+    }
+
+    public SecurityTokenException(string message, Exception innerException)
+        : base(message, explicitStatusCode: null, additionalData: null, innerException: innerException)
+    {
+    }
 }

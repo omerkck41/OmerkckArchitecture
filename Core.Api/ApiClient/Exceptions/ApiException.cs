@@ -1,22 +1,25 @@
-﻿namespace Core.Api.ApiClient.Exceptions;
+﻿using Core.CrossCuttingConcerns.GlobalException.Exceptions;
 
-public class ApiException : Exception
+namespace Core.Api.ApiClient.Exceptions;
+
+public class ApiException : CustomException
 {
-    public int StatusCode { get; }
-    public string? ErrorType { get; }
-    public string? Detail { get; }
-    public object? AdditionalData { get; }
-
-    public ApiException(string message) : base(message) { }
-
-    public ApiException(string message, Exception innerException) : base(message, innerException) { }
-
-    public ApiException(string message, int statusCode, string? errorType = null, string? detail = null, object? additionalData = null)
-        : base(message)
+    public ApiException(string message) : base(message)
     {
-        StatusCode = statusCode;
-        ErrorType = errorType;
-        Detail = detail;
-        AdditionalData = additionalData;
+    }
+
+    public ApiException(string message, Exception innerException) : base(message, innerException)
+    {
+    }
+
+    public ApiException(
+        string message,
+        int statusCode,
+        string? errorType = null,
+        string? detail = null,
+        object? additionalData = null)
+        : base(message, statusCode, additionalData, null)
+    {
+        // İsteğe bağlı: errorType ve detail bilgilerini AdditionalData içine ekleyebilir veya ayrı property olarak atayabilirsiniz.
     }
 }

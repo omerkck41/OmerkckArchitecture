@@ -2,7 +2,6 @@
 
 public class ValidationExceptionModel
 {
-    public string? Property { get; set; }
-    public IEnumerable<string>? Errors { get; set; }
-    public string? ErrorCode { get; set; }
+    public string Property { get; set; } = string.Empty;
+    public IEnumerable<string> Errors { get; set; } = Enumerable.Empty<string>();
 }

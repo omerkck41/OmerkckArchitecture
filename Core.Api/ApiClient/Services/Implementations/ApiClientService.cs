@@ -13,12 +13,9 @@ public class ApiClientService : IApiClientService
 {
     private readonly HttpClient _httpClient;
     private readonly IMemoryCache _cache;
-
-    // Static JsonSerializerOptions: Her istekte yeniden oluşturmayı önler.
     private static readonly JsonSerializerOptions _jsonOptions = new()
     {
         PropertyNameCaseInsensitive = true,
-        // Gerekirse Source Generator ayarları eklenebilir.
     };
 
     // IMemoryCache enjeksiyonu caching mekanizması için eklendi.

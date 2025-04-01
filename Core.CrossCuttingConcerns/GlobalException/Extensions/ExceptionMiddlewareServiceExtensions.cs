@@ -1,6 +1,6 @@
 ﻿using Core.CrossCuttingConcerns.GlobalException.Handlers;
 using Core.CrossCuttingConcerns.GlobalException.Middlewares;
-using Core.CrossCuttingConcerns.GlobalException.Models;
+using Hellang.Middleware.ProblemDetails;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -10,63 +10,46 @@ namespace Core.CrossCuttingConcerns.GlobalException.Extensions;
 
 public static class ExceptionMiddlewareServiceExtensions
 {
-    /// <summary>
-    /// GlobalExceptionMiddleware'i devreye alır.
-    /// </summary>
-    public static IApplicationBuilder UseExceptionMiddleware(this IApplicationBuilder app)
+    public static IApplicationBuilder UseAdvancedExceptionHandling(this IApplicationBuilder app)
     {
+        // Problem Details middleware'ini etkinleştir
+        app.UseProblemDetails();
+
+        // Özel exception middleware'imiz
         return app.UseMiddleware<GlobalExceptionMiddleware>();
     }
-
-    /// <summary>
-    /// Hata yakalama ve model validasyon hatalarını ortak formata dönüştürme servislerini ekler.
-    /// </summary>
-    public static IServiceCollection AddExceptionMiddlewareServices(this IServiceCollection services)
+    public static IServiceCollection AddAdvancedExceptionHandling(this IServiceCollection services)
     {
-        // 1) Controller’ları ekle ve model validasyon hatalarını 
-        //    UnifiedApiErrorResponse formatına dönüştürmek için
-        //    InvalidModelStateResponseFactory ayarını yap
-        services.AddControllers()
-                .ConfigureApiBehaviorOptions(options =>
-                {
-                    options.InvalidModelStateResponseFactory = context =>
-                    {
-                        // ModelState içindeki hataları topla
-                        var errors = context.ModelState
-                            .Where(ms => ms.Value.Errors.Count > 0)
-                            .Select(ms => new ValidationExceptionModel
-                            {
-                                Property = ms.Key,
-                                Errors = ms.Value.Errors.Select(e => e.ErrorMessage)
-                            })
-                            .ToList();
+        // Problem Details yapılandırması
+        services.AddProblemDetails(options =>
+        {
+            options.CustomizeProblemDetails = ctx =>
+            {
+                ctx.ProblemDetails.Extensions.Add("requestId", ctx.HttpContext.TraceIdentifier);
+            };
+        });
 
-                        // Tek tip UnifiedApiErrorResponse oluştur
-                        var errorResponse = new UnifiedApiErrorResponse
-                        {
-                            Success = false,
-                            StatusCode = StatusCodes.Status400BadRequest,
-                            Message = "Validation error",
-                            ErrorType = "ValidationException",
-                            Detail = "Validation failed for one or more fields.",
-                            AdditionalData = errors
-                        };
-
-                        // 400 (BadRequest) ile birlikte özel yanıt dön
-                        return new BadRequestObjectResult(errorResponse);
-                    };
-                });
-
-        // 2) Özel exception handler servislerini ekle
+        // Exception handler'larını kaydet
+        services.AddSingleton<IExceptionHandler, GlobalExceptionHandler>();
+        services.AddSingleton<IExceptionHandler, ValidationExceptionHandler>();
         services.AddSingleton<IExceptionHandlerFactory, ExceptionHandlerFactory>();
 
-        // Somut tipleri DI konteynerına ekle
-        services.AddSingleton<ValidationExceptionHandler>();
-        services.AddSingleton<GlobalExceptionHandler>();
+        // Model validasyon hataları için
+        services.Configure<ApiBehaviorOptions>(options =>
+        {
+            options.InvalidModelStateResponseFactory = context =>
+            {
+                var problemDetails = new ValidationProblemDetails(context.ModelState)
+                {
+                    Type = "https://tools.ietf.org/html/rfc7231#section-6.5.1",
+                    Title = "Validation error",
+                    Status = StatusCodes.Status400BadRequest,
+                    Instance = context.HttpContext.Request.Path
+                };
 
-        // Somut tipleri IExceptionHandler arayüzü üzerinden erişilebilir hale getir
-        services.AddSingleton<IExceptionHandler>(sp => sp.GetRequiredService<ValidationExceptionHandler>());
-        services.AddSingleton<IExceptionHandler>(sp => sp.GetRequiredService<GlobalExceptionHandler>());
+                return new BadRequestObjectResult(problemDetails);
+            };
+        });
 
         return services;
     }

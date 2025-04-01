@@ -9,57 +9,48 @@ public static class AuthorizationValidator
 {
     public static void ValidateAuthorization(ClaimsPrincipal user, IEnumerable<string> requiredRoles, IDictionary<string, string> requiredClaims)
     {
+        // Authentication kontrolü - 401
         if (user is null || !user.Identity?.IsAuthenticated == true)
         {
-            throw new AuthorizationException("You are not authenticated...");
+            throw new UnauthenticatedException();
         }
 
-        // Eğer requiredRoles tanımlı değilse (boşsa), rol kontrolünü atla.
-        if (!requiredRoles.Any())
+        // Authorization kontrolleri - 403
+        if (requiredRoles.Any() && !HasRequiredRoles(user, requiredRoles))
         {
-            return;
+            throw new ForbiddenAccessException("Missing required roles");
         }
 
-        ValidateRoles(user, requiredRoles);
-        ValidateClaims(user, requiredClaims);
-    }
-
-    private static void ValidateRoles(ClaimsPrincipal user, IEnumerable<string> requiredRoles)
-    {
-        var userRoles = user.GetRoles() ?? Enumerable.Empty<string>();
-
-        // Eğer kullanıcı Admin veya Manager rolüne sahipse, rol kontrolünü bypass ediyoruz.
-        bool isAdminOrManager = userRoles.Contains(GeneralOperationClaims.Admin) || userRoles.Contains(GeneralOperationClaims.Manager);
-        bool hasAnyRequiredRole = userRoles.Intersect(requiredRoles).Any();
-
-        if (!isAdminOrManager && !hasAnyRequiredRole)
+        if (requiredClaims?.Any() == true && !HasRequiredClaims(user, requiredClaims))
         {
-            throw new AuthorizationException("You are not authorized for the required roles...");
+            throw new ForbiddenAccessException("Missing required claims");
         }
     }
 
-    private static void ValidateClaims(ClaimsPrincipal user, IDictionary<string, string> requiredClaims)
+    private static bool HasRequiredRoles(ClaimsPrincipal user, IEnumerable<string> requiredRoles)
     {
-        // Eğer kullanıcı Admin veya Manager rolündeyse, claim kontrollerini atla.
         var userRoles = user.GetRoles() ?? Enumerable.Empty<string>();
+
+        // Admin/Manager bypass yetkisi
         if (userRoles.Contains(GeneralOperationClaims.Admin) ||
             userRoles.Contains(GeneralOperationClaims.Manager))
         {
-            return;
+            return true;
         }
 
-        // Eğer requiredClaims null veya boş ise claim kontrolünü yapmadan çık.
-        if (requiredClaims == null || !requiredClaims.Any())
+        return userRoles.Intersect(requiredRoles).Any();
+    }
+
+    private static bool HasRequiredClaims(ClaimsPrincipal user, IDictionary<string, string> requiredClaims)
+    {
+        // Admin/Manager bypass yetkisi
+        if (user.IsInRole(GeneralOperationClaims.Admin) ||
+            user.IsInRole(GeneralOperationClaims.Manager))
         {
-            return;
+            return true;
         }
 
-        foreach (var claim in requiredClaims)
-        {
-            if (!user.HasClaim(c => c.Type == claim.Key && c.Value == claim.Value))
-            {
-                throw new AuthorizationException($"Missing required claim: {claim.Key} - {claim.Value}");
-            }
-        }
+        return requiredClaims.All(claim =>
+            user.HasClaim(c => c.Type == claim.Key && c.Value == claim.Value));
     }
 }

@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using System.Text.Json;
 
 namespace Core.Application.Authorization.Middleware;
 
@@ -16,17 +17,26 @@ public class HttpAuthorizationMiddleware
     {
         // Endpoint metadata bilgisini alıyoruz
         var endpoint = context.GetEndpoint();
-        if (endpoint != null && endpoint.Metadata.Any(m => m is IAllowAnonymous))
+
+        // AllowAnonymous kontrolü
+        if (endpoint?.Metadata.GetMetadata<IAllowAnonymous>() != null)
         {
-            // Eğer endpoint [AllowAnonymous] içeriyorsa, kontrolü atla
             await _next(context);
             return;
         }
 
-        if (context.User == null || !context.User.Identity!.IsAuthenticated)
+        // Authentication kontrolü
+        if (context.User?.Identity?.IsAuthenticated != true)
         {
-            context.Response.StatusCode = 401; // Unauthorized
-            await context.Response.WriteAsync("Authentication is required.");
+            context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+            context.Response.ContentType = "application/json";
+
+            await context.Response.WriteAsync(JsonSerializer.Serialize(new
+            {
+                StatusCode = StatusCodes.Status401Unauthorized,
+                Message = "Authentication required"
+            }));
+
             return;
         }
 

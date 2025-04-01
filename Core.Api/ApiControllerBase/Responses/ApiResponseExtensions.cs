@@ -17,7 +17,6 @@ public static class ApiResponseExtensions
 
         if (!string.IsNullOrEmpty(response.LocationHeader) && httpContext is not null)
         {
-            // Eğer Location header zaten varsa üzerine eklemeden önce kontrol edilebilir.
             if (!httpContext.Response.Headers.ContainsKey("Location"))
             {
                 httpContext.Response.Headers.Append("Location", response.LocationHeader);

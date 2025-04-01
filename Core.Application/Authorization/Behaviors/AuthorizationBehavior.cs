@@ -17,13 +17,15 @@ public class AuthorizationBehavior<TRequest, TResponse> : IPipelineBehavior<TReq
     public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
     {
         var user = _httpContextAccessor.HttpContext?.User;
-        if (user is null)
+
+        try
         {
-            throw new UnauthorizedAccessException("No authenticated user found in the current context.");
+            AuthorizationValidator.ValidateAuthorization(user, request.Roles, request.Claims);
+            return await next();
         }
-
-        AuthorizationValidator.ValidateAuthorization(user, request.Roles, request.Claims);
-
-        return await next();
+        catch (AuthorizationException)
+        {
+            throw; // GlobalExceptionHandler tarafından yakalanacak
+        }
     }
 }

@@ -1,7 +1,18 @@
-﻿namespace Core.CrossCuttingConcerns.GlobalException.Exceptions;
+﻿using Core.CrossCuttingConcerns.GlobalException.Attributes;
+using Microsoft.AspNetCore.Http;
 
+namespace Core.CrossCuttingConcerns.GlobalException.Exceptions;
+
+[HttpStatusCode(StatusCodes.Status408RequestTimeout)]
 public class TimeoutException : CustomException
 {
-    public TimeoutException(string message) : base(message) { }
-    public TimeoutException(string message, Exception innerException) : base(message, innerException) { }
+    public TimeoutException(string message = "Request timed out")
+        : base(message, explicitStatusCode: null, additionalData: null, innerException: null)
+    {
+    }
+
+    public TimeoutException(string message, Exception innerException)
+        : base(message, explicitStatusCode: null, additionalData: null, innerException: innerException)
+    {
+    }
 }

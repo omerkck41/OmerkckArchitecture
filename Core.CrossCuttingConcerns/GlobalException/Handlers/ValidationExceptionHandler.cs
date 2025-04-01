@@ -26,20 +26,23 @@ public class ValidationExceptionHandler : IExceptionHandler
             context.Response.ContentType = "application/json";
             context.Response.StatusCode = StatusCodes.Status400BadRequest;
 
-            // Hata kimliği oluşturma
             var errorId = Guid.NewGuid().ToString();
             _logger.LogWarning(exception, "Validation error occurred. ErrorId: {ErrorId}", errorId);
 
-            var errorResponse = new UnifiedApiErrorResponse
-            {
-                StatusCode = StatusCodes.Status400BadRequest,
-                Message = "Validation error",
-                ErrorType = nameof(ValidationException),
-                Detail = "Validation failed for one or more fields.",
-                AdditionalData = new { ErrorId = errorId, Errors = validationException.Errors }
-            };
+            var errorResponse = UnifiedApiErrorResponse.FromValidationException(
+                validationException,
+                errorId,
+                "Validation failed for one or more fields.");
 
             await context.Response.WriteAsync(JsonSerializer.Serialize(errorResponse, _jsonOptions));
+        }
+    }
+
+    async Task IExceptionHandler.HandleExceptionAsync(HttpContext context, Exception exception)
+    {
+        if (exception is ValidationException validationException)
+        {
+            await HandleExceptionAsync(context, validationException);
         }
     }
 }

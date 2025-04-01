@@ -30,8 +30,7 @@ public class RequestValidationBehavior<TRequest, TResponse> : IPipelineBehavior<
                     .Select(group => new ValidationExceptionModel
                     {
                         Property = group.Key,
-                        Errors = group.Select(e => e.ErrorMessage),
-                        ErrorCode = group.First().ErrorCode
+                        Errors = group.Select(e => e.ErrorMessage)
                     }).ToList();
 
                 throw new ValidationException(errors);
