@@ -3,6 +3,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Net.Http.Headers;
 using System.Security.Claims;
+using SecurityTokenException = Core.CrossCuttingConcerns.GlobalException.Exceptions.SecurityTokenException;
 
 namespace Core.Security.OAuth;
 
