@@ -1,11 +1,12 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Core.CrossCuttingConcerns.GlobalException.Exceptions;
+using System.Net;
 
 namespace Core.Application.Authorization.Behaviors;
 
-public class UnauthenticatedException : AuthorizationException
+public class UnauthenticatedException : CustomException
 {
     public UnauthenticatedException(string message = "Authentication required")
-        : base(message, StatusCodes.Status401Unauthorized)
+        : base(message, new Exception(HttpStatusCode.Unauthorized.ToString()))
     {
     }
 }

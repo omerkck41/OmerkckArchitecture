@@ -34,9 +34,11 @@ public class GlobalExceptionHandler : IExceptionHandler
 
         int statusCode = GetStatusCode(exception);
 
-        UnifiedApiErrorResponse response = exception is CustomException customEx
-            ? CreateCustomErrorResponse(customEx, errorId, statusCode)
-            : CreateDefaultErrorResponse(exception, errorId, statusCode);
+        UnifiedApiErrorResponse response = exception switch
+        {
+            CustomException customEx => CreateCustomErrorResponse(customEx, errorId, statusCode),
+            _ => CreateDefaultErrorResponse(exception, errorId, statusCode)
+        };
 
         await WriteResponseAsync(context, response);
     }
