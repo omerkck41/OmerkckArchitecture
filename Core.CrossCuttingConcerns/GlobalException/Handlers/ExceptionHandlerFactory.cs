@@ -51,15 +51,16 @@ public class ExceptionHandlerFactory : IExceptionHandlerFactory
         var exceptionType = exception.GetType();
         var handlerType = FindMostSpecificHandlerType(exceptionType) ?? _defaultHandlerType;
 
-        var handler = _serviceProvider.GetRequiredService(handlerType);
-
-        // Generic handler'lar için özel dönüşüm
-        if (handler is IExceptionHandler genericHandler)
+        try
         {
-            return genericHandler;
+            return (IExceptionHandler)_serviceProvider.GetRequiredService(handlerType);
         }
-
-        throw new InvalidOperationException($"Handler {handlerType.Name} doesn't implement IExceptionHandler");
+        catch (Exception ex)
+        {
+            throw new InvalidOperationException(
+                $"Handler bulunamadı: {handlerType.Name}. DI container'a kayıtlı olduğundan emin olun. " +
+                $"Exception: {ex.Message}");
+        }
     }
 
     private static Type? FindMostSpecificHandlerType(Type exceptionType)
