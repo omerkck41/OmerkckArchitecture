@@ -14,13 +14,11 @@ public static class ExceptionMiddlewareServiceExtensions
 {
     public static IApplicationBuilder UseAdvancedExceptionHandling(this IApplicationBuilder app)
     {
-        // 1. Önce kendi middleware'imiz
-        app.UseMiddleware<GlobalExceptionMiddleware>();
-
-        // 2. Sonra ProblemDetails
+        // 1. Önce ProblemDetails (sadece formatlama yapsın)
         app.UseProblemDetails();
 
-        return app;
+        // 2. Sonra kendi middleware'imiz (exception'ları yakalasın)
+        return app.UseMiddleware<GlobalExceptionMiddleware>();
     }
 
     public static IServiceCollection AddAdvancedExceptionHandling(this IServiceCollection services, Assembly[]? handlerAssemblies = null)
