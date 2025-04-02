@@ -12,7 +12,7 @@ public static class AuthorizationValidator
         // Authentication kontrolü - 401
         if (user is null || !user.Identity?.IsAuthenticated == true)
         {
-            throw new UnauthenticatedException();
+            throw new UnAuthenticatedException();
         }
 
         // Authorization kontrolleri - 403

@@ -33,7 +33,7 @@ public class ApiClientService : IApiClientService
             if (response.StatusCode == HttpStatusCode.Unauthorized)
             {
                 var unauthorizedContent = await response.Content.ReadAsStringAsync(cancellationToken);
-                throw new UnauthorizedException($"Unauthorized: {unauthorizedContent}");
+                throw new UnAuthorizedException($"Unauthorized: {unauthorizedContent}");
             }
 
             // ReadFromJsonAsync ile doğrudan stream üzerinden deserialize işlemi yapılır.
@@ -94,7 +94,7 @@ public class ApiClientService : IApiClientService
             {
                 var content = await response.Content.ReadAsStringAsync(cancellationToken);
                 // İçerikte dönen hata mesajını ekliyoruz
-                throw new UnauthorizedException($"POST {requestUri} failed: {content}");
+                throw new UnAuthorizedException($"POST {requestUri} failed: {content}");
             }
 
             // 401 haricindeki hatalar için yine HandleResponseAsync kullanılabilir
