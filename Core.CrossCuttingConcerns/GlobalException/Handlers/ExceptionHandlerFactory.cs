@@ -15,7 +15,6 @@ public class ExceptionHandlerFactory : IExceptionHandlerFactory
     static ExceptionHandlerFactory()
     {
         // Ön tanımlı eşlemeler
-        RegisterHandler<UnauthenticatedException, GlobalExceptionHandler>();
         RegisterHandler<ValidationException, ValidationExceptionHandler>();
     }
 
