@@ -15,11 +15,11 @@ public static class ApiResponseExtensions
             StatusCode = response.StatusCode
         };
 
-        if (!string.IsNullOrEmpty(response.LocationHeader) && httpContext is not null)
+        if (!string.IsNullOrEmpty(response.Instance) && httpContext is not null)
         {
             if (!httpContext.Response.Headers.ContainsKey("Location"))
             {
-                httpContext.Response.Headers.Append("Location", response.LocationHeader);
+                httpContext.Response.Headers.Append("Location", response.Instance);
             }
         }
 

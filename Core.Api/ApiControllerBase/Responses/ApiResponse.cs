@@ -6,7 +6,7 @@
 public record ApiResponse<T>(
     bool Success,
     string Message,
-    T Data,
+    T AdditionalData,
     int StatusCode,
-    string LocationHeader
+    string Instance
 );
