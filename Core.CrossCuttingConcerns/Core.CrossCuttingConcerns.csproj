@@ -20,15 +20,6 @@
 
 
 	<ItemGroup>
-	  <Compile Update="GlobalException\Resource\ErrorMessages.Designer.cs">
-	    <DesignTime>True</DesignTime>
-	    <AutoGen>True</AutoGen>
-	    <DependentUpon>ErrorMessages.resx</DependentUpon>
-	  </Compile>
-	</ItemGroup>
-
-
-	<ItemGroup>
 	  <EmbeddedResource Update="GlobalException\Resource\ErrorMessages.resx">
 	    <Generator>ResXFileCodeGenerator</Generator>
 	    <LastGenOutput>ErrorMessages.Designer.cs</LastGenOutput>
