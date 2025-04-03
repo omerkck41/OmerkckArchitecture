@@ -63,12 +63,13 @@ public class GlobalExceptionHandler : IExceptionHandler
 
     private UnifiedApiErrorResponse CreateCustomErrorResponse(CustomException exception, string errorId, int statusCode)
     {
-        var response = UnifiedApiErrorResponse.FromException(exception)
-            .WithDetail(_env.IsDevelopment() ? exception.ToString() : exception.Message);
+        var response = UnifiedApiErrorResponse.FromException(exception);
+        //.WithDetail(_env.IsDevelopment() ? exception.ToString() : exception.Message);
         return response with
         {
+            ErrorId = errorId,
             StatusCode = statusCode,
-            AdditionalData = new { ErrorId = errorId, exception.AdditionalData }
+            AdditionalData = exception.AdditionalData
         };
     }
 

@@ -9,6 +9,7 @@ namespace Core.CrossCuttingConcerns.GlobalException.Models;
 /// </summary>
 public sealed record UnifiedApiErrorResponse
 {
+    public string? ErrorId { get; init; }
     public bool Success { get; init; } = false;
     public required int StatusCode { get; init; }
     public string? Type { get; init; }
@@ -52,12 +53,13 @@ public sealed record UnifiedApiErrorResponse
     {
         return new UnifiedApiErrorResponse
         {
+            ErrorId = errorId,
             StatusCode = StatusCodes.Status400BadRequest,
             Title = "Validation Error",
             Message = "Validation error",
             ErrorType = nameof(ValidationException),
             Detail = detail ?? "Validation failed",
-            AdditionalData = new { ErrorId = errorId, Errors = ex.Errors }
+            AdditionalData = ex.Errors
         };
     }
 
@@ -73,12 +75,13 @@ public sealed record UnifiedApiErrorResponse
     {
         return new UnifiedApiErrorResponse
         {
+            ErrorId = errorId,
             StatusCode = StatusCodes.Status500InternalServerError,
             Title = "Internal Server Error",
             Message = "An unexpected error occurred",
             ErrorType = "InternalServerError",
             Detail = detail ?? "See logs for details",
-            AdditionalData = new { ErrorId = errorId }
+            AdditionalData = null
         };
     }
 }
