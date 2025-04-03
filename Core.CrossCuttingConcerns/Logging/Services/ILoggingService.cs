@@ -1,6 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
-
-namespace Core.CrossCuttingConcerns.Logging.Services;
+﻿namespace Core.CrossCuttingConcerns.Logging.Services;
 
 public interface ILoggingService
 {

@@ -1,7 +1,6 @@
 ﻿using Core.CrossCuttingConcerns.GlobalException.Exceptions;
 using Microsoft.Extensions.DependencyInjection;
 using System.Collections.Concurrent;
-using System.Reflection;
 using InvalidOperationException = Core.CrossCuttingConcerns.GlobalException.Exceptions.CustomInvalidOperationException;
 
 namespace Core.CrossCuttingConcerns.GlobalException.Handlers;
@@ -10,6 +9,8 @@ public class ExceptionHandlerFactory : IExceptionHandlerFactory
 {
     private readonly IServiceProvider _serviceProvider;
     private static readonly ConcurrentDictionary<Type, Type> _handlerMappings = new();
+    // Yeni cache: Exception tipi -> Handler tipi (null ise _defaultHandlerType kullanılacak)
+    private static readonly ConcurrentDictionary<Type, Type?> _handlerCache = new();
     private static readonly Type _defaultHandlerType = typeof(GlobalExceptionHandler);
 
     static ExceptionHandlerFactory()
@@ -40,8 +41,8 @@ public class ExceptionHandlerFactory : IExceptionHandlerFactory
                            i.GetGenericTypeDefinition() == typeof(IExceptionHandler<>))
             .Select(i => new
             {
-                HandlerType = i.GetGenericArguments()[0], // Exception type
-                ImplementationType = i.DeclaringType     // Handler type
+                HandlerType = i.GetGenericArguments()[0], // Exception tipi
+                ImplementationType = t     // Handler tipi (DeclaringType yerine t kullanılabilir)
             }));
 
         foreach (var handler in handlerTypes)
@@ -82,21 +83,30 @@ public class ExceptionHandlerFactory : IExceptionHandlerFactory
         catch (Exception ex)
         {
             throw new InvalidOperationException(
-                $"Handler bulunamadı: {handlerType.Name}. DI container'a kayıtlı olduğundan emin olun. " +
+                $"Handler bulunamadı: {handlerType.Name}. DI container'a kaydedildiğinden emin olun. " +
                 $"Exception: {ex.Message}");
         }
     }
 
     private static Type? FindMostSpecificHandlerType(Type exceptionType)
     {
-        while (exceptionType != null && exceptionType != typeof(Exception))
+        // Cache kontrolü
+        if (_handlerCache.TryGetValue(exceptionType, out var cachedHandler))
         {
-            if (_handlerMappings.TryGetValue(exceptionType, out var handlerType))
-            {
-                return handlerType;
-            }
-            exceptionType = exceptionType.BaseType;
+            return cachedHandler;
         }
-        return null;
+
+        Type? handlerType = null;
+        var currentType = exceptionType;
+        while (currentType != null && currentType != typeof(Exception))
+        {
+            if (_handlerMappings.TryGetValue(currentType, out handlerType))
+            {
+                break;
+            }
+            currentType = currentType.BaseType;
+        }
+        _handlerCache.TryAdd(exceptionType, handlerType);
+        return handlerType;
     }
 }

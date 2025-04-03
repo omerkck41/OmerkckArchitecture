@@ -1,7 +1,6 @@
 ﻿using Core.CrossCuttingConcerns.Interface;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using System.Reflection;
 
 namespace Core.CrossCuttingConcerns.Extensions;
 

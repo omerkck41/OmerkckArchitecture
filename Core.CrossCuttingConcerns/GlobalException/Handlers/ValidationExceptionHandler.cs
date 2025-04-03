@@ -1,7 +1,5 @@
 ﻿using Core.CrossCuttingConcerns.GlobalException.Exceptions;
 using Core.CrossCuttingConcerns.GlobalException.Models;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Logging;
 using System.Text.Json;
 
 namespace Core.CrossCuttingConcerns.GlobalException.Handlers;

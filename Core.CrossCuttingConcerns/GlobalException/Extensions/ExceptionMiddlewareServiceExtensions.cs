@@ -1,11 +1,8 @@
 ﻿using Core.CrossCuttingConcerns.GlobalException.Handlers;
 using Core.CrossCuttingConcerns.GlobalException.Middlewares;
-using Hellang.Middleware.ProblemDetails;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
-using System.Reflection;
 using ProblemDetailsOptions = Hellang.Middleware.ProblemDetails.ProblemDetailsOptions;
 
 namespace Core.CrossCuttingConcerns.GlobalException.Extensions;
@@ -39,13 +36,15 @@ public static class ExceptionMiddlewareServiceExtensions
         // 5. Model validasyon hataları
         services.Configure<ApiBehaviorOptions>(ConfigureApiBehavior);
 
+        services.AddLocalization(options => options.ResourcesPath = "Resources");
+
         return services;
     }
 
     private static void RegisterHandlersFromAssemblies(Assembly[]? assemblies)
     {
         // Varsayılan olarak mevcut assembly'i kullan
-        var targetAssemblies = assemblies ?? new[] { Assembly.GetExecutingAssembly() };
+        var targetAssemblies = assemblies ?? [Assembly.GetExecutingAssembly()];
 
         foreach (var assembly in targetAssemblies)
         {
@@ -59,6 +58,9 @@ public static class ExceptionMiddlewareServiceExtensions
         {
             problem.Extensions.Add("requestId", ctx.TraceIdentifier);
             problem.Extensions.Add("timestamp", DateTime.UtcNow);
+
+            // OpenAPI dokümantasyonu için ek meta veri
+            problem.Extensions.Add("x-custom-error-code", problem.Status);
         };
 
         options.MapToStatusCode<Exception>(StatusCodes.Status500InternalServerError);

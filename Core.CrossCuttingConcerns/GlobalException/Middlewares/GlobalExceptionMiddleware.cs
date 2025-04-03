@@ -1,5 +1,4 @@
 ﻿using Core.CrossCuttingConcerns.GlobalException.Handlers;
-using Microsoft.AspNetCore.Http;
 
 namespace Core.CrossCuttingConcerns.GlobalException.Middlewares;
 

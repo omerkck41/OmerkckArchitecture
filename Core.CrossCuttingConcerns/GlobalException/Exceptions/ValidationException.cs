@@ -1,6 +1,5 @@
 ﻿using Core.CrossCuttingConcerns.GlobalException.Attributes;
 using Core.CrossCuttingConcerns.GlobalException.Models;
-using Microsoft.AspNetCore.Http;
 
 namespace Core.CrossCuttingConcerns.GlobalException.Exceptions;
 

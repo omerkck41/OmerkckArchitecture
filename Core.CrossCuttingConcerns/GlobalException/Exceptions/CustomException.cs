@@ -1,8 +1,6 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿namespace Core.CrossCuttingConcerns.GlobalException.Exceptions;
 
-namespace Core.CrossCuttingConcerns.GlobalException.Exceptions;
-
-public class CustomException : Exception
+public abstract class CustomException : Exception
 {
     /// <summary>
     /// Eğer oluşturulurken explicit olarak bir durum kodu verildiyse bu property set edilir.

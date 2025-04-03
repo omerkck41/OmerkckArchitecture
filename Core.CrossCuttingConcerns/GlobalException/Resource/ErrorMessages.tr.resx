@@ -1,0 +1,39 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+	<!--
+    Bu dosya hata mesajlarını Türkçe olarak içermektedir.
+  -->
+	<data name="UnhandledError" xml:space="preserve">
+    <value>Beklenmeyen bir hata oluştu.</value>
+  </data>
+	<data name="ValidationError" xml:space="preserve">
+    <value>Doğrulama hatası.</value>
+  </data>
+	<data name="BadRequestError" xml:space="preserve">
+    <value>Geçersiz istek.</value>
+  </data>
+	<data name="ConflictError" xml:space="preserve">
+    <value>Çakışma oluştu.</value>
+  </data>
+	<data name="InvalidArgumentError" xml:space="preserve">
+    <value>Geçersiz argüman.</value>
+  </data>
+	<data name="ForbiddenError" xml:space="preserve">
+    <value>Yetersiz yetki.</value>
+  </data>
+	<data name="NotFoundError" xml:space="preserve">
+    <value>Kaynak bulunamadı.</value>
+  </data>
+	<data name="AuthenticationRequiredError" xml:space="preserve">
+    <value>Kimlik doğrulaması gerekli.</value>
+  </data>
+	<data name="TimeoutError" xml:space="preserve">
+    <value>İstek zaman aşımına uğradı.</value>
+  </data>
+	<data name="TooManyRequestsError" xml:space="preserve">
+    <value>Çok fazla istek gönderildi.</value>
+  </data>
+	<data name="InternalServerError" xml:space="preserve">
+    <value>İç sunucu hatası.</value>
+  </data>
+</root>

@@ -2,15 +2,15 @@
 
 namespace Core.CrossCuttingConcerns.GlobalException.Exceptions;
 
-[HttpStatusCode(StatusCodes.Status409Conflict)]
-public class ConflictException : CustomException
+[HttpStatusCode(StatusCodes.Status429TooManyRequests)]
+public class TooManyRequestsException : CustomException
 {
-    public ConflictException(string message = "Conflict occurred")
+    public TooManyRequestsException(string message = "Too Many Requests")
         : base(message, explicitStatusCode: null, additionalData: null, innerException: null)
     {
     }
 
-    public ConflictException(string message, Exception innerException)
+    public TooManyRequestsException(string message, Exception innerException)
         : base(message, explicitStatusCode: null, additionalData: null, innerException: innerException)
     {
     }
