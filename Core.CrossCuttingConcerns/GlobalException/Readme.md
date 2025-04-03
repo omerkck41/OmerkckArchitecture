@@ -1,74 +1,157 @@
-﻿# 📘 Global Exception Handling Kütüphanesi
+﻿# GlobalExceptionHandler Kütüphanesi
 
-## 📝 **Nedir?**
-Bu kütüphane, ASP.NET Core projelerinde istisnaları merkezi bir noktada ele almak için geliştirilmiştir. `GlobalExceptionHandler`, `ValidationExceptionHandler` ve `ExceptionHandlerFactory` gibi bileşenlerle, hata yönetimini standartlaştırarak API'nin daha güvenilir ve tutarlı olmasını sağlar.
+.NET 9.0 ve üzeri için geliştirilmiş bu kütüphane, ASP.NET Core API uygulamalarında standart, genellenebilir ve özelleştirilebilir bir hata yönetimi sunar. Exception handling yapısı RFC 7807 (ProblemDetails) standardına uygundur ve özellikle geliştiricilere temiz, loglanabilir ve ölçeklenebilir bir hata yapısı sağlar.
 
----
-## 💡 **Neden Kullanılır?**
-- **Merkezi Hata Yönetimi:** Tüm istisnaları tek bir noktadan yakalayarak yönetir.
-- **API Standartlarına Uyum:** `ProblemDetails` formatı sayesinde tutarlı hata yanıtları sağlar.
-- **Modülerlik:** Farklı hata türleri için özel handler’lar oluşturulabilir.
-- **Kolay Entegrasyon:** Projeye birkaç satır kod ekleyerek kullanılabilir.
+## Özellikler
 
----
-## 🚀 **Avantajları:**
-- ✅ **Performans:** `WriteAsJsonAsync()` ile hızlı yanıtlar.
-- ✅ **Standartlaştırma:** `ProblemDetails` kullanımı ile API'lerde ortak hata formatı.
-- ✅ **Genişletilebilirlik:** Yeni hata türleri için kolayca ek handler’lar oluşturma.
-- ✅ **Bakım Kolaylığı:** Hata yönetimi merkezi bir yapıda tutulur.
+- ✨ RFC 7807 uyumlu `UnifiedApiErrorResponse` yapısı
+- ✨ Tüm hata mesajları tek formatta: statusCode, message, detail, additionalData
+- ✨ Validation hataları için `ValidationException` desteği
+- ✨ Custom Exception tanımlama desteği (NotFoundException, TimeoutException, vb.)
+- ✨ Attribute tabanlı HTTP Status Code desteği
+- ✨ Global Exception Middleware ile uygulama seviyesinde hata yakalama
+- ✨ HandlerFactory ile Exception bazlı handler yönlendirme
+- ✨ ProblemDetails + Swagger/OpenAPI uyumlu hata dönüşleri
+- ✨ Localization desteği için hazır altyapı (isteğe bağlı)
 
 ---
-## 🛠️ **Projeye Nasıl Eklenir?**
-### 📂 **1. Bağımlılıkların Yüklenmesi:**
-Gerekli bağımlılıkları `Program.cs` içinde ekleyin:
+
+## Kurulum
+
+### 1. Projeye Submodule Ekleme
+
+```bash
+git submodule add https://github.com/omerkck41/OmerkckArchitecture/tree/master/Core.CrossCuttingConcerns/GlobalException src/Core/CrossCuttingConcerns/GlobalException
+```
+
+### 2. Startup / Program.cs İçerisinde Servisleri Kaydetme
 
 ```csharp
-// Program.cs
-var builder = WebApplication.CreateBuilder(args);
-builder.Services.AddExceptionMiddlewareServices();
-
-var app = builder.Build();
-app.UseExceptionMiddleware();
-app.Run();
+builder.Services.AddAdvancedExceptionHandling();
 ```
 
-### 📝 **2. appsettings.json Ayarları:**
-```json
-{
-  "Logging": {
-    "LogLevel": {
-      "Default": "Information",
-      "Microsoft.AspNetCore": "Warning"
-    }
-  },
-  "AllowedHosts": "*"
-}
+> `Resources` klasörü kütüphane içindeyse, localization desteği de otomatik olarak eklenir.
+
+### 3. Middleware Ekleme
+
+```csharp
+app.UseAdvancedExceptionHandling();
 ```
 
 ---
-## 📊 **Detaylı Kullanım Örnekleri:**
-### 🎯 **Validation Hatası Örneği:**
-API'ye geçersiz bir e-posta gönderildiğinde:
+
+## Kullanım
+
+### 1. Controller içinde Exception fırlatma
+
+```csharp
+[HttpGet("{id}")]
+public IActionResult Get(int id)
+{
+    if (id <= 0)
+        throw new BadRequestException("ID must be greater than zero.");
+
+    throw new NotFoundException("User not found.");
+}
+```
+
+### 2. ValidationException Otomatik Format
+
 ```json
 {
-  "status": 400,
-  "title": "Validation error",
+  "errorId": "...",
+  "success": false,
+  "statusCode": 400,
+  "title": "Validation Error",
+  "message": "Validation error",
+  "errorType": "ValidationException",
   "detail": "Validation failed for one or more fields.",
-  "errors": {
-    "Email": ["Geçerli bir e-posta adresi değil."]
-  }
+  "additionalData": [
+    {
+      "property": "Email",
+      "errors": [
+        "Email is required.",
+        "Email must be valid."
+      ]
+    }
+  ]
 }
 ```
-### 🎯 **Genel Sistem Hatası Örneği:**
-```json
-{
-  "status": 500,
-  "title": "An unexpected error occurred",
-  "detail": "Null reference exception",
-  "instance": "2d5f9f10-7634-42d4-bd8a-8c9f53f6e788"
-}
-```
+
 ---
-## 🏁 **Sonuç:**
-Bu yapı sayesinde projelerinizde merkezi hata yönetimi sağlayarak, API'lerinizi daha güvenilir, tutarlı ve bakımı kolay hale getirebilirsiniz. 🚀
+
+## Custom Exception Tanımlama
+
+```csharp
+[HttpStatusCode(StatusCodes.Status429TooManyRequests)]
+public class TooManyRequestsException : CustomException
+{
+    public TooManyRequestsException(string message)
+        : base(message) { }
+}
+```
+
+---
+
+## Custom Handler Yazmak
+
+```csharp
+public class MyCustomExceptionHandler : IExceptionHandler<MyCustomException>
+{
+    public async Task HandleExceptionAsync(HttpContext context, MyCustomException exception)
+    {
+        var response = UnifiedApiErrorResponse.FromException(exception) with
+        {
+            StatusCode = StatusCodes.Status400BadRequest,
+            Message = "Special error: " + exception.Message
+        };
+
+        context.Response.ContentType = "application/problem+json";
+        context.Response.StatusCode = response.StatusCode;
+        await context.Response.WriteAsJsonAsync(response);
+    }
+}
+```
+
+---
+
+## Swagger/OpenAPI Uyumu
+
+ProblemDetails middleware ile uyumludur. Aşağıdaki gibi controller'a belirtilebilir:
+
+```csharp
+[ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+[ProducesResponseType(typeof(UnifiedApiErrorResponse), StatusCodes.Status500InternalServerError)]
+```
+
+---
+
+## Geliştirici Notları
+
+- Hatalar tek tipte (record-based response) döner.
+- Custom exception veya handler eklemek kolaydır.
+- Çoklu handler desteği (Validation, Auth, Token vb.) mevcut.
+- Proje için sorumluluklar ayrı, modüler net.
+
+---
+
+## Önerilen Klasör Yapısı
+
+```
+Core/
+  CrossCuttingConcerns/
+    GlobalException/
+      Attributes/
+      Exceptions/
+      Extensions/
+      Handlers/
+      Middlewares/
+      Models/
+      Resources/
+        ErrorMessages.resx
+        ErrorMessages.tr.resx
+        ErrorMessages.en.resx
+```
+
+---
 
