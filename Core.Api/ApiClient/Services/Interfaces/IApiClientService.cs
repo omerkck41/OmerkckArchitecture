@@ -1,12 +1,14 @@
-﻿namespace Core.Api.ApiClient.Services.Interfaces;
+﻿using Core.Api.ApiClient.Models;
+
+namespace Core.Api.ApiClient.Services.Interfaces;
 
 public interface IApiClientService
 {
-    Task<T> GetAsync<T>(string requestUri, CancellationToken cancellationToken = default);
-    Task<TResponse> PostAsync<TRequest, TResponse>(string requestUri, TRequest data, CancellationToken cancellationToken = default);
-    Task<TResponse> PutAsync<TRequest, TResponse>(string requestUri, TRequest data, CancellationToken cancellationToken = default);
-    Task<TResponse> PatchAsync<TRequest, TResponse>(string requestUri, TRequest data, CancellationToken cancellationToken = default);
-    Task DeleteAsync(string requestUri, CancellationToken cancellationToken = default);
+    Task<ApiResponseWrapper<T>> GetAsync<T>(string requestUri, CancellationToken cancellationToken = default);
+    Task<ApiResponseWrapper<TResponse>> PostAsync<TRequest, TResponse>(string requestUri, TRequest data, CancellationToken cancellationToken = default);
+    Task<ApiResponseWrapper<TResponse>> PutAsync<TRequest, TResponse>(string requestUri, TRequest data, CancellationToken cancellationToken = default);
+    Task<ApiResponseWrapper<TResponse>> PatchAsync<TRequest, TResponse>(string requestUri, TRequest data, CancellationToken cancellationToken = default);
+    Task<ApiResponseWrapper<bool>> DeleteAsync(string requestUri, CancellationToken cancellationToken = default);
 
-    Task<IEnumerable<T>> GetMultipleAsync<T>(IEnumerable<string> requestUris, CancellationToken cancellationToken = default);
+    Task<IEnumerable<ApiResponseWrapper<T>>> GetMultipleAsync<T>(IEnumerable<string> requestUris, CancellationToken cancellationToken = default);
 }
