@@ -1,5 +1,7 @@
-﻿using Core.CrossCuttingConcerns.GlobalException.Handlers;
+﻿using Core.CrossCuttingConcerns.GlobalException.Exceptions;
+using Core.CrossCuttingConcerns.GlobalException.Handlers;
 using Core.CrossCuttingConcerns.GlobalException.Middlewares;
+using Core.CrossCuttingConcerns.GlobalException.Models;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
@@ -70,19 +72,33 @@ public static class ExceptionMiddlewareServiceExtensions
     {
         options.InvalidModelStateResponseFactory = context =>
         {
-            var problemDetails = new ValidationProblemDetails(context.ModelState)
-            {
-                Type = "https://tools.ietf.org/html/rfc7231#section-6.5.1",
-                Title = "Validation error",
-                Status = StatusCodes.Status400BadRequest,
-                Instance = context.HttpContext.Request.Path,
-                Detail = "One or more validation errors occurred."
-            };
+            var errorId = Guid.NewGuid().ToString();
 
-            problemDetails.Extensions.Add("requestId", context.HttpContext.TraceIdentifier);
-            problemDetails.Extensions.Add("timestamp", DateTime.UtcNow);
+            // ModelState'deki hataları, ValidationExceptionModel listesine dönüştürüyoruz.
+            var errorModels = context.ModelState
+                .Where(ms => ms.Value.Errors.Any())
+                .Select(ms => new ValidationExceptionModel
+                {
+                    Property = ms.Key,
+                    Errors = ms.Value.Errors.Select(e => e.ErrorMessage)
+                })
+                .ToList();
 
-            return new BadRequestObjectResult(problemDetails);
+            // ValidationException oluşturularak, tüm validasyon hataları kapsanıyor.
+            var validationException = new ValidationException(errorModels);
+
+            // UnifiedApiErrorResponse'u, tanımlı yöntemle oluşturuyoruz.
+            var unifiedResponse = UnifiedApiErrorResponse.FromValidationException(
+                validationException,
+                errorId,
+                "Validation failed for one or more fields."
+            );
+
+            // İsteğin path bilgisini instance olarak ekliyoruz.
+            unifiedResponse = unifiedResponse with { Instance = context.HttpContext.Request.Path };
+
+            return new BadRequestObjectResult(unifiedResponse);
         };
     }
+
 }
