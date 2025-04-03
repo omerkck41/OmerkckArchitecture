@@ -13,7 +13,7 @@ public class SendGridEmailProvider : IEmailProvider
 
     public SendGridEmailProvider(IOptions<EmailSettings> emailSettings)
     {
-        _emailSettings = emailSettings?.Value ?? throw new CustomException(nameof(emailSettings));
+        _emailSettings = emailSettings?.Value ?? throw new CustomArgumentException(nameof(emailSettings));
 
         var apiKey = _emailSettings.SendGridApiKey;
         _client = new SendGridClient(apiKey);

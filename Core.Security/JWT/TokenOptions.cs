@@ -46,13 +46,13 @@ public class TokenOptions
     /// <param name="accessTokenExpiration">Erişim token'ının dakika cinsinden son kullanma süresi.</param>
     /// <param name="securityKey">Token'ı imzalamak için kullanılan güvenlik anahtarı.</param>
     /// <param name="refreshTokenTtl">Refresh token'ın gün cinsinden yaşam süresi (TTL).</param>
-    /// <exception cref="CustomException">Gerekli parametrelerden herhangi biri null ise fırlatılır.</exception>
+    /// <exception cref="CustomArgumentException">Gerekli parametrelerden herhangi biri null ise fırlatılır.</exception>
     public TokenOptions(string audience, string issuer, int accessTokenExpiration, string securityKey, int refreshTokenTtl)
     {
-        Audience = audience ?? throw new CustomException(nameof(audience));
-        Issuer = issuer ?? throw new CustomException(nameof(issuer));
+        Audience = audience ?? throw new CustomArgumentException(nameof(audience));
+        Issuer = issuer ?? throw new CustomArgumentException(nameof(issuer));
         AccessTokenExpiration = accessTokenExpiration;
-        SecurityKey = securityKey ?? throw new CustomException(nameof(securityKey));
+        SecurityKey = securityKey ?? throw new CustomArgumentException(nameof(securityKey));
         RefreshTokenTTL = refreshTokenTtl;
     }
 }

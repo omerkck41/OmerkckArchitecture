@@ -8,7 +8,7 @@ public static class SecurityKeyHelper
     public static SymmetricSecurityKey CreateSecurityKey(string securityKey)
     {
         if (string.IsNullOrEmpty(securityKey))
-            throw new CustomException(nameof(securityKey));
+            throw new CustomArgumentException(nameof(securityKey));
 
         return new SymmetricSecurityKey(Convert.FromBase64String(securityKey));
     }

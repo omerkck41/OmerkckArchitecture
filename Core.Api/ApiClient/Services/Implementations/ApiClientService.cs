@@ -58,7 +58,7 @@ public class ApiClientService : IApiClientService
     public async Task<T> GetAsync<T>(string requestUri, CancellationToken cancellationToken = default)
     {
         // Cache kontrolü: Aynı URI için daha önce alınan sonuç varsa direkt döner.
-        if (_cache.TryGetValue(requestUri, out T cachedData))
+        if (_cache.TryGetValue(requestUri, out T? cachedData) && cachedData != null)
         {
             return cachedData;
         }

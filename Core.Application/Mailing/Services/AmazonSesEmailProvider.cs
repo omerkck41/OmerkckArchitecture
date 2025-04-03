@@ -15,7 +15,7 @@ public class AmazonSesEmailProvider : IEmailProvider
 
     public AmazonSesEmailProvider(IOptions<EmailSettings> emailSettings)
     {
-        _emailSettings = emailSettings?.Value ?? throw new CustomException(nameof(emailSettings));
+        _emailSettings = emailSettings?.Value ?? throw new CustomArgumentException(nameof(emailSettings));
 
 
         if (string.IsNullOrWhiteSpace(_emailSettings.DefaultFromAddress))
@@ -39,7 +39,7 @@ public class AmazonSesEmailProvider : IEmailProvider
     public async Task SendAsync(EmailMessage emailMessage)
     {
         if (emailMessage == null)
-            throw new CustomException(nameof(emailMessage));
+            throw new CustomArgumentException(nameof(emailMessage));
 
 
         // Alıcıları hazırla
@@ -63,7 +63,7 @@ public class AmazonSesEmailProvider : IEmailProvider
     private static Destination BuildDestination(IEnumerable<EmailRecipient> recipients)
     {
         if (recipients == null)
-            throw new CustomException(nameof(recipients));
+            throw new CustomArgumentException(nameof(recipients));
 
         return new Destination
         {

@@ -332,7 +332,7 @@ public class EfRepositoryBase<TEntity, TId, TContext> : IAsyncRepository<TEntity
         }
         else
         {
-            throw new CustomException("Entity does not support soft delete.");
+            throw new CustomArgumentException("Entity does not support soft delete.");
         }
 
         await _context.SaveChangesAsync(cancellationToken);

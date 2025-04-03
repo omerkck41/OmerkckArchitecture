@@ -42,7 +42,7 @@ public class UnitOfWork<TContext>(TContext context) : IUnitOfWork where TContext
         catch (DbUpdateConcurrencyException ex)
         {
             // Concurrency conflict durumunda özel exception fırlatılabilir veya loglama yapılabilir.
-            throw new CustomException("Concurrency conflict occurred during save operation.", ex);
+            throw new CustomArgumentException("Concurrency conflict occurred during save operation.", ex);
         }
     }
 

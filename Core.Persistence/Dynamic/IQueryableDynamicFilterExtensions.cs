@@ -32,7 +32,7 @@ public static class IQueryableDynamicFilterExtensions
             FilterOperator.EndsWith => Expression.Call(property, typeof(string).GetMethod("EndsWith", [typeof(string)])!, value),
             FilterOperator.IsNull => Expression.Equal(property, Expression.Constant(null)),
             FilterOperator.IsNotNull => Expression.NotEqual(property, Expression.Constant(null)),
-            _ => throw new CustomException($"Operator '{filter.Operator}' is not supported.")
+            _ => throw new CustomArgumentException($"Operator '{filter.Operator}' is not supported.")
         };
     }
 

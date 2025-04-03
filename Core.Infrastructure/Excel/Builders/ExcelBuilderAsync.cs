@@ -374,7 +374,7 @@ public class ExcelBuilderAsync : IExcelBuilderAsync
         }
         else
         {
-            throw new CustomException($"The format '{format}' is not supported.");
+            throw new CustomArgumentException($"The format '{format}' is not supported.");
         }
 
         if (exportToPdf)
