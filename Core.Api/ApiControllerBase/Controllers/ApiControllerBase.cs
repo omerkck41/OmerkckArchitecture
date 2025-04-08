@@ -38,4 +38,9 @@ public abstract class ApiControllerBase : ControllerBase
 
         return new ObjectResult(response) { StatusCode = statusCode };
     }
+
+    protected IActionResult HandleResult<T>(ApiResponse<T> response)
+    {
+        return new ObjectResult(response) { StatusCode = response.StatusCode };
+    }
 }
