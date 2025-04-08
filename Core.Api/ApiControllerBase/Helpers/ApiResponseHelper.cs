@@ -36,7 +36,14 @@ public static class ApiResponseHelper
             locationHeader = $"{httpContext.Request.GetEncodedUrl().TrimEnd('/')}/{resourceId}";
         }
 
-        return new ApiResponse<T>(true, message, data, statusCode, locationHeader ?? string.Empty);
+        return new ApiResponse<T>
+        {
+            Success = true,
+            Message = message,
+            AdditionalData = data,
+            StatusCode = statusCode,
+            Instance = locationHeader ?? string.Empty
+        };
     }
 
     /// <summary>
@@ -59,6 +66,13 @@ public static class ApiResponseHelper
         };
 
         // Non-nullable Data için default değer kullanılır.
-        return new ApiResponse<T>(false, message, default!, statusCode, string.Empty);
+        return new ApiResponse<T>
+        {
+            Success = false,
+            Message = message,
+            AdditionalData = default!,
+            StatusCode = statusCode,
+            Instance = string.Empty
+        };
     }
 }

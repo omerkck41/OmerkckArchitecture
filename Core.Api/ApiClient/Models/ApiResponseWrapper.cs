@@ -1,23 +1,27 @@
 ﻿namespace Core.Api.ApiClient.Models;
 
-public sealed record ApiResponseWrapper<T>(
-    bool Success,
-    string Message,
-    T? AdditionalData,
-    int StatusCode,
-    string? Instance,
-    string? ErrorType = null,
-    string? Detail = null,
-    string? ErrorId = null)
+public sealed record ApiResponseWrapper<T>
 {
-    public bool IsSuccessful => Success && StatusCode >= 200 && StatusCode < 300;
+    public bool Success { get; init; }
+    public string Message { get; init; } = string.Empty;
+    public T? AdditionalData { get; init; }
+    public int StatusCode { get; init; }
+    public string? Instance { get; init; }
+    public string? ErrorType { get; init; }
+    public string? Detail { get; init; }
+    public string? ErrorId { get; init; }
 
-    public static ApiResponseWrapper<T> CreateSuccessResponse(
-        T data,
-        string message = "",
-        int statusCode = 200,
-        string? instance = null) =>
-        new(true, message, data, statusCode, instance);
+    public bool IsSuccessful => Success && StatusCode is >= 200 and < 300;
+
+    public static ApiResponseWrapper<T> CreateSuccessResponse(T data, string message = "", int statusCode = 200, string? instance = null)
+        => new()
+        {
+            Success = true,
+            Message = message,
+            AdditionalData = data,
+            StatusCode = statusCode,
+            Instance = instance
+        };
 
     public static ApiResponseWrapper<T> CreateErrorResponse(
         string message,
@@ -25,6 +29,16 @@ public sealed record ApiResponseWrapper<T>(
         string? errorType = null,
         string? detail = null,
         string? errorId = null,
-        string? instance = null) =>
-        new(false, message, default, statusCode, instance, errorType, detail, errorId);
+        string? instance = null)
+        => new()
+        {
+            Success = false,
+            Message = message,
+            AdditionalData = default,
+            StatusCode = statusCode,
+            Instance = instance,
+            ErrorType = errorType,
+            Detail = detail,
+            ErrorId = errorId
+        };
 }

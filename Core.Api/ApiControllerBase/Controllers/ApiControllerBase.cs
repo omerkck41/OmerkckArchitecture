@@ -8,12 +8,34 @@ namespace Core.Api.ApiControllerBase.Controllers;
 /// </summary>
 public abstract class ApiControllerBase : ControllerBase
 {
-    /// <summary>
-    /// ApiResponse nesnesini IActionResult'a dönüştürür.
-    /// Sadece başarılı işlemler için kullanılmalı, hata durumlarında exception fırlatılarak global middleware devreye girmelidir.
-    /// </summary>
-    protected IActionResult HandleResult<T>(ApiResponse<T> response)
+    protected IActionResult ApiSuccess<T>(T data, string message = "", int statusCode = 200)
     {
-        return response.ToActionResult(HttpContext);
+        var response = new ApiResponse<T>
+        {
+            Success = true,
+            Message = message,
+            AdditionalData = data,
+            StatusCode = statusCode,
+            Instance = HttpContext.Request.Path
+        };
+
+        return new ObjectResult(response) { StatusCode = statusCode };
+    }
+
+    protected IActionResult ApiFail(string message, int statusCode = 400, string? errorType = null, string? detail = null)
+    {
+        var response = new ApiResponse<object>
+        {
+            Success = false,
+            Message = message,
+            StatusCode = statusCode,
+            AdditionalData = null,
+            Instance = HttpContext.Request.Path,
+            ErrorType = errorType,
+            Detail = detail,
+            ErrorId = HttpContext.TraceIdentifier
+        };
+
+        return new ObjectResult(response) { StatusCode = statusCode };
     }
 }
