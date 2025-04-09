@@ -32,7 +32,7 @@ public static class ApiResponseHelper
         string? locationHeader = null;
         if (method == "POST" && resourceId != null)
         {
-            // Location header, request URL ve resourceId birleştirilerek oluşturulur.
+            // Request URL ve resourceId'nin birleşmesiyle Location header oluşturulur.
             locationHeader = $"{httpContext.Request.GetEncodedUrl().TrimEnd('/')}/{resourceId}";
         }
 
@@ -65,7 +65,6 @@ public static class ApiResponseHelper
             _ => StatusCodes.Status400BadRequest
         };
 
-        // Non-nullable Data için default değer kullanılır.
         return new ApiResponse<T>
         {
             Success = false,

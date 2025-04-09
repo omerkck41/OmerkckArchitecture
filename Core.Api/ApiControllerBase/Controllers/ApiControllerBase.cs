@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Core.Api.ApiControllerBase.Controllers;
 
 /// <summary>
-/// Tüm API controller'lar için ortak özellikler ve yardımcı metodlar içerir.
+/// Tüm API controller'lar için ortak özellikler ve yardımcı metotlar içerir.
 /// </summary>
 public abstract class ApiControllerBase : ControllerBase
 {
@@ -37,10 +37,5 @@ public abstract class ApiControllerBase : ControllerBase
         };
 
         return new ObjectResult(response) { StatusCode = statusCode };
-    }
-
-    protected IActionResult HandleResult<T>(ApiResponse<T> response)
-    {
-        return new ObjectResult(response) { StatusCode = response.StatusCode };
     }
 }

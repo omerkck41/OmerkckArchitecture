@@ -30,7 +30,7 @@ public class ApiClientService : IApiClientService
             return ApiResponseWrapper<T>.CreateErrorResponse("Request failed", (int)response.StatusCode, detail: errorContent, instance: requestUri);
         }
 
-        var data = await response.Content.ReadFromJsonAsync<T>(cancellationToken: cancellationToken);
+        var data = await response.Content.ReadFromJsonAsync<T>(_jsonOptions, cancellationToken: cancellationToken);
         return ApiResponseWrapper<T>.CreateSuccessResponse(data!, "Success", (int)response.StatusCode, requestUri);
     }
 
