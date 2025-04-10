@@ -30,8 +30,14 @@ public class ApiClientService : IApiClientService
             return ApiResponseWrapper<T>.CreateErrorResponse("Request failed", (int)response.StatusCode, detail: errorContent, instance: requestUri);
         }
 
-        var data = await response.Content.ReadFromJsonAsync<T>(_jsonOptions, cancellationToken: cancellationToken);
-        return ApiResponseWrapper<T>.CreateSuccessResponse(data!, "Success", (int)response.StatusCode, requestUri);
+        var result = await response.Content.ReadFromJsonAsync<ApiResponseWrapper<T>>(_jsonOptions, cancellationToken: cancellationToken);
+
+        if (result == null || result.AdditionalData == null)
+        {
+            return ApiResponseWrapper<T>.CreateErrorResponse("Response could not be deserialized", (int)response.StatusCode, instance: requestUri);
+        }
+
+        return result;
     }
 
     public async Task<ApiResponseWrapper<T>> GetAsync<T>(string requestUri, CancellationToken cancellationToken = default)
