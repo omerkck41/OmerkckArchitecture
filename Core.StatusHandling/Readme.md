@@ -8,7 +8,7 @@ Bu kütüphane, ASP.NET Core MVC, Razor Pages, Minimal API veya Blazor projeleri
 
 ## Kurulum
 
-Bu kütüphaneyi projenize ekleyin (örneğin bir submodule olarak veya NuGet paketi olarak - eğer yayınlarsanız).
+Bu kütüphaneyi projenize ekleyin (örneğin bir submodule olarak).
 
 ## Kullanım
 
