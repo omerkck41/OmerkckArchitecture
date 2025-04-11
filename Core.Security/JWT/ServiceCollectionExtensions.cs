@@ -66,6 +66,12 @@ public static class ServiceCollectionExtensions
 
                         // JSON yazmıyoruz, sadece middleware'e bırakıyoruz
                         return Task.CompletedTask;
+                    },
+
+                    OnForbidden = context =>
+                    {
+                        context.Response.StatusCode = StatusCodes.Status403Forbidden;
+                        return Task.CompletedTask;
                     }
                 };
 
