@@ -2,5 +2,8 @@
 
 public class GlobalExceptionOptions
 {
-    public Func<HttpContext, Exception, Task>? OnHtmlException { get; set; }
+    /// <summary>
+    /// Hata UI’da oluştuğunda, framework'e göre özelleştirme yapılabilecek merkez davranış.
+    /// </summary>
+    public Func<HttpContext, Exception, bool, Task>? OnExceptionCompletedAsync { get; set; }
 }

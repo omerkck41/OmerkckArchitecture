@@ -28,9 +28,9 @@ public class GlobalExceptionMiddleware
 
             var isHtml = context.Request.Headers.Accept.ToString().Contains("text/html");
 
-            if (isHtml && _options.OnHtmlException is not null)
+            if (_options.OnExceptionCompletedAsync is not null)
             {
-                await _options.OnHtmlException.Invoke(context, ex);
+                await _options.OnExceptionCompletedAsync.Invoke(context, ex, isHtml);
                 return;
             }
 
