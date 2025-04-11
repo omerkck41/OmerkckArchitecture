@@ -83,7 +83,7 @@ public class ExceptionHandlerFactory : IExceptionHandlerFactory
         catch (Exception ex)
         {
             throw new InvalidOperationException(
-                $"Handler bulunamadı: {handlerType.Name}. DI container'a kaydedildiğinden emin olun. " +
+                $"Handler not found: {handlerType.Name}. Make sure it is saved in the DI container. " +
                 $"Exception: {ex.Message}");
         }
     }

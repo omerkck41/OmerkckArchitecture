@@ -14,7 +14,10 @@ public static class ExceptionMiddlewareServiceExtensions
     public static IApplicationBuilder UseAdvancedExceptionHandling(this IApplicationBuilder app)
     {
         // 1. Önce ProblemDetails (sadece formatlama yapsın)
-        app.UseProblemDetails();
+        app.UseWhen(
+        context => context.Response.StatusCode == 500 || context.Items.ContainsKey("exception"),
+        appBuilder => appBuilder.UseProblemDetails()
+        );
 
         // 2. Sonra kendi middleware'imiz (exception'ları yakalasın)
         return app.UseMiddleware<GlobalExceptionMiddleware>();
