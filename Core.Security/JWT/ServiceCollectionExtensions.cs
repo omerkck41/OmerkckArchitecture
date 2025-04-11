@@ -7,7 +7,6 @@ using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using StackExchange.Redis;
 using System.Text;
-using System.Text.Json;
 
 namespace Core.Security.JWT;
 
@@ -59,18 +58,14 @@ public static class ServiceCollectionExtensions
                 {
                     OnChallenge = context =>
                     {
-                        // Varsayılan challenge davranışını iptal ediyoruz
+                        // Otomatik JSON mesajını bastır
                         context.HandleResponse();
+
+                        // Response status kodunu bırak, ama içerik yazma
                         context.Response.StatusCode = StatusCodes.Status401Unauthorized;
-                        context.Response.ContentType = "application/json";
 
-                        var response = JsonSerializer.Serialize(new
-                        {
-                            success = false,
-                            message = "Please login to access this page."
-                        });
-
-                        return context.Response.WriteAsync(response);
+                        // JSON yazmıyoruz, sadece middleware'e bırakıyoruz
+                        return Task.CompletedTask;
                     }
                 };
 
