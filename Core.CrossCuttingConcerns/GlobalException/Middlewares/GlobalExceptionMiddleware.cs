@@ -24,7 +24,9 @@ public class GlobalExceptionMiddleware
         }
         catch (Exception ex)
         {
-            var isHtml = context.Request.Headers["Accept"].ToString().Contains("text/html");
+            var handler = _handlerFactory.GetHandler(ex);
+
+            var isHtml = context.Request.Headers.Accept.ToString().Contains("text/html");
 
             if (isHtml && _options.OnHtmlException is not null)
             {
@@ -32,7 +34,6 @@ public class GlobalExceptionMiddleware
                 return;
             }
 
-            var handler = _handlerFactory.GetHandler(ex);
             await handler.HandleExceptionAsync(context, ex);
         }
     }
