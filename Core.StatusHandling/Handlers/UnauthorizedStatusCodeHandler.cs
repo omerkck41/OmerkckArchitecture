@@ -3,6 +3,7 @@ using Core.StatusHandling.Interfaces;
 using Core.StatusHandling.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
+using System.Text.Json;
 
 namespace Core.StatusHandling.Handlers;
 
@@ -20,43 +21,58 @@ public class UnauthorizedStatusCodeHandler : IStatusCodeHandler
 
     public async Task HandleAsync(HttpContext context)
     {
-        string redirectPath = null;
+        string? redirectPath = null;
         string notificationMessage = "You are not authorized for this operation.";
         string notificationType = "warning";
 
-        if (context.Response.StatusCode == 401) // Giriş yapılmamış
+        int statusCode = context.Response.StatusCode;
+
+        if (statusCode == 401)
         {
             notificationMessage = "Please log in.";
             notificationType = "info";
-            // Yapılandırmadan 401 için yolu al
             _options.RedirectPaths.TryGetValue(401, out redirectPath);
-            redirectPath ??= "/Login"; // Varsayılan login yolu
+            redirectPath ??= "/Account/Login";
         }
-        else if (context.Response.StatusCode == 403) // Yetki yetersiz
+        else if (statusCode == 403)
         {
             notificationMessage = "You are not authorized for this operation.";
             notificationType = "warning";
-            // Yapılandırmadan 403 için yolu al
             _options.RedirectPaths.TryGetValue(403, out redirectPath);
-            redirectPath ??= "/"; // Varsayılan olarak anasayfaya veya dashboard'a yönlendir
+            redirectPath ??= "/";
         }
 
-        if (!string.IsNullOrEmpty(redirectPath))
+        // İstek browser'dan mı? Yoksa JSON mu?
+        var accept = context.Request.Headers["Accept"].ToString();
+
+        if (accept.Contains("text/html", StringComparison.OrdinalIgnoreCase))
         {
-            context.Response.Redirect(redirectPath);
+            if (_options.EnableNotifications)
+            {
+                context.AppendNotification(notificationMessage, notificationType);
+            }
+
+            if (!string.IsNullOrEmpty(redirectPath))
+            {
+                context.Response.Redirect(redirectPath);
+            }
+            else
+            {
+                context.Response.ContentType = "text/plain";
+                await context.Response.WriteAsync(notificationMessage);
+            }
         }
         else
         {
-            // Yönlendirme yoksa, varsayılan bir mesaj gösterilebilir
-            context.Response.ContentType = "text/plain";
-            await context.Response.WriteAsync(notificationMessage); // Basit mesaj
-        }
+            // API istekleri için basic JSON response
+            context.Response.StatusCode = statusCode;
+            context.Response.ContentType = "application/json";
 
-
-        // Bildirimleri etkinse, işaret bırak
-        if (_options.EnableNotifications)
-        {
-            context.AppendNotification(notificationMessage, notificationType);
+            await context.Response.WriteAsync(JsonSerializer.Serialize(new
+            {
+                success = false,
+                message = notificationMessage
+            }));
         }
     }
 }
