@@ -1,5 +1,6 @@
 ﻿using Core.StatusHandling.Interfaces;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace Core.StatusHandling.Middleware;
@@ -7,16 +8,11 @@ namespace Core.StatusHandling.Middleware;
 public class StatusCodeHandlingMiddleware
 {
     private readonly RequestDelegate _next;
-    private readonly IEnumerable<IStatusCodeHandler> _handlers; // Tüm kayıtlı handler'lar
     private readonly ILogger<StatusCodeHandlingMiddleware> _logger; // Loglama
 
-    public StatusCodeHandlingMiddleware(
-        RequestDelegate next,
-        IEnumerable<IStatusCodeHandler> handlers, // DI ile tüm handler'lar buraya gelir
-        ILogger<StatusCodeHandlingMiddleware> logger)
+    public StatusCodeHandlingMiddleware(RequestDelegate next, ILogger<StatusCodeHandlingMiddleware> logger)
     {
         _next = next;
-        _handlers = handlers;
         _logger = logger;
     }
 
@@ -34,11 +30,14 @@ public class StatusCodeHandlingMiddleware
             return;
         }
 
+        // Scoped IStatusCodeHandler koleksiyonunu RequestServices üzerinden alın
+        var handlers = context.RequestServices.GetServices<IStatusCodeHandler>();
+
         // Durum kodunu al
         var statusCode = context.Response.StatusCode;
 
         // Bu durum kodunu işleyebilecek ilk handler'ı bul
-        var handler = _handlers.FirstOrDefault(h => h.CanHandle(statusCode));
+        var handler = handlers.FirstOrDefault(h => h.CanHandle(statusCode));
 
         if (handler != null)
         {
