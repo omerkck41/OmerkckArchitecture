@@ -48,19 +48,17 @@ public class UnauthorizedStatusCodeHandler : IStatusCodeHandler
         if (accept.Contains("text/html", StringComparison.OrdinalIgnoreCase))
         {
             if (_options.EnableNotifications)
-            {
                 context.AppendNotification(notificationMessage, notificationType);
-            }
 
             if (!string.IsNullOrEmpty(redirectPath))
             {
                 context.Response.Redirect(redirectPath);
+                return;
             }
-            else
-            {
-                context.Response.ContentType = "text/plain";
-                await context.Response.WriteAsync(notificationMessage);
-            }
+
+            context.Response.ContentType = "text/plain";
+            await context.Response.WriteAsync(notificationMessage);
+            return;
         }
         else
         {
