@@ -6,11 +6,13 @@ public class GlobalExceptionMiddleware
 {
     private readonly RequestDelegate _next;
     private readonly IExceptionHandlerFactory _handlerFactory;
+    private readonly GlobalExceptionOptions _options;
 
-    public GlobalExceptionMiddleware(RequestDelegate next, IExceptionHandlerFactory handlerFactory)
+    public GlobalExceptionMiddleware(RequestDelegate next, IExceptionHandlerFactory handlerFactory, GlobalExceptionOptions options)
     {
         _next = next;
         _handlerFactory = handlerFactory;
+        _options = options;
     }
 
     public async Task InvokeAsync(HttpContext context)
@@ -21,6 +23,14 @@ public class GlobalExceptionMiddleware
         }
         catch (Exception ex)
         {
+            var isHtml = context.Request.Headers["Accept"].ToString().Contains("text/html");
+
+            if (isHtml && _options.OnHtmlException is not null)
+            {
+                await _options.OnHtmlException.Invoke(context, ex);
+                return;
+            }
+
             var handler = _handlerFactory.GetHandler(ex);
             await handler.HandleExceptionAsync(context, ex);
         }
