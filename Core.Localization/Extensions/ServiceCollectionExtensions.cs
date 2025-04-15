@@ -42,6 +42,7 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<ILocalizationServiceAsync, LocalizationServiceAsync>();
         services.AddSingleton<ICurrencyServiceAsync, CurrencyServiceAsync>();
         services.AddSingleton<IDateTimeServiceAsync, DateTimeServiceAsync>();
+        services.AddSingleton<LocalizationSourceManagerAsync>();
 
         // Başlatma servisi
         services.AddHostedService<LocalizationInitializationServiceAsync>();
@@ -75,6 +76,7 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<ILocalizationServiceAsync, LocalizationServiceAsync>();
         services.AddSingleton<ICurrencyServiceAsync, CurrencyServiceAsync>();
         services.AddSingleton<IDateTimeServiceAsync, DateTimeServiceAsync>();
+        services.AddSingleton<LocalizationSourceManagerAsync>();
 
         // Başlatma servisi
         services.AddHostedService<LocalizationInitializationServiceAsync>();

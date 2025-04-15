@@ -1,5 +1,7 @@
 ﻿using Core.Localization.Abstract;
+using Core.Localization.Cache;
 using Core.Localization.Models;
+using Core.Localization.Services;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.Globalization;
@@ -11,11 +13,12 @@ namespace Core.Localization.Concrete;
 /// </summary>
 public class LocalizationServiceAsync : ILocalizationServiceAsync
 {
-    private readonly IEnumerable<ILocalizationSourceAsync> _sources;
+    private readonly LocalizationSourceManagerAsync _sourceManager;
     private readonly IOptions<LocalizationOptions> _options;
     private readonly ILogger<LocalizationServiceAsync> _logger;
     private CultureInfo _currentCulture;
     private readonly List<CultureInfo> _supportedCultures;
+    private readonly IDistributedCacheManagerAsync _cacheManager;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="LocalizationServiceAsync"/> class.
@@ -24,13 +27,15 @@ public class LocalizationServiceAsync : ILocalizationServiceAsync
     /// <param name="options">The localization options.</param>
     /// <param name="logger">The logger instance.</param>
     public LocalizationServiceAsync(
-        IEnumerable<ILocalizationSourceAsync> sources,
-        IOptions<LocalizationOptions> options,
-        ILogger<LocalizationServiceAsync> logger)
+         LocalizationSourceManagerAsync sourceManager,
+         IOptions<LocalizationOptions> options,
+         ILogger<LocalizationServiceAsync> logger,
+         IDistributedCacheManagerAsync cacheManager)
     {
-        _sources = sources;
+        _sourceManager = sourceManager;
         _options = options;
         _logger = logger;
+        _cacheManager = cacheManager;
 
         // Desteklenen kültürleri yükle
         _supportedCultures = options.Value.SupportedCultures
@@ -52,14 +57,12 @@ public class LocalizationServiceAsync : ILocalizationServiceAsync
             return string.Empty;
         }
 
-        // Tüm kaynaklardan sırayla çeviriyi asenkron olarak ara
-        foreach (var source in _sources)
+        // Kaynak yöneticisinden çevirileri al (önbelleği de yönetir)
+        var translations = await _sourceManager.LoadTranslationsForCultureAsync(_currentCulture);
+
+        if (translations.TryGetValue(key, out var translation) && !string.IsNullOrEmpty(translation))
         {
-            var translations = await source.GetTranslationsAsync(_currentCulture);
-            if (translations.TryGetValue(key, out var translation) && !string.IsNullOrEmpty(translation))
-            {
-                return translation;
-            }
+            return translation;
         }
 
         // Çeviri bulunamazsa, ayarlara göre key veya boş döndür.

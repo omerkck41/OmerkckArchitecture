@@ -1,4 +1,9 @@
 ﻿using Core.Localization.Abstract;
+using Core.Localization.Cache;
+using Core.Localization.Constants;
+using Core.Localization.Models;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using System.Globalization;
 
 namespace Core.Localization.Services;
@@ -9,14 +14,27 @@ namespace Core.Localization.Services;
 public class LocalizationSourceManagerAsync
 {
     private readonly IEnumerable<ILocalizationSourceAsync> _sources;
+    private readonly IDistributedCacheManagerAsync _cacheManager;
+    private readonly LocalizationOptions _options;
+    private readonly ILogger<LocalizationSourceManagerAsync> _logger;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="LocalizationSourceManagerAsync"/> class.
     /// </summary>
     /// <param name="sources">The collection of localization sources.</param>
-    public LocalizationSourceManagerAsync(IEnumerable<ILocalizationSourceAsync> sources)
+    public LocalizationSourceManagerAsync(
+         IEnumerable<ILocalizationSourceAsync> sources,
+         IDistributedCacheManagerAsync cacheManager,
+         IOptions<LocalizationOptions> options,
+         ILogger<LocalizationSourceManagerAsync> logger)
     {
+        // Kaynakları öncelik sırasına göre sırala (Örnek: Veritabanı > JSON > Resource)
+        // Bu sıralama ILocalizationSourceAsync implementasyonlarının DI kaydına göre veya
+        // kaynaklara eklenecek bir 'Priority' özelliğine göre yapılabilir.
         _sources = sources;
+        _cacheManager = cacheManager;
+        _options = options.Value;
+        _logger = logger;
     }
 
     /// <summary>
@@ -24,24 +42,50 @@ public class LocalizationSourceManagerAsync
     /// </summary>
     /// <param name="culture">The culture for which to load translations.</param>
     /// <returns>A dictionary containing the merged translations.</returns>
-    public async Task<IDictionary<string, string>> LoadAllTranslationsAsync(CultureInfo culture)
+    public async Task<IDictionary<string, string>> LoadTranslationsForCultureAsync(CultureInfo culture)
     {
-        // Tüm kaynak sağlayıcıları paralel olarak çağırın.
-        var tasks = _sources.Select(src => src.GetTranslationsAsync(culture));
-        var results = await Task.WhenAll(tasks);
+        string cacheKey = string.Format(LocalizationConstants.CacheKeyFormat, "Translations", culture.Name);
 
-        // Gelen sözlükleri birleştirirken, çakışmaları yönetmek için öncelik sırası belirleyin.
-        var mergedTranslations = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
-        foreach (var dict in results)
+        // 1. Önbelleği kontrol et
+        var cachedTranslations = await _cacheManager.GetAsync<Dictionary<string, string>>(cacheKey);
+        if (cachedTranslations != null)
         {
-            foreach (var kvp in dict)
+            _logger.LogDebug("Translations for culture {Culture} loaded from cache.", culture.Name);
+            return cachedTranslations;
+        }
+
+        _logger.LogDebug("Translations for culture {Culture} not found in cache. Loading from sources.", culture.Name);
+
+        // 2. Kaynaklardan yükle (Önbellekte yoksa)
+        var mergedTranslations = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        // Kaynakları öncelik sırasına göre işle (varsayılan DI sırası)
+        foreach (var source in _sources)
+        {
+            try
             {
-                // Eğer aynı anahtar farklı kaynaklarda varsa, öncelik sırası uygulanabilir.
-                if (!mergedTranslations.ContainsKey(kvp.Key))
+                var sourceTranslations = await source.GetTranslationsAsync(culture);
+                foreach (var kvp in sourceTranslations)
                 {
-                    mergedTranslations[kvp.Key] = kvp.Value;
+                    // Daha önce eklenmemişse ekle (ilk bulunan kaynak öncelikli)
+                    if (!mergedTranslations.ContainsKey(kvp.Key))
+                    {
+                        mergedTranslations.Add(kvp.Key, kvp.Value);
+                    }
                 }
             }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error loading translations from source {SourceName} for culture {Culture}", source.Name, culture.Name);
+                // Hata durumunda diğer kaynaklarla devam et
+            }
+        }
+
+        // 3. Önbelleğe ekle
+        if (mergedTranslations.Any() && _options.Sources.EnableCaching)
+        {
+            var cacheDuration = TimeSpan.FromMinutes(_options.Sources.CacheDurationMinutes);
+            await _cacheManager.SetAsync(cacheKey, mergedTranslations, cacheDuration);
+            _logger.LogDebug("Translations for culture {Culture} added to cache with duration {CacheDuration}.", culture.Name, cacheDuration);
         }
 
         return mergedTranslations;
