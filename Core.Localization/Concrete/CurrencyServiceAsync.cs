@@ -13,7 +13,7 @@ namespace Core.Localization.Concrete;
 public class CurrencyServiceAsync : ICurrencyServiceAsync
 {
     private readonly ILocalizationServiceAsync _localizationService;
-    private readonly IOptions<LocalizationOptions> _options;
+    private readonly IOptionsMonitor<CurrencyOptions> _currencyOptions;
     private readonly ILogger<CurrencyServiceAsync> _logger;
     private ExchangeRateModel? _exchangeRates;
     private readonly Dictionary<string, string> _currencySymbols = new()
@@ -28,11 +28,11 @@ public class CurrencyServiceAsync : ICurrencyServiceAsync
 
     public CurrencyServiceAsync(
         ILocalizationServiceAsync localizationService,
-        IOptions<LocalizationOptions> options,
+        IOptionsMonitor<CurrencyOptions> currencyOptions,
         ILogger<CurrencyServiceAsync> logger)
     {
         _localizationService = localizationService;
-        _options = options;
+        _currencyOptions = currencyOptions;
         _logger = logger;
     }
 
@@ -192,7 +192,7 @@ public class CurrencyServiceAsync : ICurrencyServiceAsync
             return true;
         }
 
-        var updateInterval = TimeSpan.FromMinutes(_options.Value.Currency.UpdateInterval);
+        var updateInterval = TimeSpan.FromMinutes(_currencyOptions.CurrentValue.UpdateInterval);
         return DateTime.UtcNow - _exchangeRates.LastUpdated > updateInterval;
     }
 
@@ -200,8 +200,8 @@ public class CurrencyServiceAsync : ICurrencyServiceAsync
     {
         try
         {
-            var apiUrl = _options.Value.Currency.ExchangeRateApiUrl;
-            var apiKey = _options.Value.Currency.ExchangeRateApiKey;
+            var apiUrl = _currencyOptions.CurrentValue.ExchangeRateApiUrl;
+            var apiKey = _currencyOptions.CurrentValue.ExchangeRateApiKey;
 
             if (string.IsNullOrEmpty(apiUrl))
             {

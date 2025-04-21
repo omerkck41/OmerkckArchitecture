@@ -1,5 +1,4 @@
 ﻿using Core.Localization.Abstract;
-using Core.Localization.Cache;
 using Core.Localization.Models;
 using Core.Localization.Services;
 using Microsoft.Extensions.Logging;
@@ -10,45 +9,41 @@ namespace Core.Localization.Concrete;
 
 /// <summary>
 /// Yerelleştirme servisi asenkron implementasyonu.
+/// Thread-safe kültür yönetimi için AsyncLocal kullanır.
 /// </summary>
 public class LocalizationServiceAsync : ILocalizationServiceAsync
 {
     private readonly LocalizationSourceManagerAsync _sourceManager;
-    private readonly IOptions<LocalizationOptions> _options;
+    private readonly IOptionsMonitor<LocalizationOptions> _optionsMonitor;
     private readonly ILogger<LocalizationServiceAsync> _logger;
-    private CultureInfo _currentCulture;
     private readonly List<CultureInfo> _supportedCultures;
-    private readonly IDistributedCacheManagerAsync _cacheManager;
 
-    /// <summary>
-    /// Initializes a new instance of the <see cref="LocalizationServiceAsync"/> class.
-    /// </summary>
-    /// <param name="sources">The localization sources.</param>
-    /// <param name="options">The localization options.</param>
-    /// <param name="logger">The logger instance.</param>
+    // Her async call context için ayrı saklama
+    private static readonly AsyncLocal<CultureInfo> _ambientCulture = new();
+
     public LocalizationServiceAsync(
-         LocalizationSourceManagerAsync sourceManager,
-         IOptions<LocalizationOptions> options,
-         ILogger<LocalizationServiceAsync> logger,
-         IDistributedCacheManagerAsync cacheManager)
+        LocalizationSourceManagerAsync sourceManager,
+        IOptionsMonitor<LocalizationOptions> optionsMonitor,
+        ILogger<LocalizationServiceAsync> logger)
     {
         _sourceManager = sourceManager;
-        _options = options;
+        _optionsMonitor = optionsMonitor;
         _logger = logger;
-        _cacheManager = cacheManager;
 
         // Desteklenen kültürleri yükle
-        _supportedCultures = options.Value.SupportedCultures
+        _supportedCultures = _optionsMonitor.CurrentValue.SupportedCultures
             .Select(c => new CultureInfo(c))
             .ToList();
 
-        // Varsayılan kültürü ayarla
-        _currentCulture = new CultureInfo(options.Value.DefaultCulture);
+        // Başlangıç kültürünü AsyncLocal'a atıyoruz
+        var defaultCulture = new CultureInfo(_optionsMonitor.CurrentValue.DefaultCulture);
+        _ambientCulture.Value = defaultCulture;
 
-        _logger.LogInformation("Localization service initialized with default culture: {Culture}", _currentCulture.Name);
+        _logger.LogInformation(
+            "LocalizationServiceAsync initialized with default culture: {Culture}",
+            defaultCulture.Name);
     }
 
-    /// <inheritdoc />
     public async Task<string> GetStringAsync(string key)
     {
         if (string.IsNullOrEmpty(key))
@@ -57,34 +52,33 @@ public class LocalizationServiceAsync : ILocalizationServiceAsync
             return string.Empty;
         }
 
-        // Kaynak yöneticisinden çevirileri al (önbelleği de yönetir)
-        var translations = await _sourceManager.LoadTranslationsForCultureAsync(_currentCulture);
+        var culture = GetCurrentCulture();
+        var translations = await _sourceManager.LoadTranslationsForCultureAsync(culture);
 
         if (translations.TryGetValue(key, out var translation) && !string.IsNullOrEmpty(translation))
         {
             return translation;
         }
 
-        // Çeviri bulunamazsa, ayarlara göre key veya boş döndür.
-        _logger.LogDebug("Translation not found for key: {Key} in culture: {Culture}", key, _currentCulture.Name);
-        return _options.Value.ReturnKeyIfNotFound ? key : string.Empty;
+        _logger.LogDebug(
+            "Translation not found for key: {Key} in culture: {Culture}",
+            key, culture.Name);
+
+        return _optionsMonitor.CurrentValue.ReturnKeyIfNotFound
+            ? key
+            : string.Empty;
     }
 
-    /// <inheritdoc />
     public async Task<string> GetStringAsync(string key, params object[] args)
     {
         var format = await GetStringAsync(key);
-
         if (string.IsNullOrEmpty(format) || args.Length == 0)
-        {
             return format;
-        }
 
         try
         {
-            // CPU-bound formatlama işlemi olduğu için doğrudan string.Format kullanıyoruz.
-            var formatted = string.Format(_currentCulture, format, args);
-            return formatted;
+            var culture = GetCurrentCulture();
+            return string.Format(culture, format, args);
         }
         catch (FormatException ex)
         {
@@ -93,38 +87,32 @@ public class LocalizationServiceAsync : ILocalizationServiceAsync
         }
     }
 
-    /// <inheritdoc />
-    public CultureInfo GetCurrentCulture() => _currentCulture;
+    public CultureInfo GetCurrentCulture()
+    {
+        // Mevcut AsyncLocal değeri yoksa, varsayılan kültürü döndür
+        return _ambientCulture.Value
+               ?? new CultureInfo(_optionsMonitor.CurrentValue.DefaultCulture);
+    }
 
-    /// <inheritdoc />
     public void SetCurrentCulture(CultureInfo culture)
     {
         if (culture == null)
-        {
             throw new ArgumentNullException(nameof(culture));
-        }
 
         if (!_supportedCultures.Any(c => c.Name.Equals(culture.Name, StringComparison.OrdinalIgnoreCase)))
         {
             _logger.LogWarning("Unsupported culture requested: {Culture}", culture.Name);
-            throw new ArgumentException($"Culture '{culture.Name}' is not in the list of supported cultures.");
+            throw new ArgumentException($"Culture '{culture.Name}' is not supported.");
         }
 
-        _currentCulture = culture;
-        _logger.LogDebug("Current culture changed to: {Culture}", _currentCulture.Name);
-
-        // Thread kültürü de güncellenir.
-        CultureInfo.CurrentCulture = culture;
-        CultureInfo.CurrentUICulture = culture;
+        _ambientCulture.Value = culture;
+        _logger.LogDebug("Current culture changed to: {Culture}", culture.Name);
     }
 
-    /// <inheritdoc />
     public void SetCurrentCulture(string cultureName)
     {
         if (string.IsNullOrEmpty(cultureName))
-        {
             throw new ArgumentNullException(nameof(cultureName));
-        }
 
         try
         {
@@ -138,6 +126,5 @@ public class LocalizationServiceAsync : ILocalizationServiceAsync
         }
     }
 
-    /// <inheritdoc />
     public IEnumerable<CultureInfo> GetSupportedCultures() => _supportedCultures;
 }

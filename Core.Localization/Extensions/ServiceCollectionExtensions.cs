@@ -32,8 +32,21 @@ public static class ServiceCollectionExtensions
         services.Configure<LocalizationOptions>(
             configuration.GetSection(LocalizationConstants.ConfigurationSectionName));
 
+        // CurrencyOptions’ı bağlayın
+        services.Configure<CurrencyOptions>(
+            configuration.GetSection($"{LocalizationConstants.ConfigurationSectionName}:Currency"));
+
+        // DateTimeOptions’ı bağlayın
+        services.Configure<DateTimeOptions>(
+            configuration.GetSection($"{LocalizationConstants.ConfigurationSectionName}:DateTime"));
+
         // Önbellek servisi
-        services.AddSingleton<InMemoryCacheManagerAsync>();
+        // Yerel bellek üzerinde cache için (test/dev ortamı):
+        services.AddDistributedMemoryCache();
+
+        services.AddHttpContextAccessor();
+        services.AddSingleton<ICultureProvider, HttpContextCultureProvider>();
+
 
         // Lokalizasyon kaynakları
         services.AddTransient<ILocalizationSourceAsync, JsonFileLocalizationSourceAsync>();
@@ -44,8 +57,7 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<IDateTimeServiceAsync, DateTimeServiceAsync>();
         services.AddSingleton<LocalizationSourceManagerAsync>();
 
-        // Başlatma servisi
-        services.AddHostedService<LocalizationInitializationServiceAsync>();
+
 
         return services;
     }
@@ -67,7 +79,11 @@ public static class ServiceCollectionExtensions
         services.Configure(configureOptions);
 
         // Önbellek servisi
-        services.AddSingleton<InMemoryCacheManagerAsync>();
+        // Yerel bellek üzerinde cache için (test/dev ortamı):
+        services.AddDistributedMemoryCache();
+
+        services.AddHttpContextAccessor();
+        services.AddSingleton<ICultureProvider, HttpContextCultureProvider>();
 
         // Lokalizasyon kaynakları
         services.AddTransient<ILocalizationSourceAsync, JsonFileLocalizationSourceAsync>();
@@ -78,8 +94,7 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<IDateTimeServiceAsync, DateTimeServiceAsync>();
         services.AddSingleton<LocalizationSourceManagerAsync>();
 
-        // Başlatma servisi
-        services.AddHostedService<LocalizationInitializationServiceAsync>();
+
 
         return services;
     }

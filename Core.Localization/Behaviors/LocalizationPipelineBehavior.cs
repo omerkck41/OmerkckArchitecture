@@ -1,5 +1,6 @@
 ﻿using Core.Localization.Abstract;
 using MediatR;
+using System.Globalization;
 
 namespace Core.Localization.Behaviors;
 
@@ -12,15 +13,17 @@ public class LocalizationPipelineBehavior<TRequest, TResponse> : IPipelineBehavi
     where TRequest : notnull
     where TResponse : class
 {
-    private readonly ILocalizationServiceAsync _localizationServiceAsync;
+    private readonly ICultureProvider _cultureProvider;
+    private readonly ILocalizationServiceAsync _localizationService;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="LocalizationPipelineBehavior{TRequest, TResponse}"/> class.
     /// </summary>
     /// <param name="localizationServiceAsync">The localization service.</param>
-    public LocalizationPipelineBehavior(ILocalizationServiceAsync localizationServiceAsync)
+    public LocalizationPipelineBehavior(ILocalizationServiceAsync localizationServiceAsync, ICultureProvider cultureProvider)
     {
-        _localizationServiceAsync = localizationServiceAsync;
+        _localizationService = localizationServiceAsync;
+        _cultureProvider = cultureProvider;
     }
 
     /// <summary>
@@ -32,14 +35,23 @@ public class LocalizationPipelineBehavior<TRequest, TResponse> : IPipelineBehavi
     /// <returns>The localized response.</returns>
     public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
     {
-        // İşleyici çağrısından gelen response.
+        // 1) Gelen isteğin kültür kodunu al
+        // 1) Mevcut kültürü al ve Thread/AsyncLocal’a uygula
+        var cultureCode = _cultureProvider.GetRequestCulture();
+        _localizationService.SetCurrentCulture(new CultureInfo(cultureCode));
+
+        var culture = _localizationService.GetCurrentCulture();
+        CultureInfo.CurrentCulture = culture;
+        CultureInfo.CurrentUICulture = culture;
+
+        // 2) İşleyici çağrısından gelen response.
         var response = await next();
 
         // Eğer response, ILocalizedResponse arayüzünü implemente ediyorsa
         if (response is ILocalizedResponse localizedResponse && !string.IsNullOrEmpty(localizedResponse.MessageKey))
         {
             // Lokalize mesajı asenkron olarak al ve set et.
-            localizedResponse.Message = await _localizationServiceAsync.GetStringAsync(localizedResponse.MessageKey);
+            localizedResponse.Message = await _localizationService.GetStringAsync(localizedResponse.MessageKey);
         }
 
         return response;

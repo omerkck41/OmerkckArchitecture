@@ -1,7 +1,8 @@
 ﻿using Core.Localization.Abstract;
-using Core.Localization.Cache;
 using Core.Localization.Constants;
+using Core.Localization.Extensions;
 using Core.Localization.Models;
+using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.Globalization;
@@ -14,8 +15,8 @@ namespace Core.Localization.Services;
 public class LocalizationSourceManagerAsync
 {
     private readonly IEnumerable<ILocalizationSourceAsync> _sources;
-    private readonly IDistributedCacheManagerAsync _cacheManager;
-    private readonly LocalizationOptions _options;
+    private readonly IDistributedCache _cache;
+    private readonly IOptionsMonitor<LocalizationOptions> _optionsMonitor;
     private readonly ILogger<LocalizationSourceManagerAsync> _logger;
 
     /// <summary>
@@ -24,16 +25,16 @@ public class LocalizationSourceManagerAsync
     /// <param name="sources">The collection of localization sources.</param>
     public LocalizationSourceManagerAsync(
          IEnumerable<ILocalizationSourceAsync> sources,
-         IDistributedCacheManagerAsync cacheManager,
-         IOptions<LocalizationOptions> options,
+         IDistributedCache cache,
+         IOptionsMonitor<LocalizationOptions> optionsMonitor,
          ILogger<LocalizationSourceManagerAsync> logger)
     {
         // Kaynakları öncelik sırasına göre sırala (Örnek: Veritabanı > JSON > Resource)
         // Bu sıralama ILocalizationSourceAsync implementasyonlarının DI kaydına göre veya
         // kaynaklara eklenecek bir 'Priority' özelliğine göre yapılabilir.
         _sources = sources;
-        _cacheManager = cacheManager;
-        _options = options.Value;
+        _cache = cache;
+        _optionsMonitor = optionsMonitor;
         _logger = logger;
     }
 
@@ -44,10 +45,10 @@ public class LocalizationSourceManagerAsync
     /// <returns>A dictionary containing the merged translations.</returns>
     public async Task<IDictionary<string, string>> LoadTranslationsForCultureAsync(CultureInfo culture)
     {
-        string cacheKey = string.Format(LocalizationConstants.CacheKeyFormat, "Translations", culture.Name);
+        var cacheKey = string.Format(LocalizationConstants.CacheKeyFormat, "Translations", culture.Name);
 
         // 1. Önbelleği kontrol et
-        var cachedTranslations = await _cacheManager.GetAsync<Dictionary<string, string>>(cacheKey);
+        var cachedTranslations = await _cache.GetAsync<Dictionary<string, string>>(cacheKey);
         if (cachedTranslations != null)
         {
             _logger.LogDebug("Translations for culture {Culture} loaded from cache.", culture.Name);
@@ -81,12 +82,16 @@ public class LocalizationSourceManagerAsync
         }
 
         // 3. Önbelleğe ekle
-        if (mergedTranslations.Any() && _options.Sources.EnableCaching)
+        var opts = _optionsMonitor.CurrentValue;
+
+        if (mergedTranslations.Any() && opts.EnableCaching)
         {
-            var cacheDuration = TimeSpan.FromMinutes(_options.Sources.CacheDurationMinutes);
-            await _cacheManager.SetAsync(cacheKey, mergedTranslations, cacheDuration);
-            _logger.LogDebug("Translations for culture {Culture} added to cache with duration {CacheDuration}.", culture.Name, cacheDuration);
+            var cacheDuration = TimeSpan.FromSeconds(opts.CacheTtlSeconds);
+            await _cache.SetAsync(cacheKey, mergedTranslations, cacheDuration);
+            _logger.LogDebug("Translations for culture {Culture} cached for {Seconds} seconds.",
+                culture.Name, opts.CacheTtlSeconds);
         }
+
 
         return mergedTranslations;
     }
