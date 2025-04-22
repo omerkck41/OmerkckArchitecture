@@ -29,8 +29,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core.Test.Caching", "Core.T
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core.Localization", "Core.Localization\Core.Localization.csproj", "{F937EB0A-871F-4574-9570-B75F90AEF745}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core.Localization.Tests", "Core.Localization.Tests\Core.Localization.Tests.csproj", "{AB06A16C-E26F-E400-AEE2-324C14B05672}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -89,10 +87,6 @@ Global
 		{F937EB0A-871F-4574-9570-B75F90AEF745}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F937EB0A-871F-4574-9570-B75F90AEF745}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F937EB0A-871F-4574-9570-B75F90AEF745}.Release|Any CPU.Build.0 = Release|Any CPU
-		{AB06A16C-E26F-E400-AEE2-324C14B05672}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{AB06A16C-E26F-E400-AEE2-324C14B05672}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{AB06A16C-E26F-E400-AEE2-324C14B05672}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{AB06A16C-E26F-E400-AEE2-324C14B05672}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

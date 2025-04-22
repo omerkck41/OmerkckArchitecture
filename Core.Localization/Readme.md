@@ -1,178 +1,471 @@
 ﻿# Core.Localization
 
-Core.Localization, ASP.NET Core projelerinde çoklu dil, para birimi ve tarih/saat formatlamayı kolaylaştıran, modüler ve genişletilebilir bir kütüphanedir. Hem JSON dosyalarından hem de `.resx` kaynaklarından çeviri alabilir, MediatR pipeline davranışıyla entegre olur, MVC veya API katmanında sorunsuz çalışır.
+A modern, modular, and extensible localization library for .NET 9.0 that simplifies multi-language support, currency formatting, and date/time localization.
 
----
+## Features
 
-## 1) Nedir?
+- 🌍 **Multi-language support** with fallback mechanisms
+- 💱 **Currency formatting** with culture-specific rules
+- 📅 **Date and time formatting** with different patterns
+- 🔄 **Multiple resource providers**: RESX, JSON, YAML
+- ⚡ **High performance** with caching support
+- 🔧 **Extensible architecture** with provider pattern
+- 🧪 **Comprehensive unit tests**
 
-- **Kütüphane Amacı:** Uygulamalarınızı birden fazla dile ve kültüre kolayca adapte etmenizi sağlar.
-- **Özellikler:**
-  - Anahtar/değer çeviri desteği (JSON dosyaları, `.resx` kaynakları)
-  - CultureInfo tabanlı tarih/saat ve para birimi formatlama
-  - Thread-safe kültür yönetimi (`AsyncLocal<CultureInfo>`)
-  - Cache desteği (`IDistributedCache` ile bellek içi veya Redis)
-  - MediatR Pipeline Behavior ile otomatik kültür set etme
-  - MVC Controller/View için Action Filter
 
----
+## Quick Start
 
-## 2) Nasıl Çalışır? Hangi Teknolojileri Kullanır?
+1. Add Core.Localization to your services:
 
-1. **.NET & ASP.NET Core**
-   - `IOptionsMonitor<LocalizationOptions>` ile dinamik konfigürasyon
-   - `IDistributedCache` ile önbellekleme (Memory, Redis vb.)
-   - `AsyncLocal<CultureInfo>` ile her async iş parçacığına özgü kültür
-2. **MediatR Entegrasyonu**
-   - `IPipelineBehavior<TRequest,TResponse>` kullanarak her istekten önce `ICultureProvider` ile kültürü alır ve `LocalizationServiceAsync`’e set eder.
-3. **MVC Entegrasyonu**
-   - `IActionFilter` (CultureActionFilter) ile her controller çağrısında kültürü set eder.
-4. **Kaynak Sağlayıcılar**
-   - `ResourceFileLocalizationSourceAsync` → `.resx` derleme zamanlı kaynak
-   - `JsonFileLocalizationSourceAsync` → JSON dosyalarındaki çeviriler
-   - İleride eklenecek DB/API kaynakları modüler şekilde eklenebilir
+```csharp
+using Core.Localization.Extensions;
 
----
+// In your Startup.cs or Program.cs
+services.AddCoreLocalization(options =>
+{
+    options.DefaultCulture = new CultureInfo("en-US");
+    options.FallbackCulture = new CultureInfo("en-US");
+    options.SupportedCultures = new List<CultureInfo>
+    {
+        new CultureInfo("en-US"),
+        new CultureInfo("tr-TR"),
+        new CultureInfo("fr-FR")
+    };
+});
+```
 
-## 3) Projeye Ekleme ve Konfigürasyon
+2. Use the ILocalizationService:
 
-### A) GitHub Üzerinden Ekleme
+```csharp
+public class MyController : Controller
+{
+    private readonly ILocalizationService _localization;
+    private readonly IFormatterService _formatter;
 
-1. **NuGet Paketi (önerilen)**
-   ```bash
-   dotnet add package Core.Localization
-   ```
-2. **Kaynak Kod Olarak**
-   ```bash
-   git clone https://github.com/omerkck41/OmerkckArchitecture.git
-   cd OmerkckArchitecture/Core.Localization
-   dotnet add reference ../YourProject/YourProject.csproj
-   ```
+    public MyController(ILocalizationService localization, IFormatterService formatter)
+    {
+        _localization = localization;
+        _formatter = formatter;
+    }
 
-### B) `appsettings.json` Ayarları
-```json
-"Localization": {
-  "DefaultCulture": "tr-TR",
-  "SupportedCultures": ["tr-TR","en-US","de-DE"],
-  "ReturnKeyIfNotFound": true,
-  "EnableCaching": true,
-  "CacheTtlSeconds": 3600,
-  "Currency": {
-    "DefaultCurrency": "TRY",
-    "ExchangeRateApiUrl": "",
-    "ExchangeRateApiKey": "",
-    "UpdateInterval": 60,
-    "EnableCaching": true
-  }
+    public IActionResult Index()
+    {
+        // Get localized string
+        var greeting = _localization.GetString("Hello", new CultureInfo("tr-TR"));
+        
+        // Format a date
+        var formattedDate = _formatter.FormatDate(DateTime.Now, culture: new CultureInfo("fr-FR"));
+        
+        // Format currency
+        var formattedPrice = _formatter.FormatCurrency(99.99m, "EUR", new CultureInfo("fr-FR"));
+        
+        // Use formatted strings
+        var welcome = _localization.GetString("Welcome", "John");
+        
+        return View((greeting, formattedDate, formattedPrice, welcome));
+    }
 }
 ```
 
-### C) DI ve Middleware Kayıtları (Program.cs)
+3. Using Extension Methods:
+
 ```csharp
-var builder = WebApplication.CreateBuilder(args);
+using Core.Localization.Extensions;
 
-// 1. Localization kütüphanesini ekle
-builder.Services.AddCoreLocalization(builder.Configuration);
+// Localize strings directly
+var greeting = "Hello".Localize(_localizationService);
+var welcome = "Welcome".Localize(_localizationService, "John");
 
-// 2. Cache ekleme (Memory veya Redis)
-builder.Services.AddDistributedMemoryCache();
-// veya
-// builder.Services.AddStackExchangeRedisCache(opts => { ... });
-
-// 3. MVC & MediatR
-builder.Services.AddControllersWithViews(options =>
+// Try to localize (won't throw if key is missing)
+if ("MissingKey".TryLocalize(_localizationService, out var value))
 {
-    options.Filters.AddService<CultureActionFilter>();
-});
-builder.Services.AddMediatR(typeof(Program));
-
-var app = builder.Build();
-
-// 4. RequestLocalization middleware
-temp var supported = builder.Configuration
-    .GetSection("Localization:SupportedCultures").Get<string[]>();
-app.UseRequestLocalization(new RequestLocalizationOptions
-{
-    DefaultRequestCulture = new RequestCulture("tr-TR"),
-    SupportedCultures = supported.Select(c=>new CultureInfo(c)).ToList(),
-    SupportedUICultures = supported.Select(c=>new CultureInfo(c)).ToList()
-});
-
-app.MapControllers();
-app.Run();
+    // Use the localized value
+}
 ```
 
----
+## Configuration Options
 
-## 4) Kullanım Örnekleri
+The library can be configured through the `LocalizationOptions` class:
 
-### A) Backend (MediatR / API)
+```csharp
+services.AddCoreLocalization(options =>
+{
+    // Default culture when none is specified
+    options.DefaultCulture = new CultureInfo("en-US");
+    
+    // Fallback culture when resource not found
+    options.FallbackCulture = new CultureInfo("en-US");
+    
+    // Supported cultures by the application
+    options.SupportedCultures = new List<CultureInfo>
+    {
+        new CultureInfo("en-US"),
+        new CultureInfo("tr-TR"),
+        new CultureInfo("fr-FR")
+    };
+    
+    // Whether to use fallback culture when resource not found
+    options.UseFallbackCulture = true;
+    
+    // Whether to throw exception when resource not found
+    options.ThrowOnMissingResource = false;
+    
+    // Enable/disable caching
+    options.EnableCaching = true;
+    
+    // Cache expiration time
+    options.CacheExpiration = TimeSpan.FromHours(1);
+    
+    // Resource file locations
+    options.ResourcePaths = new List<string> { "Resources" };
+    
+    // Enable file watching for auto-reload
+    options.EnableResourceFileWatching = true;
+});
+```
 
-1. **Pipeline Behavior**
-   ```csharp
-   public class SampleRequest : IRequest<SampleResponse> { /* ... */ }
+## Resource Providers
 
-   public class SampleResponse : ILocalizedResponse
-   {
-       public string? MessageKey { get; set; }
-       public string? Message { get; set; }
-   }
+The library supports multiple resource providers out of the box:
 
-   public class SampleHandler : IRequestHandler<SampleRequest,SampleResponse>
-   {
-       public Task<SampleResponse> Handle(SampleRequest req, CancellationToken ct)
-       {
-           return Task.FromResult(new SampleResponse { MessageKey = "WelcomeUser" });
-       }
-   }
-   ```
-   - Pipeline behavior, `MessageKey`’i alır, `LocalizationServiceAsync` ile çeviriyi getirir ve `Message` alanına koyar.
+### JSON Files
 
-2. **Doğrudan Servis Kullanımı**
-   ```csharp
-   [ApiController]
-   [Route("api/[controller]")]
-   public class GreetController : ControllerBase
-   {
-       private readonly ILocalizationServiceAsync _loc;
-       public GreetController(ILocalizationServiceAsync loc) => _loc = loc;
+Create JSON files in your Resources directory:
 
-       [HttpGet]
-       public async Task<IActionResult> Get()
-       {
-           var text = await _loc.GetStringAsync("Hello");
-           return Ok(new { Text = text });
-       }
-   }
-   ```
+```json
+// Resources/resources.en-US.json
+{
+    "Hello": "Hello",
+    "Welcome": "Welcome, {0}!",
+    "Goodbye": "Goodbye"
+}
 
-### B) Frontend (MVC / Razor)
+// Resources/resources.tr-TR.json
+{
+    "Hello": "Merhaba",
+    "Welcome": "Hoş geldin, {0}!",
+    "Goodbye": "Güle güle"
+}
+```
 
-1. **View’den Çeviri**
-   ```cshtml
-   @inject Core.Localization.Abstract.ILocalizationServiceAsync Loc
-   <h1>@(await Loc.GetStringAsync("WelcomeUser", User.Identity.Name))</h1>
-   ```
-2. **Dropdown ile Dil Seçimi**
-   ```cshtml
-   <form method="get">
-     <select name="culture" onchange="this.form.submit()">
-       @foreach (var c in ViewBag.SupportedCultures as List<string>)
-       {
-           <option value="@c" selected="@(c == CultureInfo.CurrentCulture.Name)">@c</option>
-       }
-     </select>
-   </form>
-   ```
-   - `HttpContextCultureProvider` query-string veya cookie’den kültürü alır.
+### YAML Files
 
-3. **Para Birimi Formatlama**
-   ```csharp
-   @inject ICurrencyServiceAsync CurrencySvc
-   @{
-       var price = await CurrencySvc.FormatCurrencyAsync(1234.56m);
-   }
-   <p>@price</p>
-   ```
+Create YAML files in your Resources directory:
 
----
+```yaml
+# Resources/resources.en-US.yaml
+Hello: Hello
+Welcome: Welcome, {0}!
+Goodbye: Goodbye
+
+# Resources/resources.tr-TR.yaml
+Hello: Merhaba
+Welcome: Hoş geldin, {0}!
+Goodbye: Güle güle
+```
+
+### RESX Files
+
+Traditional .NET resource files are also supported. Place your .resx files in the project and they will be automatically loaded.
+
+### Custom Resource Providers
+
+You can create your own resource providers by implementing the `IResourceProvider` interface:
+
+```csharp
+public class MyCustomProvider : ResourceProviderBase
+{
+    public override string? GetString(string key, CultureInfo culture)
+    {
+        // Your custom logic here
+    }
+
+    public override IEnumerable<string> GetAllKeys(CultureInfo culture)
+    {
+        // Your custom logic here
+    }
+}
+
+// Register your provider
+services.AddResourceProvider<MyCustomProvider>();
+```
+
+## Formatting Services
+
+The library includes comprehensive formatting services:
+
+```csharp
+var formatter = serviceProvider.GetRequiredService<IFormatterService>();
+
+// Format dates
+var date = formatter.FormatDate(DateTime.Now, "yyyy-MM-dd", new CultureInfo("en-US"));
+
+// Format numbers
+var number = formatter.FormatNumber(1234.56m, "N2", new CultureInfo("tr-TR"));
+
+// Format currency
+var currency = formatter.FormatCurrency(99.99m, "USD", new CultureInfo("en-US"));
+
+// Format percentage
+var percentage = formatter.FormatPercentage(0.1234m, 2, new CultureInfo("en-US"));
+
+// Parse culture-specific strings
+var parsedDate = formatter.ParseDate("25/12/2025", new CultureInfo("fr-FR"));
+var parsedNumber = formatter.ParseNumber("1.234,56", new CultureInfo("de-DE"));
+var parsedCurrency = formatter.ParseCurrency("$1,234.56", new CultureInfo("en-US"));
+```
+
+## Advanced Usage
+
+### Culture Information Extensions
+
+```csharp
+var culture = new CultureInfo("en-US");
+
+// Get language code
+var langCode = culture.GetLanguageCode(); // "en"
+
+// Check if culture is RTL
+var isRtl = culture.IsRightToLeft(); // false
+
+// Get parent cultures
+var parents = culture.GetParentCultures(); // [en]
+
+// Check if cultures are related
+var isRelated = culture.IsRelatedTo(new CultureInfo("en-GB")); // true
+```
+
+### Dynamic Resource Loading
+
+The library supports dynamic resource loading and file watching:
+
+```csharp
+// Resources are automatically reloaded when files change
+// if EnableResourceFileWatching is true
+
+// Or manually reload resources
+var provider = serviceProvider.GetService<IResourceProvider>();
+if (provider.SupportsDynamicReload)
+{
+    await provider.ReloadAsync();
+}
+```
+
+## Performance Considerations
+
+- Caching is enabled by default for better performance
+- Resource providers are prioritized to check faster sources first
+- File watching can be disabled in production for better performance
+- Use compiled RESX files for best performance in production
+
+## Best Practices
+
+1. Use culture-neutral keys (e.g., "Hello" instead of "Hello_en")
+2. Keep resource keys consistent across cultures
+3. Use placeholders for dynamic content: "Welcome, {0}!"
+4. Organize resources by feature or module
+5. Use appropriate resource providers for your deployment scenario
+6. Enable caching in production environments
+7. Use fallback cultures to ensure all content is available
+
+## Türkçe Kullanım Kılavuzu
+
+### Genel Bakış
+
+Core.Localization, .NET 9.0 uygulamaları için geliştirilmiş modern, modüler ve genişletilebilir bir lokalizasyon kütüphanesidir. Çoklu dil desteği, para birimi formatlaması ve tarih/saat yerelleştirmesi için kapsamlı çözümler sunar.
+
+### Kurulum
+
+```bash
+dotnet add package Core.Localization
+```
+
+### Temel Kullanım
+
+1. Servis yapılandırması:
+
+```csharp
+// Program.cs veya Startup.cs içinde
+services.AddCoreLocalization(options =>
+{
+    options.DefaultCulture = new CultureInfo("tr-TR");
+    options.FallbackCulture = new CultureInfo("en-US");
+    options.SupportedCultures = new List<CultureInfo>
+    {
+        new CultureInfo("tr-TR"),
+        new CultureInfo("en-US"),
+        new CultureInfo("fr-FR")
+    };
+});
+```
+
+2. Controller veya servis içinde kullanım:
+
+```csharp
+public class HomeController : Controller
+{
+    private readonly ILocalizationService _localization;
+    private readonly IFormatterService _formatter;
+
+    public HomeController(ILocalizationService localization, IFormatterService formatter)
+    {
+        _localization = localization;
+        _formatter = formatter;
+    }
+
+    public IActionResult Index()
+    {
+        // Mevcut kültüre göre çeviri al
+        var karsilama = _localization.GetString("Hello");
+        
+        // Belirli kültür için çeviri al
+        var fransizca = _localization.GetString("Hello", new CultureInfo("fr-FR"));
+        
+        // Parametreler ile çeviri al
+        var hosgeldin = _localization.GetString("Welcome", "Kullanıcı");
+        
+        // Para birimi formatla
+        var fiyat = _formatter.FormatCurrency(1234.56m);
+        
+        // Tarih formatla
+        var tarih = _formatter.FormatDate(DateTime.Now);
+        
+        return View(new { Karsilama = karsilama, Hosgeldin = hosgeldin, Fiyat = fiyat, Tarih = tarih });
+    }
+}
+```
+
+### Kaynak Dosyaları
+
+`Resources` klasörü altında aşağıdaki dosyaları oluşturarak çevirileri tanımlayabilirsiniz:
+
+- JSON formatı: `resources.tr-TR.json`, `resources.en-US.json`
+- YAML formatı: `resources.tr-TR.yaml`, `resources.en-US.yaml`
+- RESX formatı: Standart .NET kaynak dosyaları
+
+### Özelleştirme
+
+Özel kaynak sağlayıcısı oluşturarak veritabanı, uzak API veya farklı formatlardaki dosyalardan çevirileri alabilirsiniz:
+
+```csharp
+public class DatabaseResourceProvider : ResourceProviderBase
+{
+    private readonly AppDbContext _dbContext;
+
+    public DatabaseResourceProvider(AppDbContext dbContext) : base(priority: 500)
+    {
+        _dbContext = dbContext;
+    }
+
+    public override string? GetString(string key, CultureInfo culture)
+    {
+        return _dbContext.Translations
+            .FirstOrDefault(t => t.Key == key && t.Culture == culture.Name)
+            ?.Value;
+    }
+
+    public override IEnumerable<string> GetAllKeys(CultureInfo culture)
+    {
+        return _dbContext.Translations
+            .Where(t => t.Culture == culture.Name)
+            .Select(t => t.Key);
+    }
+}
+
+// Servis kaydı
+services.AddResourceProvider<DatabaseResourceProvider>();
+```
+
+Daha fazla bilgi için örnek projeyi inceleyebilirsiniz.
+
+### Modüler Kullanım Yaklaşımı
+
+Core.Localization kütüphanesi, temiz mimari veya DDD ile geliştirilen uygulamalarda her özellik/modül için ayrı kaynak dosyaları kullanan modüler bir yapıyı destekler. Özellikle feature-based bir yapıya sahip projelerde bu yaklaşım daha düzenli ve yönetilebilir bir şekilde lokalizasyonu yapmanızı sağlar.
+
+Birkaç modüler kullanım yaklaşımı:
+
+#### 1. Her özellik için ayrı resource paths tanımlama:
+
+```csharp
+services.AddCoreLocalization(options =>
+{
+    options.ResourcePaths = new List<string> 
+    { 
+        "Application/Features/Users/Resources",
+        "Application/Features/Orders/Resources",
+        "Application/Features/Products/Resources"
+    };
+});
+```
+
+#### 2. Özelliğe göre resource dosyalarını adlandırma:
+
+```
+users.tr-TR.json
+users.en-US.json
+orders.tr-TR.json
+orders.en-US.json
+```
+
+#### 3. Resource key'lerde ön ekler kullanma:
+
+```json
+// users.tr-TR.json
+{
+  "users.title": "Kullanıcı Yönetimi",
+  "users.create": "Kullanıcı Oluştur",
+  "users.edit": "Kullanıcı Düzenle"
+}
+
+// orders.tr-TR.json
+{
+  "orders.title": "Sipariş Yönetimi",
+  "orders.create": "Sipariş Oluştur",
+  "orders.status": "Sipariş Durumu"
+}
+```
+
+Kullanım:
+```csharp
+var usersTitle = _localization.GetString("users.title");
+var ordersTitle = _localization.GetString("orders.title");
+```
+
+#### 4. YAML ile hiyerarşik yapı kullanma:
+
+```yaml
+# resources.tr-TR.yaml
+Users:
+  Title: "Kullanıcı Yönetimi"
+  Create: "Kullanıcı Oluştur"
+  Edit: "Kullanıcı Düzenle"
+
+Orders:
+  Title: "Sipariş Yönetimi"
+  Create: "Sipariş Oluştur"
+  Status: "Sipariş Durumu"
+```
+
+Kullanım:
+```csharp
+var usersTitle = _localization.GetString("Users.Title");
+var ordersTitle = _localization.GetString("Orders.Title");
+```
+
+#### 5. Her özellik için wrapper servisler oluşturma:
+
+```csharp
+public class UsersLocalizationService
+{
+    private readonly ILocalizationService _localization;
+    
+    public UsersLocalizationService(ILocalizationService localization)
+    {
+        _localization = localization;
+    }
+    
+    public string GetTitle() => _localization.GetString("users.title");
+    public string GetCreateLabel() => _localization.GetString("users.create");
+    public string GetEditLabel() => _localization.GetString("users.edit");
+}
+```
