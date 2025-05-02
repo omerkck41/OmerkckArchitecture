@@ -8,7 +8,7 @@ using System.Globalization;
 namespace Core.Localization.Services;
 
 /// <summary>
-/// Main localization service implementation
+/// Main localization service implementation with async support and feature-based localization
 /// </summary>
 public class LocalizationService : ILocalizationService
 {
@@ -29,9 +29,9 @@ public class LocalizationService : ILocalizationService
         _cache = cache;
     }
 
-    public string GetString(string key, CultureInfo? culture = null)
+    public async Task<string> GetStringAsync(string key, CultureInfo? culture = null, CancellationToken cancellationToken = default)
     {
-        culture ??= CultureInfo.CurrentCulture;
+        culture ??= _options.DefaultCulture;
         var cacheKey = GetCacheKey(key, culture);
 
         if (_options.EnableCaching && _cache != null && _cache.TryGetValue(cacheKey, out string? cachedValue))
@@ -39,11 +39,11 @@ public class LocalizationService : ILocalizationService
             return cachedValue ?? key;
         }
 
-        var value = GetStringFromProviders(key, culture);
+        var value = await GetStringFromProvidersAsync(key, culture, null, cancellationToken);
 
         if (value == null && _options.UseFallbackCulture && !culture.Equals(_options.FallbackCulture))
         {
-            value = GetStringFromProviders(key, _options.FallbackCulture);
+            value = await GetStringFromProvidersAsync(key, _options.FallbackCulture, null, cancellationToken);
         }
 
         if (value == null)
@@ -65,14 +65,50 @@ public class LocalizationService : ILocalizationService
         return value;
     }
 
-    public string GetString(string key, params object[] args)
+    public async Task<string> GetStringAsync(string key, string section, CultureInfo? culture = null, CancellationToken cancellationToken = default)
     {
-        return GetString(key, CultureInfo.CurrentCulture, args);
+        culture ??= _options.DefaultCulture;
+        var cacheKey = GetCacheKey(key, culture, section);
+
+        if (_options.EnableCaching && _cache != null && _cache.TryGetValue(cacheKey, out string? cachedValue))
+        {
+            return cachedValue ?? key;
+        }
+
+        var value = await GetStringFromProvidersAsync(key, culture, section, cancellationToken);
+
+        if (value == null && _options.UseFallbackCulture && !culture.Equals(_options.FallbackCulture))
+        {
+            value = await GetStringFromProvidersAsync(key, _options.FallbackCulture, section, cancellationToken);
+        }
+
+        if (value == null)
+        {
+            if (_options.ThrowOnMissingResource)
+            {
+                throw new KeyNotFoundException($"Resource key '{key}' not found in section '{section}' for culture '{culture.Name}'");
+            }
+
+            _logger.LogWarning("Resource key '{Key}' not found in section '{Section}' for culture '{Culture}'", key, section, culture.Name);
+            return key;
+        }
+
+        if (_options.EnableCaching && _cache != null)
+        {
+            _cache.Set(cacheKey, value, _options.CacheExpiration);
+        }
+
+        return value;
     }
 
-    public string GetString(string key, CultureInfo culture, params object[] args)
+    public async Task<string> GetStringAsync(string key, params object[] args)
     {
-        var format = GetString(key, culture);
+        return await GetStringAsync(key, _options.DefaultCulture, args);
+    }
+
+    public async Task<string> GetStringAsync(string key, CultureInfo culture, params object[] args)
+    {
+        var format = await GetStringAsync(key, culture);
 
         try
         {
@@ -85,46 +121,86 @@ public class LocalizationService : ILocalizationService
         }
     }
 
-    public bool TryGetString(string key, out string? value, CultureInfo? culture = null)
+    public async Task<string> GetStringAsync(string key, string section, params object[] args)
     {
-        culture ??= CultureInfo.CurrentCulture;
-        value = GetStringFromProviders(key, culture);
+        return await GetStringAsync(key, section, _options.DefaultCulture, args);
+    }
+
+    public async Task<string> GetStringAsync(string key, string section, CultureInfo culture, params object[] args)
+    {
+        var format = await GetStringAsync(key, section, culture);
+
+        try
+        {
+            return string.Format(culture, format, args);
+        }
+        catch (FormatException ex)
+        {
+            _logger.LogError(ex, "Error formatting string '{Key}' with section '{Section}' and culture '{Culture}'", key, section, culture.Name);
+            return format;
+        }
+    }
+
+    public async Task<(bool success, string? value)> TryGetStringAsync(string key, CultureInfo? culture = null, CancellationToken cancellationToken = default)
+    {
+        culture ??= _options.DefaultCulture;
+        var value = await GetStringFromProvidersAsync(key, culture, null, cancellationToken);
 
         if (value == null && _options.UseFallbackCulture && !culture.Equals(_options.FallbackCulture))
         {
-            value = GetStringFromProviders(key, _options.FallbackCulture);
+            value = await GetStringFromProvidersAsync(key, _options.FallbackCulture, null, cancellationToken);
         }
 
-        return value != null;
+        return (value != null, value);
     }
 
-    public IDictionary<CultureInfo, string> GetAllStrings(string key)
+    public async Task<(bool success, string? value)> TryGetStringAsync(string key, string section, CultureInfo? culture = null, CancellationToken cancellationToken = default)
+    {
+        culture ??= _options.DefaultCulture;
+        var value = await GetStringFromProvidersAsync(key, culture, section, cancellationToken);
+
+        if (value == null && _options.UseFallbackCulture && !culture.Equals(_options.FallbackCulture))
+        {
+            value = await GetStringFromProvidersAsync(key, _options.FallbackCulture, section, cancellationToken);
+        }
+
+        return (value != null, value);
+    }
+
+    public async Task<IDictionary<CultureInfo, string>> GetAllStringsAsync(string key, string? section = null, CancellationToken cancellationToken = default)
     {
         var result = new Dictionary<CultureInfo, string>();
+        var cultures = await GetSupportedCulturesAsync(cancellationToken);
 
-        foreach (var culture in _options.SupportedCultures)
+        foreach (var culture in cultures)
         {
-            if (TryGetString(key, out var value, culture) && value != null)
+            // Yeni Tuple dönüşlü TryGetStringAsync kullanımı
+            var tryResult = section == null
+                ? await TryGetStringAsync(key, culture, cancellationToken)
+                : await TryGetStringAsync(key, section, culture, cancellationToken);
+
+            if (tryResult.success && tryResult.value != null)
             {
-                result[culture] = value;
+                result[culture] = tryResult.value;
             }
         }
 
         return result;
     }
 
-    public IEnumerable<string> GetAllKeys()
+    public async Task<IEnumerable<string>> GetAllKeysAsync(string? section = null, CancellationToken cancellationToken = default)
     {
-        return GetAllKeys(CultureInfo.CurrentCulture);
+        return await GetAllKeysAsync(_options.DefaultCulture, section, cancellationToken);
     }
 
-    public IEnumerable<string> GetAllKeys(CultureInfo culture)
+    public async Task<IEnumerable<string>> GetAllKeysAsync(CultureInfo culture, string? section = null, CancellationToken cancellationToken = default)
     {
         var keys = new HashSet<string>();
 
         foreach (var provider in _resourceProviders)
         {
-            foreach (var key in provider.GetAllKeys(culture))
+            var providerKeys = await provider.GetAllKeysAsync(culture, section, cancellationToken);
+            foreach (var key in providerKeys)
             {
                 keys.Add(key);
             }
@@ -133,16 +209,40 @@ public class LocalizationService : ILocalizationService
         return keys;
     }
 
-    public IEnumerable<CultureInfo> GetSupportedCultures()
+    public async Task<IEnumerable<string>> GetAllSectionsAsync(CultureInfo? culture = null, CancellationToken cancellationToken = default)
+    {
+        culture ??= _options.DefaultCulture;
+        var sections = new HashSet<string>();
+
+        foreach (var provider in _resourceProviders)
+        {
+            var providerSections = await provider.GetAllSectionsAsync(culture, cancellationToken);
+            foreach (var section in providerSections)
+            {
+                sections.Add(section);
+            }
+        }
+
+        return sections;
+    }
+
+    public async Task<IEnumerable<CultureInfo>> GetSupportedCulturesAsync(CancellationToken cancellationToken = default)
     {
         return _options.SupportedCultures;
     }
 
-    private string? GetStringFromProviders(string key, CultureInfo culture)
+    public async Task<string> GetLocalizedAsync(string key, string section, CultureInfo? culture = null)
+    {
+        // This is the method that matches the pattern in your example
+        // It's an alias for GetStringAsync for backward compatibility
+        return await GetStringAsync(key, section, culture ?? _options.DefaultCulture);
+    }
+
+    private async Task<string?> GetStringFromProvidersAsync(string key, CultureInfo culture, string? section, CancellationToken cancellationToken)
     {
         foreach (var provider in _resourceProviders)
         {
-            var value = provider.GetString(key, culture);
+            var value = await provider.GetStringAsync(key, culture, section, cancellationToken);
             if (value != null)
             {
                 return value;
@@ -152,8 +252,10 @@ public class LocalizationService : ILocalizationService
         return null;
     }
 
-    private string GetCacheKey(string key, CultureInfo culture)
+    private string GetCacheKey(string key, CultureInfo culture, string? section = null)
     {
-        return $"{culture.Name}:{key}";
+        return string.IsNullOrEmpty(section)
+            ? $"{culture.Name}:{key}"
+            : $"{culture.Name}:{section}:{key}";
     }
 }

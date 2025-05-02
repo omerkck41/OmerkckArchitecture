@@ -1,292 +1,31 @@
 ﻿# Core.Localization
 
-A modern, modular, and extensible localization library for .NET 9.0 that simplifies multi-language support, currency formatting, and date/time localization.
+Modern, modüler ve genişletilebilir, async-first yapı ile geliştirilen .NET 9.0 lokalizasyon kütüphanesi. Feature-based yaklaşım ile çoklu dil desteği, para birimi formatlaması ve tarih/saat yerelleştirmesini kolaylaştırır.
 
-## Features
+## Özellikler
 
-- 🌍 **Multi-language support** with fallback mechanisms
-- 💱 **Currency formatting** with culture-specific rules
-- 📅 **Date and time formatting** with different patterns
-- 🔄 **Multiple resource providers**: RESX, JSON, YAML
-- ⚡ **High performance** with caching support
-- 🔧 **Extensible architecture** with provider pattern
-- 🧪 **Comprehensive unit tests**
+- 🔄 **Tam Asenkron API** - tüm metotlar async desteği ile gelir
+- 🌟 **Feature-Based Lokalizasyon** - modüler yapılarda kolay kullanım
+- 🌍 **Çoklu dil desteği** ve fallback mekanizmaları
+- 💱 **Para birimi formatlaması** kültüre özel kurallarla
+- 📅 **Tarih ve saat formatlaması** farklı desenlerle
+- 🔄 **Çoklu kaynak sağlayıcıları**: JSON, YAML
+- ⚡ **Yüksek performans** önbellekleme desteği ile
+- 🔧 **Genişletilebilir mimari** provider pattern ile
+- 🧪 **Kapsamlı birim testleri**
+- 🔍 **Otomatik kaynak keşfi** - Resources/Locales klasörlerini bulur
+- 📁 **FileSystemWatcher desteği** - kaynakların değişikliklerini izler
 
 
-## Quick Start
+## Hızlı Başlangıç
 
-1. Add Core.Localization to your services:
-
-```csharp
-using Core.Localization.Extensions;
-
-// In your Startup.cs or Program.cs
-services.AddCoreLocalization(options =>
-{
-    options.DefaultCulture = new CultureInfo("en-US");
-    options.FallbackCulture = new CultureInfo("en-US");
-    options.SupportedCultures = new List<CultureInfo>
-    {
-        new CultureInfo("en-US"),
-        new CultureInfo("tr-TR"),
-        new CultureInfo("fr-FR")
-    };
-});
-```
-
-2. Use the ILocalizationService:
-
-```csharp
-public class MyController : Controller
-{
-    private readonly ILocalizationService _localization;
-    private readonly IFormatterService _formatter;
-
-    public MyController(ILocalizationService localization, IFormatterService formatter)
-    {
-        _localization = localization;
-        _formatter = formatter;
-    }
-
-    public IActionResult Index()
-    {
-        // Get localized string
-        var greeting = _localization.GetString("Hello", new CultureInfo("tr-TR"));
-        
-        // Format a date
-        var formattedDate = _formatter.FormatDate(DateTime.Now, culture: new CultureInfo("fr-FR"));
-        
-        // Format currency
-        var formattedPrice = _formatter.FormatCurrency(99.99m, "EUR", new CultureInfo("fr-FR"));
-        
-        // Use formatted strings
-        var welcome = _localization.GetString("Welcome", "John");
-        
-        return View((greeting, formattedDate, formattedPrice, welcome));
-    }
-}
-```
-
-3. Using Extension Methods:
+1. Core.Localization'ı servislerinize ekleyin:
 
 ```csharp
 using Core.Localization.Extensions;
 
-// Localize strings directly
-var greeting = "Hello".Localize(_localizationService);
-var welcome = "Welcome".Localize(_localizationService, "John");
-
-// Try to localize (won't throw if key is missing)
-if ("MissingKey".TryLocalize(_localizationService, out var value))
-{
-    // Use the localized value
-}
-```
-
-## Configuration Options
-
-The library can be configured through the `LocalizationOptions` class:
-
-```csharp
-services.AddCoreLocalization(options =>
-{
-    // Default culture when none is specified
-    options.DefaultCulture = new CultureInfo("en-US");
-    
-    // Fallback culture when resource not found
-    options.FallbackCulture = new CultureInfo("en-US");
-    
-    // Supported cultures by the application
-    options.SupportedCultures = new List<CultureInfo>
-    {
-        new CultureInfo("en-US"),
-        new CultureInfo("tr-TR"),
-        new CultureInfo("fr-FR")
-    };
-    
-    // Whether to use fallback culture when resource not found
-    options.UseFallbackCulture = true;
-    
-    // Whether to throw exception when resource not found
-    options.ThrowOnMissingResource = false;
-    
-    // Enable/disable caching
-    options.EnableCaching = true;
-    
-    // Cache expiration time
-    options.CacheExpiration = TimeSpan.FromHours(1);
-    
-    // Resource file locations
-    options.ResourcePaths = new List<string> { "Resources" };
-    
-    // Enable file watching for auto-reload
-    options.EnableResourceFileWatching = true;
-});
-```
-
-## Resource Providers
-
-The library supports multiple resource providers out of the box:
-
-### JSON Files
-
-Create JSON files in your Resources directory:
-
-```json
-// Resources/resources.en-US.json
-{
-    "Hello": "Hello",
-    "Welcome": "Welcome, {0}!",
-    "Goodbye": "Goodbye"
-}
-
-// Resources/resources.tr-TR.json
-{
-    "Hello": "Merhaba",
-    "Welcome": "Hoş geldin, {0}!",
-    "Goodbye": "Güle güle"
-}
-```
-
-### YAML Files
-
-Create YAML files in your Resources directory:
-
-```yaml
-# Resources/resources.en-US.yaml
-Hello: Hello
-Welcome: Welcome, {0}!
-Goodbye: Goodbye
-
-# Resources/resources.tr-TR.yaml
-Hello: Merhaba
-Welcome: Hoş geldin, {0}!
-Goodbye: Güle güle
-```
-
-### RESX Files
-
-Traditional .NET resource files are also supported. Place your .resx files in the project and they will be automatically loaded.
-
-### Custom Resource Providers
-
-You can create your own resource providers by implementing the `IResourceProvider` interface:
-
-```csharp
-public class MyCustomProvider : ResourceProviderBase
-{
-    public override string? GetString(string key, CultureInfo culture)
-    {
-        // Your custom logic here
-    }
-
-    public override IEnumerable<string> GetAllKeys(CultureInfo culture)
-    {
-        // Your custom logic here
-    }
-}
-
-// Register your provider
-services.AddResourceProvider<MyCustomProvider>();
-```
-
-## Formatting Services
-
-The library includes comprehensive formatting services:
-
-```csharp
-var formatter = serviceProvider.GetRequiredService<IFormatterService>();
-
-// Format dates
-var date = formatter.FormatDate(DateTime.Now, "yyyy-MM-dd", new CultureInfo("en-US"));
-
-// Format numbers
-var number = formatter.FormatNumber(1234.56m, "N2", new CultureInfo("tr-TR"));
-
-// Format currency
-var currency = formatter.FormatCurrency(99.99m, "USD", new CultureInfo("en-US"));
-
-// Format percentage
-var percentage = formatter.FormatPercentage(0.1234m, 2, new CultureInfo("en-US"));
-
-// Parse culture-specific strings
-var parsedDate = formatter.ParseDate("25/12/2025", new CultureInfo("fr-FR"));
-var parsedNumber = formatter.ParseNumber("1.234,56", new CultureInfo("de-DE"));
-var parsedCurrency = formatter.ParseCurrency("$1,234.56", new CultureInfo("en-US"));
-```
-
-## Advanced Usage
-
-### Culture Information Extensions
-
-```csharp
-var culture = new CultureInfo("en-US");
-
-// Get language code
-var langCode = culture.GetLanguageCode(); // "en"
-
-// Check if culture is RTL
-var isRtl = culture.IsRightToLeft(); // false
-
-// Get parent cultures
-var parents = culture.GetParentCultures(); // [en]
-
-// Check if cultures are related
-var isRelated = culture.IsRelatedTo(new CultureInfo("en-GB")); // true
-```
-
-### Dynamic Resource Loading
-
-The library supports dynamic resource loading and file watching:
-
-```csharp
-// Resources are automatically reloaded when files change
-// if EnableResourceFileWatching is true
-
-// Or manually reload resources
-var provider = serviceProvider.GetService<IResourceProvider>();
-if (provider.SupportsDynamicReload)
-{
-    await provider.ReloadAsync();
-}
-```
-
-## Performance Considerations
-
-- Caching is enabled by default for better performance
-- Resource providers are prioritized to check faster sources first
-- File watching can be disabled in production for better performance
-- Use compiled RESX files for best performance in production
-
-## Best Practices
-
-1. Use culture-neutral keys (e.g., "Hello" instead of "Hello_en")
-2. Keep resource keys consistent across cultures
-3. Use placeholders for dynamic content: "Welcome, {0}!"
-4. Organize resources by feature or module
-5. Use appropriate resource providers for your deployment scenario
-6. Enable caching in production environments
-7. Use fallback cultures to ensure all content is available
-
-## Türkçe Kullanım Kılavuzu
-
-### Genel Bakış
-
-Core.Localization, .NET 9.0 uygulamaları için geliştirilmiş modern, modüler ve genişletilebilir bir lokalizasyon kütüphanesidir. Çoklu dil desteği, para birimi formatlaması ve tarih/saat yerelleştirmesi için kapsamlı çözümler sunar.
-
-### Kurulum
-
-```bash
-dotnet add package Core.Localization
-```
-
-### Temel Kullanım
-
-1. Servis yapılandırması:
-
-```csharp
-// Program.cs veya Startup.cs içinde
-services.AddCoreLocalization(options =>
+// Program.cs'de
+services.AddFeatureBasedLocalization(options =>
 {
     options.DefaultCulture = new CultureInfo("tr-TR");
     options.FallbackCulture = new CultureInfo("en-US");
@@ -296,56 +35,187 @@ services.AddCoreLocalization(options =>
         new CultureInfo("en-US"),
         new CultureInfo("fr-FR")
     };
+    options.ResourcePaths = new List<string> { "Features" };
 });
 ```
 
-2. Controller veya servis içinde kullanım:
+2. ILocalizationService kullanımı:
 
 ```csharp
-public class HomeController : Controller
+public class UsersController : Controller
 {
-    private readonly ILocalizationService _localization;
-    private readonly IFormatterService _formatter;
+    private readonly ILocalizationService _localizationService;
 
-    public HomeController(ILocalizationService localization, IFormatterService formatter)
+    public UsersController(ILocalizationService localizationService)
     {
-        _localization = localization;
-        _formatter = formatter;
+        _localizationService = localizationService;
     }
 
-    public IActionResult Index()
+    public async Task<IActionResult> Index()
     {
-        // Mevcut kültüre göre çeviri al
-        var karsilama = _localization.GetString("Hello");
+        // Basit yerelleştirme
+        var greeting = await _localizationService.GetStringAsync("Hello");
         
-        // Belirli kültür için çeviri al
-        var fransizca = _localization.GetString("Hello", new CultureInfo("fr-FR"));
+        // Feature-based yerelleştirme
+        var userNotFound = await _localizationService.GetStringAsync("UserNotFound", "Users");
         
-        // Parametreler ile çeviri al
-        var hosgeldin = _localization.GetString("Welcome", "Kullanıcı");
+        // Formatlı mesajlar
+        var welcome = await _localizationService.GetStringAsync("Welcome", "Users", "John");
         
-        // Para birimi formatla
-        var fiyat = _formatter.FormatCurrency(1234.56m);
-        
-        // Tarih formatla
-        var tarih = _formatter.FormatDate(DateTime.Now);
-        
-        return View(new { Karsilama = karsilama, Hosgeldin = hosgeldin, Fiyat = fiyat, Tarih = tarih });
+        return View(new { Greeting = greeting, UserNotFound = userNotFound, Welcome = welcome });
+    }
+    
+    private async Task ThrowBusinessException(string messageKey)
+    {
+        // Feature-based lokalizasyon örneği
+        string message = await _localizationService.GetStringAsync(messageKey, "Users");
+        throw new BusinessException(message);
+    }
+    
+    public async Task UserShouldBeExistsWhenSelected(User? user)
+    {
+        if (user == null)
+            await ThrowBusinessException("UserDontExists");
     }
 }
 ```
 
-### Kaynak Dosyaları
+3. Uzantı metotları kullanımı:
 
-`Resources` klasörü altında aşağıdaki dosyaları oluşturarak çevirileri tanımlayabilirsiniz:
+```csharp
+using Core.Localization.Extensions;
 
-- JSON formatı: `resources.tr-TR.json`, `resources.en-US.json`
-- YAML formatı: `resources.tr-TR.yaml`, `resources.en-US.yaml`
-- RESX formatı: Standart .NET kaynak dosyaları
+// String uzantıları ile yerelleştirme
+var greeting = await "Hello".LocalizeAsync(_localizationService);
+var userNotFound = await "UserNotFound".LocalizeAsync(_localizationService, "Users");
+var welcome = await "Welcome".LocalizeAsync(_localizationService, "Users", "John");
 
-### Özelleştirme
+// Dene ve yerelleştir (hata fırlatmaz)
+var result = await "MissingKey".TryLocalizeAsync(_localizationService, "Users");
+if (result.success)
+{
+    // Yerelleştirilmiş değeri kullan
+    var value = result.value;
+}
+```
 
-Özel kaynak sağlayıcısı oluşturarak veritabanı, uzak API veya farklı formatlardaki dosyalardan çevirileri alabilirsiniz:
+## Yapılandırma Seçenekleri
+
+Kütüphane `LocalizationOptions` sınıfı üzerinden yapılandırılabilir:
+
+```csharp
+services.AddFeatureBasedLocalization(options =>
+{
+    // Belirtilmediğinde kullanılacak varsayılan kültür
+    options.DefaultCulture = new CultureInfo("tr-TR");
+    
+    // Kaynak bulunamadığında kullanılacak yedek kültür
+    options.FallbackCulture = new CultureInfo("en-US");
+    
+    // Uygulama tarafından desteklenen kültürler
+    options.SupportedCultures = new List<CultureInfo>
+    {
+        new CultureInfo("tr-TR"),
+        new CultureInfo("en-US"),
+        new CultureInfo("fr-FR")
+    };
+    
+    // Kaynak bulunamadığında yedek kültürü kullanıp kullanmama
+    options.UseFallbackCulture = true;
+    
+    // Kaynak bulunamadığında istisna fırlatıp fırlatmama
+    options.ThrowOnMissingResource = false;
+    
+    // Önbelleklemeyi etkinleştir/devre dışı bırak
+    options.EnableCaching = true;
+    
+    // Önbellek süre aşımı
+    options.CacheExpiration = TimeSpan.FromHours(1);
+    
+    // Kaynak dosyası konumları - bu, Feature klasörlerinin bulunduğu kök dizinler olabilir
+    options.ResourcePaths = new List<string> { "Features" };
+    
+    // Feature yolları için dizin deseni
+    options.FeatureDirectoryPattern = "**/Resources/Locales";
+    
+    // Feature dosyaları için dosya deseni
+    options.FeatureFilePattern = "{section}.{culture}.{extension}";
+    
+    // Belirtilmediğinde kullanılacak varsayılan section
+    options.DefaultSection = "Messages";
+    
+    // Feature kaynakları için otomatik keşfi etkinleştir
+    options.EnableAutoDiscovery = true;
+    
+    // Auto-reload aralığı
+    options.AutoReloadInterval = TimeSpan.FromMinutes(5);
+    
+    // Dosya değişikliklerini izlemek için File System Watcher kullan
+    options.UseFileSystemWatcher = true;
+});
+```
+
+## Resource Sağlayıcıları
+
+Kütüphane kutudan çıktığı haliyle birden çok kaynak sağlayıcısını destekler:
+
+### JSON Dosyaları
+
+Feature klasörleriniz içerisinde JSON dosyaları oluşturun:
+
+```json
+// Features/Users/Resources/Locales/users.en.json
+{
+    "SectionName": "Users",
+    "UserDontExists": "User doesn't exist",
+    "UserAlreadyExists": "User already exists",
+    "UserNameRequired": "Username is required",
+    "EmailRequired": "Email is required",
+    "PasswordRequired": "Password is required",
+    "Welcome": "Welcome, {0}!"
+}
+
+// Features/Users/Resources/Locales/users.tr.json
+{
+    "SectionName": "Kullanıcılar",
+    "UserDontExists": "Kullanıcı mevcut değil",
+    "UserAlreadyExists": "Kullanıcı zaten mevcut",
+    "UserNameRequired": "Kullanıcı adı gereklidir",
+    "EmailRequired": "E-posta gereklidir",
+    "PasswordRequired": "Şifre gereklidir",
+    "Welcome": "Hoş geldin, {0}!"
+}
+```
+
+### YAML Dosyaları
+
+Feature klasörleriniz içerisinde YAML dosyaları oluşturun:
+
+```yaml
+# Features/Users/Resources/Locales/users.en.yaml
+SectionName: Users
+Messages:
+  UserDontExists: "User doesn't exist"
+  UserAlreadyExists: "User already exists"
+  UserNameRequired: "Username is required"
+  EmailRequired: "Email is required"
+  PasswordRequired: "Password is required"
+  Welcome: "Welcome, {0}!"
+
+# Features/Users/Resources/Locales/users.tr.yaml
+SectionName: Kullanıcılar
+Messages:
+  UserDontExists: "Kullanıcı mevcut değil"
+  UserAlreadyExists: "Kullanıcı zaten mevcut"
+  UserNameRequired: "Kullanıcı adı gereklidir"
+  EmailRequired: "E-posta gereklidir"
+  PasswordRequired: "Şifre gereklidir"
+  Welcome: "Hoş geldin, {0}!"
+```
+
+### Özel Resource Sağlayıcıları
+
+`IResourceProvider` arayüzünü uygulayarak kendi resource sağlayıcınızı oluşturabilirsiniz:
 
 ```csharp
 public class DatabaseResourceProvider : ResourceProviderBase
@@ -357,115 +227,240 @@ public class DatabaseResourceProvider : ResourceProviderBase
         _dbContext = dbContext;
     }
 
-    public override string? GetString(string key, CultureInfo culture)
+    public override async Task<string?> GetStringAsync(string key, CultureInfo culture, string? section = null, CancellationToken cancellationToken = default)
     {
-        return _dbContext.Translations
-            .FirstOrDefault(t => t.Key == key && t.Culture == culture.Name)
-            ?.Value;
+        var effectiveKey = GetEffectiveKey(key, section);
+        var cultureName = GetNormalizedCultureCode(culture);
+        
+        var translation = await _dbContext.Translations
+            .FirstOrDefaultAsync(t => 
+                t.Key == effectiveKey && 
+                t.Culture == cultureName,
+                cancellationToken);
+            
+        return translation?.Value;
     }
 
-    public override IEnumerable<string> GetAllKeys(CultureInfo culture)
+    public override async Task<IEnumerable<string>> GetAllKeysAsync(CultureInfo culture, string? section = null, CancellationToken cancellationToken = default)
     {
-        return _dbContext.Translations
-            .Where(t => t.Culture == culture.Name)
-            .Select(t => t.Key);
+        var cultureName = GetNormalizedCultureCode(culture);
+        var prefix = section != null ? $"{section}." : "";
+        
+        var keys = await _dbContext.Translations
+            .Where(t => t.Culture == cultureName && 
+                   (string.IsNullOrEmpty(section) || t.Key.StartsWith(prefix)))
+            .Select(t => string.IsNullOrEmpty(section) ? t.Key : t.Key.Substring(prefix.Length))
+            .ToListAsync(cancellationToken);
+            
+        return keys;
+    }
+    
+    public override async Task<IEnumerable<string>> GetAllSectionsAsync(CultureInfo culture, CancellationToken cancellationToken = default)
+    {
+        var cultureName = GetNormalizedCultureCode(culture);
+        
+        var sections = await _dbContext.Translations
+            .Where(t => t.Culture == cultureName && t.Key.Contains("."))
+            .Select(t => t.Key.Split('.')[0])
+            .Distinct()
+            .ToListAsync(cancellationToken);
+            
+        return sections;
     }
 }
 
-// Servis kaydı
+// Sağlayıcınızı kaydedin
 services.AddResourceProvider<DatabaseResourceProvider>();
 ```
 
-Daha fazla bilgi için örnek projeyi inceleyebilirsiniz.
+## Formatlamalar
 
-### Modüler Kullanım Yaklaşımı
-
-Core.Localization kütüphanesi, temiz mimari veya DDD ile geliştirilen uygulamalarda her özellik/modül için ayrı kaynak dosyaları kullanan modüler bir yapıyı destekler. Özellikle feature-based bir yapıya sahip projelerde bu yaklaşım daha düzenli ve yönetilebilir bir şekilde lokalizasyonu yapmanızı sağlar.
-
-Birkaç modüler kullanım yaklaşımı:
-
-#### 1. Her özellik için ayrı resource paths tanımlama:
+Kütüphane, FormatterService ile kapsamlı formatlama işlevleri sunar:
 
 ```csharp
-services.AddCoreLocalization(options =>
+var formatter = serviceProvider.GetRequiredService<IFormatterService>();
+
+// Tarihleri formatla
+var date = await formatter.FormatDateAsync(DateTime.Now, "yyyy-MM-dd", new CultureInfo("en-US"));
+
+// Sayıları formatla
+var number = await formatter.FormatNumberAsync(1234.56m, "N2", new CultureInfo("tr-TR"));
+
+// Para birimlerini formatla
+var currency = await formatter.FormatCurrencyAsync(99.99m, "USD", new CultureInfo("en-US"));
+
+// Yüzdeleri formatla
+var percentage = await formatter.FormatPercentageAsync(0.1234m, 2, new CultureInfo("en-US"));
+
+// Kültüre özgü dizgileri ayrıştır
+var parsedDate = await formatter.ParseDateAsync("25/12/2025", new CultureInfo("fr-FR"));
+var parsedNumber = await formatter.ParseNumberAsync("1.234,56", new CultureInfo("de-DE"));
+var parsedCurrency = await formatter.ParseCurrencyAsync("$1,234.56", new CultureInfo("en-US"));
+```
+
+## Feature-Based Lokalizasyon
+
+Core.Localization kütüphanesi, clean architecture veya DDD ile geliştirilen uygulamalarda her feature/modül için ayrı kaynak dosyaları kullanan modüler bir yapıyı destekler. Bu yaklaşım özellikle feature-based bir yapıya sahip projelerde lokalizasyonu daha düzenli ve yönetilebilir kılar.
+
+### Klasör Yapısı
+
+Önerilen klasör yapısı:
+
+```
+/Features
+  /Users
+    /Resources
+      /Locales
+        users.en.yaml
+        users.tr.yaml
+  /Orders
+    /Resources
+      /Locales
+        orders.en.yaml
+        orders.tr.yaml
+  /Products
+    /Resources
+      /Locales
+        products.en.yaml
+        products.tr.yaml
+```
+
+### Kullanım
+
+```csharp
+// Business Logic
+public class UserBusinessRules
 {
-    options.ResourcePaths = new List<string> 
-    { 
-        "Application/Features/Users/Resources",
-        "Application/Features/Orders/Resources",
-        "Application/Features/Products/Resources"
-    };
+    private readonly ILocalizationService _localizationService;
+    
+    public UserBusinessRules(ILocalizationService localizationService)
+    {
+        _localizationService = localizationService;
+    }
+    
+    private async Task ThrowBusinessException(string messageKey)
+    {
+        string message = await _localizationService.GetStringAsync(messageKey, "Users");
+        throw new BusinessException(message);
+    }
+    
+    public async Task UserShouldBeExistsWhenSelected(User? user)
+    {
+        if (user == null)
+            await ThrowBusinessException("UserDontExists");
+    }
+    
+    public async Task UserEmailMustBeUniqueWhenInserted(string email)
+    {
+        if (await _userRepository.ExistsAsync(u => u.Email == email))
+            await ThrowBusinessException("UserAlreadyExists");
+    }
+}
+```
+
+### Otomatik Kaynak Keşfi
+
+Kütüphane, tüm feature klasörlerini otomatik olarak tarayıp kaynak dosyalarını bulabilir:
+
+```csharp
+services.AddFeatureBasedLocalization(options =>
+{
+    options.ResourcePaths = new List<string> { "Features" };
+    options.EnableAutoDiscovery = true;
 });
 ```
 
-#### 2. Özelliğe göre resource dosyalarını adlandırma:
+## Performans İyileştirmeleri
+
+- Önbellekleme varsayılan olarak etkindir
+- Kaynak sağlayıcıları daha hızlı kaynakları ilk önce kontrol etmek için önceliklendirilir
+- Dosya izleme üretim ortamında daha iyi performans için devre dışı bırakılabilir
+- `EnableAutoDiscovery` seçeneği, performans gereksinimleri doğrultusunda açılıp kapatılabilir
+
+## En İyi Uygulamalar
+
+1. Kültürden bağımsız anahtarlar kullanın (örn. "Hello" yerine "Hello_en" değil)
+2. Kaynak anahtarlarını kültürler arasında tutarlı tutun
+3. Dinamik içerik için yer tutucular kullanın: "Welcome, {0}!"
+4. Kaynakları feature veya modüle göre düzenleyin
+5. Dağıtım senaryonuz için uygun kaynak sağlayıcıları kullanın
+6. Üretim ortamlarında önbelleklemeyi etkinleştirin
+7. Tüm içeriğin kullanılabilir olmasını sağlamak için fallback kültürleri kullanın
+
+## Örnek Bir Feature-Based Yaklaşım
+
+Users özelliği için bir örnek:
 
 ```
-users.tr-TR.json
-users.en-US.json
-orders.tr-TR.json
-orders.en-US.json
+/Features/Users
+  /Commands
+    /CreateUser
+      CreateUserCommand.cs
+      CreateUserCommandHandler.cs
+      CreateUserCommandValidator.cs
+  /Queries
+    /GetUserById
+      GetUserByIdQuery.cs
+      GetUserByIdQueryHandler.cs
+  /Resources
+    /Locales
+      users.en.yaml
+      users.tr.yaml
+  UserBusinessRules.cs
+  UsersMessages.cs  // Sabit anahtar tanımlamaları
 ```
 
-#### 3. Resource key'lerde ön ekler kullanma:
-
-```json
-// users.tr-TR.json
-{
-  "users.title": "Kullanıcı Yönetimi",
-  "users.create": "Kullanıcı Oluştur",
-  "users.edit": "Kullanıcı Düzenle"
-}
-
-// orders.tr-TR.json
-{
-  "orders.title": "Sipariş Yönetimi",
-  "orders.create": "Sipariş Oluştur",
-  "orders.status": "Sipariş Durumu"
-}
-```
-
-Kullanım:
-```csharp
-var usersTitle = _localization.GetString("users.title");
-var ordersTitle = _localization.GetString("orders.title");
-```
-
-#### 4. YAML ile hiyerarşik yapı kullanma:
-
-```yaml
-# resources.tr-TR.yaml
-Users:
-  Title: "Kullanıcı Yönetimi"
-  Create: "Kullanıcı Oluştur"
-  Edit: "Kullanıcı Düzenle"
-
-Orders:
-  Title: "Sipariş Yönetimi"
-  Create: "Sipariş Oluştur"
-  Status: "Sipariş Durumu"
-```
-
-Kullanım:
-```csharp
-var usersTitle = _localization.GetString("Users.Title");
-var ordersTitle = _localization.GetString("Orders.Title");
-```
-
-#### 5. Her özellik için wrapper servisler oluşturma:
+`UsersMessages.cs` sınıfı:
 
 ```csharp
-public class UsersLocalizationService
+public static class UsersMessages
 {
-    private readonly ILocalizationService _localization;
+    public const string SectionName = "Users";
     
-    public UsersLocalizationService(ILocalizationService localization)
+    public const string UserDontExists = "UserDontExists";
+    public const string UserAlreadyExists = "UserAlreadyExists";
+    public const string UserNameRequired = "UserNameRequired";
+    public const string EmailRequired = "EmailRequired";
+    public const string PasswordRequired = "PasswordRequired";
+    // ...
+}
+```
+
+`UserBusinessRules.cs` içindeki kullanım:
+
+```csharp
+public class UserBusinessRules
+{
+    private readonly ILocalizationService _localizationService;
+    
+    public UserBusinessRules(ILocalizationService localizationService)
     {
-        _localization = localization;
+        _localizationService = localizationService;
     }
     
-    public string GetTitle() => _localization.GetString("users.title");
-    public string GetCreateLabel() => _localization.GetString("users.create");
-    public string GetEditLabel() => _localization.GetString("users.edit");
+    private async Task ThrowBusinessException(string messageKey)
+    {
+        string message = await _localizationService.GetStringAsync(messageKey, UsersMessages.SectionName);
+        throw new BusinessException(message);
+    }
+    
+    public async Task UserShouldBeExistsWhenSelected(User? user)
+    {
+        if (user == null)
+            await ThrowBusinessException(UsersMessages.UserDontExists);
+    }
 }
 ```
+
+## Sürüm Geçmişi
+
+- **1.0.0** - İlk sürüm
+  - Tam async API desteği
+  - Feature-based lokalizasyon
+  - JSON ve YAML kaynak sağlayıcıları
+  - Otomatik kaynak keşfi
+  - FileSystemWatcher desteği
+
+## Lisans
+
+MIT

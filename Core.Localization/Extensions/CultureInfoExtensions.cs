@@ -102,4 +102,12 @@ public static class CultureInfoExtensions
     {
         return culture.TextInfo.IsRightToLeft;
     }
+
+    /// <summary>
+    /// Gets the normalized culture code (e.g., "en" from "en-US")
+    /// </summary>
+    public static string GetNormalizedCultureCode(this CultureInfo culture)
+    {
+        return culture.TwoLetterISOLanguageName.ToLowerInvariant();
+    }
 }

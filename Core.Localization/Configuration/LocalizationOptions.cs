@@ -47,11 +47,12 @@ public class LocalizationOptions
     public TimeSpan CacheExpiration { get; set; } = TimeSpan.FromHours(1);
 
     /// <summary>
-    /// Resource file locations
+    /// Resource file locations - this can be root directories where Feature folders exist
     /// </summary>
     public IReadOnlyList<string> ResourcePaths { get; set; } = new List<string>
     {
-        "Resources"
+        "Resources",
+        "Features"
     };
 
     /// <summary>
@@ -73,4 +74,54 @@ public class LocalizationOptions
     /// Custom resource name generator function
     /// </summary>
     public Func<string, CultureInfo, string>? ResourceNameGenerator { get; set; }
+
+    /// <summary>
+    /// Directory pattern for feature-based localization
+    /// </summary>
+    public string FeatureDirectoryPattern { get; set; } = "**/Resources/Locales";
+
+    /// <summary>
+    /// File pattern for feature-based localization
+    /// E.g., "{section}.{culture}.{extension}" where:
+    /// - {section} will be replaced with the section name (e.g., "users")
+    /// - {culture} will be replaced with the culture code (e.g., "en", "tr")
+    /// - {extension} will be replaced with the file extension (e.g., "yaml", "json")
+    /// </summary>
+    public string FeatureFilePattern { get; set; } = "{section}.{culture}.{extension}";
+
+    /// <summary>
+    /// Default section name when not specified
+    /// </summary>
+    public string DefaultSection { get; set; } = "Messages";
+
+    /// <summary>
+    /// Whether to use auto-discovery for feature resources
+    /// When enabled, the system will scan all ResourcePaths to find resources
+    /// </summary>
+    public bool EnableAutoDiscovery { get; set; } = true;
+
+    /// <summary>
+    /// Auto-reload interval for feature resources
+    /// </summary>
+    public TimeSpan AutoReloadInterval { get; set; } = TimeSpan.FromMinutes(5);
+
+    /// <summary>
+    /// Resource file extensions to look for
+    /// </summary>
+    public IReadOnlyList<string> ResourceFileExtensions { get; set; } = new List<string>
+    {
+        "yaml",
+        "yml",
+        "json"
+    };
+
+    /// <summary>
+    /// Section key in resource files
+    /// </summary>
+    public string SectionKey { get; set; } = "SectionName";
+
+    /// <summary>
+    /// Whether to use file system watcher for detecting changes in resources
+    /// </summary>
+    public bool UseFileSystemWatcher { get; set; } = true;
 }

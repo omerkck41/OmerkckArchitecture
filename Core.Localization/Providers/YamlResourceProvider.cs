@@ -9,15 +9,18 @@ using YamlDotNet.Serialization.NamingConventions;
 namespace Core.Localization.Providers;
 
 /// <summary>
-/// Provides resources from YAML files
+/// Provides resources from YAML files with feature-based localization and async support
 /// </summary>
-public class YamlResourceProvider : ResourceProviderBase
+public class YamlResourceProvider : ResourceProviderBase, IDisposable
 {
     private readonly LocalizationOptions _options;
     private readonly ILogger<YamlResourceProvider> _logger;
     private readonly ConcurrentDictionary<string, Dictionary<string, object>> _resourceCache;
-    private FileSystemWatcher? _fileWatcher;
+    private readonly List<FileSystemWatcher> _fileWatchers = new();
     private readonly IDeserializer _yamlDeserializer;
+    private readonly CancellationTokenSource _scanTokenSource = new();
+    private readonly Timer? _resourceScanTimer;
+    private readonly ConcurrentDictionary<string, string> _sectionNameCache = new();
 
     public YamlResourceProvider(
         IOptions<LocalizationOptions> options,
@@ -32,25 +35,47 @@ public class YamlResourceProvider : ResourceProviderBase
             .WithNamingConvention(CamelCaseNamingConvention.Instance)
             .Build();
 
-        if (_options.EnableResourceFileWatching)
+        // Load resources initially
+        LoadResourcesAsync().GetAwaiter().GetResult();
+
+        // Setup auto-reload timer if enabled
+        if (_options.EnableAutoDiscovery)
         {
-            InitializeFileWatcher();
+            _resourceScanTimer = new Timer(
+                _ => ScanForResourcesAsync(_scanTokenSource.Token).ConfigureAwait(false),
+                null,
+                _options.AutoReloadInterval,
+                _options.AutoReloadInterval);
         }
 
-        LoadResources();
+        // Setup file watchers if enabled
+        if (_options.UseFileSystemWatcher)
+        {
+            InitializeFileWatchers();
+        }
     }
 
     public override bool SupportsDynamicReload => true;
 
-    public override string? GetString(string key, CultureInfo culture)
+    public override async Task<string?> GetStringAsync(string key, CultureInfo culture, string? section = null, CancellationToken cancellationToken = default)
     {
-        var cultureKey = GetResourceFileName(culture);
+        var cultureName = GetNormalizedCultureCode(culture);
+        var effectiveKey = GetEffectiveKey(key, section);
 
-        if (_resourceCache.TryGetValue(cultureKey, out var resources))
+        foreach (var cacheEntry in _resourceCache)
         {
-            if (TryGetNestedValue(resources, key, out var value) && value != null)
+            // Try to match the section and culture from the cache key
+            // Cache keys are in format: "sectionName.cultureName" or "cultureName" for default section
+            var cacheKey = cacheEntry.Key;
+
+            if (IsCacheKeyMatch(cacheKey, section, cultureName))
             {
-                return value.ToString();
+                var resources = cacheEntry.Value;
+
+                if (TryGetNestedValue(resources, effectiveKey, out var value) && value != null)
+                {
+                    return value.ToString();
+                }
             }
         }
 
@@ -58,84 +83,285 @@ public class YamlResourceProvider : ResourceProviderBase
         var parentCulture = GetParentCulture(culture);
         if (parentCulture != null)
         {
-            return GetString(key, parentCulture);
+            return await GetStringAsync(key, parentCulture, section, cancellationToken);
         }
 
         return null;
     }
 
-    public override object? GetResource(string key, CultureInfo culture)
+    public override async Task<IEnumerable<string>> GetAllKeysAsync(CultureInfo culture, string? section = null, CancellationToken cancellationToken = default)
     {
-        var cultureKey = GetResourceFileName(culture);
+        var cultureName = GetNormalizedCultureCode(culture);
+        var keys = new HashSet<string>();
 
-        if (_resourceCache.TryGetValue(cultureKey, out var resources))
+        foreach (var cacheEntry in _resourceCache)
         {
-            if (TryGetNestedValue(resources, key, out var value))
+            if (IsCacheKeyMatch(cacheEntry.Key, section, cultureName))
             {
-                return value;
+                var resources = cacheEntry.Value;
+                var allKeys = GetAllKeysFromDictionary(resources, section);
+                foreach (var key in allKeys)
+                {
+                    keys.Add(key);
+                }
             }
         }
 
-        // Try parent culture
-        var parentCulture = GetParentCulture(culture);
-        if (parentCulture != null)
-        {
-            return GetResource(key, parentCulture);
-        }
-
-        return null;
+        return keys;
     }
 
-    public override IEnumerable<string> GetAllKeys(CultureInfo culture)
+    public override async Task<IEnumerable<string>> GetAllSectionsAsync(CultureInfo culture, CancellationToken cancellationToken = default)
     {
-        var cultureKey = GetResourceFileName(culture);
+        var cultureName = GetNormalizedCultureCode(culture);
+        var sections = new HashSet<string>();
 
-        if (_resourceCache.TryGetValue(cultureKey, out var resources))
+        foreach (var cacheEntry in _resourceCache)
         {
-            return GetAllKeysFromDictionary(resources);
+            var cacheKey = cacheEntry.Key;
+            var keyParts = cacheKey.Split('.');
+
+            // Cache keys may be in format:
+            // 1. "section.culture" - we want the section part
+            // 2. "culture" - default section
+
+            if (keyParts.Length > 1 && keyParts.Last().Equals(cultureName, StringComparison.OrdinalIgnoreCase))
+            {
+                // If the last part is the culture, then everything before is the section
+                var sectionName = string.Join(".", keyParts.Take(keyParts.Length - 1));
+                sections.Add(sectionName);
+            }
+            else if (keyParts.Length == 1 && keyParts[0].Equals(cultureName, StringComparison.OrdinalIgnoreCase))
+            {
+                // This is a default section
+                sections.Add(_options.DefaultSection);
+            }
         }
 
-        return Enumerable.Empty<string>();
+        // Also check for explicitly defined section names in the resources
+        foreach (var sectionName in _sectionNameCache.Values)
+        {
+            sections.Add(sectionName);
+        }
+
+        return sections;
     }
 
     public override async Task ReloadAsync(CancellationToken cancellationToken = default)
     {
-        await Task.Run(() => LoadResources(), cancellationToken);
+        await LoadResourcesAsync(cancellationToken);
     }
 
-    private void LoadResources()
+    private async Task LoadResourcesAsync(CancellationToken cancellationToken = default)
     {
-        foreach (var culture in _options.SupportedCultures)
+        // Clear existing cache
+        _resourceCache.Clear();
+        _sectionNameCache.Clear();
+
+        // Scan for resources in all configured paths
+        await ScanForResourcesAsync(cancellationToken);
+    }
+
+    private async Task ScanForResourcesAsync(CancellationToken cancellationToken)
+    {
+        foreach (var basePath in _options.ResourcePaths)
         {
-            foreach (var resourcePath in _options.ResourcePaths)
+            if (!Directory.Exists(basePath))
             {
-                var fileName = GetResourceFileName(culture);
-                var filePath = Path.Combine(resourcePath, $"{fileName}.yaml");
-                var altFilePath = Path.Combine(resourcePath, $"{fileName}.yml");
+                _logger.LogWarning("Resource path {Path} does not exist", basePath);
+                continue;
+            }
 
-                var actualPath = File.Exists(filePath) ? filePath
-                    : File.Exists(altFilePath) ? altFilePath
-                    : null;
+            // Find all directories matching the feature pattern
+            var featureDirs = Directory.GetDirectories(basePath, "*", SearchOption.AllDirectories)
+                .Where(dir => dir.Contains("Resources") && Directory.Exists(Path.Combine(dir, "Locales")))
+                .Select(dir => Path.Combine(dir, "Locales"))
+                .ToList();
 
-                if (actualPath != null)
+            // Add the base path if it contains a Locales directory
+            var baseLocalesPath = Path.Combine(basePath, "Locales");
+            if (Directory.Exists(baseLocalesPath))
+            {
+                featureDirs.Add(baseLocalesPath);
+            }
+
+            foreach (var localesDir in featureDirs)
+            {
+                await LoadResourceFilesFromDirectoryAsync(localesDir, cancellationToken);
+            }
+        }
+    }
+
+    private async Task LoadResourceFilesFromDirectoryAsync(string directory, CancellationToken cancellationToken)
+    {
+        foreach (var extension in _options.ResourceFileExtensions)
+        {
+            var files = Directory.GetFiles(directory, $"*.{extension}", SearchOption.TopDirectoryOnly);
+
+            foreach (var file in files)
+            {
+                try
                 {
-                    try
-                    {
-                        var yamlContent = File.ReadAllText(actualPath);
-                        var resources = _yamlDeserializer.Deserialize<Dictionary<string, object>>(yamlContent);
+                    await LoadResourceFileAsync(file, cancellationToken);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Failed to load resource file {File}", file);
+                }
+            }
+        }
+    }
 
-                        if (resources != null)
-                        {
-                            _resourceCache[fileName] = resources;
-                            _logger.LogInformation("Loaded YAML resources from {FilePath}", actualPath);
-                        }
-                    }
-                    catch (Exception ex)
+    private async Task LoadResourceFileAsync(string filePath, CancellationToken cancellationToken)
+    {
+        try
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            var fileName = Path.GetFileName(filePath);
+            var fileNameWithoutExt = Path.GetFileNameWithoutExtension(filePath);
+            var extension = Path.GetExtension(filePath).TrimStart('.');
+
+            // Parse file name to extract section and culture
+            // Format expected: section.culture.extension (e.g., users.en.yaml)
+            var parts = fileNameWithoutExt.Split('.');
+
+            if (parts.Length < 2)
+            {
+                _logger.LogWarning("Invalid resource file name format: {FileName}. Expected format: section.culture.extension", fileName);
+                return;
+            }
+
+            var section = parts[0];
+            var culture = parts[1];
+            var cacheKey = $"{section}.{culture}";
+
+            // Read and parse the YAML/JSON file
+            var content = await File.ReadAllTextAsync(filePath, cancellationToken);
+            var resources = _yamlDeserializer.Deserialize<Dictionary<string, object>>(content);
+
+            if (resources == null)
+            {
+                _logger.LogWarning("Failed to parse resource file {File}", filePath);
+                return;
+            }
+
+            // Check if the file contains a section name definition
+            if (resources.TryGetValue(_options.SectionKey, out var sectionNameObj) &&
+                sectionNameObj is string sectionName)
+            {
+                _sectionNameCache[section] = sectionName;
+            }
+
+            // Store in cache
+            _resourceCache[cacheKey] = resources;
+
+            _logger.LogInformation("Loaded resource file {File} with section {Section} and culture {Culture}",
+                filePath, section, culture);
+        }
+        catch (OperationCanceledException)
+        {
+            throw;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error loading resource file {File}", filePath);
+        }
+    }
+
+    private void InitializeFileWatchers()
+    {
+        foreach (var basePath in _options.ResourcePaths)
+        {
+            if (!Directory.Exists(basePath))
+            {
+                continue;
+            }
+
+            try
+            {
+                // Find feature directories with Locales
+                var featureDirs = Directory.GetDirectories(basePath, "*", SearchOption.AllDirectories)
+                    .Where(dir => dir.Contains("Resources") && Directory.Exists(Path.Combine(dir, "Locales")))
+                    .Select(dir => Path.Combine(dir, "Locales"))
+                    .ToList();
+
+                // Add the base path if it contains a Locales directory
+                var baseLocalesPath = Path.Combine(basePath, "Locales");
+                if (Directory.Exists(baseLocalesPath))
+                {
+                    featureDirs.Add(baseLocalesPath);
+                }
+
+                foreach (var localesDir in featureDirs)
+                {
+                    foreach (var extension in _options.ResourceFileExtensions)
                     {
-                        _logger.LogError(ex, "Failed to load YAML resources from {FilePath}", actualPath);
+                        var watcher = new FileSystemWatcher(localesDir, $"*.{extension}")
+                        {
+                            NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.FileName | NotifyFilters.CreationTime | NotifyFilters.Size,
+                            EnableRaisingEvents = true,
+                            IncludeSubdirectories = false
+                        };
+
+                        watcher.Changed += OnResourceFileChanged;
+                        watcher.Created += OnResourceFileChanged;
+                        watcher.Deleted += OnResourceFileChanged;
+                        watcher.Renamed += OnResourceFileRenamed;
+
+                        _fileWatchers.Add(watcher);
+
+                        _logger.LogInformation("Initialized file watcher for {Directory} with pattern *.{Extension}",
+                            localesDir, extension);
                     }
                 }
             }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to initialize file watchers for path {Path}", basePath);
+            }
+        }
+    }
+
+    private async void OnResourceFileChanged(object sender, FileSystemEventArgs e)
+    {
+        _logger.LogInformation("Resource file changed: {FilePath}", e.FullPath);
+
+        try
+        {
+            // Small delay to allow file system to complete writing the file
+            await Task.Delay(100);
+            await LoadResourceFileAsync(e.FullPath, CancellationToken.None);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error handling resource file change for {File}", e.FullPath);
+        }
+    }
+
+    private async void OnResourceFileRenamed(object sender, RenamedEventArgs e)
+    {
+        _logger.LogInformation("Resource file renamed from {OldPath} to {NewPath}", e.OldFullPath, e.FullPath);
+
+        try
+        {
+            // Remove old entry from cache based on old filename
+            var oldFileName = Path.GetFileNameWithoutExtension(e.OldName);
+            var oldParts = oldFileName.Split('.');
+            if (oldParts.Length >= 2)
+            {
+                var oldSection = oldParts[0];
+                var oldCulture = oldParts[1];
+                var oldCacheKey = $"{oldSection}.{oldCulture}";
+                _resourceCache.TryRemove(oldCacheKey, out _);
+            }
+
+            // Load the renamed file
+            await LoadResourceFileAsync(e.FullPath, CancellationToken.None);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error handling resource file rename from {OldFile} to {NewFile}",
+                e.OldFullPath, e.FullPath);
         }
     }
 
@@ -143,13 +369,23 @@ public class YamlResourceProvider : ResourceProviderBase
     {
         value = null;
         var keys = key.Split('.');
-        object? current = resources;
 
-        foreach (var k in keys)
+        // Starting point
+        Dictionary<string, object>? current = resources;
+
+        // Navigate through nested levels
+        for (int i = 0; i < keys.Length - 1; i++)
         {
-            if (current is Dictionary<string, object> dict && dict.TryGetValue(k, out var nextValue))
+            var k = keys[i];
+
+            if (current!.TryGetValue(k, out var nextValue) && nextValue is Dictionary<object, object> dict)
             {
-                current = nextValue;
+                // Convert from Dictionary<object, object> to Dictionary<string, object>
+                current = dict.ToDictionary(kvp => kvp.Key.ToString()!, kvp => kvp.Value);
+            }
+            else if (current!.TryGetValue(k, out nextValue) && nextValue is IDictionary<string, object> typedDict)
+            {
+                current = typedDict.ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
             }
             else
             {
@@ -157,21 +393,41 @@ public class YamlResourceProvider : ResourceProviderBase
             }
         }
 
-        value = current;
-        return true;
+        // Get the final value
+        var lastKey = keys.Last();
+        if (current!.TryGetValue(lastKey, out var finalValue))
+        {
+            value = finalValue;
+            return true;
+        }
+
+        return false;
     }
 
-    private IEnumerable<string> GetAllKeysFromDictionary(Dictionary<string, object> resources, string prefix = "")
+    private IEnumerable<string> GetAllKeysFromDictionary(Dictionary<string, object> resources, string? prefix = null)
     {
         var keys = new List<string>();
 
         foreach (var kvp in resources)
         {
-            var fullKey = string.IsNullOrEmpty(prefix) ? kvp.Key : $"{prefix}.{kvp.Key}";
+            var key = kvp.Key;
 
-            if (kvp.Value is Dictionary<string, object> nestedDict)
+            // Skip section name key
+            if (key.Equals(_options.SectionKey, StringComparison.OrdinalIgnoreCase))
+                continue;
+
+            var fullKey = string.IsNullOrEmpty(prefix) ? key : $"{prefix}.{key}";
+
+            if (kvp.Value is Dictionary<object, object> dict)
             {
-                keys.AddRange(GetAllKeysFromDictionary(nestedDict, fullKey));
+                // Convert from Dictionary<object, object> to Dictionary<string, object>
+                var convertedDict = dict.ToDictionary(d => d.Key.ToString()!, d => d.Value);
+                keys.AddRange(GetAllKeysFromDictionary(convertedDict, fullKey));
+            }
+            else if (kvp.Value is IDictionary<string, object> typedDict)
+            {
+                var convertedDict = typedDict.ToDictionary(d => d.Key, d => d.Value);
+                keys.AddRange(GetAllKeysFromDictionary(convertedDict, fullKey));
             }
             else
             {
@@ -182,51 +438,50 @@ public class YamlResourceProvider : ResourceProviderBase
         return keys;
     }
 
-    private void InitializeFileWatcher()
+    /// <summary>
+    /// Check if the cache key matches the given section and culture
+    /// </summary>
+    private bool IsCacheKeyMatch(string cacheKey, string? section, string cultureName)
     {
-        foreach (var resourcePath in _options.ResourcePaths)
+        // Cache keys are in format: "sectionName.cultureName"
+        var keyParts = cacheKey.Split('.');
+
+        // If it's just a culture key (default section)
+        if (keyParts.Length == 1)
         {
-            if (Directory.Exists(resourcePath))
-            {
-                _fileWatcher = new FileSystemWatcher(resourcePath)
-                {
-                    NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.FileName | NotifyFilters.CreationTime,
-                    Filter = "*.yaml"
-                };
-
-                _fileWatcher.Changed += OnFileChanged;
-                _fileWatcher.Created += OnFileChanged;
-                _fileWatcher.Deleted += OnFileChanged;
-                _fileWatcher.EnableRaisingEvents = true;
-
-                // Also watch for .yml files
-                var ymlWatcher = new FileSystemWatcher(resourcePath, "*.yml")
-                {
-                    NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.FileName | NotifyFilters.CreationTime
-                };
-
-                ymlWatcher.Changed += OnFileChanged;
-                ymlWatcher.Created += OnFileChanged;
-                ymlWatcher.Deleted += OnFileChanged;
-                ymlWatcher.EnableRaisingEvents = true;
-            }
+            return string.IsNullOrEmpty(section) &&
+                   keyParts[0].Equals(cultureName, StringComparison.OrdinalIgnoreCase);
         }
-    }
 
-    private async void OnFileChanged(object sender, FileSystemEventArgs e)
-    {
-        _logger.LogInformation("Resource file changed: {FilePath}", e.FullPath);
-        await ReloadAsync();
-    }
+        // If it's a section.culture key
+        if (keyParts.Length == 2)
+        {
+            var keySection = keyParts[0];
+            var keyCulture = keyParts[1];
 
-    private string GetResourceFileName(CultureInfo culture)
-    {
-        return _options.ResourceNameGenerator?.Invoke("resources", culture)
-               ?? $"resources.{culture.Name}";
+            return keyCulture.Equals(cultureName, StringComparison.OrdinalIgnoreCase) &&
+                   (string.IsNullOrEmpty(section) || keySection.Equals(section, StringComparison.OrdinalIgnoreCase));
+        }
+
+        return false;
     }
 
     public void Dispose()
     {
-        _fileWatcher?.Dispose();
+        _scanTokenSource.Cancel();
+        _resourceScanTimer?.Dispose();
+
+        foreach (var watcher in _fileWatchers)
+        {
+            watcher.EnableRaisingEvents = false;
+            watcher.Changed -= OnResourceFileChanged;
+            watcher.Created -= OnResourceFileChanged;
+            watcher.Deleted -= OnResourceFileChanged;
+            watcher.Renamed -= OnResourceFileRenamed;
+            watcher.Dispose();
+        }
+
+        _fileWatchers.Clear();
+        _scanTokenSource.Dispose();
     }
 }

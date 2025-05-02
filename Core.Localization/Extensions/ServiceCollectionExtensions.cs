@@ -14,7 +14,7 @@ namespace Core.Localization.Extensions;
 public static class ServiceCollectionExtensions
 {
     /// <summary>
-    /// Adds Core.Localization services to the service collection
+    /// Adds Core.Localization services to the service collection with async support
     /// </summary>
     public static IServiceCollection AddCoreLocalization(
         this IServiceCollection services,
@@ -33,15 +33,35 @@ public static class ServiceCollectionExtensions
         services.AddLogging();
 
         // Register providers
-        services.AddSingleton<IResourceProvider, ResxResourceProvider>();
-        services.AddSingleton<IResourceProvider, JsonResourceProvider>();
         services.AddSingleton<IResourceProvider, YamlResourceProvider>();
+        services.AddSingleton<IResourceProvider, JsonResourceProvider>();
 
         // Register main services
         services.AddSingleton<ILocalizationService, LocalizationService>();
         services.AddSingleton<IFormatterService, FormatterService>();
 
         return services;
+    }
+
+    /// <summary>
+    /// Adds Core.Localization services with feature-based localization support
+    /// </summary>
+    public static IServiceCollection AddFeatureBasedLocalization(
+        this IServiceCollection services,
+        Action<LocalizationOptions>? configureOptions = null)
+    {
+        return services.AddCoreLocalization(options =>
+        {
+            // Enable feature-based localization by default
+            options.EnableAutoDiscovery = true;
+            options.UseFileSystemWatcher = true;
+            options.ResourcePaths = new List<string> { "Features" };
+            options.FeatureDirectoryPattern = "**/Resources/Locales";
+            options.FeatureFilePattern = "{section}.{culture}.{extension}";
+
+            // Apply custom configuration if provided
+            configureOptions?.Invoke(options);
+        });
     }
 
     /// <summary>
@@ -76,16 +96,6 @@ public static class ServiceCollectionExtensions
     }
 
     /// <summary>
-    /// Adds only RESX resource provider
-    /// </summary>
-    public static IServiceCollection AddResxResourceProvider(this IServiceCollection services)
-    {
-        services.RemoveAll<IResourceProvider>();
-        services.AddSingleton<IResourceProvider, ResxResourceProvider>();
-        return services;
-    }
-
-    /// <summary>
     /// Configures localization options
     /// </summary>
     public static IServiceCollection ConfigureLocalization(
@@ -104,7 +114,52 @@ public static class ServiceCollectionExtensions
         IDictionary<string, IDictionary<string, string>> resources)
     {
         services.AddSingleton<IResourceProvider>(
-            new InMemoryResourceProvider(resources));
+            provider => new InMemoryResourceProvider(resources));
+        return services;
+    }
+
+    /// <summary>
+    /// Configures localization with feature paths
+    /// </summary>
+    public static IServiceCollection AddFeaturePaths(
+        this IServiceCollection services,
+        params string[] featurePaths)
+    {
+        services.Configure<LocalizationOptions>(options =>
+        {
+            options.ResourcePaths = featurePaths.ToList();
+        });
+
+        return services;
+    }
+
+    /// <summary>
+    /// Configures localization to use specific feature directory pattern
+    /// </summary>
+    public static IServiceCollection UseFeatureDirectoryPattern(
+        this IServiceCollection services,
+        string pattern)
+    {
+        services.Configure<LocalizationOptions>(options =>
+        {
+            options.FeatureDirectoryPattern = pattern;
+        });
+
+        return services;
+    }
+
+    /// <summary>
+    /// Configures localization to use specific feature file pattern
+    /// </summary>
+    public static IServiceCollection UseFeatureFilePattern(
+        this IServiceCollection services,
+        string pattern)
+    {
+        services.Configure<LocalizationOptions>(options =>
+        {
+            options.FeatureFilePattern = pattern;
+        });
+
         return services;
     }
 }

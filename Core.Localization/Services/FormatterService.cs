@@ -4,51 +4,59 @@ using System.Globalization;
 namespace Core.Localization.Services;
 
 /// <summary>
-/// Implementation of formatting services for various data types
+/// Implementation of formatting services for various data types with async support
 /// </summary>
 public class FormatterService : IFormatterService
 {
-    public string FormatDate(DateTime date, string? format = null, CultureInfo? culture = null)
+    public Task<string> FormatDateAsync(DateTime date, string? format = null, CultureInfo? culture = null, CancellationToken cancellationToken = default)
     {
         culture ??= CultureInfo.CurrentCulture;
-        return date.ToString(format ?? culture.DateTimeFormat.ShortDatePattern, culture);
+        var result = date.ToString(format ?? culture.DateTimeFormat.ShortDatePattern, culture);
+        return Task.FromResult(result);
     }
 
-    public string FormatNumber(decimal number, string? format = null, CultureInfo? culture = null)
+    public Task<string> FormatNumberAsync(decimal number, string? format = null, CultureInfo? culture = null, CancellationToken cancellationToken = default)
     {
         culture ??= CultureInfo.CurrentCulture;
-        return number.ToString(format ?? "N2", culture);
+        var result = number.ToString(format ?? "N2", culture);
+        return Task.FromResult(result);
     }
 
-    public string FormatCurrency(decimal amount, string? currencyCode = null, CultureInfo? culture = null)
+    public Task<string> FormatCurrencyAsync(decimal amount, string? currencyCode = null, CultureInfo? culture = null, CancellationToken cancellationToken = default)
     {
         culture ??= CultureInfo.CurrentCulture;
 
+        string result;
         if (currencyCode != null)
         {
             // Create a custom NumberFormatInfo with the specified currency
             var numberFormat = (NumberFormatInfo)culture.NumberFormat.Clone();
             numberFormat.CurrencySymbol = currencyCode;
-            return amount.ToString("C", numberFormat);
+            result = amount.ToString("C", numberFormat);
+        }
+        else
+        {
+            result = amount.ToString("C", culture);
         }
 
-        return amount.ToString("C", culture);
+        return Task.FromResult(result);
     }
 
-    public string FormatPercentage(decimal value, int decimals = 2, CultureInfo? culture = null)
+    public Task<string> FormatPercentageAsync(decimal value, int decimals = 2, CultureInfo? culture = null, CancellationToken cancellationToken = default)
     {
         culture ??= CultureInfo.CurrentCulture;
         var format = $"P{decimals}";
-        return value.ToString(format, culture);
+        var result = value.ToString(format, culture);
+        return Task.FromResult(result);
     }
 
-    public DateTime? ParseDate(string dateString, CultureInfo? culture = null)
+    public Task<DateTime?> ParseDateAsync(string dateString, CultureInfo? culture = null, CancellationToken cancellationToken = default)
     {
         culture ??= CultureInfo.CurrentCulture;
 
         if (DateTime.TryParse(dateString, culture, DateTimeStyles.None, out var result))
         {
-            return result;
+            return Task.FromResult<DateTime?>(result);
         }
 
         // Try parsing with various standard formats
@@ -65,25 +73,25 @@ public class FormatterService : IFormatterService
 
         if (DateTime.TryParseExact(dateString, formats, culture, DateTimeStyles.None, out result))
         {
-            return result;
+            return Task.FromResult<DateTime?>(result);
         }
 
-        return null;
+        return Task.FromResult<DateTime?>(null);
     }
 
-    public decimal? ParseNumber(string numberString, CultureInfo? culture = null)
+    public Task<decimal?> ParseNumberAsync(string numberString, CultureInfo? culture = null, CancellationToken cancellationToken = default)
     {
         culture ??= CultureInfo.CurrentCulture;
 
         if (decimal.TryParse(numberString, NumberStyles.Number, culture, out var result))
         {
-            return result;
+            return Task.FromResult<decimal?>(result);
         }
 
-        return null;
+        return Task.FromResult<decimal?>(null);
     }
 
-    public decimal? ParseCurrency(string currencyString, CultureInfo? culture = null)
+    public Task<decimal?> ParseCurrencyAsync(string currencyString, CultureInfo? culture = null, CancellationToken cancellationToken = default)
     {
         culture ??= CultureInfo.CurrentCulture;
 
@@ -98,9 +106,9 @@ public class FormatterService : IFormatterService
 
         if (decimal.TryParse(cleanedString, NumberStyles.Currency, culture, out var result))
         {
-            return result;
+            return Task.FromResult<decimal?>(result);
         }
 
-        return null;
+        return Task.FromResult<decimal?>(null);
     }
 }
