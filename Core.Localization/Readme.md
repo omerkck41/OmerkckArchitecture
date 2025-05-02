@@ -37,6 +37,24 @@ services.AddFeatureBasedLocalization(options =>
     };
     options.ResourcePaths = new List<string> { "Features" };
 });
+
+// 2. ASP.NET Core'un request localization middleware'ini kullanın
+app.UseRequestLocalization(new RequestLocalizationOptions
+{
+    DefaultRequestCulture = new RequestCulture("tr-TR"),
+    SupportedCultures = new List<CultureInfo>
+    {
+        new CultureInfo("tr-TR"),
+        new CultureInfo("en-US"),
+        new CultureInfo("fr-FR")
+    },
+    SupportedUICultures = new List<CultureInfo>
+    {
+        new CultureInfo("tr-TR"),
+        new CultureInfo("en-US"),
+        new CultureInfo("fr-FR")
+    }
+});
 ```
 
 2. ILocalizationService kullanımı:
@@ -461,6 +479,3 @@ public class UserBusinessRules
   - Otomatik kaynak keşfi
   - FileSystemWatcher desteği
 
-## Lisans
-
-MIT
