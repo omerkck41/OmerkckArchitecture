@@ -54,21 +54,31 @@ public abstract class ResourceProviderBase : IResourceProvider
     }
 
     /// <summary>
-    /// Gets the effective section name by combining section with key if necessary
+    /// Gets the effective key to lookup in resources by considering different formats:
+    /// 1. Direct key: "UserDontExists"
+    /// 2. Section.Key: "Users.UserDontExists"
+    /// 3. Section.Messages.Key: "Users.Messages.UserDontExists"
     /// </summary>
     /// <param name="key">Resource key</param>
     /// <param name="section">Optional section name</param>
     /// <returns>Effective key to lookup in resources</returns>
     protected virtual string GetEffectiveKey(string key, string? section)
     {
+        // If no section, just return the key as is
         if (string.IsNullOrEmpty(section))
             return key;
 
-        // Check if the key already contains the section name
+        // If key already contains section prefix (e.g., "Users.UserDontExists"), return as is
         if (key.StartsWith($"{section}.", StringComparison.OrdinalIgnoreCase))
             return key;
 
-        return $"{section}.{key}";
+        // If key already has Messages prefix (e.g., "Messages.UserDontExists"), prepend section
+        if (key.StartsWith("Messages.", StringComparison.OrdinalIgnoreCase))
+            return $"{section}.{key}";
+
+        // If key is a plain key (e.g., "UserDontExists"), we need to try multiple possible formats
+        // For now, return without Messages prefix
+        return key;
     }
 
     /// <summary>

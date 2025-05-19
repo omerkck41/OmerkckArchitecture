@@ -62,6 +62,13 @@ public class YamlResourceProvider : ResourceProviderBase, IDisposable
         var cultureName = GetNormalizedCultureCode(culture);
         var effectiveKey = GetEffectiveKey(key, section);
 
+        // Log what we're looking for
+        if (_options.EnableDebugLogging)
+        {
+            _logger.LogDebug("Looking for key: '{Key}', section: '{Section}', culture: '{Culture}', effectiveKey: '{EffectiveKey}'",
+                key, section, cultureName, effectiveKey);
+        }
+
         foreach (var cacheEntry in _resourceCache)
         {
             // Try to match the section and culture from the cache key
@@ -70,11 +77,40 @@ public class YamlResourceProvider : ResourceProviderBase, IDisposable
 
             if (IsCacheKeyMatch(cacheKey, section, cultureName))
             {
+                if (_options.EnableDebugLogging)
+                {
+                    _logger.LogDebug("Matched cache key: '{CacheKey}' for section: '{Section}', culture: '{Culture}'",
+                        cacheKey, section, cultureName);
+                }
+
                 var resources = cacheEntry.Value;
 
+                // First try direct key lookup (flat structure)
+                if (resources.TryGetValue(key, out var directValue))
+                {
+                    if (_options.EnableDebugLogging)
+                    {
+                        _logger.LogDebug("Found direct key '{Key}' in resources with value: {Value}",
+                            key, directValue?.ToString() ?? "null");
+                    }
+
+                    return directValue?.ToString();
+                }
+
+                // Try nested value lookup (both flat and Messages sub-dictionary)
                 if (TryGetNestedValue(resources, effectiveKey, out var value) && value != null)
                 {
                     return value.ToString();
+                }
+
+                // Try with Messages prefix if not already tried
+                if (!effectiveKey.Contains("Messages."))
+                {
+                    var messagesKey = $"Messages.{effectiveKey}";
+                    if (TryGetNestedValue(resources, messagesKey, out value) && value != null)
+                    {
+                        return value.ToString();
+                    }
                 }
             }
         }
@@ -84,6 +120,12 @@ public class YamlResourceProvider : ResourceProviderBase, IDisposable
         if (parentCulture != null)
         {
             return await GetStringAsync(key, parentCulture, section, cancellationToken);
+        }
+
+        if (_options.EnableDebugLogging)
+        {
+            _logger.LogDebug("No value found for key: '{Key}', section: '{Section}', culture: '{Culture}'",
+                key, section, cultureName);
         }
 
         return null;
@@ -237,6 +279,9 @@ public class YamlResourceProvider : ResourceProviderBase, IDisposable
 
             // Read and parse the YAML/JSON file
             var content = await File.ReadAllTextAsync(filePath, cancellationToken);
+
+            _logger.LogDebug("Loaded file content for {FilePath}: {Content}", filePath, content);
+
             var resources = _yamlDeserializer.Deserialize<Dictionary<string, object>>(content);
 
             if (resources == null)
@@ -250,6 +295,7 @@ public class YamlResourceProvider : ResourceProviderBase, IDisposable
                 sectionNameObj is string sectionName)
             {
                 _sectionNameCache[section] = sectionName;
+                _logger.LogDebug("Found section name '{SectionName}' for section '{Section}'", sectionName, section);
             }
 
             // Store in cache
@@ -257,6 +303,13 @@ public class YamlResourceProvider : ResourceProviderBase, IDisposable
 
             _logger.LogInformation("Loaded resource file {File} with section {Section} and culture {Culture}",
                 filePath, section, culture);
+
+            // Log all keys found in this file
+            if (_options.EnableDebugLogging)
+            {
+                var allKeys = GetAllKeysFromDictionary(resources);
+                _logger.LogDebug("Keys found in {File}: {Keys}", filePath, string.Join(", ", allKeys));
+            }
         }
         catch (OperationCanceledException)
         {
@@ -365,40 +418,116 @@ public class YamlResourceProvider : ResourceProviderBase, IDisposable
         }
     }
 
-    private bool TryGetNestedValue(Dictionary<string, object> resources, string key, out object? value)
+    protected virtual bool TryGetNestedValue(Dictionary<string, object> resources, string key, out object? value)
     {
         value = null;
+
+        // First, try direct key lookup (flat structure)
+        if (resources.TryGetValue(key, out var directValue))
+        {
+            value = directValue;
+            if (_options.EnableDebugLogging)
+            {
+                _logger.LogDebug("Found direct key: {Key} => {Value}", key, directValue);
+            }
+            return true;
+        }
+
+        // Next, try "Messages.key" format if not already prefixed
+        if (!key.StartsWith("Messages.", StringComparison.OrdinalIgnoreCase))
+        {
+            var keyWithoutPrefix = key;
+
+            if (resources.TryGetValue("Messages", out var messagesObj))
+            {
+                if (messagesObj is Dictionary<object, object> messagesDict)
+                {
+                    var convertedDict = messagesDict.ToDictionary(kvp => kvp.Key.ToString()!, kvp => kvp.Value);
+
+                    if (convertedDict.TryGetValue(keyWithoutPrefix, out var nestedValue))
+                    {
+                        value = nestedValue;
+                        if (_options.EnableDebugLogging)
+                        {
+                            _logger.LogDebug("Found in Messages dictionary: {Key} => {Value}", keyWithoutPrefix, nestedValue);
+                        }
+                        return true;
+                    }
+                }
+                else if (messagesObj is IDictionary<string, object> typedMessagesDict)
+                {
+                    if (typedMessagesDict.TryGetValue(keyWithoutPrefix, out var nestedValue))
+                    {
+                        value = nestedValue;
+                        if (_options.EnableDebugLogging)
+                        {
+                            _logger.LogDebug("Found in typed Messages dictionary: {Key} => {Value}", keyWithoutPrefix, nestedValue);
+                        }
+                        return true;
+                    }
+                }
+            }
+        }
+
+        // Finally, fall back to the original nested traversal
         var keys = key.Split('.');
 
         // Starting point
         Dictionary<string, object>? current = resources;
 
-        // Navigate through nested levels
-        for (int i = 0; i < keys.Length - 1; i++)
+        try
         {
-            var k = keys[i];
+            // Navigate through nested levels
+            for (int i = 0; i < keys.Length - 1; i++)
+            {
+                var k = keys[i];
 
-            if (current!.TryGetValue(k, out var nextValue) && nextValue is Dictionary<object, object> dict)
-            {
-                // Convert from Dictionary<object, object> to Dictionary<string, object>
-                current = dict.ToDictionary(kvp => kvp.Key.ToString()!, kvp => kvp.Value);
+                if (!current!.TryGetValue(k, out var nextValue))
+                {
+                    if (_options.EnableDebugLogging)
+                    {
+                        _logger.LogDebug("Key not found in path: {Key}", k);
+                    }
+                    return false;
+                }
+
+                if (nextValue is Dictionary<object, object> dict)
+                {
+                    // Convert from Dictionary<object, object> to Dictionary<string, object>
+                    current = dict.ToDictionary(kvp => kvp.Key.ToString()!, kvp => kvp.Value);
+                }
+                else if (nextValue is IDictionary<string, object> typedDict)
+                {
+                    current = typedDict.ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
+                }
+                else
+                {
+                    if (_options.EnableDebugLogging)
+                    {
+                        _logger.LogDebug("Value is not a dictionary: {Value}", nextValue);
+                    }
+                    return false;
+                }
             }
-            else if (current!.TryGetValue(k, out nextValue) && nextValue is IDictionary<string, object> typedDict)
+
+            // Get the final value
+            var lastKey = keys.Last();
+            if (current!.TryGetValue(lastKey, out var finalValue))
             {
-                current = typedDict.ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
-            }
-            else
-            {
-                return false;
+                value = finalValue;
+                if (_options.EnableDebugLogging)
+                {
+                    _logger.LogDebug("Found through path traversal: {Path} => {Value}", key, finalValue);
+                }
+                return true;
             }
         }
-
-        // Get the final value
-        var lastKey = keys.Last();
-        if (current!.TryGetValue(lastKey, out var finalValue))
+        catch (Exception ex)
         {
-            value = finalValue;
-            return true;
+            if (_options.EnableDebugLogging)
+            {
+                _logger.LogDebug("Error in path traversal: {Error}", ex.Message);
+            }
         }
 
         return false;
