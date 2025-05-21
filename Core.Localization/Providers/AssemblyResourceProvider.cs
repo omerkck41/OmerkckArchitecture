@@ -1,7 +1,6 @@
 ﻿using Core.Localization.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using System.Collections.Concurrent;
 using System.Globalization;
 using System.Reflection;
 using YamlDotNet.Serialization;
@@ -10,17 +9,24 @@ using YamlDotNet.Serialization.NamingConventions;
 namespace Core.Localization.Providers;
 
 /// <summary>
-/// Provides resources from YAML/JSON files located in specified assemblies with feature-based localization and async support
+/// Provides resources from YAML/JSON files embedded in assemblies with feature-based localization and async support
 /// </summary>
-public class AssemblyResourceProvider : ResourceProviderBase, IDisposable
+public sealed class AssemblyResourceProvider : ResourceProviderBase, IDisposable
 {
     private readonly LocalizationOptions _options;
     private readonly ILogger<AssemblyResourceProvider> _logger;
-    private readonly ConcurrentDictionary<string, Dictionary<string, object>> _resourceCache;
+    private readonly Dictionary<string, Dictionary<string, object>> _resourceCache = new();
     private readonly IDeserializer _yamlDeserializer;
-    private readonly ConcurrentDictionary<string, string> _sectionNameCache = new();
+    private readonly Dictionary<string, string> _sectionNameCache = new();
     private readonly ICollection<Assembly> _assemblies;
 
+    /// <summary>
+    /// Creates a new assembly resource provider that loads resources from specified assemblies
+    /// </summary>
+    /// <param name="options">Localization options</param>
+    /// <param name="logger">Logger</param>
+    /// <param name="assemblies">Assemblies to load resources from</param>
+    /// <param name="priority">Provider priority</param>
     public AssemblyResourceProvider(
         IOptions<LocalizationOptions> options,
         ILogger<AssemblyResourceProvider> logger,
@@ -29,7 +35,6 @@ public class AssemblyResourceProvider : ResourceProviderBase, IDisposable
     {
         _options = options.Value;
         _logger = logger;
-        _resourceCache = new ConcurrentDictionary<string, Dictionary<string, object>>();
         _assemblies = assemblies.ToList();
 
         _yamlDeserializer = new DeserializerBuilder()
@@ -40,8 +45,10 @@ public class AssemblyResourceProvider : ResourceProviderBase, IDisposable
         LoadResourcesAsync().GetAwaiter().GetResult();
     }
 
+    /// <inheritdoc/>
     public override bool SupportsDynamicReload => true;
 
+    /// <inheritdoc/>
     public override async Task<string?> GetStringAsync(string key, CultureInfo culture, string? section = null, CancellationToken cancellationToken = default)
     {
         var cultureName = GetNormalizedCultureCode(culture);
@@ -70,7 +77,7 @@ public class AssemblyResourceProvider : ResourceProviderBase, IDisposable
 
                 var resources = cacheEntry.Value;
 
-                // First try direct key lookup (flat structure)
+                // Try direct key lookup (flat structure)
                 if (resources.TryGetValue(key, out var directValue))
                 {
                     if (_options.EnableDebugLogging)
@@ -82,20 +89,10 @@ public class AssemblyResourceProvider : ResourceProviderBase, IDisposable
                     return directValue?.ToString();
                 }
 
-                // Try nested value lookup (both flat and Messages sub-dictionary)
+                // Try nested value lookup
                 if (TryGetNestedValue(resources, effectiveKey, out var value) && value != null)
                 {
                     return value.ToString();
-                }
-
-                // Try with Messages prefix if not already tried
-                if (!effectiveKey.Contains("Messages."))
-                {
-                    var messagesKey = $"Messages.{effectiveKey}";
-                    if (TryGetNestedValue(resources, messagesKey, out value) && value != null)
-                    {
-                        return value.ToString();
-                    }
                 }
             }
         }
@@ -116,6 +113,7 @@ public class AssemblyResourceProvider : ResourceProviderBase, IDisposable
         return null;
     }
 
+    /// <inheritdoc/>
     public override async Task<IEnumerable<string>> GetAllKeysAsync(CultureInfo culture, string? section = null, CancellationToken cancellationToken = default)
     {
         var cultureName = GetNormalizedCultureCode(culture);
@@ -137,6 +135,7 @@ public class AssemblyResourceProvider : ResourceProviderBase, IDisposable
         return keys;
     }
 
+    /// <inheritdoc/>
     public override async Task<IEnumerable<string>> GetAllSectionsAsync(CultureInfo culture, CancellationToken cancellationToken = default)
     {
         var cultureName = GetNormalizedCultureCode(culture);
@@ -173,6 +172,7 @@ public class AssemblyResourceProvider : ResourceProviderBase, IDisposable
         return sections;
     }
 
+    /// <inheritdoc/>
     public override async Task ReloadAsync(CancellationToken cancellationToken = default)
     {
         await LoadResourcesAsync(cancellationToken);
@@ -195,82 +195,24 @@ public class AssemblyResourceProvider : ResourceProviderBase, IDisposable
     {
         try
         {
-            // Get the assembly location
-            var assemblyLocation = assembly.Location;
-            if (string.IsNullOrEmpty(assemblyLocation))
+            _logger.LogInformation("Scanning assembly {Assembly} for resources", assembly.GetName().Name);
+
+            // Get all embedded resource names
+            var resourceNames = assembly.GetManifestResourceNames();
+
+            // Filter for localization resources
+            foreach (var resourceName in resourceNames)
             {
-                _logger.LogWarning("Assembly {Assembly} location is null or empty", assembly.FullName);
-                return;
-            }
-
-            var assemblyDirectory = Path.GetDirectoryName(assemblyLocation);
-            if (string.IsNullOrEmpty(assemblyDirectory))
-            {
-                _logger.LogWarning("Assembly {Assembly} directory is null or empty", assembly.FullName);
-                return;
-            }
-
-            _logger.LogInformation("Scanning assembly {Assembly} at {Location} for resources", assembly.GetName().Name, assemblyDirectory);
-
-            // Find all feature directories
-            foreach (var basePath in _options.ResourcePaths)
-            {
-                var fullBasePath = Path.Combine(assemblyDirectory, basePath);
-
-                if (!Directory.Exists(fullBasePath))
+                try
                 {
-                    _logger.LogWarning("Resource path {Path} does not exist in assembly {Assembly}", fullBasePath, assembly.GetName().Name);
-                    continue;
-                }
-
-                // Find feature directories
-                var featureDirectories = Directory.GetDirectories(fullBasePath);
-
-                foreach (var featureDir in featureDirectories)
-                {
-                    var featureName = Path.GetFileName(featureDir);
-                    var localesDir = Path.Combine(featureDir, "Resources", "Locales");
-
-                    if (Directory.Exists(localesDir))
+                    if (IsLocalizationResource(resourceName))
                     {
-                        await LoadResourceFilesFromDirectoryAsync(localesDir, featureName, cancellationToken);
-                    }
-                    else
-                    {
-                        // Try alternative patterns like the root Resources/Locales folder
-                        foreach (var pattern in _options.FeatureDirectoryPattern.Split('|'))
-                        {
-                            // Replace ** with recursion
-                            if (pattern.Contains("**"))
-                            {
-                                // Find all matching directories recursively
-                                var allDirs = Directory.GetDirectories(featureDir, "*", SearchOption.AllDirectories);
-                                foreach (var dir in allDirs)
-                                {
-                                    if (dir.EndsWith("Resources\\Locales") || dir.EndsWith("Resources/Locales"))
-                                    {
-                                        await LoadResourceFilesFromDirectoryAsync(dir, featureName, cancellationToken);
-                                    }
-                                }
-                            }
-                            else
-                            {
-                                // Direct path match
-                                var dirPath = Path.Combine(featureDir, pattern.Replace("Resources/Locales", "Resources\\Locales"));
-                                if (Directory.Exists(dirPath))
-                                {
-                                    await LoadResourceFilesFromDirectoryAsync(dirPath, featureName, cancellationToken);
-                                }
-                            }
-                        }
+                        await ProcessEmbeddedResourceAsync(assembly, resourceName, cancellationToken);
                     }
                 }
-
-                // Also check for base Locales directory
-                var baseLocalesPath = Path.Combine(fullBasePath, "Resources", "Locales");
-                if (Directory.Exists(baseLocalesPath))
+                catch (Exception ex)
                 {
-                    await LoadResourceFilesFromDirectoryAsync(baseLocalesPath, "Common", cancellationToken);
+                    _logger.LogError(ex, "Error processing embedded resource {ResourceName}", resourceName);
                 }
             }
         }
@@ -280,66 +222,54 @@ public class AssemblyResourceProvider : ResourceProviderBase, IDisposable
         }
     }
 
-    private async Task LoadResourceFilesFromDirectoryAsync(string directory, string defaultSection, CancellationToken cancellationToken)
+    private bool IsLocalizationResource(string resourceName)
     {
-        _logger.LogInformation("Loading resource files from directory {Directory} with default section {Section}", directory, defaultSection);
-
-        foreach (var extension in _options.ResourceFileExtensions)
-        {
-            var files = Directory.GetFiles(directory, $"*.{extension}", SearchOption.TopDirectoryOnly);
-
-            foreach (var file in files)
-            {
-                try
-                {
-                    await LoadResourceFileAsync(file, defaultSection, cancellationToken);
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError(ex, "Failed to load resource file {File}", file);
-                }
-            }
-        }
+        // Check if the resource is in a Resources/Locales directory
+        return resourceName.Contains("Resources.Locales") &&
+               (_options.ResourceFileExtensions.Any(ext => resourceName.EndsWith($".{ext}", StringComparison.OrdinalIgnoreCase)));
     }
 
-    private async Task LoadResourceFileAsync(string filePath, string defaultSection, CancellationToken cancellationToken)
+    private async Task ProcessEmbeddedResourceAsync(Assembly assembly, string resourceName, CancellationToken cancellationToken)
     {
+        _logger.LogInformation("Processing embedded resource {ResourceName}", resourceName);
+
+        // Extract section and culture from resource name
+        // Format expected: Project.Features.SectionName.Resources.Locales.section.culture.extension
+        var nameParts = resourceName.Split('.');
+
+        if (nameParts.Length < 4)
+        {
+            _logger.LogWarning("Invalid resource name format: {ResourceName}", resourceName);
+            return;
+        }
+
+        // The last three parts should be: section.culture.extension
+        var extension = nameParts[^1].ToLowerInvariant();
+        var culture = nameParts[^2];
+        var section = nameParts[^3];
+
+        var cacheKey = $"{section}.{culture}";
+
         try
         {
-            cancellationToken.ThrowIfCancellationRequested();
-
-            var fileName = Path.GetFileName(filePath);
-            var fileNameWithoutExt = Path.GetFileNameWithoutExtension(filePath);
-            var extension = Path.GetExtension(filePath).TrimStart('.');
-
-            _logger.LogInformation("Loading resource file {File}", filePath);
-
-            // Parse file name to extract section and culture
-            // Format expected: section.culture.extension (e.g., users.en.yaml)
-            var parts = fileNameWithoutExt.Split('.');
-
-            if (parts.Length < 2)
+            using var stream = assembly.GetManifestResourceStream(resourceName);
+            if (stream == null)
             {
-                _logger.LogWarning("Invalid resource file name format: {FileName}. Expected format: section.culture.extension", fileName);
+                _logger.LogWarning("Resource stream is null for {ResourceName}", resourceName);
                 return;
             }
 
-            var section = parts.Length >= 2 ? parts[0] : defaultSection;
-            var culture = parts.Length >= 2 ? parts[1] : parts[0];
-            var cacheKey = $"{section}.{culture}";
+            using var reader = new StreamReader(stream);
+            var content = await reader.ReadToEndAsync(cancellationToken);
 
-            // Read file content
-            var content = await File.ReadAllTextAsync(filePath, cancellationToken);
-
-            // Parse based on file extension
             Dictionary<string, object> resources;
 
-            if (extension.Equals("yaml", StringComparison.OrdinalIgnoreCase) ||
-                extension.Equals("yml", StringComparison.OrdinalIgnoreCase))
+            // Parse based on file extension
+            if (extension == "yaml" || extension == "yml")
             {
                 resources = _yamlDeserializer.Deserialize<Dictionary<string, object>>(content);
             }
-            else if (extension.Equals("json", StringComparison.OrdinalIgnoreCase))
+            else if (extension == "json")
             {
                 // Parse JSON
                 resources = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, object>>(content,
@@ -350,13 +280,13 @@ public class AssemblyResourceProvider : ResourceProviderBase, IDisposable
             }
             else
             {
-                _logger.LogWarning("Unsupported file extension: {Extension} for file {File}", extension, filePath);
+                _logger.LogWarning("Unsupported file extension: {Extension} for resource {ResourceName}", extension, resourceName);
                 return;
             }
 
             if (resources == null)
             {
-                _logger.LogWarning("Failed to parse resource file {File}", filePath);
+                _logger.LogWarning("Failed to parse resource {ResourceName}", resourceName);
                 return;
             }
 
@@ -371,78 +301,25 @@ public class AssemblyResourceProvider : ResourceProviderBase, IDisposable
             // Store in cache
             _resourceCache[cacheKey] = resources;
 
-            _logger.LogInformation("Loaded resource file {File} with section {Section} and culture {Culture}",
-                filePath, section, culture);
+            _logger.LogInformation("Loaded embedded resource {ResourceName} with section {Section} and culture {Culture}",
+                resourceName, section, culture);
 
-            // Log all keys found in this file
+            // Log all keys found in this resource
             if (_options.EnableDebugLogging)
             {
                 var allKeys = GetAllKeysFromDictionary(resources);
-                _logger.LogDebug("Keys found in {File}: {Keys}", filePath, string.Join(", ", allKeys));
+                _logger.LogDebug("Keys found in {ResourceName}: {Keys}", resourceName, string.Join(", ", allKeys));
             }
-        }
-        catch (OperationCanceledException)
-        {
-            throw;
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error loading resource file {File}", filePath);
+            _logger.LogError(ex, "Error loading embedded resource {ResourceName}", resourceName);
         }
     }
 
-    protected virtual bool TryGetNestedValue(Dictionary<string, object> resources, string key, out object? value)
+    private bool TryGetNestedValue(Dictionary<string, object> resources, string key, out object? value)
     {
         value = null;
-
-        // First, try direct key lookup (flat structure)
-        if (resources.TryGetValue(key, out var directValue))
-        {
-            value = directValue;
-            if (_options.EnableDebugLogging)
-            {
-                _logger.LogDebug("Found direct key: {Key} => {Value}", key, directValue);
-            }
-            return true;
-        }
-
-        // Next, try "Messages.key" format if not already prefixed
-        if (!key.StartsWith("Messages.", StringComparison.OrdinalIgnoreCase))
-        {
-            var keyWithoutPrefix = key;
-
-            if (resources.TryGetValue("Messages", out var messagesObj))
-            {
-                if (messagesObj is Dictionary<object, object> messagesDict)
-                {
-                    var convertedDict = messagesDict.ToDictionary(kvp => kvp.Key.ToString()!, kvp => kvp.Value);
-
-                    if (convertedDict.TryGetValue(keyWithoutPrefix, out var nestedValue))
-                    {
-                        value = nestedValue;
-                        if (_options.EnableDebugLogging)
-                        {
-                            _logger.LogDebug("Found in Messages dictionary: {Key} => {Value}", keyWithoutPrefix, nestedValue);
-                        }
-                        return true;
-                    }
-                }
-                else if (messagesObj is IDictionary<string, object> typedMessagesDict)
-                {
-                    if (typedMessagesDict.TryGetValue(keyWithoutPrefix, out var nestedValue))
-                    {
-                        value = nestedValue;
-                        if (_options.EnableDebugLogging)
-                        {
-                            _logger.LogDebug("Found in typed Messages dictionary: {Key} => {Value}", keyWithoutPrefix, nestedValue);
-                        }
-                        return true;
-                    }
-                }
-            }
-        }
-
-        // Finally, fall back to the original nested traversal
         var keys = key.Split('.');
 
         // Starting point
@@ -568,6 +445,9 @@ public class AssemblyResourceProvider : ResourceProviderBase, IDisposable
         return false;
     }
 
+    /// <summary>
+    /// Disposes resources used by this provider
+    /// </summary>
     public void Dispose()
     {
         // Nothing to dispose

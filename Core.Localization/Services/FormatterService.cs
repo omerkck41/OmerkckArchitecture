@@ -8,6 +8,7 @@ namespace Core.Localization.Services;
 /// </summary>
 public class FormatterService : IFormatterService
 {
+    /// <inheritdoc/>
     public Task<string> FormatDateAsync(DateTime date, string? format = null, CultureInfo? culture = null, CancellationToken cancellationToken = default)
     {
         culture ??= CultureInfo.CurrentCulture;
@@ -15,6 +16,7 @@ public class FormatterService : IFormatterService
         return Task.FromResult(result);
     }
 
+    /// <inheritdoc/>
     public Task<string> FormatNumberAsync(decimal number, string? format = null, CultureInfo? culture = null, CancellationToken cancellationToken = default)
     {
         culture ??= CultureInfo.CurrentCulture;
@@ -22,6 +24,7 @@ public class FormatterService : IFormatterService
         return Task.FromResult(result);
     }
 
+    /// <inheritdoc/>
     public Task<string> FormatCurrencyAsync(decimal amount, string? currencyCode = null, CultureInfo? culture = null, CancellationToken cancellationToken = default)
     {
         culture ??= CultureInfo.CurrentCulture;
@@ -42,6 +45,7 @@ public class FormatterService : IFormatterService
         return Task.FromResult(result);
     }
 
+    /// <inheritdoc/>
     public Task<string> FormatPercentageAsync(decimal value, int decimals = 2, CultureInfo? culture = null, CancellationToken cancellationToken = default)
     {
         culture ??= CultureInfo.CurrentCulture;
@@ -50,6 +54,7 @@ public class FormatterService : IFormatterService
         return Task.FromResult(result);
     }
 
+    /// <inheritdoc/>
     public Task<DateTime?> ParseDateAsync(string dateString, CultureInfo? culture = null, CancellationToken cancellationToken = default)
     {
         culture ??= CultureInfo.CurrentCulture;
@@ -79,6 +84,7 @@ public class FormatterService : IFormatterService
         return Task.FromResult<DateTime?>(null);
     }
 
+    /// <inheritdoc/>
     public Task<decimal?> ParseNumberAsync(string numberString, CultureInfo? culture = null, CancellationToken cancellationToken = default)
     {
         culture ??= CultureInfo.CurrentCulture;
@@ -91,6 +97,7 @@ public class FormatterService : IFormatterService
         return Task.FromResult<decimal?>(null);
     }
 
+    /// <inheritdoc/>
     public Task<decimal?> ParseCurrencyAsync(string currencyString, CultureInfo? culture = null, CancellationToken cancellationToken = default)
     {
         culture ??= CultureInfo.CurrentCulture;

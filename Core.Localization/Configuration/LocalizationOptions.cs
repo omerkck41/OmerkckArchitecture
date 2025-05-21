@@ -124,4 +124,19 @@ public class LocalizationOptions
     /// Whether to use file system watcher for detecting changes in resources
     /// </summary>
     public bool UseFileSystemWatcher { get; set; } = true;
+
+    /// <summary>
+    /// Whether to enable distributed cache support for cloud scenarios
+    /// </summary>
+    public bool EnableDistributedCache { get; set; } = false;
+
+    /// <summary>
+    /// Whether to use case-insensitive key comparison for resource lookups
+    /// </summary>
+    public bool UseCaseInsensitiveKeys { get; set; } = true;
+
+    /// <summary>
+    /// Whether to allow dynamic adding of resources at runtime
+    /// </summary>
+    public bool AllowRuntimeResourceModification { get; set; } = false;
 }

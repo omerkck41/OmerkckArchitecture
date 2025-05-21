@@ -9,26 +9,29 @@ using System.Reflection;
 namespace Core.Localization.Extensions;
 
 /// <summary>
-/// Assembly tabanlı lokalizasyon desteği için extension metotları
+/// Assembly-based localization support extension methods
 /// </summary>
 public static class AssemblyLocalizationExtensions
 {
     /// <summary>
-    /// Belirtilen assemblylerin 'Features' dizinlerinde lokalizasyon kaynaklarını tarar
+    /// Adds assembly-based localization by scanning the 'Features' directories in the specified assemblies
     /// </summary>
+    /// <param name="services">The service collection</param>
+    /// <param name="assemblies">Assemblies to scan for resources</param>
+    /// <returns>The service collection for chaining</returns>
     public static IServiceCollection AddAssemblyBasedLocalization(
         this IServiceCollection services,
         params Assembly[] assemblies)
     {
-        // Temel lokalizasyon ekle
-        services.AddCoreLocalization(options =>
+        // Add core localization
+        services.AddLocalization(options =>
         {
             options.ResourcePaths = new List<string> { "Features" };
             options.EnableAutoDiscovery = true;
-            options.UseFileSystemWatcher = false; // Assembly bazlı yaklaşımda buna gerek yok
+            options.UseFileSystemWatcher = false; // No need for file system watcher with assembly-based approach
         });
 
-        // Assembly Resource Provider'ı ekle
+        // Add assembly resource provider
         services.AddSingleton<IResourceProvider>(sp =>
         {
             var options = sp.GetRequiredService<IOptions<LocalizationOptions>>();
@@ -45,24 +48,29 @@ public static class AssemblyLocalizationExtensions
     }
 
     /// <summary>
-    /// Çalışan uygulamanın 'Features' dizininde lokalizasyon kaynaklarını tarar
+    /// Adds assembly-based localization using the entry assembly
     /// </summary>
+    /// <param name="services">The service collection</param>
+    /// <returns>The service collection for chaining</returns>
     public static IServiceCollection AddApplicationLocalization(
         this IServiceCollection services)
     {
-        // Çalışan uygulamanın assembly'sini kullan
+        // Use the entry assembly
         var entryAssembly = Assembly.GetEntryAssembly();
         if (entryAssembly == null)
         {
-            throw new InvalidOperationException("Entry assembly bulunamadı");
+            throw new InvalidOperationException("Entry assembly not found");
         }
 
         return services.AddAssemblyBasedLocalization(entryAssembly);
     }
 
     /// <summary>
-    /// Türü verilen bir sınıfın bulunduğu assembly'nin 'Features' dizininde lokalizasyon kaynaklarını tarar
+    /// Adds assembly-based localization using the assembly containing the specified type
     /// </summary>
+    /// <typeparam name="T">The type to get the assembly from</typeparam>
+    /// <param name="services">The service collection</param>
+    /// <returns>The service collection for chaining</returns>
     public static IServiceCollection AddLocalizationFromAssemblyOf<T>(
         this IServiceCollection services)
     {
@@ -70,8 +78,11 @@ public static class AssemblyLocalizationExtensions
     }
 
     /// <summary>
-    /// Birden fazla assembly için özel yol desenleriyle lokalizasyon kaynaklarını tarar
+    /// Adds advanced assembly-based localization with custom options
     /// </summary>
+    /// <param name="services">The service collection</param>
+    /// <param name="configureOptions">Action to configure options</param>
+    /// <returns>The service collection for chaining</returns>
     public static IServiceCollection AddAdvancedAssemblyLocalization(
         this IServiceCollection services,
         Action<AssemblyLocalizationOptions> configureOptions)
@@ -79,7 +90,7 @@ public static class AssemblyLocalizationExtensions
         var options = new AssemblyLocalizationOptions();
         configureOptions(options);
 
-        services.AddCoreLocalization(o =>
+        services.AddLocalization(o =>
         {
             o.ResourcePaths = options.ResourcePaths;
             o.FeatureDirectoryPattern = options.FeatureDirectoryPattern;
@@ -97,64 +108,38 @@ public static class AssemblyLocalizationExtensions
 
         return services;
     }
-
-    /// <summary>
-    /// Gösterdiğiniz örneğe benzer geriye dönük uyumlu yaklaşım
-    /// </summary>
-    public static IServiceCollection AddYamlResourceLocalization(this IServiceCollection services)
-    {
-        // Temel core lokalizasyon servislerini ekle
-        services.AddCoreLocalization(options =>
-        {
-            options.ResourcePaths = new List<string> { "Features" };
-            options.EnableAutoDiscovery = true;
-            options.UseFileSystemWatcher = false;
-            options.ResourceFileExtensions = new List<string> { "yaml", "yml", "json" };
-        });
-
-        // Çalışan uygulamanın assembly'si
-        var entryAssembly = Assembly.GetEntryAssembly() ?? Assembly.GetExecutingAssembly();
-
-        // Assembly bazlı provider'ı ekle
-        services.AddSingleton<IResourceProvider>(sp =>
-        {
-            var options = sp.GetRequiredService<IOptions<LocalizationOptions>>();
-            var logger = sp.GetRequiredService<ILogger<AssemblyResourceProvider>>();
-            return new AssemblyResourceProvider(options, logger, new[] { entryAssembly }, 500);
-        });
-
-        return services;
-    }
 }
 
 /// <summary>
-/// Assembly bazlı lokalizasyon yapılandırma seçenekleri
+/// Options for assembly-based localization
 /// </summary>
 public class AssemblyLocalizationOptions
 {
     /// <summary>
-    /// Taranacak assembly'ler
+    /// Assemblies to scan for resources
     /// </summary>
     public ICollection<Assembly> Assemblies { get; } = new List<Assembly>();
 
     /// <summary>
-    /// Taranacak dizin yolları
+    /// Resource paths to scan
     /// </summary>
     public IReadOnlyList<string> ResourcePaths { get; set; } = new List<string> { "Features" };
 
     /// <summary>
-    /// Feature dizin deseni
+    /// Feature directory pattern
     /// </summary>
     public string FeatureDirectoryPattern { get; set; } = "**/Resources/Locales";
 
     /// <summary>
-    /// Debug loglamayı etkinleştir
+    /// Whether to enable debug logging
     /// </summary>
     public bool EnableDebugLogging { get; set; } = false;
 
     /// <summary>
-    /// Assembly ekle
+    /// Adds an assembly to scan
     /// </summary>
+    /// <param name="assembly">The assembly to add</param>
+    /// <returns>The options for chaining</returns>
     public AssemblyLocalizationOptions AddAssembly(Assembly assembly)
     {
         Assemblies.Add(assembly);
@@ -162,8 +147,10 @@ public class AssemblyLocalizationOptions
     }
 
     /// <summary>
-    /// T türünün bulunduğu assembly'yi ekle
+    /// Adds the assembly containing the specified type
     /// </summary>
+    /// <typeparam name="T">The type to get the assembly from</typeparam>
+    /// <returns>The options for chaining</returns>
     public AssemblyLocalizationOptions AddAssemblyOf<T>()
     {
         Assemblies.Add(typeof(T).Assembly);
@@ -171,8 +158,9 @@ public class AssemblyLocalizationOptions
     }
 
     /// <summary>
-    /// Çalışan uygulamanın assembly'sini ekle
+    /// Adds the entry assembly
     /// </summary>
+    /// <returns>The options for chaining</returns>
     public AssemblyLocalizationOptions AddEntryAssembly()
     {
         var entryAssembly = Assembly.GetEntryAssembly();

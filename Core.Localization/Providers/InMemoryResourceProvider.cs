@@ -10,6 +10,11 @@ public class InMemoryResourceProvider : ResourceProviderBase
     private readonly IDictionary<string, IDictionary<string, string>> _resources;
     private readonly IDictionary<string, string> _sectionMappings;
 
+    /// <summary>
+    /// Creates a new in-memory resource provider with the specified resources
+    /// </summary>
+    /// <param name="resources">The resources to use</param>
+    /// <param name="priority">The provider priority</param>
     public InMemoryResourceProvider(
         IDictionary<string, IDictionary<string, string>> resources,
         int priority = 300) : base(priority)
@@ -18,6 +23,7 @@ public class InMemoryResourceProvider : ResourceProviderBase
         _sectionMappings = new Dictionary<string, string>();
     }
 
+    /// <inheritdoc/>
     public override Task<string?> GetStringAsync(string key, CultureInfo culture, string? section = null, CancellationToken cancellationToken = default)
     {
         var cultureName = culture.Name;
@@ -48,6 +54,7 @@ public class InMemoryResourceProvider : ResourceProviderBase
         return Task.FromResult<string?>(null);
     }
 
+    /// <inheritdoc/>
     public override Task<IEnumerable<string>> GetAllKeysAsync(CultureInfo culture, string? section = null, CancellationToken cancellationToken = default)
     {
         var cultureName = culture.Name;
@@ -57,7 +64,7 @@ public class InMemoryResourceProvider : ResourceProviderBase
         {
             var keys = cultureResources.Keys
                 .Where(k => string.IsNullOrEmpty(section) || k.StartsWith(prefix))
-                .Select(k => string.IsNullOrEmpty(section) ? k : k.Substring(prefix.Length))
+                .Select(k => string.IsNullOrEmpty(section) ? k : k[prefix.Length..])
                 .ToList();
 
             return Task.FromResult<IEnumerable<string>>(keys);
@@ -66,6 +73,7 @@ public class InMemoryResourceProvider : ResourceProviderBase
         return Task.FromResult<IEnumerable<string>>(Enumerable.Empty<string>());
     }
 
+    /// <inheritdoc/>
     public override Task<IEnumerable<string>> GetAllSectionsAsync(CultureInfo culture, CancellationToken cancellationToken = default)
     {
         var cultureName = culture.Name;
@@ -78,7 +86,7 @@ public class InMemoryResourceProvider : ResourceProviderBase
                 var dotIndex = key.IndexOf('.');
                 if (dotIndex > 0)
                 {
-                    var section = key.Substring(0, dotIndex);
+                    var section = key[..dotIndex];
                     sections.Add(section);
                 }
             }
@@ -96,6 +104,10 @@ public class InMemoryResourceProvider : ResourceProviderBase
     /// <summary>
     /// Adds or updates a resource for a specific culture
     /// </summary>
+    /// <param name="cultureName">The culture name</param>
+    /// <param name="key">The resource key</param>
+    /// <param name="value">The resource value</param>
+    /// <param name="section">Optional section name</param>
     public void AddOrUpdateResource(string cultureName, string key, string value, string? section = null)
     {
         if (!_resources.TryGetValue(cultureName, out var cultureResources))
@@ -111,6 +123,8 @@ public class InMemoryResourceProvider : ResourceProviderBase
     /// <summary>
     /// Adds a section name mapping
     /// </summary>
+    /// <param name="sectionKey">The section key</param>
+    /// <param name="sectionName">The section name</param>
     public void AddSectionMapping(string sectionKey, string sectionName)
     {
         _sectionMappings[sectionKey] = sectionName;
@@ -119,6 +133,10 @@ public class InMemoryResourceProvider : ResourceProviderBase
     /// <summary>
     /// Removes a resource for a specific culture
     /// </summary>
+    /// <param name="cultureName">The culture name</param>
+    /// <param name="key">The resource key</param>
+    /// <param name="section">Optional section name</param>
+    /// <returns>True if the resource was removed, false otherwise</returns>
     public bool RemoveResource(string cultureName, string key, string? section = null)
     {
         if (_resources.TryGetValue(cultureName, out var cultureResources))
@@ -137,5 +155,26 @@ public class InMemoryResourceProvider : ResourceProviderBase
     {
         _resources.Clear();
         _sectionMappings.Clear();
+    }
+
+    /// <summary>
+    /// Gets the number of resources
+    /// </summary>
+    /// <returns>The number of resources</returns>
+    public int GetResourceCount()
+    {
+        return _resources.Sum(cr => cr.Value.Count);
+    }
+
+    /// <summary>
+    /// Gets all resources for a specific culture
+    /// </summary>
+    /// <param name="cultureName">The culture name</param>
+    /// <returns>Dictionary of resources for the specified culture</returns>
+    public IDictionary<string, string>? GetResourcesForCulture(string cultureName)
+    {
+        return _resources.TryGetValue(cultureName, out var cultureResources)
+            ? cultureResources
+            : null;
     }
 }

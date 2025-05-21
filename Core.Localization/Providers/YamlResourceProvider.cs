@@ -11,7 +11,7 @@ namespace Core.Localization.Providers;
 /// <summary>
 /// Provides resources from YAML files with feature-based localization and async support
 /// </summary>
-public class YamlResourceProvider : ResourceProviderBase, IDisposable
+public sealed class YamlResourceProvider : ResourceProviderBase, IDisposable
 {
     private readonly LocalizationOptions _options;
     private readonly ILogger<YamlResourceProvider> _logger;
@@ -22,6 +22,9 @@ public class YamlResourceProvider : ResourceProviderBase, IDisposable
     private readonly Timer? _resourceScanTimer;
     private readonly ConcurrentDictionary<string, string> _sectionNameCache = new();
 
+    /// <summary>
+    /// Creates a new YAML resource provider
+    /// </summary>
     public YamlResourceProvider(
         IOptions<LocalizationOptions> options,
         ILogger<YamlResourceProvider> logger,
@@ -55,8 +58,10 @@ public class YamlResourceProvider : ResourceProviderBase, IDisposable
         }
     }
 
+    /// <inheritdoc/>
     public override bool SupportsDynamicReload => true;
 
+    /// <inheritdoc/>
     public override async Task<string?> GetStringAsync(string key, CultureInfo culture, string? section = null, CancellationToken cancellationToken = default)
     {
         var cultureName = GetNormalizedCultureCode(culture);
@@ -131,6 +136,7 @@ public class YamlResourceProvider : ResourceProviderBase, IDisposable
         return null;
     }
 
+    /// <inheritdoc/>
     public override async Task<IEnumerable<string>> GetAllKeysAsync(CultureInfo culture, string? section = null, CancellationToken cancellationToken = default)
     {
         var cultureName = GetNormalizedCultureCode(culture);
@@ -152,6 +158,7 @@ public class YamlResourceProvider : ResourceProviderBase, IDisposable
         return keys;
     }
 
+    /// <inheritdoc/>
     public override async Task<IEnumerable<string>> GetAllSectionsAsync(CultureInfo culture, CancellationToken cancellationToken = default)
     {
         var cultureName = GetNormalizedCultureCode(culture);
@@ -188,11 +195,15 @@ public class YamlResourceProvider : ResourceProviderBase, IDisposable
         return sections;
     }
 
+    /// <inheritdoc/>
     public override async Task ReloadAsync(CancellationToken cancellationToken = default)
     {
         await LoadResourcesAsync(cancellationToken);
     }
 
+    /// <summary>
+    /// Loads all resources from disk
+    /// </summary>
     private async Task LoadResourcesAsync(CancellationToken cancellationToken = default)
     {
         // Clear existing cache
@@ -235,7 +246,7 @@ public class YamlResourceProvider : ResourceProviderBase, IDisposable
 
     private async Task LoadResourceFilesFromDirectoryAsync(string directory, CancellationToken cancellationToken)
     {
-        foreach (var extension in _options.ResourceFileExtensions)
+        foreach (var extension in _options.ResourceFileExtensions.Where(ext => ext is "yaml" or "yml"))
         {
             var files = Directory.GetFiles(directory, $"*.{extension}", SearchOption.TopDirectoryOnly);
 
@@ -277,7 +288,7 @@ public class YamlResourceProvider : ResourceProviderBase, IDisposable
             var culture = parts[1];
             var cacheKey = $"{section}.{culture}";
 
-            // Read and parse the YAML/JSON file
+            // Read and parse the YAML file
             var content = await File.ReadAllTextAsync(filePath, cancellationToken);
 
             _logger.LogDebug("Loaded file content for {FilePath}: {Content}", filePath, content);
@@ -347,7 +358,7 @@ public class YamlResourceProvider : ResourceProviderBase, IDisposable
 
                 foreach (var localesDir in featureDirs)
                 {
-                    foreach (var extension in _options.ResourceFileExtensions)
+                    foreach (var extension in _options.ResourceFileExtensions.Where(ext => ext is "yaml" or "yml"))
                     {
                         var watcher = new FileSystemWatcher(localesDir, $"*.{extension}")
                         {
@@ -418,7 +429,7 @@ public class YamlResourceProvider : ResourceProviderBase, IDisposable
         }
     }
 
-    protected virtual bool TryGetNestedValue(Dictionary<string, object> resources, string key, out object? value)
+    private bool TryGetNestedValue(Dictionary<string, object> resources, string key, out object? value)
     {
         value = null;
 
@@ -595,6 +606,9 @@ public class YamlResourceProvider : ResourceProviderBase, IDisposable
         return false;
     }
 
+    /// <summary>
+    /// Disposes resources used by this provider
+    /// </summary>
     public void Dispose()
     {
         _scanTokenSource.Cancel();

@@ -17,6 +17,9 @@ public class LocalizationService : ILocalizationService
     private readonly ILogger<LocalizationService> _logger;
     private readonly IMemoryCache? _cache;
 
+    /// <summary>
+    /// Creates a new localization service
+    /// </summary>
     public LocalizationService(
         IEnumerable<IResourceProvider> resourceProviders,
         IOptions<LocalizationOptions> options,
@@ -29,6 +32,7 @@ public class LocalizationService : ILocalizationService
         _cache = cache;
     }
 
+    /// <inheritdoc/>
     public async Task<string> GetStringAsync(string key, CultureInfo? culture = null, CancellationToken cancellationToken = default)
     {
         culture ??= _options.DefaultCulture;
@@ -65,6 +69,7 @@ public class LocalizationService : ILocalizationService
         return value;
     }
 
+    /// <inheritdoc/>
     public async Task<string> GetStringAsync(string key, string section, CultureInfo? culture = null, CancellationToken cancellationToken = default)
     {
         culture ??= _options.DefaultCulture;
@@ -101,11 +106,13 @@ public class LocalizationService : ILocalizationService
         return value;
     }
 
+    /// <inheritdoc/>
     public async Task<string> GetStringAsync(string key, params object[] args)
     {
         return await GetStringAsync(key, _options.DefaultCulture, args);
     }
 
+    /// <inheritdoc/>
     public async Task<string> GetStringAsync(string key, CultureInfo culture, params object[] args)
     {
         var format = await GetStringAsync(key, culture);
@@ -121,11 +128,13 @@ public class LocalizationService : ILocalizationService
         }
     }
 
+    /// <inheritdoc/>
     public async Task<string> GetStringAsync(string key, string section, params object[] args)
     {
         return await GetStringAsync(key, section, _options.DefaultCulture, args);
     }
 
+    /// <inheritdoc/>
     public async Task<string> GetStringAsync(string key, string section, CultureInfo culture, params object[] args)
     {
         var format = await GetStringAsync(key, section, culture);
@@ -141,7 +150,8 @@ public class LocalizationService : ILocalizationService
         }
     }
 
-    public async Task<(bool success, string? value)> TryGetStringAsync(string key, CultureInfo? culture = null, CancellationToken cancellationToken = default)
+    /// <inheritdoc/>
+    public async Task<LocalizationResult> TryGetStringAsync(string key, CultureInfo? culture = null, CancellationToken cancellationToken = default)
     {
         culture ??= _options.DefaultCulture;
         var value = await GetStringFromProvidersAsync(key, culture, null, cancellationToken);
@@ -151,10 +161,13 @@ public class LocalizationService : ILocalizationService
             value = await GetStringFromProvidersAsync(key, _options.FallbackCulture, null, cancellationToken);
         }
 
-        return (value != null, value);
+        return value != null
+            ? LocalizationResult.Successful(value)
+            : LocalizationResult.Failed();
     }
 
-    public async Task<(bool success, string? value)> TryGetStringAsync(string key, string section, CultureInfo? culture = null, CancellationToken cancellationToken = default)
+    /// <inheritdoc/>
+    public async Task<LocalizationResult> TryGetStringAsync(string key, string section, CultureInfo? culture = null, CancellationToken cancellationToken = default)
     {
         culture ??= _options.DefaultCulture;
         var value = await GetStringFromProvidersAsync(key, culture, section, cancellationToken);
@@ -164,9 +177,12 @@ public class LocalizationService : ILocalizationService
             value = await GetStringFromProvidersAsync(key, _options.FallbackCulture, section, cancellationToken);
         }
 
-        return (value != null, value);
+        return value != null
+            ? LocalizationResult.Successful(value)
+            : LocalizationResult.Failed();
     }
 
+    /// <inheritdoc/>
     public async Task<IDictionary<CultureInfo, string>> GetAllStringsAsync(string key, string? section = null, CancellationToken cancellationToken = default)
     {
         var result = new Dictionary<CultureInfo, string>();
@@ -174,25 +190,24 @@ public class LocalizationService : ILocalizationService
 
         foreach (var culture in cultures)
         {
-            // Yeni Tuple dönüşlü TryGetStringAsync kullanımı
-            var tryResult = section == null
-                ? await TryGetStringAsync(key, culture, cancellationToken)
-                : await TryGetStringAsync(key, section, culture, cancellationToken);
+            var tryResult = await TryGetStringAsync(key, section, culture, cancellationToken);
 
-            if (tryResult.success && tryResult.value != null)
+            if (tryResult.Success && tryResult.Value != null)
             {
-                result[culture] = tryResult.value;
+                result[culture] = tryResult.Value;
             }
         }
 
         return result;
     }
 
+    /// <inheritdoc/>
     public async Task<IEnumerable<string>> GetAllKeysAsync(string? section = null, CancellationToken cancellationToken = default)
     {
         return await GetAllKeysAsync(_options.DefaultCulture, section, cancellationToken);
     }
 
+    /// <inheritdoc/>
     public async Task<IEnumerable<string>> GetAllKeysAsync(CultureInfo culture, string? section = null, CancellationToken cancellationToken = default)
     {
         var keys = new HashSet<string>();
@@ -209,6 +224,7 @@ public class LocalizationService : ILocalizationService
         return keys;
     }
 
+    /// <inheritdoc/>
     public async Task<IEnumerable<string>> GetAllSectionsAsync(CultureInfo? culture = null, CancellationToken cancellationToken = default)
     {
         culture ??= _options.DefaultCulture;
@@ -226,16 +242,10 @@ public class LocalizationService : ILocalizationService
         return sections;
     }
 
+    /// <inheritdoc/>
     public async Task<IEnumerable<CultureInfo>> GetSupportedCulturesAsync(CancellationToken cancellationToken = default)
     {
         return _options.SupportedCultures;
-    }
-
-    public async Task<string> GetLocalizedAsync(string key, string section, CultureInfo? culture = null)
-    {
-        // This is the method that matches the pattern in your example
-        // It's an alias for GetStringAsync for backward compatibility
-        return await GetStringAsync(key, section, culture ?? _options.DefaultCulture);
     }
 
     private async Task<string?> GetStringFromProvidersAsync(string key, CultureInfo culture, string? section, CancellationToken cancellationToken)

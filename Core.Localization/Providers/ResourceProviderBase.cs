@@ -8,31 +8,43 @@ namespace Core.Localization.Providers;
 /// </summary>
 public abstract class ResourceProviderBase : IResourceProvider
 {
+    /// <summary>
+    /// Creates a new instance of the resource provider with the specified priority
+    /// </summary>
+    /// <param name="priority">Provider priority for conflict resolution</param>
     protected ResourceProviderBase(int priority = 100)
     {
         Priority = priority;
     }
 
+    /// <inheritdoc/>
     public virtual int Priority { get; }
 
+    /// <inheritdoc/>
     public virtual bool SupportsDynamicReload => false;
 
+    /// <inheritdoc/>
     public abstract Task<string?> GetStringAsync(string key, CultureInfo culture, string? section = null, CancellationToken cancellationToken = default);
 
+    /// <inheritdoc/>
     public virtual async Task<object?> GetResourceAsync(string key, CultureInfo culture, string? section = null, CancellationToken cancellationToken = default)
     {
         return await GetStringAsync(key, culture, section, cancellationToken);
     }
 
+    /// <inheritdoc/>
     public abstract Task<IEnumerable<string>> GetAllKeysAsync(CultureInfo culture, string? section = null, CancellationToken cancellationToken = default);
 
+    /// <inheritdoc/>
     public abstract Task<IEnumerable<string>> GetAllSectionsAsync(CultureInfo culture, CancellationToken cancellationToken = default);
 
+    /// <inheritdoc/>
     public virtual async Task<bool> HasKeyAsync(string key, CultureInfo culture, string? section = null, CancellationToken cancellationToken = default)
     {
         return (await GetStringAsync(key, culture, section, cancellationToken)) != null;
     }
 
+    /// <inheritdoc/>
     public virtual Task ReloadAsync(CancellationToken cancellationToken = default)
     {
         if (!SupportsDynamicReload)
@@ -43,6 +55,11 @@ public abstract class ResourceProviderBase : IResourceProvider
         return Task.CompletedTask;
     }
 
+    /// <summary>
+    /// Gets the parent culture of the specified culture
+    /// </summary>
+    /// <param name="culture">The culture to get the parent of</param>
+    /// <returns>The parent culture or null if no parent exists</returns>
     protected virtual CultureInfo? GetParentCulture(CultureInfo culture)
     {
         if (culture.Parent == CultureInfo.InvariantCulture)
@@ -76,9 +93,8 @@ public abstract class ResourceProviderBase : IResourceProvider
         if (key.StartsWith("Messages.", StringComparison.OrdinalIgnoreCase))
             return $"{section}.{key}";
 
-        // If key is a plain key (e.g., "UserDontExists"), we need to try multiple possible formats
-        // For now, return without Messages prefix
-        return key;
+        // If key is a plain key (e.g., "UserDontExists"), combine with section
+        return $"{section}.{key}";
     }
 
     /// <summary>

@@ -16,7 +16,10 @@ public static class ServiceCollectionExtensions
     /// <summary>
     /// Adds Core.Localization services to the service collection with async support
     /// </summary>
-    public static IServiceCollection AddCoreLocalization(
+    /// <param name="services">The service collection</param>
+    /// <param name="configureOptions">Optional action to configure options</param>
+    /// <returns>The service collection for chaining</returns>
+    public static IServiceCollection AddLocalization(
         this IServiceCollection services,
         Action<LocalizationOptions>? configureOptions = null)
     {
@@ -34,11 +37,11 @@ public static class ServiceCollectionExtensions
 
         // Register providers
         services.AddSingleton<IResourceProvider, YamlResourceProvider>();
-        services.AddSingleton<IResourceProvider, JsonResourceProvider>();
+        services.TryAddSingleton<IResourceProvider, JsonResourceProvider>();
 
         // Register main services
-        services.AddSingleton<ILocalizationService, LocalizationService>();
-        services.AddSingleton<IFormatterService, FormatterService>();
+        services.TryAddSingleton<ILocalizationService, LocalizationService>();
+        services.TryAddSingleton<IFormatterService, FormatterService>();
 
         return services;
     }
@@ -46,11 +49,14 @@ public static class ServiceCollectionExtensions
     /// <summary>
     /// Adds Core.Localization services with feature-based localization support
     /// </summary>
+    /// <param name="services">The service collection</param>
+    /// <param name="configureOptions">Optional action to configure options</param>
+    /// <returns>The service collection for chaining</returns>
     public static IServiceCollection AddFeatureBasedLocalization(
         this IServiceCollection services,
         Action<LocalizationOptions>? configureOptions = null)
     {
-        return services.AddCoreLocalization(options =>
+        return services.AddLocalization(options =>
         {
             // Enable feature-based localization by default
             options.EnableAutoDiscovery = true;
@@ -67,6 +73,9 @@ public static class ServiceCollectionExtensions
     /// <summary>
     /// Adds a custom resource provider
     /// </summary>
+    /// <typeparam name="TProvider">The resource provider type</typeparam>
+    /// <param name="services">The service collection</param>
+    /// <returns>The service collection for chaining</returns>
     public static IServiceCollection AddResourceProvider<TProvider>(
         this IServiceCollection services)
         where TProvider : class, IResourceProvider
@@ -78,6 +87,8 @@ public static class ServiceCollectionExtensions
     /// <summary>
     /// Adds only JSON resource provider
     /// </summary>
+    /// <param name="services">The service collection</param>
+    /// <returns>The service collection for chaining</returns>
     public static IServiceCollection AddJsonResourceProvider(this IServiceCollection services)
     {
         services.RemoveAll<IResourceProvider>();
@@ -88,6 +99,8 @@ public static class ServiceCollectionExtensions
     /// <summary>
     /// Adds only YAML resource provider
     /// </summary>
+    /// <param name="services">The service collection</param>
+    /// <returns>The service collection for chaining</returns>
     public static IServiceCollection AddYamlResourceProvider(this IServiceCollection services)
     {
         services.RemoveAll<IResourceProvider>();
@@ -98,6 +111,9 @@ public static class ServiceCollectionExtensions
     /// <summary>
     /// Configures localization options
     /// </summary>
+    /// <param name="services">The service collection</param>
+    /// <param name="configureOptions">Action to configure options</param>
+    /// <returns>The service collection for chaining</returns>
     public static IServiceCollection ConfigureLocalization(
         this IServiceCollection services,
         Action<LocalizationOptions> configureOptions)
@@ -107,8 +123,11 @@ public static class ServiceCollectionExtensions
     }
 
     /// <summary>
-    /// Adds in-memory resource provider for testing
+    /// Adds in-memory resource provider for testing or simple scenarios
     /// </summary>
+    /// <param name="services">The service collection</param>
+    /// <param name="resources">Dictionary of resources</param>
+    /// <returns>The service collection for chaining</returns>
     public static IServiceCollection AddInMemoryResourceProvider(
         this IServiceCollection services,
         IDictionary<string, IDictionary<string, string>> resources)
@@ -121,6 +140,9 @@ public static class ServiceCollectionExtensions
     /// <summary>
     /// Configures localization with feature paths
     /// </summary>
+    /// <param name="services">The service collection</param>
+    /// <param name="featurePaths">Feature path patterns</param>
+    /// <returns>The service collection for chaining</returns>
     public static IServiceCollection AddFeaturePaths(
         this IServiceCollection services,
         params string[] featurePaths)
@@ -134,31 +156,21 @@ public static class ServiceCollectionExtensions
     }
 
     /// <summary>
-    /// Configures localization to use specific feature directory pattern
+    /// Configures localization for distributed (cloud) scenarios
     /// </summary>
-    public static IServiceCollection UseFeatureDirectoryPattern(
-        this IServiceCollection services,
-        string pattern)
+    /// <param name="services">The service collection</param>
+    /// <returns>The service collection for chaining</returns>
+    public static IServiceCollection AddDistributedLocalization(
+        this IServiceCollection services)
     {
         services.Configure<LocalizationOptions>(options =>
         {
-            options.FeatureDirectoryPattern = pattern;
+            options.EnableDistributedCache = true;
+            options.EnableResourceFileWatching = false;
         });
 
-        return services;
-    }
-
-    /// <summary>
-    /// Configures localization to use specific feature file pattern
-    /// </summary>
-    public static IServiceCollection UseFeatureFilePattern(
-        this IServiceCollection services,
-        string pattern)
-    {
-        services.Configure<LocalizationOptions>(options =>
-        {
-            options.FeatureFilePattern = pattern;
-        });
+        // Add distributed cache if not already added
+        services.AddDistributedMemoryCache();
 
         return services;
     }

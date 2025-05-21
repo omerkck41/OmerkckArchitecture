@@ -66,22 +66,20 @@ public interface ILocalizationService
     /// Tries to get a localized string asynchronously
     /// </summary>
     /// <param name="key">The resource key</param>
-    /// <param name="value">Output parameter for the localized string</param>
     /// <param name="culture">Optional culture</param>
     /// <param name="cancellationToken">Cancellation token</param>
-    /// <returns>True if found, false otherwise</returns>
-    Task<(bool success, string? value)> TryGetStringAsync(string key, CultureInfo? culture = null, CancellationToken cancellationToken = default);
+    /// <returns>Result containing success status and value if found</returns>
+    Task<LocalizationResult> TryGetStringAsync(string key, CultureInfo? culture = null, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Tries to get a localized string from a specific section asynchronously
     /// </summary>
     /// <param name="key">The resource key</param>
     /// <param name="section">Section name</param>
-    /// <param name="value">Output parameter for the localized string</param>
     /// <param name="culture">Optional culture</param>
     /// <param name="cancellationToken">Cancellation token</param>
-    /// <returns>True if found, false otherwise</returns>
-    Task<(bool success, string? value)> TryGetStringAsync(string key, string section, CultureInfo? culture = null, CancellationToken cancellationToken = default);
+    /// <returns>Result containing success status and value if found</returns>
+    Task<LocalizationResult> TryGetStringAsync(string key, string section, CultureInfo? culture = null, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Gets all localized strings for a specific key across cultures asynchronously
@@ -123,14 +121,30 @@ public interface ILocalizationService
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>Collection of supported cultures</returns>
     Task<IEnumerable<CultureInfo>> GetSupportedCulturesAsync(CancellationToken cancellationToken = default);
+}
+
+/// <summary>
+/// Result type for try-based localization operations
+/// </summary>
+public record LocalizationResult
+{
+    /// <summary>
+    /// Whether the localization operation was successful
+    /// </summary>
+    public bool Success { get; init; }
 
     /// <summary>
-    /// Gets a localized string value for feature-based localization
+    /// The localized value if the operation was successful, otherwise null
     /// </summary>
-    /// <param name="key">The resource key</param>
-    /// <param name="section">Section name</param>
-    /// <param name="culture">Optional culture, defaults to current culture</param>
-    /// <returns>Localized string</returns>
-    [Obsolete("Use GetStringAsync method instead")]
-    Task<string> GetLocalizedAsync(string key, string section, CultureInfo? culture = null);
+    public string? Value { get; init; }
+
+    /// <summary>
+    /// Creates a successful result with the provided value
+    /// </summary>
+    public static LocalizationResult Successful(string value) => new() { Success = true, Value = value };
+
+    /// <summary>
+    /// Creates a failed result
+    /// </summary>
+    public static LocalizationResult Failed() => new() { Success = false, Value = null };
 }

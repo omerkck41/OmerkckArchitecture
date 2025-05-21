@@ -10,7 +10,7 @@ namespace Core.Localization.Providers;
 /// <summary>
 /// Provides resources from JSON files with feature-based localization and async support
 /// </summary>
-public class JsonResourceProvider : ResourceProviderBase, IDisposable
+public sealed class JsonResourceProvider : ResourceProviderBase, IDisposable
 {
     private readonly LocalizationOptions _options;
     private readonly ILogger<JsonResourceProvider> _logger;
@@ -20,6 +20,9 @@ public class JsonResourceProvider : ResourceProviderBase, IDisposable
     private readonly Timer? _resourceScanTimer;
     private readonly ConcurrentDictionary<string, string> _sectionNameCache = new();
 
+    /// <summary>
+    /// Creates a new JSON resource provider
+    /// </summary>
     public JsonResourceProvider(
         IOptions<LocalizationOptions> options,
         ILogger<JsonResourceProvider> logger,
@@ -49,12 +52,21 @@ public class JsonResourceProvider : ResourceProviderBase, IDisposable
         }
     }
 
+    /// <inheritdoc/>
     public override bool SupportsDynamicReload => true;
 
+    /// <inheritdoc/>
     public override async Task<string?> GetStringAsync(string key, CultureInfo culture, string? section = null, CancellationToken cancellationToken = default)
     {
         var cultureName = GetNormalizedCultureCode(culture);
         var effectiveKey = GetEffectiveKey(key, section);
+
+        // Log what we're looking for if debug logging is enabled
+        if (_options.EnableDebugLogging)
+        {
+            _logger.LogDebug("Looking for key: '{Key}', section: '{Section}', culture: '{Culture}', effectiveKey: '{EffectiveKey}'",
+                key, section, cultureName, effectiveKey);
+        }
 
         foreach (var cacheEntry in _resourceCache)
         {
@@ -66,6 +78,19 @@ public class JsonResourceProvider : ResourceProviderBase, IDisposable
             {
                 var resources = cacheEntry.Value;
 
+                // Try direct key lookup (flat structure)
+                if (resources.TryGetValue(key, out var directValue))
+                {
+                    if (_options.EnableDebugLogging)
+                    {
+                        _logger.LogDebug("Found direct key '{Key}' in resources with value: {Value}",
+                            key, directValue?.ToString() ?? "null");
+                    }
+
+                    return directValue?.ToString();
+                }
+
+                // Try nested value lookup
                 if (TryGetNestedValue(resources, effectiveKey, out var value) && value != null)
                 {
                     return value.ToString();
@@ -80,9 +105,16 @@ public class JsonResourceProvider : ResourceProviderBase, IDisposable
             return await GetStringAsync(key, parentCulture, section, cancellationToken);
         }
 
+        if (_options.EnableDebugLogging)
+        {
+            _logger.LogDebug("No value found for key: '{Key}', section: '{Section}', culture: '{Culture}'",
+                key, section, cultureName);
+        }
+
         return null;
     }
 
+    /// <inheritdoc/>
     public override async Task<IEnumerable<string>> GetAllKeysAsync(CultureInfo culture, string? section = null, CancellationToken cancellationToken = default)
     {
         var cultureName = GetNormalizedCultureCode(culture);
@@ -104,6 +136,7 @@ public class JsonResourceProvider : ResourceProviderBase, IDisposable
         return keys;
     }
 
+    /// <inheritdoc/>
     public override async Task<IEnumerable<string>> GetAllSectionsAsync(CultureInfo culture, CancellationToken cancellationToken = default)
     {
         var cultureName = GetNormalizedCultureCode(culture);
@@ -140,6 +173,7 @@ public class JsonResourceProvider : ResourceProviderBase, IDisposable
         return sections;
     }
 
+    /// <inheritdoc/>
     public override async Task ReloadAsync(CancellationToken cancellationToken = default)
     {
         await LoadResourcesAsync(cancellationToken);
@@ -576,6 +610,9 @@ public class JsonResourceProvider : ResourceProviderBase, IDisposable
         return false;
     }
 
+    /// <summary>
+    /// Disposes resources used by this provider
+    /// </summary>
     public void Dispose()
     {
         _scanTokenSource.Cancel();
