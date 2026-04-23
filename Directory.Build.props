@@ -1,0 +1,31 @@
+<Project>
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <AnalysisLevel>latest-recommended</AnalysisLevel>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);1591</NoWarn>
+    <!-- Pre-existing analyzer warnings — will be reduced as code improves -->
+    <WarningsNotAsErrors>$(WarningsNotAsErrors);CA1000;CA1001;CA1304;CA1305;CA1716;CA1848;CA1852;CA1869;CA1873;CA2016</WarningsNotAsErrors>
+    <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
+  </PropertyGroup>
+
+  <!-- NuGet Package Metadata -->
+  <PropertyGroup>
+    <Authors>Omerkck</Authors>
+    <Company>Omerkck</Company>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/omerkck41/OmerkckArchitecture</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/omerkck41/OmerkckArchitecture</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <Description>Kck Modular Architecture Framework - A modular, extensible .NET framework with abstractions and providers for caching, messaging, persistence, observability, security, and more.</Description>
+    <PackageTags>dotnet;architecture;modular;framework;clean-architecture;ddd</PackageTags>
+    <Copyright>Copyright (c) Omerkck</Copyright>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MinVer" PrivateAssets="All" />
+  </ItemGroup>
+</Project>

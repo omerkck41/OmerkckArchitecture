@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <!-- Hangfire 1.8.x transitively depends on Newtonsoft.Json 11.x which has a known advisory.
+         Hangfire does not expose this to user input; suppressing until Hangfire updates. -->
+    <NoWarn>$(NoWarn);NU1903</NoWarn>
+  </PropertyGroup>
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="../../Abstractions/Kck.BackgroundJobs.Abstractions/Kck.BackgroundJobs.Abstractions.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Hangfire" />
+    <PackageReference Include="Hangfire.InMemory" />
+  </ItemGroup>
+</Project>

@@ -1,0 +1,31 @@
+{
+  "version": 2,
+  "dependencies": {
+    "net10.0": {
+      "Elastic.Clients.Elasticsearch": {
+        "type": "Direct",
+        "requested": "[8.17.2, )",
+        "resolved": "8.17.2",
+        "contentHash": "E2PFSUbpw6kg5Zi7U2ovibFQtFAg+i5LCBQZORhY1wqMNzoYZK1/DBc4y595Aa8sqC8Btp+52eUnQ9lFF7xTDQ==",
+        "dependencies": {
+          "Elastic.Transport": "0.5.9"
+        }
+      },
+      "MinVer": {
+        "type": "Direct",
+        "requested": "[7.0.0, )",
+        "resolved": "7.0.0",
+        "contentHash": "2lMTCQl5bGP4iv0JNkockPnyllC6eHLz+CoK2ICvalvHod+exXSxueu9hq+zNkU7bZBJf8wMfeRC/Edn8AGmEg=="
+      },
+      "kck.search.abstractions": {
+        "type": "Project"
+      },
+      "Elastic.Transport": {
+        "type": "CentralTransitive",
+        "requested": "[0.5.9, )",
+        "resolved": "0.5.9",
+        "contentHash": "RXoJAeXKaXq67SeLhyDMBPpvlkG940jqJWd5l+rKglMRLJn6X0dkLNlWehpDuouicNdwnYdcuADnqdSOiSvASw=="
+      }
+    }
+  }
+}

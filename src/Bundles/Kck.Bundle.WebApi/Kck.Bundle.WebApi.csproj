@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+  <ItemGroup Label="Abstractions">
+    <ProjectReference Include="../../Abstractions/Kck.Core.Abstractions/Kck.Core.Abstractions.csproj" />
+    <ProjectReference Include="../../Abstractions/Kck.Persistence.Abstractions/Kck.Persistence.Abstractions.csproj" />
+    <ProjectReference Include="../../Abstractions/Kck.Caching.Abstractions/Kck.Caching.Abstractions.csproj" />
+    <ProjectReference Include="../../Abstractions/Kck.Security.Abstractions/Kck.Security.Abstractions.csproj" />
+    <ProjectReference Include="../../Abstractions/Kck.Messaging.Abstractions/Kck.Messaging.Abstractions.csproj" />
+    <ProjectReference Include="../../Abstractions/Kck.EventBus.Abstractions/Kck.EventBus.Abstractions.csproj" />
+    <ProjectReference Include="../../Abstractions/Kck.Observability.Abstractions/Kck.Observability.Abstractions.csproj" />
+  </ItemGroup>
+  <ItemGroup Label="Default Providers">
+    <ProjectReference Include="../../Providers/Kck.Persistence.EntityFramework/Kck.Persistence.EntityFramework.csproj" />
+    <ProjectReference Include="../../Providers/Kck.Caching.InMemory/Kck.Caching.InMemory.csproj" />
+    <ProjectReference Include="../../Providers/Kck.Security.Jwt/Kck.Security.Jwt.csproj" />
+    <ProjectReference Include="../../Providers/Kck.Security.Argon2/Kck.Security.Argon2.csproj" />
+    <ProjectReference Include="../../Providers/Kck.Pipeline.MediatR/Kck.Pipeline.MediatR.csproj" />
+    <ProjectReference Include="../../Providers/Kck.EventBus.InMemory/Kck.EventBus.InMemory.csproj" />
+    <ProjectReference Include="../../Providers/Kck.Exceptions.AspNetCore/Kck.Exceptions.AspNetCore.csproj" />
+    <ProjectReference Include="../../Providers/Kck.Logging.Serilog/Kck.Logging.Serilog.csproj" />
+    <ProjectReference Include="../../Providers/Kck.Observability.OpenTelemetry/Kck.Observability.OpenTelemetry.csproj" />
+    <ProjectReference Include="../../Providers/Kck.AspNetCore/Kck.AspNetCore.csproj" />
+  </ItemGroup>
+</Project>

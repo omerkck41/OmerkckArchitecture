@@ -1,0 +1,101 @@
+## .NET build output
+bin/
+obj/
+out/
+artifacts/
+publish/
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+[Ww][Ii][Nn]32/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
+bld/
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+
+## Visual Studio / Rider / VS Code
+.vs/
+.vscode/
+.idea/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.userprefs
+*.DotSettings.user
+*.ncrunchsolution
+*.ncrunchproject
+*.njsproj
+*.njsproj.user
+*.sln.DotSettings.user
+.history/
+
+## Test results / coverage
+TestResults/
+coverage/
+coverage.*.xml
+coverage.*.json
+*.coverage
+*.coveragexml
+[Cc]overlet.*.json
+[Cc]overletReport/
+
+## NuGet
+*.nupkg
+*.snupkg
+.nuget/
+packages/
+!packages/build/
+!packages/*.config
+!.nuget/*.config
+
+## Local development
+*.log
+*.tlog
+*.swp
+*.tmp
+*.bak
+.env
+.env.*
+!.env.example
+appsettings.*.local.json
+appsettings.Local.json
+*.local.json
+secrets.json
+
+## Benchmark artifacts
+BenchmarkDotNet.Artifacts/
+
+## OS
+.DS_Store
+Thumbs.db
+desktop.ini
+ehthumbs.db
+$RECYCLE.BIN/
+
+## Tooling caches
+.scannerwork/
+.sonarqube/
+*.cache
+project.lock.json
+node_modules/
+# NOTE: packages.lock.json IS committed (RestorePackagesWithLockFile=true in Directory.Build.props)
+
+## MSBuild / Roslyn
+[Dd]ebugPublic/
+MSBuild/
+msbuild.log
+msbuild.err
+msbuild.wrn
+[Rr]oslyn.log
+
+## Claude / local workspace notes
+.claude/
+.superdesign/
+
+## MinVer does not read tags from shallow clones; allow override by developer
+minver.props

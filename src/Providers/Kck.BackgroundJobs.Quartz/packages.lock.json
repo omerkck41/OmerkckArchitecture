@@ -1,0 +1,40 @@
+{
+  "version": 2,
+  "dependencies": {
+    "net10.0": {
+      "MinVer": {
+        "type": "Direct",
+        "requested": "[7.0.0, )",
+        "resolved": "7.0.0",
+        "contentHash": "2lMTCQl5bGP4iv0JNkockPnyllC6eHLz+CoK2ICvalvHod+exXSxueu9hq+zNkU7bZBJf8wMfeRC/Edn8AGmEg=="
+      },
+      "Quartz": {
+        "type": "Direct",
+        "requested": "[3.16.1, )",
+        "resolved": "3.16.1",
+        "contentHash": "U8SCG2bOmmVdM4tArsJcYbFF8GYTUXj9Zjl9fL7Xt0BWTRIFAmqx3T7k20eJUcmIqYBa3eAk7MOS/yJhfG5xAA=="
+      },
+      "Quartz.Extensions.DependencyInjection": {
+        "type": "Direct",
+        "requested": "[3.16.1, )",
+        "resolved": "3.16.1",
+        "contentHash": "yfjS7e9hgVugIP4etIns+QFGCb1fi3I7PwidE/DluHob8nF2hDIM4DvEsYzF0AJ/go1oJiWLB8RnEaP0fcAA0w==",
+        "dependencies": {
+          "Quartz": "3.16.1"
+        }
+      },
+      "Quartz.Extensions.Hosting": {
+        "type": "Direct",
+        "requested": "[3.16.1, )",
+        "resolved": "3.16.1",
+        "contentHash": "mTnELjDUbGTfCjqWv/IxL2DMrb4AnJSEggzd1hVHjSlWHb/1dE+o5dkPYGrfcksRtExKSyOOCrQuv4XGHi1wEQ==",
+        "dependencies": {
+          "Quartz.Extensions.DependencyInjection": "3.16.1"
+        }
+      },
+      "kck.backgroundjobs.abstractions": {
+        "type": "Project"
+      }
+    }
+  }
+}

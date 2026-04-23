@@ -1,0 +1,10 @@
+# Default reviewer for everything.
+* @omerkck41
+
+# Architecture decisions require maintainer review.
+/docs/adr/ @omerkck41
+
+# CI / infra changes require maintainer review.
+/.github/ @omerkck41
+/Directory.Build.props @omerkck41
+/Directory.Packages.props @omerkck41

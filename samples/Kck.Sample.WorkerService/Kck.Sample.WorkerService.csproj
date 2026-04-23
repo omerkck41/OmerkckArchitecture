@@ -1,0 +1,6 @@
+<Project Sdk="Microsoft.NET.Sdk.Worker">
+  <ItemGroup>
+    <ProjectReference Include="../../src/Providers/Kck.BackgroundJobs.Hangfire/Kck.BackgroundJobs.Hangfire.csproj" />
+    <ProjectReference Include="../../src/Providers/Kck.Logging.Serilog/Kck.Logging.Serilog.csproj" />
+  </ItemGroup>
+</Project>

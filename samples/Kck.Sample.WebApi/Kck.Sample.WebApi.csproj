@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../../src/Providers/Kck.Persistence.EntityFramework/Kck.Persistence.EntityFramework.csproj" />
+    <ProjectReference Include="../../src/Providers/Kck.Exceptions.AspNetCore/Kck.Exceptions.AspNetCore.csproj" />
+    <ProjectReference Include="../../src/Providers/Kck.Logging.Serilog/Kck.Logging.Serilog.csproj" />
+    <ProjectReference Include="../../src/Providers/Kck.Observability.OpenTelemetry/Kck.Observability.OpenTelemetry.csproj" />
+    <ProjectReference Include="../../src/Providers/Kck.AspNetCore/Kck.AspNetCore.csproj" />
+    <ProjectReference Include="../../src/Providers/Kck.Caching.InMemory/Kck.Caching.InMemory.csproj" />
+    <ProjectReference Include="../../src/Providers/Kck.EventBus.InMemory/Kck.EventBus.InMemory.csproj" />
+    <ProjectReference Include="../../src/Providers/Kck.EventBus.RabbitMq/Kck.EventBus.RabbitMq.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" />
+  </ItemGroup>
+
+</Project>
