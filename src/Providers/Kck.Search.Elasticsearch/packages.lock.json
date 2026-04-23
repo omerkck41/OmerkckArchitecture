@@ -4,11 +4,12 @@
     "net10.0": {
       "Elastic.Clients.Elasticsearch": {
         "type": "Direct",
-        "requested": "[8.17.2, )",
-        "resolved": "8.17.2",
-        "contentHash": "E2PFSUbpw6kg5Zi7U2ovibFQtFAg+i5LCBQZORhY1wqMNzoYZK1/DBc4y595Aa8sqC8Btp+52eUnQ9lFF7xTDQ==",
+        "requested": "[9.3.5, )",
+        "resolved": "9.3.5",
+        "contentHash": "79c52HmIlL/DW+llmv4wxV1le6GmocGfQ0PKOkDY3STPF3kL1L6zOKEMCRxB8UOt7huanjhpTL59l0Nh3p0s4Q==",
         "dependencies": {
-          "Elastic.Transport": "0.5.9"
+          "Elastic.Esql": "0.11.0",
+          "Elastic.Transport": "0.16.0"
         }
       },
       "MinVer": {
@@ -17,14 +18,19 @@
         "resolved": "7.0.0",
         "contentHash": "2lMTCQl5bGP4iv0JNkockPnyllC6eHLz+CoK2ICvalvHod+exXSxueu9hq+zNkU7bZBJf8wMfeRC/Edn8AGmEg=="
       },
+      "Elastic.Esql": {
+        "type": "Transitive",
+        "resolved": "0.11.0",
+        "contentHash": "frYrulxZxDLsAk5vBw6oVG4dOYcGFSOPBsJ+1EfLn/sEB/fS56zVEbEitdVxreY3xREdhZwS9dtUkAqsAt037g=="
+      },
       "kck.search.abstractions": {
         "type": "Project"
       },
       "Elastic.Transport": {
         "type": "CentralTransitive",
         "requested": "[0.5.9, )",
-        "resolved": "0.5.9",
-        "contentHash": "RXoJAeXKaXq67SeLhyDMBPpvlkG940jqJWd5l+rKglMRLJn6X0dkLNlWehpDuouicNdwnYdcuADnqdSOiSvASw=="
+        "resolved": "0.16.0",
+        "contentHash": "1UKivcp3yo6Bdt5o6QEKmPdgSNvNWPexKjBKkYRm2gED7qhoNo/H30dMkW0PQOenA4Kq6EMy9+7lTnOzBTvwjw=="
       }
     }
   }

@@ -28,7 +28,7 @@
   </ItemGroup>
 
   <ItemGroup Label="Search">
-    <PackageVersion Include="Elastic.Clients.Elasticsearch" Version="8.17.2" />
+    <PackageVersion Include="Elastic.Clients.Elasticsearch" Version="9.3.5" />
     <PackageVersion Include="Elastic.Transport" Version="0.5.9" />
   </ItemGroup>
 
