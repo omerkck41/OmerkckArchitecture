@@ -7,8 +7,8 @@
     <PackageVersion Include="Microsoft.EntityFrameworkCore" Version="10.0.5" />
     <PackageVersion Include="Microsoft.EntityFrameworkCore.InMemory" Version="10.0.5" />
     <PackageVersion Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.5" />
-    <PackageVersion Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="10.0.5" />
-    <PackageVersion Include="Microsoft.Extensions.Http.Resilience" Version="10.4.0" />
+    <PackageVersion Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="10.0.7" />
+    <PackageVersion Include="Microsoft.Extensions.Http.Resilience" Version="10.5.0" />
   </ItemGroup>
 
   <ItemGroup Label="Microsoft — System">
@@ -38,9 +38,9 @@
   </ItemGroup>
 
   <ItemGroup Label="DI &amp; Hosting">
-    <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.5" />
-    <PackageVersion Include="Microsoft.Extensions.Hosting.Abstractions" Version="10.0.5" />
-    <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.5" />
+    <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.7" />
+    <PackageVersion Include="Microsoft.Extensions.Hosting.Abstractions" Version="10.0.7" />
+    <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.7" />
   </ItemGroup>
 
   <ItemGroup Label="Testing">
