@@ -90,8 +90,8 @@ jobs:
           LINE_THRESHOLD: '40'
           BRANCH_THRESHOLD: '30'
         run: |
-          LINE=$(grep -oP 'Line coverage:\s*\K[0-9.]+' ./coverage-report/Summary.txt | head -1)
-          BRANCH=$(grep -oP 'Branch coverage:\s*\K[0-9.]+' ./coverage-report/Summary.txt | head -1)
+          LINE=$(awk '/Line coverage:/ {gsub("%",""); print $3; exit}' ./coverage-report/Summary.txt)
+          BRANCH=$(awk '/Branch coverage:/ {gsub("%",""); print $3; exit}' ./coverage-report/Summary.txt)
           echo "Line:   ${LINE}% (threshold ${LINE_THRESHOLD}%)"
           echo "Branch: ${BRANCH}% (threshold ${BRANCH_THRESHOLD}%)"
           FAIL=0
