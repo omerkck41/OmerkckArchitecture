@@ -1,15 +1,21 @@
 using Kck.AspNetCore.Controllers;
 using Kck.Sample.WebApi.Data;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace Kck.Sample.WebApi.Features.Products;
 
+// Mutation endpoints require authentication. Reads are public for demo browsability.
+// To run this sample end-to-end, wire an auth scheme (e.g. Kck.Security.Jwt) and
+// app.UseAuthentication()/UseAuthorization() in Program.cs.
+[Authorize]
 [ApiController]
 [Route("api/[controller]")]
 public sealed partial class ProductsController(AppDbContext db, ILogger<ProductsController> logger) : KckApiControllerBase
 {
     [HttpGet]
+    [AllowAnonymous]
     public async Task<IActionResult> GetAll(CancellationToken ct)
     {
         LogFetchingAllProducts(logger);
@@ -18,6 +24,7 @@ public sealed partial class ProductsController(AppDbContext db, ILogger<Products
     }
 
     [HttpGet("{id:guid}")]
+    [AllowAnonymous]
     public async Task<IActionResult> GetById(Guid id, CancellationToken ct)
     {
         var product = await db.Products.FindAsync([id], ct);

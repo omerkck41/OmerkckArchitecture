@@ -7,16 +7,19 @@ using Xunit;
 
 namespace Kck.Caching.InMemory.Tests;
 
-public class InMemoryCacheServiceTests
+public sealed class InMemoryCacheServiceTests : IDisposable
 {
+    private readonly MemoryCache _memoryCache;
     private readonly InMemoryCacheService _sut;
 
     public InMemoryCacheServiceTests()
     {
-        var memoryCache = new MemoryCache(new MemoryCacheOptions());
+        _memoryCache = new MemoryCache(new MemoryCacheOptions());
         var options = new StaticOptionsMonitor<CacheOptions>(new CacheOptions { KeyPrefix = "test:" });
-        _sut = new InMemoryCacheService(memoryCache, options);
+        _sut = new InMemoryCacheService(_memoryCache, options);
     }
+
+    public void Dispose() => _memoryCache.Dispose();
 
     [Fact]
     public async Task GetAsync_NonExistingKey_ShouldReturnDefault()
@@ -150,7 +153,7 @@ public class InMemoryCacheServiceTests
     {
         // Arrange
         var callCount = 0;
-        var barrier = new Barrier(10);
+        using var barrier = new Barrier(10);
 
         // Act
         var tasks = Enumerable.Range(0, 10).Select(_ => Task.Run(async () =>

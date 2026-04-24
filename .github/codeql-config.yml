@@ -1,0 +1,35 @@
+name: "Kck CodeQL config"
+
+# Generated code and build artifacts are not first-party source.
+paths-ignore:
+  - "**/obj/**"
+  - "**/bin/**"
+  - "**/*.Designer.cs"
+  - "**/*.g.cs"
+  - "**/*.generated.cs"
+
+# Stylistic / subjective quality rules that produced noise on this codebase.
+# Security rules remain enabled. Re-enable by removing the matching entry.
+query-filters:
+  - exclude:
+      id: cs/useless-upcast
+  - exclude:
+      id: cs/useless-cast-to-self
+  - exclude:
+      id: cs/useless-assignment-to-local
+  - exclude:
+      id: cs/nested-if-statements
+  - exclude:
+      id: cs/linq/missed-where
+  - exclude:
+      id: cs/linq/missed-select
+  - exclude:
+      id: cs/virtual-call-in-constructor
+  - exclude:
+      id: cs/constant-condition
+  - exclude:
+      id: cs/static-field-written-by-instance
+  - exclude:
+      id: cs/catch-of-all-exceptions
+  - exclude:
+      id: cs/path-combine

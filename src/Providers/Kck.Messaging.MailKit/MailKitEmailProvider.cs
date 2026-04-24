@@ -7,7 +7,7 @@ public sealed class MailKitEmailProvider(SmtpConnectionPool pool) : IEmailProvid
 {
     public async Task SendAsync(EmailMessage message, CancellationToken ct = default)
     {
-        var mime = new MimeMessage();
+        using var mime = new MimeMessage();
         mime.From.Add(new MailboxAddress(message.FromName ?? message.From, message.From));
 
         foreach (var r in message.Recipients)

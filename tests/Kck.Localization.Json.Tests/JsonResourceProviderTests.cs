@@ -9,7 +9,7 @@ namespace Kck.Localization.Json.Tests;
 
 public sealed class JsonResourceProviderTests : IDisposable
 {
-    private readonly string _tempDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+    private readonly string _tempDir = Path.Join(Path.GetTempPath(), Guid.NewGuid().ToString());
     private readonly JsonResourceProvider _sut;
 
     public JsonResourceProviderTests()
@@ -28,7 +28,7 @@ public sealed class JsonResourceProviderTests : IDisposable
     [Fact]
     public async Task GetStringAsync_ReturnsValue_WhenKeyExists()
     {
-        await File.WriteAllTextAsync(Path.Combine(_tempDir, "en.json"), """{"greeting": "Hello"}""");
+        await File.WriteAllTextAsync(Path.Join(_tempDir, "en.json"), """{"greeting": "Hello"}""");
 
         var result = await _sut.GetStringAsync("greeting", "en");
 
@@ -38,7 +38,7 @@ public sealed class JsonResourceProviderTests : IDisposable
     [Fact]
     public async Task GetStringAsync_ReturnsNull_WhenKeyMissing()
     {
-        await File.WriteAllTextAsync(Path.Combine(_tempDir, "en.json"), """{"greeting": "Hello"}""");
+        await File.WriteAllTextAsync(Path.Join(_tempDir, "en.json"), """{"greeting": "Hello"}""");
 
         var result = await _sut.GetStringAsync("missing", "en");
 
@@ -48,7 +48,7 @@ public sealed class JsonResourceProviderTests : IDisposable
     [Fact]
     public async Task GetStringAsync_SupportsNestedKeys()
     {
-        await File.WriteAllTextAsync(Path.Combine(_tempDir, "en.json"),
+        await File.WriteAllTextAsync(Path.Join(_tempDir, "en.json"),
             """{"nav": {"home": "Home Page"}}""");
 
         var result = await _sut.GetStringAsync("nav.home", "en");
@@ -59,7 +59,7 @@ public sealed class JsonResourceProviderTests : IDisposable
     [Fact]
     public async Task GetAllStringsAsync_ReturnsAllKeys()
     {
-        await File.WriteAllTextAsync(Path.Combine(_tempDir, "en.json"),
+        await File.WriteAllTextAsync(Path.Join(_tempDir, "en.json"),
             """{"a": "1", "b": "2"}""");
 
         var result = await _sut.GetAllStringsAsync("en");
@@ -97,11 +97,11 @@ public sealed class JsonResourceProviderTests : IDisposable
         });
         var sut = new JsonResourceProvider(options, NullLogger<JsonResourceProvider>.Instance);
 
-        await File.WriteAllTextAsync(Path.Combine(_tempDir, "en.json"), """{"key": "original"}""");
+        await File.WriteAllTextAsync(Path.Join(_tempDir, "en.json"), """{"key": "original"}""");
         var first = await sut.GetStringAsync("key", "en");
         first.Should().Be("original");
 
-        await File.WriteAllTextAsync(Path.Combine(_tempDir, "en.json"), """{"key": "updated"}""");
+        await File.WriteAllTextAsync(Path.Join(_tempDir, "en.json"), """{"key": "updated"}""");
         await sut.ReloadAsync();
         var second = await sut.GetStringAsync("key", "en");
 

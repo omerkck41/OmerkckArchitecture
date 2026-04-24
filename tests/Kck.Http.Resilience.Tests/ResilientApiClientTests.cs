@@ -7,8 +7,15 @@ using Xunit;
 
 namespace Kck.Http.Resilience.Tests;
 
-public class ResilientApiClientTests
+public sealed class ResilientApiClientTests : IDisposable
 {
+    private readonly List<HttpClient> _httpClients = [];
+
+    public void Dispose()
+    {
+        foreach (var c in _httpClients) c.Dispose();
+    }
+
     [Fact]
     public async Task GetAsync_Success200_ShouldReturnSuccessResponse()
     {
@@ -78,9 +85,10 @@ public class ResilientApiClientTests
         capturedRequest!.Headers.GetValues("X-Custom").Should().Contain("test-value");
     }
 
-    private static ResilientApiClient CreateClient(HttpMessageHandler handler)
+    private ResilientApiClient CreateClient(HttpMessageHandler handler)
     {
         var httpClient = new HttpClient(handler);
+        _httpClients.Add(httpClient);
         return new ResilientApiClient(httpClient, new NullLogger<ResilientApiClient>());
     }
 

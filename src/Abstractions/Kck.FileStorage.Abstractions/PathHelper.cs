@@ -12,7 +12,7 @@ public static class PathHelper
             .ToFrozenSet(StringComparer.OrdinalIgnoreCase);
 
     public static string Combine(params string[] segments) =>
-        Path.Combine(segments).Replace('\\', '/');
+        Path.Join(segments).Replace('\\', '/');
 
     public static bool IsValidPath(string path) =>
         !string.IsNullOrWhiteSpace(path)

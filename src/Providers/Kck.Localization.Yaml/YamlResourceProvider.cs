@@ -54,9 +54,9 @@ public sealed partial class YamlResourceProvider(
         if (!IsValidCulture(culture))
             return new Dictionary<string, string>();
 
-        var filePath = Path.Combine(_options.ResourcePath, $"{culture}.yaml");
+        var filePath = Path.Join(_options.ResourcePath, $"{culture}.yaml");
         if (!File.Exists(filePath))
-            filePath = Path.Combine(_options.ResourcePath, $"{culture}.yml");
+            filePath = Path.Join(_options.ResourcePath, $"{culture}.yml");
 
         if (!File.Exists(filePath))
         {

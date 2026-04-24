@@ -67,7 +67,8 @@ public class SmtpConnectionPoolTests
         });
         await using var pool = new SmtpConnectionPool(options);
 
-        var act = async () => await pool.RentAsync(new CancellationTokenSource(TimeSpan.FromSeconds(3)).Token);
+        using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(3));
+        var act = async () => await pool.RentAsync(cts.Token);
 
         await act.Should().ThrowAsync<Exception>();
     }

@@ -107,13 +107,12 @@ public sealed partial class JwtTokenService : ITokenService, IDisposable
             var jti = principal.Claims.TryGetValue(JwtRegisteredClaimNames.Jti, out var jtiObj)
                 ? jtiObj?.ToString() : null;
 
-            if (_blacklist is not null && !string.IsNullOrEmpty(jti))
+            if (_blacklist is not null
+                && !string.IsNullOrEmpty(jti)
+                && await _blacklist.IsRevokedAsync(jti, ct))
             {
-                if (await _blacklist.IsRevokedAsync(jti, ct))
-                {
-                    LogTokenRevoked(_logger, jti);
-                    return new KckTokenValidationResult { IsValid = false, ErrorMessage = "Token has been revoked" };
-                }
+                LogTokenRevoked(_logger, jti);
+                return new KckTokenValidationResult { IsValid = false, ErrorMessage = "Token has been revoked" };
             }
 
             // 3. Return claims
@@ -154,36 +153,43 @@ public sealed partial class JwtTokenService : ITokenService, IDisposable
     private RsaSecurityKey LoadSigningKey()
     {
         var rsa = RSA.Create();
-
-        switch (_options.KeySource)
+        try
         {
-            case RsaKeySource.Configuration:
-                if (string.IsNullOrWhiteSpace(_options.RsaKeyBase64))
+            switch (_options.KeySource)
+            {
+                case RsaKeySource.Configuration:
+                    if (string.IsNullOrWhiteSpace(_options.RsaKeyBase64))
+                        throw new InvalidOperationException(
+                            "JWT signing key is not configured. Set JwtOptions.RsaKeyBase64 or use a different RsaKeySource. " +
+                            "Hardcoded fallback keys are not allowed.");
+                    rsa.ImportRSAPrivateKey(Convert.FromBase64String(_options.RsaKeyBase64), out _);
+                    break;
+
+                case RsaKeySource.File:
+                    if (string.IsNullOrWhiteSpace(_options.RsaKeyPath) || !System.IO.File.Exists(_options.RsaKeyPath))
+                        throw new InvalidOperationException(
+                            $"RSA key file not found at '{_options.RsaKeyPath}'. Provide a valid PEM file path.");
+                    var pem = System.IO.File.ReadAllText(_options.RsaKeyPath);
+                    rsa.ImportFromPem(pem);
+                    break;
+
+                case RsaKeySource.SecretsManager:
                     throw new InvalidOperationException(
-                        "JWT signing key is not configured. Set JwtOptions.RsaKeyBase64 or use a different RsaKeySource. " +
-                        "Hardcoded fallback keys are not allowed.");
-                rsa.ImportRSAPrivateKey(Convert.FromBase64String(_options.RsaKeyBase64), out _);
-                break;
+                        "RsaKeySource.SecretsManager requires manual key loading via ISecretsManager. " +
+                        "Use the AddKckJwt overload that accepts a key provider delegate.");
 
-            case RsaKeySource.File:
-                if (string.IsNullOrWhiteSpace(_options.RsaKeyPath) || !System.IO.File.Exists(_options.RsaKeyPath))
-                    throw new InvalidOperationException(
-                        $"RSA key file not found at '{_options.RsaKeyPath}'. Provide a valid PEM file path.");
-                var pem = System.IO.File.ReadAllText(_options.RsaKeyPath);
-                rsa.ImportFromPem(pem);
-                break;
+                default:
+                    throw new InvalidOperationException($"Unsupported RsaKeySource: {_options.KeySource}");
+            }
 
-            case RsaKeySource.SecretsManager:
-                throw new InvalidOperationException(
-                    "RsaKeySource.SecretsManager requires manual key loading via ISecretsManager. " +
-                    "Use the AddKckJwt overload that accepts a key provider delegate.");
-
-            default:
-                throw new InvalidOperationException($"Unsupported RsaKeySource: {_options.KeySource}");
+            LogSigningKeyLoaded(_logger, _options.KeySource);
+            return new RsaSecurityKey(rsa);
         }
-
-        LogSigningKeyLoaded(_logger, _options.KeySource);
-        return new RsaSecurityKey(rsa);
+        catch
+        {
+            rsa.Dispose();
+            throw;
+        }
     }
 
     [LoggerMessage(Level = LogLevel.Information, Message = "Access token created for user {UserId}")]

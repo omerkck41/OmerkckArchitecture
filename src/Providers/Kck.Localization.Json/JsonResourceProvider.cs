@@ -48,7 +48,7 @@ public sealed partial class JsonResourceProvider(
         if (!IsValidCulture(culture))
             return new Dictionary<string, string>();
 
-        var filePath = Path.Combine(_options.ResourcePath, $"{culture}.json");
+        var filePath = Path.Join(_options.ResourcePath, $"{culture}.json");
         if (!File.Exists(filePath))
         {
             LogResourceFileNotFound(logger, filePath);

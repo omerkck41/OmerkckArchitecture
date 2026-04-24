@@ -9,12 +9,11 @@ public static class ApiResponseExtensions
     {
         var result = new ObjectResult(response) { StatusCode = response.StatusCode };
 
-        if (!string.IsNullOrEmpty(response.Instance) && httpContext is not null)
+        if (!string.IsNullOrEmpty(response.Instance)
+            && httpContext is not null
+            && !httpContext.Response.Headers.ContainsKey("Location"))
         {
-            if (!httpContext.Response.Headers.ContainsKey("Location"))
-            {
-                httpContext.Response.Headers.Append("Location", response.Instance);
-            }
+            httpContext.Response.Headers.Append("Location", response.Instance);
         }
 
         return result;
