@@ -9,7 +9,7 @@ namespace Kck.Exceptions.AspNetCore.Middleware;
 /// ASP.NET Core exception middleware.
 /// Pipeline'daki hataları yakalar, uygun handler ile RFC 7807 uyumlu JSON yanıtı oluşturur.
 /// </summary>
-public sealed class ExceptionMiddleware
+public sealed partial class ExceptionMiddleware
 {
     private readonly RequestDelegate _next;
     private readonly ExceptionHandlerFactory _handlerFactory;
@@ -31,6 +31,12 @@ public sealed class ExceptionMiddleware
         _logger = logger;
     }
 
+    [LoggerMessage(Level = LogLevel.Error, Message = "Exception caught by ExceptionMiddleware. TraceId: {TraceId}")]
+    private static partial void LogExceptionCaught(ILogger logger, Exception ex, string traceId);
+
+    [LoggerMessage(Level = LogLevel.Warning, Message = "Response has already started, cannot write error response. TraceId: {TraceId}")]
+    private static partial void LogResponseAlreadyStarted(ILogger logger, string traceId);
+
     public async Task InvokeAsync(HttpContext context)
     {
         try
@@ -39,11 +45,11 @@ public sealed class ExceptionMiddleware
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
-            _logger.LogError(ex, "Exception caught by ExceptionMiddleware. TraceId: {TraceId}", context.TraceIdentifier);
+            LogExceptionCaught(_logger, ex, context.TraceIdentifier);
 
             if (context.Response.HasStarted)
             {
-                _logger.LogWarning("Response has already started, cannot write error response. TraceId: {TraceId}", context.TraceIdentifier);
+                LogResponseAlreadyStarted(_logger, context.TraceIdentifier);
                 throw;
             }
 

@@ -7,8 +7,9 @@
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <NoWarn>$(NoWarn);1591</NoWarn>
-    <!-- Pre-existing analyzer warnings — will be reduced as code improves -->
-    <WarningsNotAsErrors>$(WarningsNotAsErrors);CA1000;CA1001;CA1304;CA1305;CA1716;CA1848;CA1852;CA1869;CA1873;CA2016</WarningsNotAsErrors>
+    <!-- CA1716: breaking change (public interface/type renaming) — intentional suppression -->
+    <!-- CA1000: public generic factory methods (Result<T>, Paginate<T>, ApiResponse<T>) — intentional design, suppressed at source -->
+    <WarningsNotAsErrors>$(WarningsNotAsErrors);CA1716;CA1000</WarningsNotAsErrors>
     <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
   </PropertyGroup>
 

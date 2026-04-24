@@ -5,7 +5,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
-public static class KckAspNetCoreApplicationBuilderExtensions
+public static partial class KckAspNetCoreApplicationBuilderExtensions
 {
     public static IApplicationBuilder UseKckAspNetCore(this IApplicationBuilder app)
     {
@@ -30,9 +30,7 @@ public static class KckAspNetCoreApplicationBuilderExtensions
                 {
                     var logger = app.ApplicationServices.GetRequiredService<ILoggerFactory>()
                         .CreateLogger("Kck.AspNetCore.Cors");
-                    logger.LogWarning(
-                        "CORS AllowAnyOrigin is active in Production. "
-                        + "Configure explicit origins via UseCorsPolicy(origins) to restrict cross-origin access");
+                    LogCorsAllowAnyOriginInProduction(logger);
                 }
             }
 
@@ -41,4 +39,8 @@ public static class KckAspNetCoreApplicationBuilderExtensions
 
         return app;
     }
+
+    [LoggerMessage(Level = LogLevel.Warning,
+        Message = "CORS AllowAnyOrigin is active in Production. Configure explicit origins via UseCorsPolicy(origins) to restrict cross-origin access")]
+    private static partial void LogCorsAllowAnyOriginInProduction(ILogger logger);
 }

@@ -7,7 +7,7 @@ using YamlDotNet.Serialization.NamingConventions;
 
 namespace Kck.Localization.Yaml;
 
-public sealed class YamlResourceProvider(
+public sealed partial class YamlResourceProvider(
     IOptionsMonitor<LocalizationOptions> options,
     ILogger<YamlResourceProvider> logger,
     int priority = 100) : IResourceProvider
@@ -60,7 +60,7 @@ public sealed class YamlResourceProvider(
 
         if (!File.Exists(filePath))
         {
-            logger.LogDebug("YAML resource file not found for culture: {Culture}", culture);
+            LogYamlResourceNotFound(logger, culture);
             return new Dictionary<string, string>();
         }
 
@@ -72,6 +72,9 @@ public sealed class YamlResourceProvider(
 
         return dict;
     }
+
+    [LoggerMessage(Level = LogLevel.Debug, Message = "YAML resource file not found for culture: {Culture}")]
+    private static partial void LogYamlResourceNotFound(ILogger logger, string culture);
 
     private static Dictionary<string, string> FlattenYaml(string yaml)
     {

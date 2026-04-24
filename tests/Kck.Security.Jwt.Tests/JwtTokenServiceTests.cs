@@ -7,7 +7,7 @@ using Xunit;
 
 namespace Kck.Security.Jwt.Tests;
 
-public class JwtTokenServiceTests
+public class JwtTokenServiceTests : IDisposable
 {
     private readonly ITokenBlacklistService _blacklist = Substitute.For<ITokenBlacklistService>();
     private readonly JwtTokenService _sut;
@@ -31,6 +31,12 @@ public class JwtTokenServiceTests
             new StaticOptionsMonitor<JwtOptions>(_options),
             NullLogger<JwtTokenService>.Instance,
             _blacklist);
+    }
+
+    public void Dispose()
+    {
+        _sut.Dispose();
+        GC.SuppressFinalize(this);
     }
 
     [Fact]

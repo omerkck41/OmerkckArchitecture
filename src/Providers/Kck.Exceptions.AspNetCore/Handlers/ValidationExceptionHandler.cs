@@ -8,7 +8,7 @@ namespace Kck.Exceptions.AspNetCore.Handlers;
 /// <see cref="ValidationException"/> tipini işleyen handler.
 /// HTTP 422 Unprocessable Entity döner ve validasyon hatalarını errors alanına yazar.
 /// </summary>
-public sealed class ValidationExceptionHandler : IKckExceptionHandler
+public sealed partial class ValidationExceptionHandler : IKckExceptionHandler
 {
     private readonly ILogger<ValidationExceptionHandler> _logger;
 
@@ -26,10 +26,7 @@ public sealed class ValidationExceptionHandler : IKckExceptionHandler
         var validationException = (ValidationException)exception;
         var traceId = context.TraceIdentifier;
 
-        _logger.LogWarning(
-            exception,
-            "Validation exception occurred. TraceId: {TraceId}",
-            traceId);
+        LogValidationException(_logger, exception, traceId);
 
         var errors = validationException.Errors
             .ToDictionary(
@@ -45,4 +42,7 @@ public sealed class ValidationExceptionHandler : IKckExceptionHandler
             errors: errors,
             traceId: traceId);
     }
+
+    [LoggerMessage(Level = LogLevel.Warning, Message = "Validation exception occurred. TraceId: {TraceId}")]
+    private static partial void LogValidationException(ILogger logger, Exception exception, string traceId);
 }

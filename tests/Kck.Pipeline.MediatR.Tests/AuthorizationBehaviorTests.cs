@@ -11,7 +11,7 @@ namespace Kck.Pipeline.MediatR.Tests;
 
 public class AuthorizationBehaviorTests
 {
-    private record TestSecuredRequest(string[] Roles) : IRequest<string>, ISecuredRequest;
+    private sealed record TestSecuredRequest(string[] Roles) : IRequest<string>, ISecuredRequest;
 
     private readonly ICurrentUserProvider _currentUser = Substitute.For<ICurrentUserProvider>();
 

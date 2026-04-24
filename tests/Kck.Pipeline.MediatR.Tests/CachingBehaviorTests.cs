@@ -13,13 +13,13 @@ namespace Kck.Pipeline.MediatR.Tests;
 
 public class CachingBehaviorTests
 {
-    private record TestCachableRequest(string CacheKey, bool BypassCache = false) : IRequest<TestResponse>, ICachableRequest
+    private sealed record TestCachableRequest(string CacheKey, bool BypassCache = false) : IRequest<TestResponse>, ICachableRequest
     {
         public string? CacheGroupKey => null;
         public TimeSpan? SlidingExpiration => null;
     }
 
-    private record TestResponse(string Value);
+    private sealed record TestResponse(string Value);
 
     private readonly IDistributedCache _cache;
     private readonly CachingBehavior<TestCachableRequest, TestResponse> _sut;

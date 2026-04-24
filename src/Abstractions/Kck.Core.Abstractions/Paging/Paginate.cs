@@ -24,6 +24,7 @@ public class Paginate<T> : IPaginate<T>
     /// Provider-specific async factories (e.g., EF Core <c>ToPaginateAsync</c>)
     /// use this to avoid duplicating the derived-field math.
     /// </summary>
+#pragma warning disable CA1000
     public static Paginate<T> Create(
         IReadOnlyList<T> items,
         int totalCount,
@@ -50,4 +51,5 @@ public class Paginate<T> : IPaginate<T>
             IsLastPage = index - from + 1 >= pages
         };
     }
+#pragma warning restore CA1000
 }

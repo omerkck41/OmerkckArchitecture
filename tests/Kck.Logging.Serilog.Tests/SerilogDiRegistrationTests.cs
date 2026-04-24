@@ -44,7 +44,9 @@ public class SerilogDiRegistrationTests
         var factory = provider.GetRequiredService<ILoggerFactory>();
         var logger = factory.CreateLogger<SerilogDiRegistrationTests>();
 
+#pragma warning disable CA1848, CA1873
         var act = () => logger.LogInformation("test message {Value}", 42);
+#pragma warning restore CA1848, CA1873
         act.Should().NotThrow();
     }
 
@@ -60,7 +62,9 @@ public class SerilogDiRegistrationTests
         var factory = provider.GetRequiredService<ILoggerFactory>();
         var logger = factory.CreateLogger("trace-test");
 
+#pragma warning disable CA1848
         var act = () => logger.LogInformation("with trace");
+#pragma warning restore CA1848
         act.Should().NotThrow();
         activity.TraceId.Should().NotBe(default);
     }

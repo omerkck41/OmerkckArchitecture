@@ -4,10 +4,16 @@ using Microsoft.Extensions.Logging;
 
 namespace Kck.Http.Resilience;
 
-public sealed class ResilientApiClient(
+public sealed partial class ResilientApiClient(
     HttpClient httpClient,
     ILogger<ResilientApiClient> logger) : IApiClient
 {
+    [LoggerMessage(Level = LogLevel.Warning, Message = "HTTP {Method} {Url} returned {StatusCode}: {Error}")]
+    private static partial void LogHttpFailure(ILogger logger, HttpMethod method, string url, int statusCode, string error);
+
+    [LoggerMessage(Level = LogLevel.Warning, Message = "HTTP {Method} {Url} timed out")]
+    private static partial void LogHttpTimeout(ILogger logger, HttpMethod method, string url);
+
     public Task<ApiResponse<T>> GetAsync<T>(string url, CancellationToken ct = default) =>
         SendAsync<T>(HttpMethod.Get, url, ct: ct);
 
@@ -46,12 +52,12 @@ public sealed class ResilientApiClient(
             }
 
             var error = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
-            logger.LogWarning("HTTP {Method} {Url} returned {StatusCode}: {Error}", method, url, statusCode, error);
+            LogHttpFailure(logger, method, url, statusCode, error);
             return ApiResponse<T>.Failure(error, statusCode);
         }
         catch (TaskCanceledException) when (!ct.IsCancellationRequested)
         {
-            logger.LogWarning("HTTP {Method} {Url} timed out", method, url);
+            LogHttpTimeout(logger, method, url);
             return ApiResponse<T>.Failure("Request timed out", 408);
         }
     }

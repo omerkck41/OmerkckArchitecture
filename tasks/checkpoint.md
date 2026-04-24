@@ -1,13 +1,41 @@
 ---
-task: FAZ 6 — Dokuman (TAMAMLANDI)
+task: FAZ 7 — CA Warning Cleanup (TAMAMLANDI)
 started: 2026-04-24
 last_updated: 2026-04-24
-current_step: 5
-total_steps: 5
+current_step: 8
+total_steps: 8
 status: completed
 ---
 
 ## Tamamlanan Adimlar
+
+### FAZ 7 — CA Warning Cleanup (Tamamlandi)
+- [x] 7.1 CA1848: 28 log cagrisi `[LoggerMessage]` partial metod ile degistirildi (18 dosya)
+  - GlobalExceptionHandler, ValidationExceptionHandler, ExceptionMiddleware
+  - JwtTokenService, AzureKeyVaultSecretsManager, RedisConnectionHostedService
+  - ApplicationBuilderExtensions, FluentFtpService, ResilientApiClient
+  - LocalizationService, JsonResourceProvider, YamlResourceProvider
+  - DomainEventDispatchInterceptor, ElasticsearchSearchService\<T\>
+  - ProductsController, SampleCleanupJob, SampleRecurringJob
+- [x] 7.2 CA1873: `[LoggerMessage]` pattern ile otomatik duzeltildi (log guarding dahil)
+- [x] 7.3 CA1305/CA1304: `CultureInfo.InvariantCulture` eklendi
+  - LocalizationService (`string.Format` — 4 yer)
+  - Kck.Logging.Serilog (`WriteTo.Console`, `WriteTo.File` formatProvider)
+  - ClosedXmlExcelService (`XLCellValue.FromObject`, `cell.Value.ToString`)
+- [x] 7.4 CA2016: `CancellationToken` yonlendirmesi — MailKitEmailProvider
+- [x] 7.5 CA1001: `IDisposable` eklendi — OpenTelemetryMetricsService, JwtTokenServiceTests
+  - `GC.SuppressFinalize(this)` (CA1816) — JwtTokenServiceTests.Dispose()
+- [x] 7.6 CA1852: `sealed record` — AuthorizationBehaviorTests, CachingBehaviorTests
+- [x] 7.7 CA1000: `#pragma warning disable CA1000` inline suppress
+  - `Result<T>.Success/Failure`, `Paginate<T>.Create`, `ApiResponse<T>.Success/Failure`
+- [x] 7.8 CA1716: breaking change — `WarningsNotAsErrors` listesinde birakıldı
+- [x] 7.9 CA1869: kaynak uyarisi yok, sadece listeden cikarildi
+- [x] 7.10 CA1859 (onceden mevcut): localizasyon test dosyalari duzeltildi
+  - JsonResourceProvider/YamlResourceProvider testleri: `_sut.Priority` vs `IResourceProvider`
+  - InMemoryResourceProvider: interface default impl — `#pragma warning disable CA1859` ile korundu
+- [x] 7.11 `Directory.Build.props`: `WarningsNotAsErrors` 10 kuraldan 2'ye indirildi (`CA1716;CA1000`)
+- [x] Build: `0 Warning(s) 0 Error(s)` dogrulandi
+- [x] Testler: tum assemblylerde `Failed: 0` dogrulandi
 
 ### FAZ 6 — Dokuman (Tamamlandi)
 - [x] 6.1 `docs/adr/README.md` — ADR index + durum tablosu + kategori
@@ -67,12 +95,11 @@ status: completed
 
 ## Recovery Notlari
 
-- FAZ 6 tamamlandi. Dokuman + ADR index + 17 rehber + provider index + kok docs README.
+- FAZ 7 tamamlandi. 67 CA uyarisi kaynakta temizlendi; `WarningsNotAsErrors` 2 kurala indirildi.
 - **Sonraki oturumda secenekler:**
-  - **FAZ 7** — CA temizligi (CA1848 LoggerMessage, CA1716 Set/Get, CA1305 IFormatProvider, CA1873 log guarding) — 67 warning
   - **XML doc** — eksik public API XML doc (CS1591 NoWarn'da; ayri faz)
   - **Outbox** — opsiyonel FAZ 4 adimi (yeni provider)
   - **Coverage threshold** — Coverlet halihazirda CI'da coverage topluyor; minimum threshold eklemek icin `.github/workflows/build-test.yml` editi gerekir
   - **CI kontrol** — Actions sekmesinden build-test + codeql calisma sonuclarini inceleme
 - **Workflow gereksinimleri:** normal akis `develop` branch uzerinden, feature branch'lerle PR
-- **FAZ 6 commit mesaji onerisi:** `docs: add ADR index + 17 provider category guides`
+- **FAZ 7 commit mesaji:** `refactor: clean up CA warnings (FAZ 7)`

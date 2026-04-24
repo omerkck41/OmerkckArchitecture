@@ -8,7 +8,7 @@ namespace Kck.Caching.Redis.DependencyInjection;
 /// Establishes the shared Redis <see cref="IConnectionMultiplexer"/> asynchronously at host startup,
 /// so no caller performs blocking I/O on first request.
 /// </summary>
-internal sealed class RedisConnectionHostedService(
+internal sealed partial class RedisConnectionHostedService(
     RedisConnectionHolder holder,
     RedisConnectionFactory factory,
     ILogger<RedisConnectionHostedService> logger) : IHostedService, IAsyncDisposable
@@ -17,8 +17,11 @@ internal sealed class RedisConnectionHostedService(
     {
         var multiplexer = await factory.ConnectAsync(cancellationToken).ConfigureAwait(false);
         holder.SetMultiplexer(multiplexer);
-        logger.LogInformation("Redis connection established.");
+        LogRedisConnected(logger);
     }
+
+    [LoggerMessage(Level = LogLevel.Information, Message = "Redis connection established.")]
+    private static partial void LogRedisConnected(ILogger logger);
 
     public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;
 

@@ -6,7 +6,7 @@ using Microsoft.Extensions.Options;
 
 namespace Kck.Localization.Json;
 
-public sealed class JsonResourceProvider(
+public sealed partial class JsonResourceProvider(
     IOptionsMonitor<LocalizationOptions> options,
     ILogger<JsonResourceProvider> logger,
     int priority = 100) : IResourceProvider
@@ -51,7 +51,7 @@ public sealed class JsonResourceProvider(
         var filePath = Path.Combine(_options.ResourcePath, $"{culture}.json");
         if (!File.Exists(filePath))
         {
-            logger.LogDebug("Resource file not found: {FilePath}", filePath);
+            LogResourceFileNotFound(logger, filePath);
             return new Dictionary<string, string>();
         }
 
@@ -63,6 +63,9 @@ public sealed class JsonResourceProvider(
 
         return dict;
     }
+
+    [LoggerMessage(Level = LogLevel.Debug, Message = "Resource file not found: {FilePath}")]
+    private static partial void LogResourceFileNotFound(ILogger logger, string filePath);
 
     private static Dictionary<string, string> FlattenJson(string json)
     {

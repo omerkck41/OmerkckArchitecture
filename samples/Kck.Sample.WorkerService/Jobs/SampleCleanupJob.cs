@@ -3,11 +3,14 @@ using Microsoft.Extensions.Logging;
 
 namespace Kck.Sample.WorkerService.Jobs;
 
-public sealed class SampleCleanupJob(ILogger<SampleCleanupJob> logger) : IBackgroundJob
+public sealed partial class SampleCleanupJob(ILogger<SampleCleanupJob> logger) : IBackgroundJob
 {
     public Task ExecuteAsync(CancellationToken ct = default)
     {
-        logger.LogInformation("SampleCleanupJob executed at {Time}", DateTimeOffset.UtcNow);
+        LogExecuted(logger, DateTimeOffset.UtcNow);
         return Task.CompletedTask;
     }
+
+    [LoggerMessage(Level = LogLevel.Information, Message = "SampleCleanupJob executed at {Time}")]
+    private static partial void LogExecuted(ILogger logger, DateTimeOffset time);
 }

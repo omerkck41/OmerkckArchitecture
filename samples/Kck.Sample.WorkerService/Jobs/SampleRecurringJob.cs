@@ -3,14 +3,17 @@ using Microsoft.Extensions.Logging;
 
 namespace Kck.Sample.WorkerService.Jobs;
 
-public sealed class SampleRecurringJob(ILogger<SampleRecurringJob> logger) : IRecurringJob
+public sealed partial class SampleRecurringJob(ILogger<SampleRecurringJob> logger) : IRecurringJob
 {
     public string JobId => "sample-recurring";
     public string CronExpression => CronExpressions.Every5Minutes;
 
     public Task ExecuteAsync(CancellationToken ct = default)
     {
-        logger.LogInformation("SampleRecurringJob executed at {Time}", DateTimeOffset.UtcNow);
+        LogExecuted(logger, DateTimeOffset.UtcNow);
         return Task.CompletedTask;
     }
+
+    [LoggerMessage(Level = LogLevel.Information, Message = "SampleRecurringJob executed at {Time}")]
+    private static partial void LogExecuted(ILogger logger, DateTimeOffset time);
 }

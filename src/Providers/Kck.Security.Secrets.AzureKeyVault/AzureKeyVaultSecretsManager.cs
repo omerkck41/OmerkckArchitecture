@@ -7,7 +7,7 @@ using Microsoft.Extensions.Options;
 
 namespace Kck.Security.Secrets.AzureKeyVault;
 
-public sealed class AzureKeyVaultSecretsManager(
+public sealed partial class AzureKeyVaultSecretsManager(
     IOptionsMonitor<AzureKeyVaultOptions> options,
     ILogger<AzureKeyVaultSecretsManager> logger) : ISecretsManager
 {
@@ -43,13 +43,16 @@ public sealed class AzureKeyVaultSecretsManager(
     public async Task SetSecretAsync(string key, string value, CancellationToken ct = default)
     {
         await _client.SetSecretAsync(BuildKey(key), value, ct).ConfigureAwait(false);
-        logger.LogInformation("Secret {Key} updated in Azure Key Vault", key);
+        LogSecretUpdated(logger, key);
     }
 
     public async Task<bool> ExistsAsync(string key, CancellationToken ct = default)
     {
         return await GetSecretAsync(key, ct).ConfigureAwait(false) is not null;
     }
+
+    [LoggerMessage(Level = LogLevel.Information, Message = "Secret {Key} updated in Azure Key Vault")]
+    private static partial void LogSecretUpdated(ILogger logger, string key);
 
     private string BuildKey(string key) =>
         string.IsNullOrEmpty(_prefix) ? key : $"{_prefix}-{key}";

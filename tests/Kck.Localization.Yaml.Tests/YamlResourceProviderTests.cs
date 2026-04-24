@@ -77,15 +77,13 @@ public sealed class YamlResourceProviderTests : IDisposable
     [Fact]
     public void Priority_ReturnsDefaultValue()
     {
-        IResourceProvider provider = _sut;
-        provider.Priority.Should().Be(100);
+        _sut.Priority.Should().Be(100);
     }
 
     [Fact]
     public void SupportsDynamicReload_ReturnsTrue()
     {
-        IResourceProvider provider = _sut;
-        provider.SupportsDynamicReload.Should().BeTrue();
+        _sut.SupportsDynamicReload.Should().BeTrue();
     }
 
     [Fact]

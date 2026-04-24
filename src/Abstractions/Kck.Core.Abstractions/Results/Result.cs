@@ -30,8 +30,10 @@ public sealed class Result<T>
     private Result(T value) { IsSuccess = true; Value = value; }
     private Result(Error error) { IsSuccess = false; Error = error; }
 
+#pragma warning disable CA1000
     public static Result<T> Success(T value) => new(value);
     public static Result<T> Failure(Error error) => new(error);
+#pragma warning restore CA1000
 
     public TResult Match<TResult>(Func<T, TResult> onSuccess, Func<Error, TResult> onFailure)
         => IsSuccess ? onSuccess(Value!) : onFailure(Error!);

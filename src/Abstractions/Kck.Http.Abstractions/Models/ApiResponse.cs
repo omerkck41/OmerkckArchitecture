@@ -7,9 +7,11 @@ public sealed class ApiResponse<T>
     public int StatusCode { get; init; }
     public string? ErrorMessage { get; init; }
 
+#pragma warning disable CA1000
     public static ApiResponse<T> Success(T data, int statusCode = 200) =>
         new() { IsSuccess = true, Data = data, StatusCode = statusCode };
 
     public static ApiResponse<T> Failure(string error, int statusCode) =>
         new() { IsSuccess = false, ErrorMessage = error, StatusCode = statusCode };
+#pragma warning restore CA1000
 }

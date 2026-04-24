@@ -30,7 +30,7 @@ public sealed class MailKitEmailProvider(SmtpConnectionPool pool) : IEmailProvid
             builder.TextBody = message.Body;
 
         foreach (var att in message.Attachments)
-            builder.Attachments.Add(att.FileName, att.Content, ContentType.Parse(att.ContentType));
+            builder.Attachments.Add(att.FileName, att.Content, ContentType.Parse(att.ContentType), ct);
 
         mime.Body = builder.ToMessageBody();
 

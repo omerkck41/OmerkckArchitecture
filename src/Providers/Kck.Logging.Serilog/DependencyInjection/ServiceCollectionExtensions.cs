@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Globalization;
 using Serilog;
 using Serilog.Formatting.Compact;
 
@@ -27,7 +28,7 @@ public static class KckLoggingSerilogServiceCollectionExtensions
 
             if (builder.UseConsoleOutput)
             {
-                loggerConfig.WriteTo.Console();
+                loggerConfig.WriteTo.Console(formatProvider: CultureInfo.InvariantCulture);
             }
 
             if (builder.UseCompactJson)
@@ -39,6 +40,7 @@ public static class KckLoggingSerilogServiceCollectionExtensions
             {
                 loggerConfig.WriteTo.File(
                     builder.FilePath,
+                    formatProvider: CultureInfo.InvariantCulture,
                     rollingInterval: builder.RollingInterval,
                     retainedFileCountLimit: builder.RetainedFileCount);
             }

@@ -3,7 +3,7 @@ using Kck.Observability.Abstractions;
 
 namespace Kck.Observability.OpenTelemetry.Metrics;
 
-internal sealed class OpenTelemetryMetricsService : IMetricsService
+internal sealed class OpenTelemetryMetricsService : IMetricsService, IDisposable
 {
     private readonly Meter _meter;
 
@@ -28,4 +28,6 @@ internal sealed class OpenTelemetryMetricsService : IMetricsService
     {
         return new OpenTelemetryGauge(_meter, name, description);
     }
+
+    public void Dispose() => _meter.Dispose();
 }

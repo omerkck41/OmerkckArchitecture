@@ -90,14 +90,18 @@ public sealed class InMemoryResourceProviderTests
     [Fact]
     public void Priority_ReturnsDefault_Value()
     {
+#pragma warning disable CA1859
         IResourceProvider provider = _sut;
+#pragma warning restore CA1859
         provider.Priority.Should().Be(100);
     }
 
     [Fact]
     public void SupportsDynamicReload_ReturnsFalse()
     {
-        IResourceProvider provider = _sut;
-        provider.SupportsDynamicReload.Should().BeFalse();
+#pragma warning disable CA1859
+        IResourceProvider provider2 = _sut;
+#pragma warning restore CA1859
+        provider2.SupportsDynamicReload.Should().BeFalse();
     }
 }

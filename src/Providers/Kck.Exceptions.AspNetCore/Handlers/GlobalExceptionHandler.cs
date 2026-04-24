@@ -12,7 +12,7 @@ namespace Kck.Exceptions.AspNetCore.Handlers;
 /// <see cref="HttpStatusCodeAttribute"/> veya <see cref="CustomException.ExplicitStatusCode"/> ile
 /// HTTP durum kodu belirlenir. Bulunamazsa 500 döner.
 /// </summary>
-public sealed class GlobalExceptionHandler : IKckExceptionHandler
+public sealed partial class GlobalExceptionHandler : IKckExceptionHandler
 {
     private readonly ILogger<GlobalExceptionHandler> _logger;
 
@@ -34,11 +34,7 @@ public sealed class GlobalExceptionHandler : IKckExceptionHandler
 
         if (exception is CustomException customEx)
         {
-            _logger.LogWarning(
-                exception,
-                "Handled CustomException. TraceId: {TraceId}, Type: {ExceptionType}",
-                traceId,
-                customEx.ErrorType);
+            LogHandledCustomException(_logger, exception, traceId, customEx.ErrorType);
 
             return new UnifiedApiErrorResponse(
                 type: $"https://httpstatuses.com/{statusCode}",
@@ -51,10 +47,7 @@ public sealed class GlobalExceptionHandler : IKckExceptionHandler
         }
 
         // Fallback — bu dal normalde çağrılmaz (CanHandle kontrolü nedeniyle)
-        _logger.LogError(
-            exception,
-            "Unhandled exception routed to GlobalExceptionHandler. TraceId: {TraceId}",
-            traceId);
+        LogUnhandledGlobalException(_logger, exception, traceId);
 
         return new UnifiedApiErrorResponse(
             type: "https://httpstatuses.com/500",
@@ -65,6 +58,12 @@ public sealed class GlobalExceptionHandler : IKckExceptionHandler
             errors: null,
             traceId: traceId);
     }
+
+    [LoggerMessage(Level = LogLevel.Warning, Message = "Handled CustomException. TraceId: {TraceId}, Type: {ExceptionType}")]
+    private static partial void LogHandledCustomException(ILogger logger, Exception exception, string traceId, string exceptionType);
+
+    [LoggerMessage(Level = LogLevel.Error, Message = "Unhandled exception routed to GlobalExceptionHandler. TraceId: {TraceId}")]
+    private static partial void LogUnhandledGlobalException(ILogger logger, Exception exception, string traceId);
 
     private static int ResolveStatusCode(Exception exception)
     {

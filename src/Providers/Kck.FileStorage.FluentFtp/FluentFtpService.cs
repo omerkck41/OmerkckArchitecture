@@ -4,7 +4,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Kck.FileStorage.FluentFtp;
 
-public sealed class FluentFtpService(
+public sealed partial class FluentFtpService(
     FtpConnectionPool pool,
     ILogger<FluentFtpService> logger) : IFtpService
 {
@@ -22,13 +22,16 @@ public sealed class FluentFtpService(
                 token: ct).ConfigureAwait(false);
 
             if (status == FtpStatus.Failed)
-                logger.LogWarning("Failed to upload file to {Path}", path);
+                LogUploadFailed(logger, path);
         }
         finally
         {
             await pool.ReturnAsync(client).ConfigureAwait(false);
         }
     }
+
+    [LoggerMessage(Level = LogLevel.Warning, Message = "Failed to upload file to {Path}")]
+    private static partial void LogUploadFailed(ILogger logger, string path);
 
     public async Task<Stream> DownloadAsync(string path, CancellationToken ct = default)
     {

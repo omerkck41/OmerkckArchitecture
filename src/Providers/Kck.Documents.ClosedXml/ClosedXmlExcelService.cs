@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Reflection;
 using ClosedXML.Excel;
 using Kck.Documents.Abstractions;
@@ -25,7 +26,7 @@ public sealed class ClosedXmlExcelService : IExcelService
             foreach (var dataRow in ws.Rows)
             {
                 for (var col = 0; col < dataRow.Count; col++)
-                    sheet.Cell(row, col + 1).SetValue(XLCellValue.FromObject(dataRow[col]));
+                    sheet.Cell(row, col + 1).SetValue(XLCellValue.FromObject(dataRow[col], CultureInfo.InvariantCulture));
                 row++;
             }
 
@@ -49,7 +50,7 @@ public sealed class ClosedXmlExcelService : IExcelService
         foreach (var item in data)
         {
             for (var col = 0; col < properties.Length; col++)
-                sheet.Cell(row, col + 1).SetValue(XLCellValue.FromObject(properties[col].GetValue(item)));
+                sheet.Cell(row, col + 1).SetValue(XLCellValue.FromObject(properties[col].GetValue(item), CultureInfo.InvariantCulture));
             row++;
         }
 
@@ -67,7 +68,7 @@ public sealed class ClosedXmlExcelService : IExcelService
         {
             var cells = new List<object?>();
             foreach (var cell in row.CellsUsed())
-                cells.Add(cell.Value.ToString());
+                cells.Add(cell.Value.ToString(CultureInfo.InvariantCulture));
             rows.Add(cells);
         }
 

@@ -8,7 +8,7 @@ namespace Kck.Persistence.EntityFramework.Interceptors;
 /// <summary>
 /// EF Core interceptor that collects and dispatches domain events after SaveChanges.
 /// </summary>
-public sealed class DomainEventDispatchInterceptor(
+public sealed partial class DomainEventDispatchInterceptor(
     IDomainEventDispatcher dispatcher,
     ILogger<DomainEventDispatchInterceptor> logger) : SaveChangesInterceptor
 {
@@ -31,12 +31,15 @@ public sealed class DomainEventDispatchInterceptor(
     {
         if (eventData.Context is not null)
         {
-            logger.LogWarning("Sync SavedChanges triggered domain event dispatch. Prefer SaveChangesAsync to avoid thread pool offloading");
+            LogSyncSaveChanges(logger);
             Task.Run(() => DispatchDomainEventsAsync(eventData.Context, CancellationToken.None)).GetAwaiter().GetResult();
         }
 
         return result;
     }
+
+    [LoggerMessage(Level = LogLevel.Warning, Message = "Sync SavedChanges triggered domain event dispatch. Prefer SaveChangesAsync to avoid thread pool offloading")]
+    private static partial void LogSyncSaveChanges(ILogger logger);
 
     private async Task DispatchDomainEventsAsync(DbContext context, CancellationToken cancellationToken)
     {

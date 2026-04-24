@@ -7,12 +7,12 @@ namespace Kck.Sample.WebApi.Features.Products;
 
 [ApiController]
 [Route("api/[controller]")]
-public sealed class ProductsController(AppDbContext db, ILogger<ProductsController> logger) : KckApiControllerBase
+public sealed partial class ProductsController(AppDbContext db, ILogger<ProductsController> logger) : KckApiControllerBase
 {
     [HttpGet]
     public async Task<IActionResult> GetAll(CancellationToken ct)
     {
-        logger.LogInformation("Fetching all products");
+        LogFetchingAllProducts(logger);
         var products = await db.Products.AsNoTracking().ToListAsync(ct);
         return ApiSuccess(products);
     }
@@ -40,7 +40,7 @@ public sealed class ProductsController(AppDbContext db, ILogger<ProductsControll
         db.Products.Add(product);
         await db.SaveChangesAsync(ct);
 
-        logger.LogInformation("Product created: {ProductId}", product.Id);
+        LogProductCreated(logger, product.Id);
         return ApiSuccess(product, "Product created", 201);
     }
 
@@ -58,3 +58,12 @@ public sealed class ProductsController(AppDbContext db, ILogger<ProductsControll
 }
 
 public sealed record CreateProductRequest(string Name, string Category, decimal Price);
+
+public sealed partial class ProductsController
+{
+    [LoggerMessage(Level = LogLevel.Information, Message = "Fetching all products")]
+    private static partial void LogFetchingAllProducts(ILogger logger);
+
+    [LoggerMessage(Level = LogLevel.Information, Message = "Product created: {ProductId}")]
+    private static partial void LogProductCreated(ILogger logger, Guid productId);
+}

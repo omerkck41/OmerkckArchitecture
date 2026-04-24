@@ -10,7 +10,7 @@ using KckTokenValidationResult = Kck.Security.Abstractions.Token.TokenValidation
 namespace Kck.Security.Jwt;
 
 /// <summary>RS256 JWT token service. Throws if signing key is not configured.</summary>
-public sealed class JwtTokenService : ITokenService, IDisposable
+public sealed partial class JwtTokenService : ITokenService, IDisposable
 {
     private readonly JwtOptions _options;
     private readonly ITokenBlacklistService? _blacklist;
@@ -64,7 +64,7 @@ public sealed class JwtTokenService : ITokenService, IDisposable
 
         var tokenString = handler.CreateToken(descriptor);
 
-        _logger.LogInformation("Access token created for user {UserId}", request.UserId);
+        LogAccessTokenCreated(_logger, request.UserId);
 
         return Task.FromResult(new TokenResult
         {
@@ -111,7 +111,7 @@ public sealed class JwtTokenService : ITokenService, IDisposable
             {
                 if (await _blacklist.IsRevokedAsync(jti, ct))
                 {
-                    _logger.LogInformation("Token {Jti} is revoked", jti);
+                    LogTokenRevoked(_logger, jti);
                     return new KckTokenValidationResult { IsValid = false, ErrorMessage = "Token has been revoked" };
                 }
             }
@@ -132,7 +132,7 @@ public sealed class JwtTokenService : ITokenService, IDisposable
         }
         catch (Exception ex)
         {
-            _logger.LogWarning(ex, "Token validation failed");
+            LogTokenValidationFailed(_logger, ex);
             return new KckTokenValidationResult { IsValid = false, ErrorMessage = "Token validation failed" };
         }
     }
@@ -182,9 +182,21 @@ public sealed class JwtTokenService : ITokenService, IDisposable
                 throw new InvalidOperationException($"Unsupported RsaKeySource: {_options.KeySource}");
         }
 
-        _logger.LogInformation("RSA signing key loaded via {KeySource}", _options.KeySource);
+        LogSigningKeyLoaded(_logger, _options.KeySource);
         return new RsaSecurityKey(rsa);
     }
+
+    [LoggerMessage(Level = LogLevel.Information, Message = "Access token created for user {UserId}")]
+    private static partial void LogAccessTokenCreated(ILogger logger, string userId);
+
+    [LoggerMessage(Level = LogLevel.Information, Message = "Token {Jti} is revoked")]
+    private static partial void LogTokenRevoked(ILogger logger, string? jti);
+
+    [LoggerMessage(Level = LogLevel.Warning, Message = "Token validation failed")]
+    private static partial void LogTokenValidationFailed(ILogger logger, Exception ex);
+
+    [LoggerMessage(Level = LogLevel.Information, Message = "RSA signing key loaded via {KeySource}")]
+    private static partial void LogSigningKeyLoaded(ILogger logger, RsaKeySource keySource);
 
     public void Dispose()
     {

@@ -8,7 +8,7 @@ namespace Kck.Localization;
 /// <summary>
 /// Orchestrates multiple resource providers with priority, fallback, and pluralization support.
 /// </summary>
-public sealed class LocalizationService(
+public sealed partial class LocalizationService(
     IEnumerable<IResourceProvider> providers,
     IPluralizer pluralizer,
     IOptionsMonitor<LocalizationOptions> options,
@@ -35,11 +35,11 @@ public sealed class LocalizationService(
             if (_options.ThrowOnMissing)
                 throw new KeyNotFoundException($"Localization key '{key}' not found for culture '{culture}'.");
 
-            logger.LogDebug("Missing localization key: {Key} for culture: {Culture}", key, culture);
-            return string.Format(_options.MissingKeyPattern, key);
+            LogMissingLocalizationKey(logger, key, culture);
+            return string.Format(CultureInfo.InvariantCulture, _options.MissingKeyPattern, key);
         }
 
-        return args.Length > 0 ? string.Format(value, args) : value;
+        return args.Length > 0 ? string.Format(CultureInfo.InvariantCulture, value, args) : value;
     }
 
     public async Task<string?> TryGetStringAsync(string key, string culture, CancellationToken ct = default) =>
@@ -64,10 +64,10 @@ public sealed class LocalizationService(
             if (_options.ThrowOnMissing)
                 throw new KeyNotFoundException($"Plural key '{pluralKey}' not found for culture '{culture}'.");
 
-            return string.Format(_options.MissingKeyPattern, pluralKey);
+            return string.Format(CultureInfo.InvariantCulture, _options.MissingKeyPattern, pluralKey);
         }
 
-        return string.Format(value, count);
+        return string.Format(CultureInfo.InvariantCulture, value, count);
     }
 
     public async Task<IReadOnlyDictionary<string, string>> GetAllStringsAsync(string culture, CancellationToken ct = default)
@@ -106,6 +106,9 @@ public sealed class LocalizationService(
             await provider.ReloadAsync(ct).ConfigureAwait(false);
         }
     }
+
+    [LoggerMessage(Level = LogLevel.Debug, Message = "Missing localization key: {Key} for culture: {Culture}")]
+    private static partial void LogMissingLocalizationKey(ILogger logger, string key, string culture);
 
     private async Task<string?> ResolveStringAsync(string key, string culture, CancellationToken ct)
     {

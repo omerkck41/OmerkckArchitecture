@@ -6,12 +6,21 @@ using Microsoft.Extensions.Options;
 
 namespace Kck.Search.Elasticsearch;
 
-public sealed class ElasticsearchSearchService<T>(
+public sealed partial class ElasticsearchSearchService<T>(
     IOptionsMonitor<ElasticsearchOptions> options,
     ILogger<ElasticsearchSearchService<T>> logger) : ISearchService<T> where T : class
 {
     private readonly ElasticsearchClient _client = CreateClient(options.CurrentValue);
     private readonly ElasticsearchOptions _options = options.CurrentValue;
+
+    [LoggerMessage(Level = LogLevel.Error, Message = "Failed to create index {IndexName}: {DebugInfo}")]
+    private static partial void LogIndexCreateFailed(ILogger logger, string indexName, string debugInfo);
+
+    [LoggerMessage(Level = LogLevel.Warning, Message = "Failed to index document {DocumentId} in {IndexName}")]
+    private static partial void LogIndexDocumentFailed(ILogger logger, string documentId, string indexName);
+
+    [LoggerMessage(Level = LogLevel.Warning, Message = "Bulk index had errors in {IndexName}: {ErrorCount} failures")]
+    private static partial void LogBulkIndexErrors(ILogger logger, string indexName, int errorCount);
 
     private static ElasticsearchClient CreateClient(ElasticsearchOptions opts)
     {
@@ -35,7 +44,7 @@ public sealed class ElasticsearchSearchService<T>(
 
         if (!response.Acknowledged)
         {
-            logger.LogError("Failed to create index {IndexName}: {DebugInfo}", indexName, response.DebugInformation);
+            LogIndexCreateFailed(logger, indexName, response.DebugInformation);
             throw new InvalidOperationException($"Failed to create index '{indexName}'.");
         }
     }
@@ -58,7 +67,7 @@ public sealed class ElasticsearchSearchService<T>(
             .Id(documentId), ct).ConfigureAwait(false);
 
         if (!response.IsValidResponse)
-            logger.LogWarning("Failed to index document {DocumentId} in {IndexName}", documentId, indexName);
+            LogIndexDocumentFailed(logger, documentId, indexName);
     }
 
     public async Task BulkIndexAsync(string indexName, IEnumerable<T> documents, CancellationToken ct = default)
@@ -68,8 +77,7 @@ public sealed class ElasticsearchSearchService<T>(
             .IndexMany(documents), ct).ConfigureAwait(false);
 
         if (response.Errors)
-            logger.LogWarning("Bulk index had errors in {IndexName}: {ErrorCount} failures",
-                indexName, response.ItemsWithErrors.Count());
+            LogBulkIndexErrors(logger, indexName, response.ItemsWithErrors.Count());
     }
 
     public async Task UpdateDocumentAsync(string indexName, string documentId, T document, CancellationToken ct = default)
