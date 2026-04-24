@@ -67,3 +67,39 @@ jobs:
           name: coverage
           path: '**/coverage.cobertura.xml'
           retention-days: 14
+
+      - name: Merge coverage report
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          dotnet tool restore
+          dotnet reportgenerator \
+            -reports:'**/coverage.cobertura.xml' \
+            -targetdir:./coverage-report \
+            -reporttypes:'Cobertura;TextSummary;MarkdownSummaryGithub'
+          cat ./coverage-report/Summary.txt
+        shell: bash
+
+      - name: Publish coverage summary
+        if: matrix.os == 'ubuntu-latest'
+        run: cat ./coverage-report/SummaryGithub.md >> "$GITHUB_STEP_SUMMARY"
+        shell: bash
+
+      - name: Enforce coverage threshold
+        if: matrix.os == 'ubuntu-latest'
+        env:
+          LINE_THRESHOLD: '40'
+          BRANCH_THRESHOLD: '30'
+        run: |
+          LINE=$(grep -oP 'Line coverage:\s*\K[0-9.]+' ./coverage-report/Summary.txt | head -1)
+          BRANCH=$(grep -oP 'Branch coverage:\s*\K[0-9.]+' ./coverage-report/Summary.txt | head -1)
+          echo "Line:   ${LINE}% (threshold ${LINE_THRESHOLD}%)"
+          echo "Branch: ${BRANCH}% (threshold ${BRANCH_THRESHOLD}%)"
+          FAIL=0
+          awk "BEGIN { exit !(${LINE:-0} < ${LINE_THRESHOLD}) }" && {
+            echo "::error::Line coverage ${LINE}% below threshold ${LINE_THRESHOLD}%"; FAIL=1;
+          } || true
+          awk "BEGIN { exit !(${BRANCH:-0} < ${BRANCH_THRESHOLD}) }" && {
+            echo "::error::Branch coverage ${BRANCH}% below threshold ${BRANCH_THRESHOLD}%"; FAIL=1;
+          } || true
+          exit $FAIL
+        shell: bash

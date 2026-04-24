@@ -2,7 +2,10 @@
 
 **Kaynak:** `tasks/audit-report-2026-04-20.md`
 **Plan:** `tasks/audit-plan-2026-04-20.md`
-**Son guncelleme:** 2026-04-20
+**Son guncelleme:** 2026-04-24
+
+> Durum: FAZ 0-7 tamamlandi. Detay: `tasks/checkpoint.md`.
+> Ana fazlar yesil; asagidaki listede [x] = kapali, [ ] = opsiyonel/ertelenmis.
 
 ## P1 — Hemen (Faz 0 + Faz 1)
 
@@ -34,53 +37,64 @@
 
 ### Faz 2 — Bagimlilik
 - [x] `Konscious.Argon2` alternatif arastir + ADR (ADR-0001: korundu, gerekce: migration riski)
-- [x] `Hangfire.MySqlStorage` kaldir + ADR (ADR-0002: referans yoktu, Directory.Packages.props'tan silindi)
+- [x] `Hangfire.MySqlStorage` kaldir + ADR (ADR-0002)
 - [x] `System.IdentityModel.Tokens.Jwt` → `JsonWebTokenHandler` (ADR-0003)
-- [x] MailKit 4.15.1 → 4.16.0 (CVE GHSA-9j88-vvj5-vhgr; SmtpConnectionPool null-guard eklendi)
-- [x] `dependabot.yml` ekle (FAZ 0 ile birlikte tamamlandi)
+- [x] MailKit 4.15.1 → 4.16.0 (CVE GHSA-9j88-vvj5-vhgr)
+- [x] `dependabot.yml` ekle
 
 ### Faz 3 — DI (BREAKING)
-- [ ] `IOptionsMonitor<T>` gecisi (tum Options)
-- [ ] `EfUnitOfWork` Service Locator → `IRepositoryFactory<T,TId>`
-- [ ] `Kck.Caching.Redis` `ConnectAsync` + `IHostedService`
-- [ ] `AddKckJob<TJob>()` helper (Hangfire + Quartz)
-- [ ] `Kck.Exceptions` → `Kck.Exceptions.Abstractions` ayir
-- [ ] `TryAddSingleton` tutarliligi
+- [x] `IOptionsMonitor<T>` gecisi (ADR-0004)
+- [x] `EfUnitOfWork` Service Locator → `IRepositoryFactory<T,TId>` (ADR-0005)
+- [x] `Kck.Caching.Redis` `ConnectAsync` + `IHostedService` (ADR-0006)
+- [x] `AddKckJob<TJob>()` helper (Hangfire + Quartz) (ADR-0007)
+- [x] `Kck.Exceptions` → `Kck.Exceptions.Abstractions` ayir (ADR-0008)
+- [x] `TryAddSingleton` tutarliligi (ADR-0009)
 
 ### Faz 4 — Hata + Performans
-- [x] `FluentFtpService` connection pool — `FtpConnectionPool` (Channel-tabanli, SmtpConnectionPool paternine gore) + `FluentFtpOptions.PoolSize`
-- [x] `EfRepository.DeleteRangeAsync` foreach+await N-alloc -> tek-geciste state set (RemoveRange + soft-delete). `ExecuteDeleteAsync` yerine RemoveRange: interceptor/tracker korunur
-- [x] `EfRepository` `QueryOptions` record — minimum kapsam: Abstractions'a eklendi + `EfRepository.Query(QueryOptions, ...)` overload. Interface migrasyonu major bump'a ertelendi
-- [x] `Paginate.cs` — kullanilmayan senkron internal ctor kaldirildi, `Paginate<T>.Create` factory eklendi, `ToPaginateAsync` bu factory'i kullanir
-- [x] `SmtpConnectionPool._disposed` `bool -> int` + `Interlocked.CompareExchange` + `Volatile.Read`
-- [x] `RedisCacheService.RemoveByPrefixAsync` — 1000 key/batch chunked delete (LOH allocation onleme)
-- [ ] (Opsiyonel) Outbox pattern yeni provider — ATLA (plan "opsiyonel", ayri karar noktasi)
+- [x] `FluentFtpService` connection pool — `FtpConnectionPool`
+- [x] `EfRepository.DeleteRangeAsync` tek-geciste RemoveRange
+- [x] `EfRepository` `QueryOptions` record + overload
+- [x] `Paginate<T>.Create` factory + sync ctor kaldirildi
+- [x] `SmtpConnectionPool._disposed` `Interlocked.CompareExchange`
+- [x] `RedisCacheService.RemoveByPrefixAsync` 1000 key/batch chunked
+- [ ] (Opsiyonel) Outbox pattern yeni provider — ertelendi
 
 ### Faz 5 — Test
-- [ ] 9 eksik provider test projesi
-  - [ ] `Kck.Logging.Serilog.Tests`
-  - [ ] `Kck.Security.Secrets.UserSecrets.Tests`
-  - [ ] `Kck.Security.Secrets.AzureKeyVault.Tests`
-  - [ ] `Kck.BackgroundJobs.Quartz.Tests`
-  - [ ] `Kck.Documents.ImageSharp.Tests`
-  - [ ] `Kck.Messaging.MailKit.Tests`
-  - [ ] `Kck.Messaging.AmazonSes.Tests`
-  - [ ] `Kck.Messaging.SendGrid.Tests`
-  - [ ] `Kck.FeatureFlags.InMemory.Tests`
-- [ ] Coverlet + ReportGenerator CI
+- [x] 9 eksik provider test projesi (81 test, hepsi yesil)
+  - [x] `Kck.Logging.Serilog.Tests` (13)
+  - [x] `Kck.Security.Secrets.UserSecrets.Tests` (15)
+  - [x] `Kck.Security.Secrets.AzureKeyVault.Tests` (6)
+  - [x] `Kck.BackgroundJobs.Quartz.Tests` (7)
+  - [x] `Kck.Documents.ImageSharp.Tests` (12)
+  - [x] `Kck.Messaging.MailKit.Tests` (8)
+  - [x] `Kck.Messaging.AmazonSes.Tests` (5)
+  - [x] `Kck.Messaging.SendGrid.Tests` (4)
+  - [x] `Kck.FeatureFlags.InMemory.Tests` (11)
+- [x] Coverlet CI entegrasyonu (coverage artifact)
+- [ ] Coverage threshold (CI gate) — eklendi 2026-04-24
 - [ ] `FakeTimeProvider` ile flaky testleri duzelt (Cache, Jwt)
 - [ ] `HangfireJobScheduler` gercek test senaryolari
 
 ## P3 — Sonra (Faz 6 + Faz 7)
 
 ### Faz 6 — Dokuman
-- [ ] `docs/adr/` + 6 ADR (Argon2, Hangfire, Options, EF, MediatR, JWT)
-- [ ] `CHANGELOG.md` semantic release
-- [ ] `docs/providers/*.md` modul rehberi
-- [ ] Public API XML doc eksikleri
+- [x] `docs/adr/` index + 9 ADR
+- [x] `docs/providers/` — 17 kategori rehberi
+- [x] `docs/README.md` root navigasyon
+- [x] Kok `README.md` docs bolumu
+- [ ] Public API XML doc eksikleri (CS1591 NoWarn'da, ayri faz)
+- [ ] `CHANGELOG.md` semantic release otomasyonu
 
 ### Faz 7 — Temizlik
-- [ ] `WarningsNotAsErrors` listesini daralt (10 kural)
+- [x] `WarningsNotAsErrors` listesi 10 → 2 (`CA1716;CA1000`)
+- [x] CA1848 — `[LoggerMessage]` partial (28 cagri, 18 dosya)
+- [x] CA1305/CA1304 — `CultureInfo.InvariantCulture`
+- [x] CA2016 — `CancellationToken` yonlendirmesi
+- [x] CA1001/CA1816 — `IDisposable` + `GC.SuppressFinalize`
+- [x] CA1852 — `sealed record`
+- [x] Build: `0 Warning(s) 0 Error(s)`
+
+### Opsiyonel Polish (FAZ 7 orijinal plan artiklari)
 - [ ] Serilog PII maskeleme Enricher
 - [ ] `AmazonSesEmailProvider` tek foreach
 - [ ] `LocalizationService` immutable
@@ -91,6 +105,5 @@
 
 ---
 
-**Onay bekleyen faz:** FAZ 3 (DI Breaking Changes) — FAZ 2 tamamlandi (4/4 adim, ADR-0001/0002/0003, solution build 0 error 82 pre-existing warning, tum testler yesil)
-**Talimat:** `FAZ 3 DEVAM` yazarak baslat, `ATLA` ile bir sonraki faza gec, `DEGISTIR [detay]` ile adapt et.
-**Not:** Commit/push kullanici onayini bekliyor — tum degisiklikler local. Faz 0 (GitHub infra) ve dependabot.yml ertelendi.
+**Aktif odak:** Coverage threshold (CI gate) — sprint sonrasi bakim ve polish.
+**Ertelenmis:** Outbox pattern, Public API XML doc, FakeTimeProvider migrasyonu.
