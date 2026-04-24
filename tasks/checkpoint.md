@@ -1,5 +1,5 @@
 ---
-task: FAZ 5 — Provider Test Kapsami (TAMAMLANDI)
+task: FAZ 6 — Dokuman (TAMAMLANDI)
 started: 2026-04-24
 last_updated: 2026-04-24
 current_step: 5
@@ -8,6 +8,15 @@ status: completed
 ---
 
 ## Tamamlanan Adimlar
+
+### FAZ 6 — Dokuman (Tamamlandi)
+- [x] 6.1 `docs/adr/README.md` — ADR index + durum tablosu + kategori
+- [x] 6.2 `docs/providers/README.md` — 17 kategorik rehber index
+- [x] 6.3 17 kategori rehberi: background-jobs, caching, documents, event-bus,
+  exceptions, feature-flags, file-storage, http, localization, logging,
+  messaging, observability, persistence, pipeline, search, security, aspnetcore
+- [x] 6.4 `docs/README.md` — root navigasyon
+- [x] 6.5 Kok `README.md` docs bolumu guncellendi (in progress etiketi kaldirildi)
 
 ### FAZ 5 — 9 Eksik Provider Test Projesi (Tamamlandi)
 - [x] 5.1 `Kck.FeatureFlags.InMemory.Tests` — 11 test (service + DI)
@@ -58,12 +67,12 @@ status: completed
 
 ## Recovery Notlari
 
-- FAZ 5 tamamlandi. Butun 9 provider'in testi var.
+- FAZ 6 tamamlandi. Dokuman + ADR index + 17 rehber + provider index + kok docs README.
 - **Sonraki oturumda secenekler:**
-  - **FAZ 6** — Dokuman (ADR index, provider rehberleri `docs/providers/*.md`, eksik XML doc)
   - **FAZ 7** — CA temizligi (CA1848 LoggerMessage, CA1716 Set/Get, CA1305 IFormatProvider, CA1873 log guarding) — 67 warning
+  - **XML doc** — eksik public API XML doc (CS1591 NoWarn'da; ayri faz)
   - **Outbox** — opsiyonel FAZ 4 adimi (yeni provider)
   - **Coverage threshold** — Coverlet halihazirda CI'da coverage topluyor; minimum threshold eklemek icin `.github/workflows/build-test.yml` editi gerekir
   - **CI kontrol** — Actions sekmesinden build-test + codeql calisma sonuclarini inceleme
 - **Workflow gereksinimleri:** normal akis `develop` branch uzerinden, feature branch'lerle PR
-- **FAZ 5 commit mesaji onerisi:** `test: add 9 missing provider test projects (81 tests)`
+- **FAZ 6 commit mesaji onerisi:** `docs: add ADR index + 17 provider category guides`

@@ -90,8 +90,9 @@ app.Run();
 
 ## Documentation
 
-- [Architecture Decision Records](docs/adr/) — binding technical decisions
-- [Module guides](docs/providers/) — per-provider usage notes *(in progress)*
+- [Documentation index](docs/README.md) — landing page
+- [Architecture Decision Records](docs/adr/README.md) — binding technical decisions
+- [Provider guides](docs/providers/README.md) — per-category usage notes (17 guides)
 
 ## Development
 
