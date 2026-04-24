@@ -88,7 +88,7 @@ public sealed partial class ElasticsearchSearchService<T>(
 
     public async Task DeleteDocumentAsync(string indexName, string documentId, CancellationToken ct = default)
     {
-        await _client.DeleteAsync<T>(indexName, documentId, ct).ConfigureAwait(false);
+        await _client.DeleteAsync<T>(documentId, d => d.Index(indexName), ct).ConfigureAwait(false);
     }
 
     public async Task<T?> GetByIdAsync(string indexName, string documentId, CancellationToken ct = default)
@@ -109,11 +109,12 @@ public sealed partial class ElasticsearchSearchService<T>(
 
         if (!string.IsNullOrEmpty(request.SortField))
         {
-            searchDescriptor.Sort(s => s.Field(request.SortField!,
-                new FieldSort { Order = request.SortAscending ? SortOrder.Asc : SortOrder.Desc }));
+            searchDescriptor.Sort(s => s.Field(f => f
+                .Field(request.SortField!)
+                .Order(request.SortAscending ? SortOrder.Asc : SortOrder.Desc)));
         }
 
-        var response = await _client.SearchAsync(searchDescriptor, ct).ConfigureAwait(false);
+        var response = await _client.SearchAsync<T>(searchDescriptor, ct).ConfigureAwait(false);
 
         return new SearchResult<T>
         {
