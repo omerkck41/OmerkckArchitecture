@@ -27,18 +27,19 @@ public sealed class InMemoryEventBus(
         }
 
         using var scope = serviceProvider.CreateScope();
-        foreach (var handlerType in handlerTypes.Keys)
+        var handlers = handlerTypes.Keys
+            .Select(t => (HandlerType: t, Handler: scope.ServiceProvider.GetService(t) as IEventHandler<TEvent>))
+            .Where(x => x.Handler is not null);
+
+        foreach (var (handlerType, handler) in handlers)
         {
-            if (scope.ServiceProvider.GetService(handlerType) is IEventHandler<TEvent> handler)
+            try
             {
-                try
-                {
-                    await handler.HandleAsync(@event, ct).ConfigureAwait(false);
-                }
-                catch (Exception ex) when (ex is not OperationCanceledException)
-                {
-                    Log.HandlerError(logger, ex, eventType.Name, handlerType.Name);
-                }
+                await handler!.HandleAsync(@event, ct).ConfigureAwait(false);
+            }
+            catch (Exception ex) when (ex is not OperationCanceledException)
+            {
+                Log.HandlerError(logger, ex, eventType.Name, handlerType.Name);
             }
         }
     }

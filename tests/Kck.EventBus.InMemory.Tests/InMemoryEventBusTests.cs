@@ -16,27 +16,28 @@ public sealed class InMemoryEventBusTests
     [Fact]
     public async Task PublishAsync_WithSubscribedHandler_InvokesHandler()
     {
-        _services.AddTransient<TestEventSubscriber>();
+        var subscriber = new TestEventSubscriber();
+        _services.AddSingleton(subscriber);
         var sp = _services.BuildServiceProvider();
         var sut = new InMemoryEventBus(sp, _logger);
 
         sut.Subscribe<TestEvent, TestEventSubscriber>();
         await sut.PublishAsync(new TestEvent { Message = "hello" });
 
-        TestEventSubscriber.LastMessage.Should().Be("hello");
+        subscriber.LastMessage.Should().Be("hello");
     }
 
     [Fact]
     public async Task PublishAsync_WithoutSubscription_DispatchesViaDi()
     {
-        _services.AddTransient<IEventHandler<TestEvent>, TestEventSubscriber>();
+        var subscriber = new TestEventSubscriber();
+        _services.AddSingleton<IEventHandler<TestEvent>>(subscriber);
         var sp = _services.BuildServiceProvider();
         var sut = new InMemoryEventBus(sp, _logger);
 
-        TestEventSubscriber.LastMessage = null;
         await sut.PublishAsync(new TestEvent { Message = "di-dispatch" });
 
-        TestEventSubscriber.LastMessage.Should().Be("di-dispatch");
+        subscriber.LastMessage.Should().Be("di-dispatch");
     }
 
     [Fact]
@@ -89,8 +90,7 @@ public sealed record TestEvent : IntegrationEvent
 
 public sealed class TestEventSubscriber : IEventHandler<TestEvent>
 {
-    [ThreadStatic]
-    internal static string? LastMessage;
+    public string? LastMessage { get; private set; }
 
     public Task HandleAsync(TestEvent @event, CancellationToken ct = default)
     {

@@ -115,7 +115,8 @@ public sealed class RabbitMqEventBus : IEventBus, IAsyncDisposable
                     // Consumer is shutting down; do not Ack/Nack. Broker will redeliver unacked message after channel close.
                     throw;
                 }
-                catch (Exception ex)
+                catch (Exception ex) when (ex is not OutOfMemoryException
+                                        and not StackOverflowException)
                 {
                     Log.ProcessingError(_logger, ex, eventName);
 
@@ -184,7 +185,9 @@ public sealed class RabbitMqEventBus : IEventBus, IAsyncDisposable
                     Log.ConnectionRetry(_logger, ex, i + 1, _options.RetryCount, delay.TotalSeconds);
                     await Task.Delay(delay, ct).ConfigureAwait(false);
                 }
-                catch (Exception ex)
+                catch (Exception ex) when (ex is not OperationCanceledException
+                                        and not OutOfMemoryException
+                                        and not StackOverflowException)
                 {
                     lastException = ex;
                 }

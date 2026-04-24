@@ -41,7 +41,7 @@ public sealed class RedisCacheServiceTests
     public async Task GetAsync_WhenKeyMissing_ReturnsNull()
     {
         _cache.GetAsync("test:missing", Arg.Any<CancellationToken>())
-            .Returns((byte[]?)null);
+            .Returns(default(byte[]?));
 
         var result = await _sut.GetAsync<TestDto>("missing");
 
@@ -86,7 +86,7 @@ public sealed class RedisCacheServiceTests
     public async Task ExistsAsync_WhenKeyMissing_ReturnsFalse()
     {
         _cache.GetAsync("test:nope", Arg.Any<CancellationToken>())
-            .Returns((byte[]?)null);
+            .Returns(default(byte[]?));
 
         var result = await _sut.ExistsAsync("nope");
 

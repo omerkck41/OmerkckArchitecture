@@ -129,7 +129,12 @@ public sealed partial class JwtTokenService : ITokenService, IDisposable
                 Roles = roles
             };
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is SecurityTokenException
+                                or ArgumentException
+                                or FormatException
+                                or InvalidOperationException
+                                or System.Text.Json.JsonException
+                                or System.Security.Cryptography.CryptographicException)
         {
             LogTokenValidationFailed(_logger, ex);
             return new KckTokenValidationResult { IsValid = false, ErrorMessage = "Token validation failed" };

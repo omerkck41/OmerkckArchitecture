@@ -124,19 +124,19 @@ public sealed class AzureServiceBusEventBus : IEventBus, IAsyncDisposable
 
     private async Task EnsureClientAsync(CancellationToken ct)
     {
-        if (_client is not null)
+        if (Volatile.Read(ref _client) is not null)
             return;
 
         await _clientLock.WaitAsync(ct).ConfigureAwait(false);
         try
         {
-            if (_client is not null)
+            if (Volatile.Read(ref _client) is not null)
                 return;
 
             if (string.IsNullOrWhiteSpace(_options.ConnectionString))
                 throw new InvalidOperationException("Azure Service Bus connection string is not configured.");
 
-            _client = new ServiceBusClient(
+            var client = new ServiceBusClient(
                 _options.ConnectionString,
                 new ServiceBusClientOptions
                 {
@@ -146,7 +146,8 @@ public sealed class AzureServiceBusEventBus : IEventBus, IAsyncDisposable
                     }
                 });
 
-            _sender = _client.CreateSender(_options.TopicName);
+            _sender = client.CreateSender(_options.TopicName);
+            Volatile.Write(ref _client, client);
 
             Log.Connected(_logger, _options.TopicName);
         }

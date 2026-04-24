@@ -21,11 +21,11 @@ public static class ModelBuilderExtensions
     /// </summary>
     public static ModelBuilder ApplyGlobalSoftDeleteQueryFilter(this ModelBuilder modelBuilder)
     {
-        foreach (var entityType in modelBuilder.Model.GetEntityTypes())
-        {
-            if (!typeof(ISoftDeletable).IsAssignableFrom(entityType.ClrType))
-                continue;
+        var softDeletables = modelBuilder.Model.GetEntityTypes()
+            .Where(et => typeof(ISoftDeletable).IsAssignableFrom(et.ClrType));
 
+        foreach (var entityType in softDeletables)
+        {
             var method = ApplyFilterMethod.MakeGenericMethod(entityType.ClrType);
             method.Invoke(null, [modelBuilder]);
         }

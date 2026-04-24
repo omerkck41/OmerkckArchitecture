@@ -89,7 +89,12 @@ public sealed class FtpConnectionPool : IAsyncDisposable
             if (client.IsConnected)
                 await client.Disconnect().ConfigureAwait(false);
         }
-        catch
+        catch (Exception ex) when (ex is System.Net.Sockets.SocketException
+                                or System.IO.IOException
+                                or TimeoutException
+                                or ObjectDisposedException
+                                or InvalidOperationException
+                                or OperationCanceledException)
         {
             // best-effort disconnect; the client is being discarded anyway
         }

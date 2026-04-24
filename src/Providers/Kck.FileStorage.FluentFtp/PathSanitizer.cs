@@ -12,11 +12,8 @@ internal static class PathSanitizer
             throw new ArgumentException($"Percent-encoded characters are not allowed in paths: '{path}'", nameof(path));
 
         // Reject control characters (including null byte, which truncates paths on some stacks).
-        foreach (var c in path)
-        {
-            if (c < 0x20 || c == 0x7F)
-                throw new ArgumentException($"Control characters are not allowed in paths: '{path}'", nameof(path));
-        }
+        if (path.Any(c => c < 0x20 || c == 0x7F))
+            throw new ArgumentException($"Control characters are not allowed in paths: '{path}'", nameof(path));
 
         var normalized = path.Replace('\\', '/');
 

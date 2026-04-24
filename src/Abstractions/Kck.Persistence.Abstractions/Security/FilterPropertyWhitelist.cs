@@ -32,12 +32,11 @@ public class FilterPropertyWhitelist<T> : IFilterPropertyWhitelist<T>
 
     private void ScanFilterableAttributes()
     {
-        var properties = typeof(T).GetProperties(BindingFlags.Public | BindingFlags.Instance);
-        foreach (var prop in properties)
-        {
-            if (prop.GetCustomAttribute<FilterableAttribute>() is not null)
-                _allowed.Add(prop.Name);
-        }
+        var filterable = typeof(T).GetProperties(BindingFlags.Public | BindingFlags.Instance)
+            .Where(p => p.GetCustomAttribute<FilterableAttribute>() is not null);
+
+        foreach (var prop in filterable)
+            _allowed.Add(prop.Name);
     }
 
     private static string GetMemberName(Expression<Func<T, object>> expression)

@@ -20,14 +20,11 @@ internal static class SoftDeleteHelper
         {
             if (navigation.CurrentValue is IEnumerable<object> collection)
             {
-                foreach (var item in collection)
+                foreach (var related in collection.OfType<ISoftDeletable>())
                 {
-                    if (item is ISoftDeletable related)
-                    {
-                        related.IsDeleted = true;
-                        related.DeletedDate = DateTime.UtcNow;
-                        context.Entry(item).State = EntityState.Modified;
-                    }
+                    related.IsDeleted = true;
+                    related.DeletedDate = DateTime.UtcNow;
+                    context.Entry(related).State = EntityState.Modified;
                 }
             }
             else if (navigation.CurrentValue is ISoftDeletable related)

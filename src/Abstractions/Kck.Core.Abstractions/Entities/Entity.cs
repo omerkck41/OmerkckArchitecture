@@ -5,11 +5,12 @@ namespace Kck.Core.Abstractions.Entities;
 public abstract class Entity<TId> : IEntity<TId>, IAuditable, ISoftDeletable
 {
     private readonly List<IDomainEvent> _domainEvents = [];
+    private TId _id;
 
-    protected Entity() { Id = default!; }
-    protected Entity(TId id) { Id = id; }
+    protected Entity() { _id = default!; }
+    protected Entity(TId id) { _id = id; }
 
-    public virtual TId Id { get; set; }
+    public virtual TId Id { get => _id; set => _id = value; }
 
     // IAuditable
     public virtual string CreatedBy { get; set; } = string.Empty;

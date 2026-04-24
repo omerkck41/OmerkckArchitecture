@@ -35,7 +35,12 @@ public sealed partial class AzureKeyVaultSecretsManager(
         if (value is null) return default;
 
         if (typeof(T) == typeof(string))
-            return (T)(object)value;
+        {
+            // Boxing-based generic specialization: there is no implicit
+            // conversion from string to T, so we go through System.Object.
+            object boxed = value;
+            return (T)boxed;
+        }
 
         return JsonSerializer.Deserialize<T>(value);
     }

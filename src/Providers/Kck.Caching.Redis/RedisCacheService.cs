@@ -45,9 +45,8 @@ public sealed class RedisCacheService(
         var db = redis.GetDatabase();
         var endpoints = redis.GetEndPoints();
 
-        foreach (var endpoint in endpoints)
+        foreach (var server in endpoints.Select(e => redis.GetServer(e)))
         {
-            var server = redis.GetServer(endpoint);
             var batch = new List<RedisKey>(DeleteChunkSize);
 
             await foreach (var key in server.KeysAsync(pattern: $"{fullPrefix}*").WithCancellation(ct))

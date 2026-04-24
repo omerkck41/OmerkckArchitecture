@@ -9,7 +9,7 @@ public class ConfigurationSecretsManagerTests
 {
     private static ConfigurationSecretsManager CreateSut(params (string Key, string Value)[] pairs)
     {
-        var dict = pairs.ToDictionary(p => p.Key, p => (string?)p.Value);
+        var dict = pairs.ToDictionary<(string Key, string Value), string, string?>(p => p.Key, p => p.Value);
         var config = new ConfigurationBuilder()
             .AddInMemoryCollection(dict)
             .Build();
