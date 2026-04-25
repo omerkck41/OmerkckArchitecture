@@ -2,6 +2,16 @@
   "version": 2,
   "dependencies": {
     "net10.0": {
+      "Microsoft.SourceLink.GitHub": {
+        "type": "Direct",
+        "requested": "[8.0.0, )",
+        "resolved": "8.0.0",
+        "contentHash": "G5q7OqtwIyGTkeIOAc3u2ZuV/kicQaec5EaRnc0pIeSnh9LUjj+PYQrJYBURvDt7twGl2PKA7nSN0kz1Zw5bnQ==",
+        "dependencies": {
+          "Microsoft.Build.Tasks.Git": "8.0.0",
+          "Microsoft.SourceLink.Common": "8.0.0"
+        }
+      },
       "MinVer": {
         "type": "Direct",
         "requested": "[7.0.0, )",
@@ -42,6 +52,11 @@
         "dependencies": {
           "Hangfire.Core": "[1.8.23]"
         }
+      },
+      "Microsoft.Build.Tasks.Git": {
+        "type": "Transitive",
+        "resolved": "8.0.0",
+        "contentHash": "bZKfSIKJRXLTuSzLudMFte/8CempWjVamNUR5eHJizsy+iuOuO/k2gnh7W0dHJmYY0tBf+gUErfluCv5mySAOQ=="
       },
       "Microsoft.Extensions.Configuration": {
         "type": "Transitive",
@@ -123,10 +138,10 @@
         "resolved": "10.0.0",
         "contentHash": "inRnbpCS0nwO/RuoZIAqxQUuyjaknOOnCEZB55KSMMjRhl0RQDttSmLSGsUJN3RQ3ocf5NDLFd2mOQViHqMK5w=="
       },
-      "Newtonsoft.Json": {
+      "Microsoft.SourceLink.Common": {
         "type": "Transitive",
-        "resolved": "11.0.1",
-        "contentHash": "pNN4l+J6LlpIvHOeNdXlwxv39NPJ2B5klz+Rd2UQZIx30Squ5oND1Yy3wEAUoKn0GPUj6Yxt9lxlYWQqfZcvKg=="
+        "resolved": "8.0.0",
+        "contentHash": "dk9JPxTCIevS75HyEQ0E4OVAFhB2N+V9ShCXf8Q6FkUQZDkgLI12y679Nym1YqsiSysuQskT7Z+6nUf3yab6Vw=="
       },
       "Serilog": {
         "type": "Transitive",
@@ -199,7 +214,8 @@
         "dependencies": {
           "Hangfire": "[1.8.23, )",
           "Hangfire.InMemory": "[1.0.0, )",
-          "Kck.BackgroundJobs.Abstractions": "[1.0.0, )"
+          "Kck.BackgroundJobs.Abstractions": "[1.0.0, )",
+          "Newtonsoft.Json": "[13.0.3, )"
         }
       },
       "kck.logging.serilog": {
@@ -256,6 +272,12 @@
         "dependencies": {
           "Microsoft.Extensions.DependencyInjection.Abstractions": "10.0.0"
         }
+      },
+      "Newtonsoft.Json": {
+        "type": "CentralTransitive",
+        "requested": "[13.0.3, )",
+        "resolved": "13.0.3",
+        "contentHash": "HrC5BXdl00IP9zeV+0Z848QWPAoCr9P3bDEZguI+gkLcBKAOxix/tLEAAHC+UvDNPv4a2d18lOReHMOagPa+zQ=="
       },
       "Serilog.AspNetCore": {
         "type": "CentralTransitive",
