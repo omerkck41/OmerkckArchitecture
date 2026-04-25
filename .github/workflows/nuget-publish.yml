@@ -47,8 +47,7 @@ jobs:
           dotnet pack \
             --configuration Release \
             --no-build \
-            --output ./artifacts \
-            /p:ContinuousIntegrationBuild=true
+            --output ./artifacts
 
       - name: Upload packages artifact
         uses: actions/upload-artifact@v7
