@@ -1,0 +1,64 @@
+name: license-audit
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+  schedule:
+    - cron: '0 6 * * 1'  # Her Pazartesi 06:00 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  DOTNET_NOLOGO: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+  ALLOWED_LICENSES: 'MIT,Apache-2.0,BSD-2-Clause,BSD-3-Clause,MS-PL,Microsoft.NET.Library,ISC,0BSD,CC0-1.0'
+
+jobs:
+  audit:
+    name: License Audit
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Restore
+        run: dotnet restore --locked-mode
+
+      - name: Install nuget-license tool
+        run: dotnet tool install --global nuget-license
+
+      - name: Run license audit
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts
+          nuget-license -i ./OmerkckArchitecture.sln -o JsonPretty \
+            --allowed-license-types "${ALLOWED_LICENSES}" \
+            > artifacts/licenses.json
+          echo "License report:"
+          cat artifacts/licenses.json
+          # GPL/AGPL/LGPL/SSPL/BUSL ozel kontrol
+          if grep -E -i '"(licenseType|licenseUrl)"\s*:\s*".*\b(GPL|AGPL|LGPL|SSPL|BUSL)\b.*"' artifacts/licenses.json; then
+            echo "::error::Copyleft (GPL/AGPL/LGPL/SSPL/BUSL) license found"
+            exit 1
+          fi
+
+      - name: Upload license report
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: license-report
+          path: artifacts/licenses.json
+          retention-days: 90
