@@ -14,6 +14,10 @@
   <ItemGroup Label="Microsoft — System">
     <PackageVersion Include="System.Drawing.Common" Version="10.0.5" />
     <PackageVersion Include="System.Text.Encodings.Web" Version="10.0.5" />
+    <!-- Pinned: Microsoft.AspNetCore.Authentication.JwtBearer 10.0.5 transitively
+         pulls Microsoft.IdentityModel.* 8.17. Locking this version prevents diamond
+         dependency conflicts when consumers also reference IdentityModel directly.
+         LS-FAZ-2 Bolum 2.3 madde 2. -->
     <PackageVersion Include="Microsoft.IdentityModel.JsonWebTokens" Version="8.17.0" />
   </ItemGroup>
 
