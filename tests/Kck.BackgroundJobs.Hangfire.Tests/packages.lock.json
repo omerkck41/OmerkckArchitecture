@@ -132,11 +132,6 @@
           "Newtonsoft.Json": "13.0.3"
         }
       },
-      "Newtonsoft.Json": {
-        "type": "Transitive",
-        "resolved": "13.0.3",
-        "contentHash": "HrC5BXdl00IP9zeV+0Z848QWPAoCr9P3bDEZguI+gkLcBKAOxix/tLEAAHC+UvDNPv4a2d18lOReHMOagPa+zQ=="
-      },
       "xunit.abstractions": {
         "type": "Transitive",
         "resolved": "2.0.3",
@@ -185,7 +180,8 @@
         "dependencies": {
           "Hangfire": "[1.8.23, )",
           "Hangfire.InMemory": "[1.0.0, )",
-          "Kck.BackgroundJobs.Abstractions": "[1.0.0, )"
+          "Kck.BackgroundJobs.Abstractions": "[1.0.0, )",
+          "Newtonsoft.Json": "[13.0.3, )"
         }
       },
       "Hangfire": {
@@ -207,6 +203,12 @@
         "dependencies": {
           "Hangfire.Core": "1.8.0"
         }
+      },
+      "Newtonsoft.Json": {
+        "type": "CentralTransitive",
+        "requested": "[13.0.3, )",
+        "resolved": "13.0.3",
+        "contentHash": "HrC5BXdl00IP9zeV+0Z848QWPAoCr9P3bDEZguI+gkLcBKAOxix/tLEAAHC+UvDNPv4a2d18lOReHMOagPa+zQ=="
       }
     }
   }
