@@ -38,6 +38,21 @@ jobs:
       - name: Restore
         run: dotnet restore --locked-mode
 
+      - name: Audit transitive dependencies
+        if: matrix.os == 'ubuntu-latest'
+        shell: bash
+        run: |
+          set -euo pipefail
+          OUTPUT=$(dotnet list package --vulnerable --include-transitive 2>&1 || true)
+          echo "$OUTPUT"
+          if echo "$OUTPUT" | grep -E '\b(Critical|High)\b' >/dev/null; then
+            echo "::error::Critical or High severity CVE found in dependencies"
+            exit 1
+          fi
+          if echo "$OUTPUT" | grep -E '\b(Moderate|Medium)\b' >/dev/null; then
+            echo "::warning::Moderate severity CVE found — schedule remediation"
+          fi
+
       - name: Build
         run: dotnet build --configuration Release --no-restore
 
