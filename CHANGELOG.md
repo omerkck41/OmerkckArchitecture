@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added (LS-FAZ-2)
+- Multi-target build: `Kck.*.Abstractions` + saf provider'lar artik `net8.0` LTS + `net10.0` STS hedefli (ADR-0011). Net10-only opt-out paketler: `Kck.Bundle.WebApi`, `Kck.Persistence.EntityFramework`, `Kck.AspNetCore`, `Kck.Security.Jwt`, `Kck.Caching.Redis`, `Kck.Http.Resilience`, `Kck.Exceptions.AspNetCore`.
+- `docs/adr/0011-multi-target-net8-net10.md` — multi-target karari ve net8 fallback tablosu.
+- `docs/adr/0012-remove-automapper-package.md` — kullanilmayan AutoMapper paketinin kaldirilmasi karari.
+- README "Quick Start" 3-sekme: WebApi (Bundle), MinimalApi (slim), WorkerService (no HTTP).
+- README "Why Kck?" karsilastirma bolumu (vs ABP / FastEndpoints / Aspire).
+- README Background Jobs ipucu: Hangfire ya da Quartz, ikisi birden onerilmez.
+
+### Changed (LS-FAZ-2)
+- `Microsoft.IdentityModel.JsonWebTokens 8.17.0` pin'i yorumla netlestirildi — diamond-dependency hizalamasi (Library Strategy §2.3 madde 2).
+- Net8 fallback'leri eklendi (`#if NET9_0_OR_GREATER`): `IntegrationEvent.Id`, `QuartzJobScheduler.NewJobId()`, `TotpMfaProvider` secret hash. Net8'de `Guid.NewGuid()` ve `Convert.ToHexString().ToLowerInvariant()` kullanilir; net9+ surumlerde sirasiyla `Guid.CreateVersion7()` ve `Convert.ToHexStringLower()`.
+
+### Removed (LS-FAZ-2)
+- `AutoMapper 16.1.1` PackageVersion girisi `Directory.Packages.props`'tan kaldirildi (sifir kullanim, ADR-0012).
+
 ### Added
 - `SECURITY.md` — security policy with CVSS-based response SLA and 90-day coordinated disclosure (Library Strategy §13.1).
 - `docs/policies/deprecation.md` — formal deprecation policy with `KCK0001-0999` DiagnosticId numbering (ADR-0010).
