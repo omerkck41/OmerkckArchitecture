@@ -96,6 +96,9 @@ msbuild.wrn
 
 ## Claude / local workspace notes
 .claude/
+
+## Internal dev notes / planning (not published)
+tasks/
 .superdesign/
 
 ## MinVer does not read tags from shallow clones; allow override by developer
