@@ -17,6 +17,7 @@ bir karar yeni ADR ile `superseded` isaretlenerek gecilir.
 | [0007](0007-add-kck-job-helper.md) | `AddKckJob<TJob>()` helper | Onaylandi | 2026-04-20 | `Kck.BackgroundJobs.*` |
 | [0008](0008-exceptions-abstractions-split.md) | `Kck.Exceptions` → `Abstractions` split | Onaylandi | 2026-04-20 | `Kck.Exceptions.*` |
 | [0009](0009-tryaddsingleton-consistency.md) | `TryAddSingleton` tutarliligi | Onaylandi | 2026-04-20 | 19 provider |
+| [0010](0010-deprecation-policy.md) | Deprecation policy + DiagnosticId numaralandirmasi | Onaylandi | 2026-04-25 | Tum public API |
 
 ## Kategori
 
@@ -34,6 +35,9 @@ bir karar yeni ADR ile `superseded` isaretlenerek gecilir.
 - [0007](0007-add-kck-job-helper.md) — DI registration ergonomisi
 - [0008](0008-exceptions-abstractions-split.md) — Abstraction leakage
 - [0009](0009-tryaddsingleton-consistency.md) — Multi-registration davranisi
+
+### Politika / Yonetisim
+- [0010](0010-deprecation-policy.md) — Public API obsoletion lifecycle
 
 ## Yeni ADR Yazma
 
