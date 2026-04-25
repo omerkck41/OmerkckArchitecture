@@ -8,7 +8,12 @@ public abstract record IntegrationEvent
     /// <summary>
     /// Unique identifier for the event.
     /// </summary>
-    public Guid Id { get; init; } = Guid.CreateVersion7();
+    public Guid Id { get; init; } =
+#if NET9_0_OR_GREATER
+        Guid.CreateVersion7();
+#else
+        Guid.NewGuid();
+#endif
 
     /// <summary>
     /// Timestamp when the event occurred.

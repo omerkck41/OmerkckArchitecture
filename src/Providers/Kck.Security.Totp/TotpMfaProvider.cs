@@ -50,7 +50,13 @@ public sealed class TotpMfaProvider : IMfaProvider
             return Task.FromResult(false);
 
         // Replay protection: same time step + secret can only be used once
-        var secretHash = Convert.ToHexStringLower(SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(secretKey)));
+        var secretHashBytes = SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(secretKey));
+        var secretHash =
+#if NET9_0_OR_GREATER
+            Convert.ToHexStringLower(secretHashBytes);
+#else
+            Convert.ToHexString(secretHashBytes).ToLowerInvariant();
+#endif
         var replayKey = $"totp:replay:{secretHash}:{timeStepMatched}";
         if (_replayCache.TryGetValue(replayKey, out _))
             return Task.FromResult(false);

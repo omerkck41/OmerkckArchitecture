@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
   <PropertyGroup>
     <!-- Pinned to net10.0; depends on net10-only packages (LS-FAZ-2 ADR-0011) -->
-    <TargetFramework>net10.0</TargetFramework>
+    <TargetFrameworks>net10.0</TargetFrameworks>
     <GenerateDocumentationFile>false</GenerateDocumentationFile>
   </PropertyGroup>
 

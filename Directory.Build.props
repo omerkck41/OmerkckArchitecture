@@ -1,6 +1,9 @@
 <Project>
   <PropertyGroup>
-    <TargetFramework>net10.0</TargetFramework>
+    <!-- Multi-target: net8.0 LTS + net10.0 STS. Csproj'lar
+         <TargetFrameworks>net10.0</TargetFrameworks> (cogul) ile bu default'u
+         override eder. LS-FAZ-2, Bolum 2.1, ADR-0011. -->
+    <TargetFrameworks Condition=" '$(TargetFrameworks)' == '' ">net8.0;net10.0</TargetFrameworks>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <AnalysisLevel>latest-recommended</AnalysisLevel>

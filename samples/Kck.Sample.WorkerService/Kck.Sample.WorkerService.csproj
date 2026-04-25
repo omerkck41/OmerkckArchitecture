@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk.Worker">
   <PropertyGroup>
     <!-- Pinned to net10.0; depends on net10-only packages (LS-FAZ-2 ADR-0011) -->
-    <TargetFramework>net10.0</TargetFramework>
+    <TargetFrameworks>net10.0</TargetFrameworks>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="../../src/Providers/Kck.BackgroundJobs.Hangfire/Kck.BackgroundJobs.Hangfire.csproj" />

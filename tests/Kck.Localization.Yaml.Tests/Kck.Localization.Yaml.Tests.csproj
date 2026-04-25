@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <!-- Pinned to net10.0; LS-FAZ-2 leaves test multi-targeting to a future phase -->
-    <TargetFramework>net10.0</TargetFramework>
+    <TargetFrameworks>net10.0</TargetFrameworks>
     <IsPackable>false</IsPackable>
     <IsTestProject>true</IsTestProject>
   </PropertyGroup>
