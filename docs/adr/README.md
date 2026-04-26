@@ -18,6 +18,9 @@ bir karar yeni ADR ile `superseded` isaretlenerek gecilir.
 | [0008](0008-exceptions-abstractions-split.md) | `Kck.Exceptions` → `Abstractions` split | Onaylandi | 2026-04-20 | `Kck.Exceptions.*` |
 | [0009](0009-tryaddsingleton-consistency.md) | `TryAddSingleton` tutarliligi | Onaylandi | 2026-04-20 | 19 provider |
 | [0010](0010-deprecation-policy.md) | Deprecation policy + DiagnosticId numaralandirmasi | Onaylandi | 2026-04-25 | Tum public API |
+| [0011](0011-multi-target-net8-net10.md) | Multi-target net8.0 + net10.0 | Onaylandi | 2026-04-26 | Abstraction'lar + saf provider'lar |
+| [0012](0012-remove-automapper-package.md) | AutoMapper paketi kaldirildi (kullanilmiyor) | Onaylandi | 2026-04-26 | `Directory.Packages.props` |
+| [0013](0013-public-api-discipline.md) | Public API disiplini (PublicApiAnalyzers + SemVer) | Onaylandi | 2026-04-26 | 16 abstraction projesi |
 
 ## Kategori
 
@@ -27,6 +30,7 @@ bir karar yeni ADR ile `superseded` isaretlenerek gecilir.
 
 ### Bagimlilik Riski
 - [0002](0002-hangfire-storage.md) — Terk edilmis paket kaldirildi
+- [0012](0012-remove-automapper-package.md) — Kullanilmayan paket kaldirildi
 
 ### Arayuz / DI Tasarimi
 - [0004](0004-ioptions-monitor-migration.md) — Options reload semantigi
@@ -38,6 +42,10 @@ bir karar yeni ADR ile `superseded` isaretlenerek gecilir.
 
 ### Politika / Yonetisim
 - [0010](0010-deprecation-policy.md) — Public API obsoletion lifecycle
+- [0013](0013-public-api-discipline.md) — Public API tracking + SemVer
+
+### Build / Hedef Framework
+- [0011](0011-multi-target-net8-net10.md) — net8.0 LTS + net10.0 STS
 
 ## Yeni ADR Yazma
 
