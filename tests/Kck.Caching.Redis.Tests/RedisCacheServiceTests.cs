@@ -74,8 +74,12 @@ public sealed class RedisCacheServiceTests
     [Fact]
     public async Task ExistsAsync_WhenKeyExists_ReturnsTrue()
     {
-        _cache.GetAsync("test:exists", Arg.Any<CancellationToken>())
-            .Returns(Encoding.UTF8.GetBytes("{}"));
+        // LS-FAZ-5 (5.6): ExistsAsync artik IConnectionMultiplexer.GetDatabase().KeyExistsAsync
+        // kullaniyor — IDistributedCache.GetAsync degil.
+        var db = Substitute.For<IDatabase>();
+        _redis.GetDatabase(Arg.Any<int>(), Arg.Any<object?>()).Returns(db);
+        db.KeyExistsAsync(new RedisKey("test:exists"), Arg.Any<CommandFlags>())
+            .Returns(true);
 
         var result = await _sut.ExistsAsync("exists");
 
@@ -85,8 +89,10 @@ public sealed class RedisCacheServiceTests
     [Fact]
     public async Task ExistsAsync_WhenKeyMissing_ReturnsFalse()
     {
-        _cache.GetAsync("test:nope", Arg.Any<CancellationToken>())
-            .Returns(default(byte[]?));
+        var db = Substitute.For<IDatabase>();
+        _redis.GetDatabase(Arg.Any<int>(), Arg.Any<object?>()).Returns(db);
+        db.KeyExistsAsync(new RedisKey("test:nope"), Arg.Any<CommandFlags>())
+            .Returns(false);
 
         var result = await _sut.ExistsAsync("nope");
 
