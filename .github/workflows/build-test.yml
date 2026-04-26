@@ -56,15 +56,27 @@ jobs:
       - name: Build
         run: dotnet build --configuration Release --no-restore
 
-      - name: Test
+      - name: Test (unit)
         run: |
           dotnet test \
             --configuration Release \
             --no-build \
+            --filter "Category!=Integration" \
             --logger "trx;LogFileName=test-results.trx" \
             --results-directory ./TestResults \
             --collect:"XPlat Code Coverage" \
             -- RunConfiguration.CollectSourceInformation=true
+        shell: bash
+
+      - name: Test (integration, ubuntu-only — Docker required)
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          dotnet test \
+            --configuration Release \
+            --no-build \
+            --filter "Category=Integration" \
+            --logger "trx;LogFileName=integration-results.trx" \
+            --results-directory ./TestResults
         shell: bash
 
       - name: Upload test results
