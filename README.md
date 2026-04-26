@@ -195,6 +195,20 @@ dotnet test -c Release --no-build
 
 **Requirements:** .NET 10 SDK (multi-target paketleri net8 icin de derler)
 
+### Benchmarks
+
+```bash
+dotnet run -c Release --project tests/Kck.Benchmarks
+```
+
+BenchmarkDotNet `--filter` ile spesifik benchmark calistir:
+
+```bash
+dotnet run -c Release --project tests/Kck.Benchmarks -- --filter "*Paginate*"
+```
+
+> Sadece Release konfigurasyonunda anlamli sonuc verir; Debug uyari ile kosur.
+
 ## Contributing
 
 See [CONTRIBUTING.md](CONTRIBUTING.md). Issues and PRs are welcome.
