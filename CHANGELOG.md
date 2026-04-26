@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added (LS-FAZ-3)
+- `Microsoft.CodeAnalysis.PublicApiAnalyzers 4.14.0` — 16 abstraction projesinde aktif (ADR-0013). Yeni public API ekleyenler `PublicAPI.Unshipped.txt`'a satir eklemek zorunda; aksi halde RS0016 ile build hatasi.
+- `PublicAPI.Shipped.txt` baseline tum abstraction'larda — 875 unique public symbol kayit altinda.
+- `src/Abstractions/Directory.Build.props` — analyzer'i tum 16 abstraction'a tek noktadan uygular (root Directory.Build.props re-import).
+- `docs/policies/support.md` — .NET destek matrisi (LTS/STS), TFM ekleme/kaldirma akisi (Library Strategy §6.4).
+- `docs/policies/versioning.md` — SemVer kontrati, "Public API" tanimi, breaking change politikasi, PublicApiAnalyzers ile tracking sureci (Library Strategy §12.3).
+- `docs/migrations/README.md` + `_template.md` — per-major migration rehber sablonu (Library Strategy §9.4).
+- `docs/adr/0013-public-api-discipline.md` — PublicApiAnalyzers + SemVer + Obsolete disiplini karari.
+- `[DebuggerDisplay]` — `Result`, `Result<T>`, `Error`, `Paginate<T>`, `PageRequest` (Library Strategy §9.3); watch window'da class adi yerine anlamli ozet.
+- `docs/adr/README.md` indexine ADR-0011/0012/0013 eklendi (LS-FAZ-2'den geri kalan toparlama).
+
+### Changed (LS-FAZ-3)
+- `Kck.Caching.Redis` eksik konfigurasyon hata mesaji "pit-of-success" formatinda yeniden yazildi: 3 alternatifin somut ornegi + dokuman linki (Library Strategy §9.2 literal ornek).
+
 ### Added (LS-FAZ-2)
 - Multi-target build: `Kck.*.Abstractions` + saf provider'lar artik `net8.0` LTS + `net10.0` STS hedefli (ADR-0011). Net10-only opt-out paketler: `Kck.Bundle.WebApi`, `Kck.Persistence.EntityFramework`, `Kck.AspNetCore`, `Kck.Security.Jwt`, `Kck.Caching.Redis`, `Kck.Http.Resilience`, `Kck.Exceptions.AspNetCore`.
 - `docs/adr/0011-multi-target-net8-net10.md` — multi-target karari ve net8 fallback tablosu.
