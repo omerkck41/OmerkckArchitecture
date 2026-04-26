@@ -1,0 +1,44 @@
+#nullable enable
+Kck.FileStorage.Abstractions.FileMetadata
+Kck.FileStorage.Abstractions.FileMetadata.CreatedAt.get -> System.DateTimeOffset?
+Kck.FileStorage.Abstractions.FileMetadata.CreatedAt.init -> void
+Kck.FileStorage.Abstractions.FileMetadata.FileMetadata() -> void
+Kck.FileStorage.Abstractions.FileMetadata.FileName.get -> string!
+Kck.FileStorage.Abstractions.FileMetadata.FileName.init -> void
+Kck.FileStorage.Abstractions.FileMetadata.FullPath.get -> string!
+Kck.FileStorage.Abstractions.FileMetadata.FullPath.init -> void
+Kck.FileStorage.Abstractions.FileMetadata.ModifiedAt.get -> System.DateTimeOffset?
+Kck.FileStorage.Abstractions.FileMetadata.ModifiedAt.init -> void
+Kck.FileStorage.Abstractions.FileMetadata.SizeInBytes.get -> long
+Kck.FileStorage.Abstractions.FileMetadata.SizeInBytes.init -> void
+Kck.FileStorage.Abstractions.FileUploadRequest
+Kck.FileStorage.Abstractions.FileUploadRequest.Content.get -> System.IO.Stream!
+Kck.FileStorage.Abstractions.FileUploadRequest.Content.init -> void
+Kck.FileStorage.Abstractions.FileUploadRequest.DestinationPath.get -> string!
+Kck.FileStorage.Abstractions.FileUploadRequest.DestinationPath.init -> void
+Kck.FileStorage.Abstractions.FileUploadRequest.FileName.get -> string!
+Kck.FileStorage.Abstractions.FileUploadRequest.FileName.init -> void
+Kck.FileStorage.Abstractions.FileUploadRequest.FileUploadRequest() -> void
+Kck.FileStorage.Abstractions.FileUploadRequest.Overwrite.get -> bool
+Kck.FileStorage.Abstractions.FileUploadRequest.Overwrite.init -> void
+Kck.FileStorage.Abstractions.IFileConverter
+Kck.FileStorage.Abstractions.IFileConverter.FromBase64Async(string! base64, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<System.IO.Stream!>!
+Kck.FileStorage.Abstractions.IFileConverter.ToBase64Async(System.IO.Stream! input, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<string!>!
+Kck.FileStorage.Abstractions.IFileConverter.ToBytesAsync(System.IO.Stream! input, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<byte[]!>!
+Kck.FileStorage.Abstractions.IFileMetadataReader
+Kck.FileStorage.Abstractions.IFileMetadataReader.GetMetadata(string! filePath) -> Kck.FileStorage.Abstractions.FileMetadata!
+Kck.FileStorage.Abstractions.IFileStorageService
+Kck.FileStorage.Abstractions.IFileStorageService.DeleteAsync(string! path, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task!
+Kck.FileStorage.Abstractions.IFileStorageService.DownloadAsync(string! path, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<System.IO.Stream!>!
+Kck.FileStorage.Abstractions.IFileStorageService.ExistsAsync(string! path, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<bool>!
+Kck.FileStorage.Abstractions.IFileStorageService.ListAsync(string! directoryPath, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<System.Collections.Generic.IReadOnlyList<Kck.FileStorage.Abstractions.FileMetadata!>!>!
+Kck.FileStorage.Abstractions.IFileStorageService.UploadAsync(Kck.FileStorage.Abstractions.FileUploadRequest! request, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task!
+Kck.FileStorage.Abstractions.IFtpService
+Kck.FileStorage.Abstractions.IFtpService.CreateDirectoryAsync(string! path, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task!
+Kck.FileStorage.Abstractions.IFtpService.DeleteDirectoryAsync(string! path, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task!
+Kck.FileStorage.Abstractions.IFtpService.MoveAsync(string! sourcePath, string! destinationPath, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task!
+Kck.FileStorage.Abstractions.PathHelper
+static Kck.FileStorage.Abstractions.PathHelper.Combine(params string![]! segments) -> string!
+static Kck.FileStorage.Abstractions.PathHelper.GetExtension(string! path) -> string!
+static Kck.FileStorage.Abstractions.PathHelper.IsValidPath(string! path) -> bool
+static Kck.FileStorage.Abstractions.PathHelper.Sanitize(string! path) -> string!

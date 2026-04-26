@@ -1,0 +1,39 @@
+#nullable enable
+Kck.Documents.Abstractions.DocumentResult
+Kck.Documents.Abstractions.DocumentResult.Content.get -> byte[]!
+Kck.Documents.Abstractions.DocumentResult.Content.init -> void
+Kck.Documents.Abstractions.DocumentResult.ContentType.get -> string!
+Kck.Documents.Abstractions.DocumentResult.ContentType.init -> void
+Kck.Documents.Abstractions.DocumentResult.DocumentResult() -> void
+Kck.Documents.Abstractions.DocumentResult.FileName.get -> string!
+Kck.Documents.Abstractions.DocumentResult.FileName.init -> void
+Kck.Documents.Abstractions.ExcelWorksheet
+Kck.Documents.Abstractions.ExcelWorksheet.ExcelWorksheet() -> void
+Kck.Documents.Abstractions.ExcelWorksheet.Headers.get -> System.Collections.Generic.IReadOnlyList<string!>?
+Kck.Documents.Abstractions.ExcelWorksheet.Headers.init -> void
+Kck.Documents.Abstractions.ExcelWorksheet.Name.get -> string!
+Kck.Documents.Abstractions.ExcelWorksheet.Name.init -> void
+Kck.Documents.Abstractions.ExcelWorksheet.Rows.get -> System.Collections.Generic.IReadOnlyList<System.Collections.Generic.IReadOnlyList<object?>!>!
+Kck.Documents.Abstractions.ExcelWorksheet.Rows.init -> void
+Kck.Documents.Abstractions.ICsvExporter
+Kck.Documents.Abstractions.ICsvExporter.ExportAsync<T>(System.Collections.Generic.IEnumerable<T>! data, string! fileName = "export.csv", System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<Kck.Documents.Abstractions.DocumentResult!>!
+Kck.Documents.Abstractions.IExcelService
+Kck.Documents.Abstractions.IExcelService.CreateAsync(System.Collections.Generic.IEnumerable<Kck.Documents.Abstractions.ExcelWorksheet!>! worksheets, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<Kck.Documents.Abstractions.DocumentResult!>!
+Kck.Documents.Abstractions.IExcelService.CreateFromDataAsync<T>(System.Collections.Generic.IEnumerable<T>! data, string! worksheetName = "Sheet1", System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<Kck.Documents.Abstractions.DocumentResult!>!
+Kck.Documents.Abstractions.IExcelService.ReadAsync(System.IO.Stream! stream, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<System.Collections.Generic.IReadOnlyList<System.Collections.Generic.IReadOnlyList<object?>!>!>!
+Kck.Documents.Abstractions.IImageProcessor
+Kck.Documents.Abstractions.IImageProcessor.ConvertFormatAsync(System.IO.Stream! input, string! targetFormat, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<byte[]!>!
+Kck.Documents.Abstractions.IImageProcessor.GetDimensionsAsync(System.IO.Stream! input, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<(int Width, int Height)>!
+Kck.Documents.Abstractions.IImageProcessor.ResizeAsync(System.IO.Stream! input, Kck.Documents.Abstractions.ImageProcessingOptions! options, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<byte[]!>!
+Kck.Documents.Abstractions.ImageProcessingOptions
+Kck.Documents.Abstractions.ImageProcessingOptions.Height.get -> int?
+Kck.Documents.Abstractions.ImageProcessingOptions.Height.init -> void
+Kck.Documents.Abstractions.ImageProcessingOptions.ImageProcessingOptions() -> void
+Kck.Documents.Abstractions.ImageProcessingOptions.MaintainAspectRatio.get -> bool
+Kck.Documents.Abstractions.ImageProcessingOptions.MaintainAspectRatio.init -> void
+Kck.Documents.Abstractions.ImageProcessingOptions.OutputFormat.get -> string?
+Kck.Documents.Abstractions.ImageProcessingOptions.OutputFormat.init -> void
+Kck.Documents.Abstractions.ImageProcessingOptions.Quality.get -> int
+Kck.Documents.Abstractions.ImageProcessingOptions.Quality.init -> void
+Kck.Documents.Abstractions.ImageProcessingOptions.Width.get -> int?
+Kck.Documents.Abstractions.ImageProcessingOptions.Width.init -> void

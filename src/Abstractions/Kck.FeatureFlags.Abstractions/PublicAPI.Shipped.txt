@@ -1,0 +1,55 @@
+#nullable enable
+Kck.FeatureFlags.Abstractions.FeatureChangeEvent
+Kck.FeatureFlags.Abstractions.FeatureChangeEvent.<Clone>$() -> Kck.FeatureFlags.Abstractions.FeatureChangeEvent!
+Kck.FeatureFlags.Abstractions.FeatureChangeEvent.Deconstruct(out string! FeatureName, out bool OldValue, out bool NewValue, out System.DateTimeOffset Timestamp) -> void
+Kck.FeatureFlags.Abstractions.FeatureChangeEvent.Equals(Kck.FeatureFlags.Abstractions.FeatureChangeEvent? other) -> bool
+Kck.FeatureFlags.Abstractions.FeatureChangeEvent.FeatureChangeEvent(string! FeatureName, bool OldValue, bool NewValue, System.DateTimeOffset Timestamp) -> void
+Kck.FeatureFlags.Abstractions.FeatureChangeEvent.FeatureName.get -> string!
+Kck.FeatureFlags.Abstractions.FeatureChangeEvent.FeatureName.init -> void
+Kck.FeatureFlags.Abstractions.FeatureChangeEvent.NewValue.get -> bool
+Kck.FeatureFlags.Abstractions.FeatureChangeEvent.NewValue.init -> void
+Kck.FeatureFlags.Abstractions.FeatureChangeEvent.OldValue.get -> bool
+Kck.FeatureFlags.Abstractions.FeatureChangeEvent.OldValue.init -> void
+Kck.FeatureFlags.Abstractions.FeatureChangeEvent.Timestamp.get -> System.DateTimeOffset
+Kck.FeatureFlags.Abstractions.FeatureChangeEvent.Timestamp.init -> void
+Kck.FeatureFlags.Abstractions.FeatureDefinition
+Kck.FeatureFlags.Abstractions.FeatureDefinition.<Clone>$() -> Kck.FeatureFlags.Abstractions.FeatureDefinition!
+Kck.FeatureFlags.Abstractions.FeatureDefinition.Enabled.get -> bool
+Kck.FeatureFlags.Abstractions.FeatureDefinition.Enabled.init -> void
+Kck.FeatureFlags.Abstractions.FeatureDefinition.Equals(Kck.FeatureFlags.Abstractions.FeatureDefinition? other) -> bool
+Kck.FeatureFlags.Abstractions.FeatureDefinition.FeatureDefinition() -> void
+Kck.FeatureFlags.Abstractions.FeatureDefinition.FilterType.get -> Kck.FeatureFlags.Abstractions.FeatureFilterType
+Kck.FeatureFlags.Abstractions.FeatureDefinition.FilterType.init -> void
+Kck.FeatureFlags.Abstractions.FeatureDefinition.Name.get -> string!
+Kck.FeatureFlags.Abstractions.FeatureDefinition.Name.init -> void
+Kck.FeatureFlags.Abstractions.FeatureDefinition.Parameters.get -> System.Collections.Generic.IReadOnlyDictionary<string!, object!>?
+Kck.FeatureFlags.Abstractions.FeatureDefinition.Parameters.init -> void
+Kck.FeatureFlags.Abstractions.FeatureFilterType
+Kck.FeatureFlags.Abstractions.FeatureFilterType.Custom = 4 -> Kck.FeatureFlags.Abstractions.FeatureFilterType
+Kck.FeatureFlags.Abstractions.FeatureFilterType.DateRange = 3 -> Kck.FeatureFlags.Abstractions.FeatureFilterType
+Kck.FeatureFlags.Abstractions.FeatureFilterType.None = 0 -> Kck.FeatureFlags.Abstractions.FeatureFilterType
+Kck.FeatureFlags.Abstractions.FeatureFilterType.Percentage = 1 -> Kck.FeatureFlags.Abstractions.FeatureFilterType
+Kck.FeatureFlags.Abstractions.FeatureFilterType.UserSegment = 2 -> Kck.FeatureFlags.Abstractions.FeatureFilterType
+Kck.FeatureFlags.Abstractions.IFeatureChangeNotifier
+Kck.FeatureFlags.Abstractions.IFeatureChangeNotifier.WatchAsync(System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Collections.Generic.IAsyncEnumerable<Kck.FeatureFlags.Abstractions.FeatureChangeEvent!>!
+Kck.FeatureFlags.Abstractions.IFeatureContext
+Kck.FeatureFlags.Abstractions.IFeatureContext.Properties.get -> System.Collections.Generic.IReadOnlyDictionary<string!, string!>!
+Kck.FeatureFlags.Abstractions.IFeatureContext.TenantId.get -> string?
+Kck.FeatureFlags.Abstractions.IFeatureContext.UserId.get -> string?
+Kck.FeatureFlags.Abstractions.IFeatureEvaluator
+Kck.FeatureFlags.Abstractions.IFeatureEvaluator.EvaluateAsync(Kck.FeatureFlags.Abstractions.FeatureDefinition! feature, Kck.FeatureFlags.Abstractions.IFeatureContext! context, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<bool>!
+Kck.FeatureFlags.Abstractions.IFeatureFlagService
+Kck.FeatureFlags.Abstractions.IFeatureFlagService.GetAllAsync(System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<System.Collections.Generic.IReadOnlyList<Kck.FeatureFlags.Abstractions.FeatureDefinition!>!>!
+Kck.FeatureFlags.Abstractions.IFeatureFlagService.GetValueAsync<T>(string! featureName, T defaultValue, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<T>!
+Kck.FeatureFlags.Abstractions.IFeatureFlagService.IsEnabledAsync(string! featureName, Kck.FeatureFlags.Abstractions.IFeatureContext! context, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<bool>!
+Kck.FeatureFlags.Abstractions.IFeatureFlagService.IsEnabledAsync(string! featureName, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<bool>!
+override Kck.FeatureFlags.Abstractions.FeatureChangeEvent.Equals(object? obj) -> bool
+override Kck.FeatureFlags.Abstractions.FeatureChangeEvent.GetHashCode() -> int
+override Kck.FeatureFlags.Abstractions.FeatureChangeEvent.ToString() -> string!
+override Kck.FeatureFlags.Abstractions.FeatureDefinition.Equals(object? obj) -> bool
+override Kck.FeatureFlags.Abstractions.FeatureDefinition.GetHashCode() -> int
+override Kck.FeatureFlags.Abstractions.FeatureDefinition.ToString() -> string!
+static Kck.FeatureFlags.Abstractions.FeatureChangeEvent.operator !=(Kck.FeatureFlags.Abstractions.FeatureChangeEvent? left, Kck.FeatureFlags.Abstractions.FeatureChangeEvent? right) -> bool
+static Kck.FeatureFlags.Abstractions.FeatureChangeEvent.operator ==(Kck.FeatureFlags.Abstractions.FeatureChangeEvent? left, Kck.FeatureFlags.Abstractions.FeatureChangeEvent? right) -> bool
+static Kck.FeatureFlags.Abstractions.FeatureDefinition.operator !=(Kck.FeatureFlags.Abstractions.FeatureDefinition? left, Kck.FeatureFlags.Abstractions.FeatureDefinition? right) -> bool
+static Kck.FeatureFlags.Abstractions.FeatureDefinition.operator ==(Kck.FeatureFlags.Abstractions.FeatureDefinition? left, Kck.FeatureFlags.Abstractions.FeatureDefinition? right) -> bool

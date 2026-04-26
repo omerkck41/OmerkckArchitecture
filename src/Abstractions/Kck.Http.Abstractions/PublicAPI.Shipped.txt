@@ -1,0 +1,31 @@
+#nullable enable
+Kck.Http.Abstractions.ApiResponse<T>
+Kck.Http.Abstractions.ApiResponse<T>.ApiResponse() -> void
+Kck.Http.Abstractions.ApiResponse<T>.Data.get -> T?
+Kck.Http.Abstractions.ApiResponse<T>.Data.init -> void
+Kck.Http.Abstractions.ApiResponse<T>.ErrorMessage.get -> string?
+Kck.Http.Abstractions.ApiResponse<T>.ErrorMessage.init -> void
+Kck.Http.Abstractions.ApiResponse<T>.IsSuccess.get -> bool
+Kck.Http.Abstractions.ApiResponse<T>.IsSuccess.init -> void
+Kck.Http.Abstractions.ApiResponse<T>.StatusCode.get -> int
+Kck.Http.Abstractions.ApiResponse<T>.StatusCode.init -> void
+Kck.Http.Abstractions.IApiClient
+Kck.Http.Abstractions.IApiClient.DeleteAsync<T>(string! url, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<Kck.Http.Abstractions.ApiResponse<T>!>!
+Kck.Http.Abstractions.IApiClient.GetAsync<T>(string! url, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<Kck.Http.Abstractions.ApiResponse<T>!>!
+Kck.Http.Abstractions.IApiClient.PostAsync<T>(string! url, object? body = null, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<Kck.Http.Abstractions.ApiResponse<T>!>!
+Kck.Http.Abstractions.IApiClient.PutAsync<T>(string! url, object? body = null, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<Kck.Http.Abstractions.ApiResponse<T>!>!
+Kck.Http.Abstractions.IApiClient.SendAsync<T>(System.Net.Http.HttpMethod! method, string! url, object? body = null, System.Collections.Generic.IDictionary<string!, string!>? headers = null, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<Kck.Http.Abstractions.ApiResponse<T>!>!
+Kck.Http.Abstractions.ResilienceOptions
+Kck.Http.Abstractions.ResilienceOptions.CircuitBreakerDuration.get -> System.TimeSpan
+Kck.Http.Abstractions.ResilienceOptions.CircuitBreakerDuration.set -> void
+Kck.Http.Abstractions.ResilienceOptions.CircuitBreakerFailureThreshold.get -> int
+Kck.Http.Abstractions.ResilienceOptions.CircuitBreakerFailureThreshold.set -> void
+Kck.Http.Abstractions.ResilienceOptions.MaxRetryAttempts.get -> int
+Kck.Http.Abstractions.ResilienceOptions.MaxRetryAttempts.set -> void
+Kck.Http.Abstractions.ResilienceOptions.MedianFirstRetryDelay.get -> System.TimeSpan
+Kck.Http.Abstractions.ResilienceOptions.MedianFirstRetryDelay.set -> void
+Kck.Http.Abstractions.ResilienceOptions.ResilienceOptions() -> void
+Kck.Http.Abstractions.ResilienceOptions.Timeout.get -> System.TimeSpan
+Kck.Http.Abstractions.ResilienceOptions.Timeout.set -> void
+static Kck.Http.Abstractions.ApiResponse<T>.Failure(string! error, int statusCode) -> Kck.Http.Abstractions.ApiResponse<T>!
+static Kck.Http.Abstractions.ApiResponse<T>.Success(T data, int statusCode = 200) -> Kck.Http.Abstractions.ApiResponse<T>!

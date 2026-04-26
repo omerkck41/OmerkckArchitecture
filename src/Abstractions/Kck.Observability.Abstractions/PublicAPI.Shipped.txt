@@ -1,0 +1,61 @@
+#nullable enable
+Kck.Observability.Abstractions.HealthCheckResult
+Kck.Observability.Abstractions.HealthCheckResult.<Clone>$() -> Kck.Observability.Abstractions.HealthCheckResult!
+Kck.Observability.Abstractions.HealthCheckResult.Data.get -> System.Collections.Generic.IReadOnlyDictionary<string!, object!>?
+Kck.Observability.Abstractions.HealthCheckResult.Data.init -> void
+Kck.Observability.Abstractions.HealthCheckResult.Deconstruct(out Kck.Observability.Abstractions.HealthStatus Status, out string? Description, out System.Collections.Generic.IReadOnlyDictionary<string!, object!>? Data) -> void
+Kck.Observability.Abstractions.HealthCheckResult.Description.get -> string?
+Kck.Observability.Abstractions.HealthCheckResult.Description.init -> void
+Kck.Observability.Abstractions.HealthCheckResult.Equals(Kck.Observability.Abstractions.HealthCheckResult? other) -> bool
+Kck.Observability.Abstractions.HealthCheckResult.HealthCheckResult(Kck.Observability.Abstractions.HealthStatus Status, string? Description = null, System.Collections.Generic.IReadOnlyDictionary<string!, object!>? Data = null) -> void
+Kck.Observability.Abstractions.HealthCheckResult.Status.get -> Kck.Observability.Abstractions.HealthStatus
+Kck.Observability.Abstractions.HealthCheckResult.Status.init -> void
+Kck.Observability.Abstractions.HealthCheckType
+Kck.Observability.Abstractions.HealthCheckType.Cache = 1 -> Kck.Observability.Abstractions.HealthCheckType
+Kck.Observability.Abstractions.HealthCheckType.Custom = 5 -> Kck.Observability.Abstractions.HealthCheckType
+Kck.Observability.Abstractions.HealthCheckType.Database = 0 -> Kck.Observability.Abstractions.HealthCheckType
+Kck.Observability.Abstractions.HealthCheckType.ExternalApi = 3 -> Kck.Observability.Abstractions.HealthCheckType
+Kck.Observability.Abstractions.HealthCheckType.FileSystem = 4 -> Kck.Observability.Abstractions.HealthCheckType
+Kck.Observability.Abstractions.HealthCheckType.MessageBroker = 2 -> Kck.Observability.Abstractions.HealthCheckType
+Kck.Observability.Abstractions.HealthStatus
+Kck.Observability.Abstractions.HealthStatus.Degraded = 1 -> Kck.Observability.Abstractions.HealthStatus
+Kck.Observability.Abstractions.HealthStatus.Healthy = 0 -> Kck.Observability.Abstractions.HealthStatus
+Kck.Observability.Abstractions.HealthStatus.Unhealthy = 2 -> Kck.Observability.Abstractions.HealthStatus
+Kck.Observability.Abstractions.ICounter
+Kck.Observability.Abstractions.ICounter.Increment(double value = 1, params System.Collections.Generic.KeyValuePair<string!, object?>[]! tags) -> void
+Kck.Observability.Abstractions.IGauge
+Kck.Observability.Abstractions.IGauge.Set(double value, params System.Collections.Generic.KeyValuePair<string!, object?>[]! tags) -> void
+Kck.Observability.Abstractions.IHealthCheck
+Kck.Observability.Abstractions.IHealthCheck.CheckAsync(System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<Kck.Observability.Abstractions.HealthCheckResult!>!
+Kck.Observability.Abstractions.IHealthCheckRegistrar
+Kck.Observability.Abstractions.IHealthCheckRegistrar.AddCheck(string! name, Kck.Observability.Abstractions.IHealthCheck! check) -> Kck.Observability.Abstractions.IHealthCheckRegistrar!
+Kck.Observability.Abstractions.IHealthCheckRegistrar.AddCheck(string! name, System.Func<System.Threading.CancellationToken, System.Threading.Tasks.Task<Kck.Observability.Abstractions.HealthCheckResult!>!>! check) -> Kck.Observability.Abstractions.IHealthCheckRegistrar!
+Kck.Observability.Abstractions.IHealthCheckRegistrar.AddDependency(string! name, string! endpoint, Kck.Observability.Abstractions.HealthCheckType type) -> Kck.Observability.Abstractions.IHealthCheckRegistrar!
+Kck.Observability.Abstractions.IHistogram
+Kck.Observability.Abstractions.IHistogram.Record(double value, params System.Collections.Generic.KeyValuePair<string!, object?>[]! tags) -> void
+Kck.Observability.Abstractions.IMetricsService
+Kck.Observability.Abstractions.IMetricsService.CreateCounter(string! name, string? description = null, string![]? tags = null) -> Kck.Observability.Abstractions.ICounter!
+Kck.Observability.Abstractions.IMetricsService.CreateGauge(string! name, string? description = null) -> Kck.Observability.Abstractions.IGauge!
+Kck.Observability.Abstractions.IMetricsService.CreateHistogram(string! name, string? description = null, double[]? buckets = null) -> Kck.Observability.Abstractions.IHistogram!
+Kck.Observability.Abstractions.ISpan
+Kck.Observability.Abstractions.ISpan.RecordException(System.Exception! exception) -> void
+Kck.Observability.Abstractions.ISpan.SetAttribute(string! key, object! value) -> void
+Kck.Observability.Abstractions.ISpan.SetStatus(Kck.Observability.Abstractions.SpanStatus status, string? description = null) -> void
+Kck.Observability.Abstractions.ISpan.StartChild(string! name, Kck.Observability.Abstractions.SpanKind kind = Kck.Observability.Abstractions.SpanKind.Internal) -> Kck.Observability.Abstractions.ISpan!
+Kck.Observability.Abstractions.ITracingService
+Kck.Observability.Abstractions.ITracingService.StartSpan(string! name, Kck.Observability.Abstractions.SpanKind kind = Kck.Observability.Abstractions.SpanKind.Internal) -> Kck.Observability.Abstractions.ISpan!
+Kck.Observability.Abstractions.SpanKind
+Kck.Observability.Abstractions.SpanKind.Client = 2 -> Kck.Observability.Abstractions.SpanKind
+Kck.Observability.Abstractions.SpanKind.Consumer = 4 -> Kck.Observability.Abstractions.SpanKind
+Kck.Observability.Abstractions.SpanKind.Internal = 0 -> Kck.Observability.Abstractions.SpanKind
+Kck.Observability.Abstractions.SpanKind.Producer = 3 -> Kck.Observability.Abstractions.SpanKind
+Kck.Observability.Abstractions.SpanKind.Server = 1 -> Kck.Observability.Abstractions.SpanKind
+Kck.Observability.Abstractions.SpanStatus
+Kck.Observability.Abstractions.SpanStatus.Error = 2 -> Kck.Observability.Abstractions.SpanStatus
+Kck.Observability.Abstractions.SpanStatus.Ok = 1 -> Kck.Observability.Abstractions.SpanStatus
+Kck.Observability.Abstractions.SpanStatus.Unset = 0 -> Kck.Observability.Abstractions.SpanStatus
+override Kck.Observability.Abstractions.HealthCheckResult.Equals(object? obj) -> bool
+override Kck.Observability.Abstractions.HealthCheckResult.GetHashCode() -> int
+override Kck.Observability.Abstractions.HealthCheckResult.ToString() -> string!
+static Kck.Observability.Abstractions.HealthCheckResult.operator !=(Kck.Observability.Abstractions.HealthCheckResult? left, Kck.Observability.Abstractions.HealthCheckResult? right) -> bool
+static Kck.Observability.Abstractions.HealthCheckResult.operator ==(Kck.Observability.Abstractions.HealthCheckResult? left, Kck.Observability.Abstractions.HealthCheckResult? right) -> bool

@@ -1,0 +1,17 @@
+#nullable enable
+Kck.Authorization.Abstractions.IAuthorizationService
+Kck.Authorization.Abstractions.IAuthorizationService.AuthorizeAsync(System.Collections.Generic.IReadOnlyDictionary<string!, string!>! requiredClaims, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task!
+Kck.Authorization.Abstractions.IAuthorizationService.AuthorizeAsync(string![]! requiredRoles, System.Collections.Generic.IReadOnlyDictionary<string!, string!>! requiredClaims, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task!
+Kck.Authorization.Abstractions.IAuthorizationService.AuthorizeAsync(string![]! requiredRoles, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task!
+Kck.Authorization.Abstractions.ICurrentUserProvider
+Kck.Authorization.Abstractions.ICurrentUserProvider.Claims.get -> System.Collections.Generic.IReadOnlyDictionary<string!, string!>!
+Kck.Authorization.Abstractions.ICurrentUserProvider.Email.get -> string?
+Kck.Authorization.Abstractions.ICurrentUserProvider.IsAuthenticated.get -> bool
+Kck.Authorization.Abstractions.ICurrentUserProvider.IsInRole(string! role) -> bool
+Kck.Authorization.Abstractions.ICurrentUserProvider.Name.get -> string?
+Kck.Authorization.Abstractions.ICurrentUserProvider.Roles.get -> System.Collections.Generic.IReadOnlyList<string!>!
+Kck.Authorization.Abstractions.ICurrentUserProvider.UserId.get -> string?
+Kck.Authorization.Abstractions.IPermissionChecker
+Kck.Authorization.Abstractions.IPermissionChecker.HasAllPermissionsAsync(System.Collections.Generic.IEnumerable<string!>! permissions, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<bool>!
+Kck.Authorization.Abstractions.IPermissionChecker.HasAnyPermissionAsync(System.Collections.Generic.IEnumerable<string!>! permissions, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<bool>!
+Kck.Authorization.Abstractions.IPermissionChecker.HasPermissionAsync(string! permission, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<bool>!
