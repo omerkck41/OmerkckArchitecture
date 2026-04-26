@@ -56,15 +56,27 @@ jobs:
       - name: Build
         run: dotnet build --configuration Release --no-restore
 
-      - name: Test
+      - name: Test (unit)
         run: |
           dotnet test \
             --configuration Release \
             --no-build \
+            --filter "Category!=Integration" \
             --logger "trx;LogFileName=test-results.trx" \
             --results-directory ./TestResults \
             --collect:"XPlat Code Coverage" \
             -- RunConfiguration.CollectSourceInformation=true
+        shell: bash
+
+      - name: Test (integration, ubuntu-only — Docker required)
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          dotnet test \
+            --configuration Release \
+            --no-build \
+            --filter "Category=Integration" \
+            --logger "trx;LogFileName=integration-results.trx" \
+            --results-directory ./TestResults
         shell: bash
 
       - name: Upload test results
@@ -102,8 +114,10 @@ jobs:
       - name: Enforce coverage threshold
         if: matrix.os == 'ubuntu-latest'
         env:
+          # LS-FAZ-4: regression onleyici esik. Yerel olcum (2026-04-26): line %40.7, branch %36.3.
+          # Yukseltme test yazimi gerektirir — yol haritasi: docs/policies/test-coverage.md
           LINE_THRESHOLD: '40'
-          BRANCH_THRESHOLD: '30'
+          BRANCH_THRESHOLD: '35'
         run: |
           LINE=$(awk '/Line coverage:/ {gsub("%",""); print $3; exit}' ./coverage-report/Summary.txt)
           BRANCH=$(awk '/Branch coverage:/ {gsub("%",""); print $3; exit}' ./coverage-report/Summary.txt)

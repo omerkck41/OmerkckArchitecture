@@ -179,6 +179,18 @@ Kck, ABP'den **daha hafif**, FastEndpoints'ten **daha kapsamli**, Aspire'a **uyu
 - [`samples/Kck.Sample.MinimalApi`](samples/Kck.Sample.MinimalApi) — Minimal API with Bundle.WebApi
 - [`samples/Kck.Sample.WorkerService`](samples/Kck.Sample.WorkerService) — Hangfire + Quartz hosted jobs
 
+## Testing
+
+```bash
+# Unit testler (Docker gerektirmez, Windows + Ubuntu hepsi):
+dotnet test --filter "Category!=Integration"
+
+# Integration testler (Docker Desktop gerekir):
+dotnet test --filter "Category=Integration"
+```
+
+Detay: [`docs/test-strategy.md`](docs/test-strategy.md) ve [`docs/policies/test-coverage.md`](docs/policies/test-coverage.md)
+
 ## Documentation
 
 - [Documentation index](docs/README.md) — landing page
@@ -194,6 +206,20 @@ dotnet test -c Release --no-build
 ```
 
 **Requirements:** .NET 10 SDK (multi-target paketleri net8 icin de derler)
+
+### Benchmarks
+
+```bash
+dotnet run -c Release --project tests/Kck.Benchmarks
+```
+
+BenchmarkDotNet `--filter` ile spesifik benchmark calistir:
+
+```bash
+dotnet run -c Release --project tests/Kck.Benchmarks -- --filter "*Paginate*"
+```
+
+> Sadece Release konfigurasyonunda anlamli sonuc verir; Debug uyari ile kosur.
 
 ## Contributing
 

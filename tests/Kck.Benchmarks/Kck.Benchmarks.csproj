@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <!-- Benchmarks pinned to net10.0 — benchmark host runtime; library multi-target is exercised via TFM-specific project references in ileride faz. -->
+    <TargetFrameworks>net10.0</TargetFrameworks>
+    <IsPackable>false</IsPackable>
+    <!-- Suppress XML doc warnings for benchmark host (not a public API). -->
+    <!-- BenchmarkDotNet requires instance methods (it instantiates the class), so CA1822 is intentionally relaxed.
+         CA1707 (underscores) is the BenchmarkDotNet output naming convention.
+         CA1812 (unused class) is benign — BenchmarkSwitcher discovers via reflection. -->
+    <NoWarn>$(NoWarn);CS1591;CA1707;CA1812;CA1822</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="BenchmarkDotNet" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Abstractions\Kck.Core.Abstractions\Kck.Core.Abstractions.csproj" />
+  </ItemGroup>
+</Project>

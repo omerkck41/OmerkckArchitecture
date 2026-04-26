@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added (LS-FAZ-4)
+- `tests/Kck.Benchmarks` — BenchmarkDotNet 0.15.0 console app + 3 baslangic benchmark (`PaginateCreateBenchmarks`, `ResultBenchmarks`, `JsonSerializationBenchmarks`). LS-FAZ-5/6 perf optimizasyonlari icin baseline (Library Strategy §5.7).
+- `tests/Kck.Persistence.EntityFramework.Tests/EfRepositoryIntegrationTests.cs` — Testcontainers PoC (postgres:16-alpine), `[Trait("Category", "Integration")]`. Mock/InMemory'nin kacirdigi gercek-DB davranislarini yakalar (Library Strategy §7.5).
+- `Testcontainers.PostgreSql 4.5.0` + `Npgsql.EntityFrameworkCore.PostgreSQL 10.0.0` -> `Directory.Packages.props` (yalniz EF.Tests projesinde kullaniliyor).
+- `docs/test-strategy.md` — test piramidi rehberi (unit vs integration vs benchmark, ne zaman hangisi, mevcut coverage matrix).
+- `docs/policies/test-coverage.md` — coverage gate politikasi + kademeli yukseltme yol haritasi (40/35 -> 50/45 -> 65/50 -> 75/60).
+- `docs/adr/0014-test-strategy.md` — BenchmarkDotNet + Testcontainers + coverage policy karari.
+- README "Testing" + "Benchmarks" bolumleri (Docker gerektiren / gerektirmeyen test komutlari).
+
+### Changed (LS-FAZ-4)
+- CI `build-test.yml` test step ikiye boldu: `Test (unit)` (filter `Category!=Integration`, hem ubuntu hem windows) ve `Test (integration)` (filter `Category=Integration`, sadece ubuntu — Docker gerekli).
+- CI coverage gate: `BRANCH_THRESHOLD: 30 -> 35` (regression onleme; gercek olcum %36.3, 1.3 puan pay). Line gate sabit %40 (gercek %40.7).
+
 ### Added (LS-FAZ-3)
 - `Microsoft.CodeAnalysis.PublicApiAnalyzers 4.14.0` — 16 abstraction projesinde aktif (ADR-0013). Yeni public API ekleyenler `PublicAPI.Unshipped.txt`'a satir eklemek zorunda; aksi halde RS0016 ile build hatasi.
 - `PublicAPI.Shipped.txt` baseline tum abstraction'larda — 875 unique public symbol kayit altinda.
