@@ -11,6 +11,9 @@
     <PackageReference Include="FluentAssertions" />
     <PackageReference Include="NSubstitute" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" />
+    <!-- LS-FAZ-4: Testcontainers PoC — gercek PostgreSQL container ile integration testleri -->
+    <PackageReference Include="Testcontainers.PostgreSql" />
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\Providers\Kck.Persistence.EntityFramework\Kck.Persistence.EntityFramework.csproj" />
