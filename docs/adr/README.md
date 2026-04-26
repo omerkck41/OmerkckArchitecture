@@ -22,6 +22,7 @@ bir karar yeni ADR ile `superseded` isaretlenerek gecilir.
 | [0012](0012-remove-automapper-package.md) | AutoMapper paketi kaldirildi (kullanilmiyor) | Onaylandi | 2026-04-26 | `Directory.Packages.props` |
 | [0013](0013-public-api-discipline.md) | Public API disiplini (PublicApiAnalyzers + SemVer) | Onaylandi | 2026-04-26 | 16 abstraction projesi |
 | [0014](0014-test-strategy.md) | Test stratejisi (BenchmarkDotNet + Testcontainers + coverage policy) | Onaylandi | 2026-04-26 | Tum test projeleri + benchmarks |
+| [0015](0015-perf-quickwins.md) | Performans hizli kazanimlar (Redis EXISTS + Filter type safety) | Onaylandi | 2026-04-26 | `Kck.Caching.Redis`, `Kck.Persistence.Abstractions` |
 
 ## Kategori
 
@@ -50,6 +51,9 @@ bir karar yeni ADR ile `superseded` isaretlenerek gecilir.
 
 ### Test / Kalite
 - [0014](0014-test-strategy.md) — BenchmarkDotNet + Testcontainers + coverage policy
+
+### Performans
+- [0015](0015-perf-quickwins.md) — Redis EXISTS + Filter type safety + AOT-uyumlu GetValue<T>
 
 ## Yeni ADR Yazma
 

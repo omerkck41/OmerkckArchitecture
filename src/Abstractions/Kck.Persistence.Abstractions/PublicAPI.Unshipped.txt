@@ -1,1 +1,4 @@
 #nullable enable
+Kck.Persistence.Abstractions.Dynamic.Filter.Filter(string! field, Kck.Persistence.Abstractions.Dynamic.FilterOperator operator, object? value, string? logic = null, System.Collections.Generic.IEnumerable<Kck.Persistence.Abstractions.Dynamic.Filter!>? filters = null) -> void
+Kck.Persistence.Abstractions.Dynamic.Filter.OperatorEnum.get -> Kck.Persistence.Abstractions.Dynamic.FilterOperator?
+static Kck.Persistence.Abstractions.Dynamic.Filter.TryParseOperator(string? operator) -> Kck.Persistence.Abstractions.Dynamic.FilterOperator?

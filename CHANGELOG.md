@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added (LS-FAZ-5)
+- `Filter` API: `Filter(string field, FilterOperator op, ...)` constructor (enum'u canonical lower-case wire string'e cevirir), `OperatorEnum` getter, `TryParseOperator` static helper. Wire format degismedi — JSON consumer'lar etkilenmez (Library Strategy §4.4).
+- `Filter.GetValue<T>` AOT-uyumlu rewrite: `Convert.ChangeType` yerine switch + tip-spesifik `ParseString<T>`. `JsonElement` artik native `Deserialize<T>` ile islenir; `Guid`, `DateTime`, `DateTimeOffset`, `DateOnly`, `TimeOnly`, `Enum` desteklenir; bilinmeyen tipler icin `Convert.ChangeType` fallback (Library Strategy §5.5).
+- `docs/adr/0015-perf-quickwins.md` — Redis EXISTS + Filter type safety + AOT karari.
+
+### Changed (LS-FAZ-5)
+- **Performance:** `RedisCacheService.ExistsAsync` artik `IConnectionMultiplexer.GetDatabase().KeyExistsAsync()` (sadece `EXISTS` komutu) kullaniyor — eski `IDistributedCache.GetStringAsync()` butun degeri network'ten cekiyordu. Buyuk-degerli cache'lerde %95+ network/GC azalma (Library Strategy §5.6, P1).
+- `DynamicFilterExtensions.ApplyFilter` artik `filter.OperatorEnum ?? throw` kullaniyor — eskiden her cagride `Enum.Parse<FilterOperator>(...)` calistiriyordu.
+
 ### Added (LS-FAZ-4)
 - `tests/Kck.Benchmarks` — BenchmarkDotNet 0.15.0 console app + 3 baslangic benchmark (`PaginateCreateBenchmarks`, `ResultBenchmarks`, `JsonSerializationBenchmarks`). LS-FAZ-5/6 perf optimizasyonlari icin baseline (Library Strategy §5.7).
 - `tests/Kck.Persistence.EntityFramework.Tests/EfRepositoryIntegrationTests.cs` — Testcontainers PoC (postgres:16-alpine), `[Trait("Category", "Integration")]`. Mock/InMemory'nin kacirdigi gercek-DB davranislarini yakalar (Library Strategy §7.5).
