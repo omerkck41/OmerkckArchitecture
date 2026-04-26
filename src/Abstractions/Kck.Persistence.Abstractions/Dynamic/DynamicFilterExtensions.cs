@@ -49,7 +49,9 @@ public static class DynamicFilterExtensions
 
         // Leaf node: Field + Operator + optional Value
         var property = Expression.Property(parameter, filter.Field);
-        var operatorEnum = Enum.Parse<FilterOperator>(filter.Operator, ignoreCase: true);
+        // LS-FAZ-5: Filter.OperatorEnum convenience getter — gecersiz operator icin null doner.
+        var operatorEnum = filter.OperatorEnum
+            ?? throw new ArgumentException($"Operator '{filter.Operator}' is not supported.", nameof(filter));
 
         if (operatorEnum is FilterOperator.IsNull)
             return Expression.Equal(property, Expression.Constant(null));
