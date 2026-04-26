@@ -1,8 +1,11 @@
+using System.Diagnostics;
+
 namespace Kck.Core.Abstractions.Results;
 
 /// <summary>
 /// Represents the outcome of a void operation (no return value).
 /// </summary>
+[DebuggerDisplay("Success: {IsSuccess}, Error: {Error?.Message,nq}")]
 public sealed class Result
 {
     public bool IsSuccess { get; }
@@ -21,6 +24,7 @@ public sealed class Result
 /// <summary>
 /// Represents the outcome of an operation that returns a value of type <typeparamref name="T"/>.
 /// </summary>
+[DebuggerDisplay("Success: {IsSuccess}, Value: {Value}, Error: {Error?.Message,nq}")]
 public sealed class Result<T>
 {
     public bool IsSuccess { get; }
