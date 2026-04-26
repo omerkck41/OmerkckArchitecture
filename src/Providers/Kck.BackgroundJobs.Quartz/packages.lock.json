@@ -55,6 +55,70 @@
       "kck.backgroundjobs.abstractions": {
         "type": "Project"
       }
+    },
+    "net8.0": {
+      "Microsoft.SourceLink.GitHub": {
+        "type": "Direct",
+        "requested": "[8.0.0, )",
+        "resolved": "8.0.0",
+        "contentHash": "G5q7OqtwIyGTkeIOAc3u2ZuV/kicQaec5EaRnc0pIeSnh9LUjj+PYQrJYBURvDt7twGl2PKA7nSN0kz1Zw5bnQ==",
+        "dependencies": {
+          "Microsoft.Build.Tasks.Git": "8.0.0",
+          "Microsoft.SourceLink.Common": "8.0.0"
+        }
+      },
+      "MinVer": {
+        "type": "Direct",
+        "requested": "[7.0.0, )",
+        "resolved": "7.0.0",
+        "contentHash": "2lMTCQl5bGP4iv0JNkockPnyllC6eHLz+CoK2ICvalvHod+exXSxueu9hq+zNkU7bZBJf8wMfeRC/Edn8AGmEg=="
+      },
+      "Quartz": {
+        "type": "Direct",
+        "requested": "[3.16.1, )",
+        "resolved": "3.16.1",
+        "contentHash": "U8SCG2bOmmVdM4tArsJcYbFF8GYTUXj9Zjl9fL7Xt0BWTRIFAmqx3T7k20eJUcmIqYBa3eAk7MOS/yJhfG5xAA=="
+      },
+      "Quartz.Extensions.DependencyInjection": {
+        "type": "Direct",
+        "requested": "[3.16.1, )",
+        "resolved": "3.16.1",
+        "contentHash": "yfjS7e9hgVugIP4etIns+QFGCb1fi3I7PwidE/DluHob8nF2hDIM4DvEsYzF0AJ/go1oJiWLB8RnEaP0fcAA0w==",
+        "dependencies": {
+          "Quartz": "3.16.1"
+        }
+      },
+      "Quartz.Extensions.Hosting": {
+        "type": "Direct",
+        "requested": "[3.16.1, )",
+        "resolved": "3.16.1",
+        "contentHash": "mTnELjDUbGTfCjqWv/IxL2DMrb4AnJSEggzd1hVHjSlWHb/1dE+o5dkPYGrfcksRtExKSyOOCrQuv4XGHi1wEQ==",
+        "dependencies": {
+          "Quartz.Extensions.DependencyInjection": "3.16.1"
+        }
+      },
+      "Microsoft.Build.Tasks.Git": {
+        "type": "Transitive",
+        "resolved": "8.0.0",
+        "contentHash": "bZKfSIKJRXLTuSzLudMFte/8CempWjVamNUR5eHJizsy+iuOuO/k2gnh7W0dHJmYY0tBf+gUErfluCv5mySAOQ=="
+      },
+      "Microsoft.SourceLink.Common": {
+        "type": "Transitive",
+        "resolved": "8.0.0",
+        "contentHash": "dk9JPxTCIevS75HyEQ0E4OVAFhB2N+V9ShCXf8Q6FkUQZDkgLI12y679Nym1YqsiSysuQskT7Z+6nUf3yab6Vw=="
+      },
+      "kck.backgroundjobs.abstractions": {
+        "type": "Project",
+        "dependencies": {
+          "Microsoft.Extensions.DependencyInjection.Abstractions": "[10.0.7, )"
+        }
+      },
+      "Microsoft.Extensions.DependencyInjection.Abstractions": {
+        "type": "CentralTransitive",
+        "requested": "[10.0.7, )",
+        "resolved": "10.0.7",
+        "contentHash": "Z6mfFEaFcwCfSboxJwOLfu7/31npCY9q70WUamHW/vRQhDvBKOT4Vf9YkZj5J6hLvJpb0oDEYfHunQZj0xxvKw=="
+      }
     }
   }
 }

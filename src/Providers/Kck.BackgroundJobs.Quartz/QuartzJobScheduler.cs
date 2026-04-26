@@ -5,11 +5,18 @@ namespace Kck.BackgroundJobs.Quartz;
 
 public sealed class QuartzJobScheduler(ISchedulerFactory schedulerFactory) : IJobScheduler
 {
+    private static Guid NewJobId() =>
+#if NET9_0_OR_GREATER
+        Guid.CreateVersion7();
+#else
+        Guid.NewGuid();
+#endif
+
     public async Task EnqueueAsync<TJob>(CancellationToken ct = default) where TJob : IBackgroundJob
     {
         var scheduler = await schedulerFactory.GetScheduler(ct).ConfigureAwait(false);
         var job = JobBuilder.Create<QuartzJobAdapter<TJob>>()
-            .WithIdentity(Guid.CreateVersion7().ToString())
+            .WithIdentity(NewJobId().ToString())
             .Build();
         var trigger = TriggerBuilder.Create()
             .StartNow()
@@ -21,7 +28,7 @@ public sealed class QuartzJobScheduler(ISchedulerFactory schedulerFactory) : IJo
     {
         var scheduler = await schedulerFactory.GetScheduler(ct).ConfigureAwait(false);
         var job = JobBuilder.Create<QuartzJobAdapter<TJob>>()
-            .WithIdentity(Guid.CreateVersion7().ToString())
+            .WithIdentity(NewJobId().ToString())
             .Build();
         var trigger = TriggerBuilder.Create()
             .StartAt(DateTimeOffset.UtcNow.Add(delay))
