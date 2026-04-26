@@ -40,7 +40,15 @@ public static class KckCachingRedisServiceCollectionExtensions
         else
         {
             throw new InvalidOperationException(
-                "Redis cache requires Configuration, ConfigurationOptions, or ConnectionMultiplexerFactory to be set.");
+                """
+                Kck.Caching.Redis configuration is incomplete. Set ONE of:
+                  - opt.Configuration = "localhost:6379"
+                  - opt.ConfigurationOptions = new ConfigurationOptions { ... }
+                  - opt.ConnectionMultiplexerFactory = () => ConnectionMultiplexer.ConnectAsync(...)
+                Example:
+                  services.AddKckCachingRedis(opt => opt.Configuration = "localhost:6379");
+                See: https://github.com/omerkck41/OmerkckArchitecture/blob/main/docs/providers/caching.md
+                """);
         }
 
         services.TryAddSingleton(new RedisConnectionFactory(connector));

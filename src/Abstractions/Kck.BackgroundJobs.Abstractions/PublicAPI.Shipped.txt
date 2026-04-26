@@ -1,0 +1,21 @@
+#nullable enable
+Kck.BackgroundJobs.Abstractions.CronExpressions
+Kck.BackgroundJobs.Abstractions.IBackgroundJob
+Kck.BackgroundJobs.Abstractions.IBackgroundJob.ExecuteAsync(System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task!
+Kck.BackgroundJobs.Abstractions.IJobScheduler
+Kck.BackgroundJobs.Abstractions.IJobScheduler.AddOrUpdateRecurringAsync<TJob>(string! jobId, string! cronExpression, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task!
+Kck.BackgroundJobs.Abstractions.IJobScheduler.EnqueueAsync<TJob>(System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task!
+Kck.BackgroundJobs.Abstractions.IJobScheduler.RemoveRecurringAsync(string! jobId, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task!
+Kck.BackgroundJobs.Abstractions.IJobScheduler.ScheduleAsync<TJob>(System.TimeSpan delay, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task!
+Kck.BackgroundJobs.Abstractions.IRecurringJob
+Kck.BackgroundJobs.Abstractions.IRecurringJob.CronExpression.get -> string!
+Kck.BackgroundJobs.Abstractions.IRecurringJob.JobId.get -> string!
+Microsoft.Extensions.DependencyInjection.BackgroundJobRegistrationExtensions
+const Kck.BackgroundJobs.Abstractions.CronExpressions.Every15Minutes = "*/15 * * * *" -> string!
+const Kck.BackgroundJobs.Abstractions.CronExpressions.Every5Minutes = "*/5 * * * *" -> string!
+const Kck.BackgroundJobs.Abstractions.CronExpressions.EveryDay = "0 0 * * *" -> string!
+const Kck.BackgroundJobs.Abstractions.CronExpressions.EveryHour = "0 * * * *" -> string!
+const Kck.BackgroundJobs.Abstractions.CronExpressions.EveryMinute = "* * * * *" -> string!
+const Kck.BackgroundJobs.Abstractions.CronExpressions.EveryMonth = "0 0 1 * *" -> string!
+const Kck.BackgroundJobs.Abstractions.CronExpressions.EveryWeek = "0 0 * * 1" -> string!
+static Microsoft.Extensions.DependencyInjection.BackgroundJobRegistrationExtensions.AddKckJob<TJob>(this Microsoft.Extensions.DependencyInjection.IServiceCollection! services) -> Microsoft.Extensions.DependencyInjection.IServiceCollection!

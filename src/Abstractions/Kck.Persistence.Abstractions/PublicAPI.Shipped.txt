@@ -1,0 +1,133 @@
+#nullable enable
+Kck.Persistence.Abstractions.Dynamic.DynamicFilterExtensions
+Kck.Persistence.Abstractions.Dynamic.DynamicQuery
+Kck.Persistence.Abstractions.Dynamic.DynamicQuery.DynamicQuery() -> void
+Kck.Persistence.Abstractions.Dynamic.DynamicQuery.DynamicQuery(System.Collections.Generic.IEnumerable<Kck.Persistence.Abstractions.Dynamic.Sort!>? sort, Kck.Persistence.Abstractions.Dynamic.Filter? filter) -> void
+Kck.Persistence.Abstractions.Dynamic.DynamicQuery.Filter.get -> Kck.Persistence.Abstractions.Dynamic.Filter?
+Kck.Persistence.Abstractions.Dynamic.DynamicQuery.Filter.set -> void
+Kck.Persistence.Abstractions.Dynamic.DynamicQuery.Sort.get -> System.Collections.Generic.IEnumerable<Kck.Persistence.Abstractions.Dynamic.Sort!>!
+Kck.Persistence.Abstractions.Dynamic.DynamicQuery.Sort.set -> void
+Kck.Persistence.Abstractions.Dynamic.Filter
+Kck.Persistence.Abstractions.Dynamic.Filter.Field.get -> string!
+Kck.Persistence.Abstractions.Dynamic.Filter.Field.set -> void
+Kck.Persistence.Abstractions.Dynamic.Filter.Filter() -> void
+Kck.Persistence.Abstractions.Dynamic.Filter.Filter(string! field, string! operator, object? value, string? logic = null, System.Collections.Generic.IEnumerable<Kck.Persistence.Abstractions.Dynamic.Filter!>? filters = null) -> void
+Kck.Persistence.Abstractions.Dynamic.Filter.Filters.get -> System.Collections.Generic.IEnumerable<Kck.Persistence.Abstractions.Dynamic.Filter!>?
+Kck.Persistence.Abstractions.Dynamic.Filter.Filters.set -> void
+Kck.Persistence.Abstractions.Dynamic.Filter.GetValue<T>() -> T
+Kck.Persistence.Abstractions.Dynamic.Filter.Logic.get -> string?
+Kck.Persistence.Abstractions.Dynamic.Filter.Logic.set -> void
+Kck.Persistence.Abstractions.Dynamic.Filter.Operator.get -> string!
+Kck.Persistence.Abstractions.Dynamic.Filter.Operator.set -> void
+Kck.Persistence.Abstractions.Dynamic.Filter.Value.get -> object?
+Kck.Persistence.Abstractions.Dynamic.Filter.Value.set -> void
+Kck.Persistence.Abstractions.Dynamic.FilterOperator
+Kck.Persistence.Abstractions.Dynamic.FilterOperator.Contains = 6 -> Kck.Persistence.Abstractions.Dynamic.FilterOperator
+Kck.Persistence.Abstractions.Dynamic.FilterOperator.EndsWith = 8 -> Kck.Persistence.Abstractions.Dynamic.FilterOperator
+Kck.Persistence.Abstractions.Dynamic.FilterOperator.Eq = 0 -> Kck.Persistence.Abstractions.Dynamic.FilterOperator
+Kck.Persistence.Abstractions.Dynamic.FilterOperator.Gt = 4 -> Kck.Persistence.Abstractions.Dynamic.FilterOperator
+Kck.Persistence.Abstractions.Dynamic.FilterOperator.Gte = 5 -> Kck.Persistence.Abstractions.Dynamic.FilterOperator
+Kck.Persistence.Abstractions.Dynamic.FilterOperator.IsNotNull = 10 -> Kck.Persistence.Abstractions.Dynamic.FilterOperator
+Kck.Persistence.Abstractions.Dynamic.FilterOperator.IsNull = 9 -> Kck.Persistence.Abstractions.Dynamic.FilterOperator
+Kck.Persistence.Abstractions.Dynamic.FilterOperator.Lt = 2 -> Kck.Persistence.Abstractions.Dynamic.FilterOperator
+Kck.Persistence.Abstractions.Dynamic.FilterOperator.Lte = 3 -> Kck.Persistence.Abstractions.Dynamic.FilterOperator
+Kck.Persistence.Abstractions.Dynamic.FilterOperator.Neq = 1 -> Kck.Persistence.Abstractions.Dynamic.FilterOperator
+Kck.Persistence.Abstractions.Dynamic.FilterOperator.StartsWith = 7 -> Kck.Persistence.Abstractions.Dynamic.FilterOperator
+Kck.Persistence.Abstractions.Dynamic.FilterValidator
+Kck.Persistence.Abstractions.Dynamic.Sort
+Kck.Persistence.Abstractions.Dynamic.Sort.Dir.get -> string!
+Kck.Persistence.Abstractions.Dynamic.Sort.Dir.set -> void
+Kck.Persistence.Abstractions.Dynamic.Sort.Field.get -> string!
+Kck.Persistence.Abstractions.Dynamic.Sort.Field.set -> void
+Kck.Persistence.Abstractions.Dynamic.Sort.Priority.get -> int
+Kck.Persistence.Abstractions.Dynamic.Sort.Priority.set -> void
+Kck.Persistence.Abstractions.Dynamic.Sort.Sort() -> void
+Kck.Persistence.Abstractions.Dynamic.Sort.Sort(string! field, string! dir, int priority = 0) -> void
+Kck.Persistence.Abstractions.Repositories.IQuery<T>
+Kck.Persistence.Abstractions.Repositories.IQuery<T>.Query(System.Linq.Expressions.Expression<System.Func<T, bool>!>? filter = null, System.Func<System.Linq.IQueryable<T>!, System.Linq.IOrderedQueryable<T>!>? orderBy = null, bool withDeleted = false, bool enableTracking = false) -> System.Linq.IQueryable<T>!
+Kck.Persistence.Abstractions.Repositories.IReadRepository<T, TId>
+Kck.Persistence.Abstractions.Repositories.IReadRepository<T, TId>.AnyAsync(System.Linq.Expressions.Expression<System.Func<T!, bool>!>? predicate = null, bool withDeleted = false, bool enableTracking = false, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<bool>!
+Kck.Persistence.Abstractions.Repositories.IReadRepository<T, TId>.CountAsync(System.Linq.Expressions.Expression<System.Func<T!, bool>!>? predicate = null, bool withDeleted = false, bool enableTracking = false, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<int>!
+Kck.Persistence.Abstractions.Repositories.IReadRepository<T, TId>.GetAsync(System.Linq.Expressions.Expression<System.Func<T!, bool>!>! predicate, System.Linq.Expressions.Expression<System.Func<T!, object!>!>![]? includes = null, bool withDeleted = false, bool enableTracking = true, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<T?>!
+Kck.Persistence.Abstractions.Repositories.IReadRepository<T, TId>.GetByIdAsync(TId id, bool withDeleted = false, bool enableTracking = false, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<T?>!
+Kck.Persistence.Abstractions.Repositories.IReadRepository<T, TId>.GetListAsync(System.Linq.Expressions.Expression<System.Func<T!, bool>!>? predicate = null, System.Func<System.Linq.IQueryable<T!>!, System.Linq.IOrderedQueryable<T!>!>? orderBy = null, System.Linq.Expressions.Expression<System.Func<T!, object!>!>![]? includes = null, int index = 0, int size = 10, bool withDeleted = false, bool enableTracking = true, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<Kck.Core.Abstractions.Paging.IPaginate<T!>!>!
+Kck.Persistence.Abstractions.Repositories.IReadRepository<T, TId>.GetListByDynamicAsync(Kck.Persistence.Abstractions.Dynamic.DynamicQuery! dynamic, System.Linq.Expressions.Expression<System.Func<T!, bool>!>? predicate = null, System.Linq.Expressions.Expression<System.Func<T!, object!>!>![]? includes = null, int index = 0, int size = 10, bool withDeleted = false, bool enableTracking = true, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<Kck.Core.Abstractions.Paging.IPaginate<T!>!>!
+Kck.Persistence.Abstractions.Repositories.IRepository<T, TId>
+Kck.Persistence.Abstractions.Repositories.IWriteRepository<T, TId>
+Kck.Persistence.Abstractions.Repositories.IWriteRepository<T, TId>.AddAsync(T! entity, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<T!>!
+Kck.Persistence.Abstractions.Repositories.IWriteRepository<T, TId>.AddRangeAsync(System.Collections.Generic.IEnumerable<T!>! entities, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<System.Collections.Generic.IEnumerable<T!>!>!
+Kck.Persistence.Abstractions.Repositories.IWriteRepository<T, TId>.BulkUpdateAsync(System.Linq.Expressions.Expression<System.Func<T!, bool>!>! predicate, (System.Linq.Expressions.Expression<System.Func<T!, object!>!>! Property, object? Value)[]! updates, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task!
+Kck.Persistence.Abstractions.Repositories.IWriteRepository<T, TId>.DeleteAsync(System.Linq.Expressions.Expression<System.Func<T!, bool>!>! predicate, bool permanent = false, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<T!>!
+Kck.Persistence.Abstractions.Repositories.IWriteRepository<T, TId>.DeleteAsync(T! entity, bool permanent = false, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<T!>!
+Kck.Persistence.Abstractions.Repositories.IWriteRepository<T, TId>.DeleteAsync(TId id, bool permanent = false, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<T!>!
+Kck.Persistence.Abstractions.Repositories.IWriteRepository<T, TId>.DeleteRangeAsync(System.Collections.Generic.IEnumerable<T!>! entities, bool permanent = false, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task!
+Kck.Persistence.Abstractions.Repositories.IWriteRepository<T, TId>.RevertSoftDeleteAsync(T! entity, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<T!>!
+Kck.Persistence.Abstractions.Repositories.IWriteRepository<T, TId>.RevertSoftDeleteAsync(TId id, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<T!>!
+Kck.Persistence.Abstractions.Repositories.IWriteRepository<T, TId>.UpdateAsync(T! entity, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<T!>!
+Kck.Persistence.Abstractions.Repositories.IWriteRepository<T, TId>.UpdatePartialAsync(T! entity, System.Linq.Expressions.Expression<System.Func<T!, object!>!>![]! properties, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<T!>!
+Kck.Persistence.Abstractions.Repositories.IWriteRepository<T, TId>.UpdateRangeAsync(System.Collections.Generic.IEnumerable<T!>! entities, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task!
+Kck.Persistence.Abstractions.Repositories.QueryOptions
+Kck.Persistence.Abstractions.Repositories.QueryOptions.AsTracking.get -> bool
+Kck.Persistence.Abstractions.Repositories.QueryOptions.AsTracking.init -> void
+Kck.Persistence.Abstractions.Repositories.QueryOptions.Deconstruct(out bool IncludeDeleted, out bool AsTracking) -> void
+Kck.Persistence.Abstractions.Repositories.QueryOptions.Equals(Kck.Persistence.Abstractions.Repositories.QueryOptions other) -> bool
+Kck.Persistence.Abstractions.Repositories.QueryOptions.IncludeDeleted.get -> bool
+Kck.Persistence.Abstractions.Repositories.QueryOptions.IncludeDeleted.init -> void
+Kck.Persistence.Abstractions.Repositories.QueryOptions.QueryOptions() -> void
+Kck.Persistence.Abstractions.Repositories.QueryOptions.QueryOptions(bool IncludeDeleted = false, bool AsTracking = false) -> void
+Kck.Persistence.Abstractions.Security.FilterPropertyWhitelist<T>
+Kck.Persistence.Abstractions.Security.FilterPropertyWhitelist<T>.Allow(System.Linq.Expressions.Expression<System.Func<T, object!>!>! property) -> Kck.Persistence.Abstractions.Security.FilterPropertyWhitelist<T>!
+Kck.Persistence.Abstractions.Security.FilterPropertyWhitelist<T>.AllowedProperties.get -> System.Collections.Generic.IReadOnlySet<string!>!
+Kck.Persistence.Abstractions.Security.FilterPropertyWhitelist<T>.Deny(System.Linq.Expressions.Expression<System.Func<T, object!>!>! property) -> Kck.Persistence.Abstractions.Security.FilterPropertyWhitelist<T>!
+Kck.Persistence.Abstractions.Security.FilterPropertyWhitelist<T>.FilterPropertyWhitelist() -> void
+Kck.Persistence.Abstractions.Security.FilterPropertyWhitelist<T>.IsAllowed(string! propertyName) -> bool
+Kck.Persistence.Abstractions.Security.FilterableAttribute
+Kck.Persistence.Abstractions.Security.FilterableAttribute.FilterableAttribute() -> void
+Kck.Persistence.Abstractions.Security.IFilterPropertyWhitelist<T>
+Kck.Persistence.Abstractions.Security.IFilterPropertyWhitelist<T>.AllowedProperties.get -> System.Collections.Generic.IReadOnlySet<string!>!
+Kck.Persistence.Abstractions.Security.IFilterPropertyWhitelist<T>.IsAllowed(string! propertyName) -> bool
+Kck.Persistence.Abstractions.Specifications.ISpecification<T>
+Kck.Persistence.Abstractions.Specifications.ISpecification<T>.Criteria.get -> System.Linq.Expressions.Expression<System.Func<T, bool>!>?
+Kck.Persistence.Abstractions.Specifications.ISpecification<T>.EnableTracking.get -> bool
+Kck.Persistence.Abstractions.Specifications.ISpecification<T>.IncludeStrings.get -> System.Collections.Generic.IReadOnlyList<string!>!
+Kck.Persistence.Abstractions.Specifications.ISpecification<T>.Includes.get -> System.Collections.Generic.IReadOnlyList<System.Linq.Expressions.Expression<System.Func<T, object!>!>!>!
+Kck.Persistence.Abstractions.Specifications.ISpecification<T>.OrderBy.get -> System.Linq.Expressions.Expression<System.Func<T, object!>!>?
+Kck.Persistence.Abstractions.Specifications.ISpecification<T>.OrderByDescending.get -> System.Linq.Expressions.Expression<System.Func<T, object!>!>?
+Kck.Persistence.Abstractions.Specifications.ISpecification<T>.Skip.get -> int?
+Kck.Persistence.Abstractions.Specifications.ISpecification<T>.Take.get -> int?
+Kck.Persistence.Abstractions.Specifications.ISpecification<T>.WithDeleted.get -> bool
+Kck.Persistence.Abstractions.Specifications.Specification<T>
+Kck.Persistence.Abstractions.Specifications.Specification<T>.AddInclude(System.Linq.Expressions.Expression<System.Func<T, object!>!>! includeExpression) -> void
+Kck.Persistence.Abstractions.Specifications.Specification<T>.AddInclude(string! includeString) -> void
+Kck.Persistence.Abstractions.Specifications.Specification<T>.ApplyOrderBy(System.Linq.Expressions.Expression<System.Func<T, object!>!>! orderBy) -> void
+Kck.Persistence.Abstractions.Specifications.Specification<T>.ApplyOrderByDescending(System.Linq.Expressions.Expression<System.Func<T, object!>!>! orderByDescending) -> void
+Kck.Persistence.Abstractions.Specifications.Specification<T>.ApplyPaging(int skip, int take) -> void
+Kck.Persistence.Abstractions.Specifications.Specification<T>.AsTracking() -> void
+Kck.Persistence.Abstractions.Specifications.Specification<T>.Criteria.get -> System.Linq.Expressions.Expression<System.Func<T, bool>!>?
+Kck.Persistence.Abstractions.Specifications.Specification<T>.EnableTracking.get -> bool
+Kck.Persistence.Abstractions.Specifications.Specification<T>.IncludeDeleted() -> void
+Kck.Persistence.Abstractions.Specifications.Specification<T>.IncludeStrings.get -> System.Collections.Generic.IReadOnlyList<string!>!
+Kck.Persistence.Abstractions.Specifications.Specification<T>.Includes.get -> System.Collections.Generic.IReadOnlyList<System.Linq.Expressions.Expression<System.Func<T, object!>!>!>!
+Kck.Persistence.Abstractions.Specifications.Specification<T>.OrderBy.get -> System.Linq.Expressions.Expression<System.Func<T, object!>!>?
+Kck.Persistence.Abstractions.Specifications.Specification<T>.OrderByDescending.get -> System.Linq.Expressions.Expression<System.Func<T, object!>!>?
+Kck.Persistence.Abstractions.Specifications.Specification<T>.Skip.get -> int?
+Kck.Persistence.Abstractions.Specifications.Specification<T>.Specification() -> void
+Kck.Persistence.Abstractions.Specifications.Specification<T>.Take.get -> int?
+Kck.Persistence.Abstractions.Specifications.Specification<T>.Where(System.Linq.Expressions.Expression<System.Func<T, bool>!>! criteria) -> void
+Kck.Persistence.Abstractions.Specifications.Specification<T>.WithDeleted.get -> bool
+Kck.Persistence.Abstractions.UnitOfWork.IUnitOfWork
+Kck.Persistence.Abstractions.UnitOfWork.IUnitOfWork.BeginTransactionAsync(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task!
+Kck.Persistence.Abstractions.UnitOfWork.IUnitOfWork.CommitAsync(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task!
+Kck.Persistence.Abstractions.UnitOfWork.IUnitOfWork.DisposeAsync() -> System.Threading.Tasks.ValueTask
+Kck.Persistence.Abstractions.UnitOfWork.IUnitOfWork.Repository<T, TId>() -> Kck.Persistence.Abstractions.Repositories.IRepository<T!, TId>!
+Kck.Persistence.Abstractions.UnitOfWork.IUnitOfWork.RollbackAsync(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task!
+Kck.Persistence.Abstractions.UnitOfWork.IUnitOfWork.SaveChangesAsync(bool autoCommitTransaction = false, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<int>!
+override Kck.Persistence.Abstractions.Repositories.QueryOptions.GetHashCode() -> int
+static Kck.Persistence.Abstractions.Dynamic.DynamicFilterExtensions.ToDynamic<T>(this System.Linq.IQueryable<T>! query, Kck.Persistence.Abstractions.Dynamic.DynamicQuery! dynamic) -> System.Linq.IQueryable<T>!
+static Kck.Persistence.Abstractions.Dynamic.FilterValidator.Validate(Kck.Persistence.Abstractions.Dynamic.Filter! filter) -> bool
+static Kck.Persistence.Abstractions.Repositories.QueryOptions.Tracking.get -> Kck.Persistence.Abstractions.Repositories.QueryOptions
+static Kck.Persistence.Abstractions.Repositories.QueryOptions.WithDeleted.get -> Kck.Persistence.Abstractions.Repositories.QueryOptions
+static Kck.Persistence.Abstractions.Repositories.QueryOptions.operator !=(Kck.Persistence.Abstractions.Repositories.QueryOptions left, Kck.Persistence.Abstractions.Repositories.QueryOptions right) -> bool
+static Kck.Persistence.Abstractions.Repositories.QueryOptions.operator ==(Kck.Persistence.Abstractions.Repositories.QueryOptions left, Kck.Persistence.Abstractions.Repositories.QueryOptions right) -> bool
+~override Kck.Persistence.Abstractions.Repositories.QueryOptions.Equals(object obj) -> bool
+~override Kck.Persistence.Abstractions.Repositories.QueryOptions.ToString() -> string

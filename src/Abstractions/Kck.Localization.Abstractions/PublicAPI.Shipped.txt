@@ -1,0 +1,41 @@
+#nullable enable
+Kck.Localization.Abstractions.IFormatterService
+Kck.Localization.Abstractions.IFormatterService.FormatCurrency(decimal amount, string! culture, string? currencyCode = null) -> string!
+Kck.Localization.Abstractions.IFormatterService.FormatDate(System.DateTime value, string! culture, string? format = null) -> string!
+Kck.Localization.Abstractions.IFormatterService.FormatNumber(decimal number, string! culture, string? format = null) -> string!
+Kck.Localization.Abstractions.ILocalizationService
+Kck.Localization.Abstractions.ILocalizationService.GetAllKeysAsync(string! culture, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<System.Collections.Generic.IReadOnlyList<string!>!>!
+Kck.Localization.Abstractions.ILocalizationService.GetAllStringsAsync(string! culture, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<System.Collections.Generic.IReadOnlyDictionary<string!, string!>!>!
+Kck.Localization.Abstractions.ILocalizationService.GetPluralStringAsync(string! key, int count, string! culture, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<string!>!
+Kck.Localization.Abstractions.ILocalizationService.GetStringAsync(string! key, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<string!>!
+Kck.Localization.Abstractions.ILocalizationService.GetStringAsync(string! key, string! culture, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<string!>!
+Kck.Localization.Abstractions.ILocalizationService.GetStringAsync(string! key, string! culture, object![]! args, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<string!>!
+Kck.Localization.Abstractions.ILocalizationService.ReloadAsync(System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task!
+Kck.Localization.Abstractions.ILocalizationService.TryGetStringAsync(string! key, string! culture, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<string?>!
+Kck.Localization.Abstractions.IPluralizer
+Kck.Localization.Abstractions.IPluralizer.GetPluralCategory(int count, string! culture) -> string!
+Kck.Localization.Abstractions.IResourceProvider
+Kck.Localization.Abstractions.IResourceProvider.GetAllStringsAsync(string! culture, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<System.Collections.Generic.IReadOnlyDictionary<string!, string!>!>!
+Kck.Localization.Abstractions.IResourceProvider.GetStringAsync(string! key, string! culture, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<string?>!
+Kck.Localization.Abstractions.IResourceProvider.KeyExistsAsync(string! key, string! culture, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<bool>!
+Kck.Localization.Abstractions.IResourceProvider.Priority.get -> int
+Kck.Localization.Abstractions.IResourceProvider.ReloadAsync(System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task!
+Kck.Localization.Abstractions.IResourceProvider.SupportsDynamicReload.get -> bool
+Kck.Localization.Abstractions.LocalizationOptions
+Kck.Localization.Abstractions.LocalizationOptions.CacheExpiration.get -> System.TimeSpan
+Kck.Localization.Abstractions.LocalizationOptions.CacheExpiration.set -> void
+Kck.Localization.Abstractions.LocalizationOptions.DefaultCulture.get -> string!
+Kck.Localization.Abstractions.LocalizationOptions.DefaultCulture.set -> void
+Kck.Localization.Abstractions.LocalizationOptions.EnableCaching.get -> bool
+Kck.Localization.Abstractions.LocalizationOptions.EnableCaching.set -> void
+Kck.Localization.Abstractions.LocalizationOptions.FallbackCulture.get -> string!
+Kck.Localization.Abstractions.LocalizationOptions.FallbackCulture.set -> void
+Kck.Localization.Abstractions.LocalizationOptions.LocalizationOptions() -> void
+Kck.Localization.Abstractions.LocalizationOptions.MissingKeyPattern.get -> string!
+Kck.Localization.Abstractions.LocalizationOptions.MissingKeyPattern.set -> void
+Kck.Localization.Abstractions.LocalizationOptions.ResourcePath.get -> string!
+Kck.Localization.Abstractions.LocalizationOptions.ResourcePath.set -> void
+Kck.Localization.Abstractions.LocalizationOptions.SupportedCultures.get -> System.Collections.Generic.IReadOnlyList<string!>!
+Kck.Localization.Abstractions.LocalizationOptions.SupportedCultures.set -> void
+Kck.Localization.Abstractions.LocalizationOptions.ThrowOnMissing.get -> bool
+Kck.Localization.Abstractions.LocalizationOptions.ThrowOnMissing.set -> void

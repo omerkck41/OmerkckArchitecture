@@ -1,0 +1,144 @@
+#nullable enable
+Kck.Core.Abstractions.Entities.Entity<TId>
+Kck.Core.Abstractions.Entities.Entity<TId>.AddDomainEvent(Kck.Core.Abstractions.Entities.IDomainEvent! domainEvent) -> void
+Kck.Core.Abstractions.Entities.Entity<TId>.ClearDomainEvents() -> void
+Kck.Core.Abstractions.Entities.Entity<TId>.DomainEvents.get -> System.Collections.Generic.IReadOnlyCollection<Kck.Core.Abstractions.Entities.IDomainEvent!>!
+Kck.Core.Abstractions.Entities.Entity<TId>.Entity() -> void
+Kck.Core.Abstractions.Entities.Entity<TId>.Entity(TId id) -> void
+Kck.Core.Abstractions.Entities.Entity<TId>.RemoveDomainEvent(Kck.Core.Abstractions.Entities.IDomainEvent! domainEvent) -> void
+Kck.Core.Abstractions.Entities.IAuditable
+Kck.Core.Abstractions.Entities.IAuditable.CreatedBy.get -> string!
+Kck.Core.Abstractions.Entities.IAuditable.CreatedBy.set -> void
+Kck.Core.Abstractions.Entities.IAuditable.CreatedDate.get -> System.DateTime
+Kck.Core.Abstractions.Entities.IAuditable.CreatedDate.set -> void
+Kck.Core.Abstractions.Entities.IAuditable.ModifiedBy.get -> string?
+Kck.Core.Abstractions.Entities.IAuditable.ModifiedBy.set -> void
+Kck.Core.Abstractions.Entities.IAuditable.ModifiedDate.get -> System.DateTime?
+Kck.Core.Abstractions.Entities.IAuditable.ModifiedDate.set -> void
+Kck.Core.Abstractions.Entities.IDomainEvent
+Kck.Core.Abstractions.Entities.IDomainEvent.EventId.get -> System.Guid
+Kck.Core.Abstractions.Entities.IDomainEvent.OccurredOn.get -> System.DateTime
+Kck.Core.Abstractions.Entities.IEntity<TId>
+Kck.Core.Abstractions.Entities.IEntity<TId>.Id.get -> TId
+Kck.Core.Abstractions.Entities.IEntity<TId>.Id.set -> void
+Kck.Core.Abstractions.Entities.ISoftDeletable
+Kck.Core.Abstractions.Entities.ISoftDeletable.DeletedBy.get -> string?
+Kck.Core.Abstractions.Entities.ISoftDeletable.DeletedBy.set -> void
+Kck.Core.Abstractions.Entities.ISoftDeletable.DeletedDate.get -> System.DateTime?
+Kck.Core.Abstractions.Entities.ISoftDeletable.DeletedDate.set -> void
+Kck.Core.Abstractions.Entities.ISoftDeletable.IsDeleted.get -> bool
+Kck.Core.Abstractions.Entities.ISoftDeletable.IsDeleted.set -> void
+Kck.Core.Abstractions.Paging.IPaginate<T>
+Kck.Core.Abstractions.Paging.IPaginate<T>.Count.get -> int
+Kck.Core.Abstractions.Paging.IPaginate<T>.From.get -> int
+Kck.Core.Abstractions.Paging.IPaginate<T>.HasNext.get -> bool
+Kck.Core.Abstractions.Paging.IPaginate<T>.HasPrevious.get -> bool
+Kck.Core.Abstractions.Paging.IPaginate<T>.Index.get -> int
+Kck.Core.Abstractions.Paging.IPaginate<T>.IsFirstPage.get -> bool
+Kck.Core.Abstractions.Paging.IPaginate<T>.IsLastPage.get -> bool
+Kck.Core.Abstractions.Paging.IPaginate<T>.Items.get -> System.Collections.Generic.IReadOnlyList<T>!
+Kck.Core.Abstractions.Paging.IPaginate<T>.Pages.get -> int
+Kck.Core.Abstractions.Paging.IPaginate<T>.Size.get -> int
+Kck.Core.Abstractions.Paging.IPaginate<T>.TotalRecords.get -> int
+Kck.Core.Abstractions.Paging.PageRequest
+Kck.Core.Abstractions.Paging.PageRequest.<Clone>$() -> Kck.Core.Abstractions.Paging.PageRequest!
+Kck.Core.Abstractions.Paging.PageRequest.Deconstruct(out int Index, out int Size) -> void
+Kck.Core.Abstractions.Paging.PageRequest.Equals(Kck.Core.Abstractions.Paging.PageRequest? other) -> bool
+Kck.Core.Abstractions.Paging.PageRequest.Index.get -> int
+Kck.Core.Abstractions.Paging.PageRequest.Index.init -> void
+Kck.Core.Abstractions.Paging.PageRequest.PageRequest(int Index = 0, int Size = 10) -> void
+Kck.Core.Abstractions.Paging.PageRequest.Size.get -> int
+Kck.Core.Abstractions.Paging.PageRequest.Size.init -> void
+Kck.Core.Abstractions.Paging.Paginate<T>
+Kck.Core.Abstractions.Paging.Paginate<T>.Count.get -> int
+Kck.Core.Abstractions.Paging.Paginate<T>.Count.set -> void
+Kck.Core.Abstractions.Paging.Paginate<T>.From.get -> int
+Kck.Core.Abstractions.Paging.Paginate<T>.From.set -> void
+Kck.Core.Abstractions.Paging.Paginate<T>.HasNext.get -> bool
+Kck.Core.Abstractions.Paging.Paginate<T>.HasNext.set -> void
+Kck.Core.Abstractions.Paging.Paginate<T>.HasPrevious.get -> bool
+Kck.Core.Abstractions.Paging.Paginate<T>.HasPrevious.set -> void
+Kck.Core.Abstractions.Paging.Paginate<T>.Index.get -> int
+Kck.Core.Abstractions.Paging.Paginate<T>.Index.set -> void
+Kck.Core.Abstractions.Paging.Paginate<T>.IsFirstPage.get -> bool
+Kck.Core.Abstractions.Paging.Paginate<T>.IsFirstPage.set -> void
+Kck.Core.Abstractions.Paging.Paginate<T>.IsLastPage.get -> bool
+Kck.Core.Abstractions.Paging.Paginate<T>.IsLastPage.set -> void
+Kck.Core.Abstractions.Paging.Paginate<T>.Items.get -> System.Collections.Generic.IReadOnlyList<T>!
+Kck.Core.Abstractions.Paging.Paginate<T>.Items.set -> void
+Kck.Core.Abstractions.Paging.Paginate<T>.Pages.get -> int
+Kck.Core.Abstractions.Paging.Paginate<T>.Pages.set -> void
+Kck.Core.Abstractions.Paging.Paginate<T>.Paginate() -> void
+Kck.Core.Abstractions.Paging.Paginate<T>.Size.get -> int
+Kck.Core.Abstractions.Paging.Paginate<T>.Size.set -> void
+Kck.Core.Abstractions.Paging.Paginate<T>.TotalRecords.get -> int
+Kck.Core.Abstractions.Paging.Paginate<T>.TotalRecords.set -> void
+Kck.Core.Abstractions.Pipeline.ICachableRequest
+Kck.Core.Abstractions.Pipeline.ICachableRequest.BypassCache.get -> bool
+Kck.Core.Abstractions.Pipeline.ICachableRequest.CacheGroupKey.get -> string?
+Kck.Core.Abstractions.Pipeline.ICachableRequest.CacheKey.get -> string!
+Kck.Core.Abstractions.Pipeline.ICachableRequest.SlidingExpiration.get -> System.TimeSpan?
+Kck.Core.Abstractions.Pipeline.ILoggableRequest
+Kck.Core.Abstractions.Pipeline.ISecuredRequest
+Kck.Core.Abstractions.Pipeline.ISecuredRequest.Roles.get -> string![]!
+Kck.Core.Abstractions.Pipeline.ITransactionalRequest
+Kck.Core.Abstractions.Results.Error
+Kck.Core.Abstractions.Results.Error.<Clone>$() -> Kck.Core.Abstractions.Results.Error!
+Kck.Core.Abstractions.Results.Error.Code.get -> string!
+Kck.Core.Abstractions.Results.Error.Code.init -> void
+Kck.Core.Abstractions.Results.Error.Deconstruct(out string! Code, out string! Message, out Kck.Core.Abstractions.Results.ErrorType Type) -> void
+Kck.Core.Abstractions.Results.Error.Equals(Kck.Core.Abstractions.Results.Error? other) -> bool
+Kck.Core.Abstractions.Results.Error.Error(string! Code, string! Message, Kck.Core.Abstractions.Results.ErrorType Type = Kck.Core.Abstractions.Results.ErrorType.Failure) -> void
+Kck.Core.Abstractions.Results.Error.Message.get -> string!
+Kck.Core.Abstractions.Results.Error.Message.init -> void
+Kck.Core.Abstractions.Results.Error.Type.get -> Kck.Core.Abstractions.Results.ErrorType
+Kck.Core.Abstractions.Results.Error.Type.init -> void
+Kck.Core.Abstractions.Results.ErrorType
+Kck.Core.Abstractions.Results.ErrorType.Conflict = 3 -> Kck.Core.Abstractions.Results.ErrorType
+Kck.Core.Abstractions.Results.ErrorType.Failure = 0 -> Kck.Core.Abstractions.Results.ErrorType
+Kck.Core.Abstractions.Results.ErrorType.Forbidden = 5 -> Kck.Core.Abstractions.Results.ErrorType
+Kck.Core.Abstractions.Results.ErrorType.NotFound = 2 -> Kck.Core.Abstractions.Results.ErrorType
+Kck.Core.Abstractions.Results.ErrorType.Unauthorized = 4 -> Kck.Core.Abstractions.Results.ErrorType
+Kck.Core.Abstractions.Results.ErrorType.Validation = 1 -> Kck.Core.Abstractions.Results.ErrorType
+Kck.Core.Abstractions.Results.Result
+Kck.Core.Abstractions.Results.Result.Error.get -> Kck.Core.Abstractions.Results.Error?
+Kck.Core.Abstractions.Results.Result.IsSuccess.get -> bool
+Kck.Core.Abstractions.Results.Result.Match<TResult>(System.Func<TResult>! onSuccess, System.Func<Kck.Core.Abstractions.Results.Error!, TResult>! onFailure) -> TResult
+Kck.Core.Abstractions.Results.Result<T>
+Kck.Core.Abstractions.Results.Result<T>.Error.get -> Kck.Core.Abstractions.Results.Error?
+Kck.Core.Abstractions.Results.Result<T>.IsSuccess.get -> bool
+Kck.Core.Abstractions.Results.Result<T>.Match<TResult>(System.Func<T, TResult>! onSuccess, System.Func<Kck.Core.Abstractions.Results.Error!, TResult>! onFailure) -> TResult
+Kck.Core.Abstractions.Results.Result<T>.Value.get -> T?
+override Kck.Core.Abstractions.Paging.PageRequest.Equals(object? obj) -> bool
+override Kck.Core.Abstractions.Paging.PageRequest.GetHashCode() -> int
+override Kck.Core.Abstractions.Paging.PageRequest.ToString() -> string!
+override Kck.Core.Abstractions.Results.Error.Equals(object? obj) -> bool
+override Kck.Core.Abstractions.Results.Error.GetHashCode() -> int
+override Kck.Core.Abstractions.Results.Error.ToString() -> string!
+static Kck.Core.Abstractions.Paging.PageRequest.operator !=(Kck.Core.Abstractions.Paging.PageRequest? left, Kck.Core.Abstractions.Paging.PageRequest? right) -> bool
+static Kck.Core.Abstractions.Paging.PageRequest.operator ==(Kck.Core.Abstractions.Paging.PageRequest? left, Kck.Core.Abstractions.Paging.PageRequest? right) -> bool
+static Kck.Core.Abstractions.Paging.Paginate<T>.Create(System.Collections.Generic.IReadOnlyList<T>! items, int totalCount, int index, int size, int from = 0) -> Kck.Core.Abstractions.Paging.Paginate<T>!
+static Kck.Core.Abstractions.Results.Error.operator !=(Kck.Core.Abstractions.Results.Error? left, Kck.Core.Abstractions.Results.Error? right) -> bool
+static Kck.Core.Abstractions.Results.Error.operator ==(Kck.Core.Abstractions.Results.Error? left, Kck.Core.Abstractions.Results.Error? right) -> bool
+static Kck.Core.Abstractions.Results.Result.Failure(Kck.Core.Abstractions.Results.Error! error) -> Kck.Core.Abstractions.Results.Result!
+static Kck.Core.Abstractions.Results.Result.Success() -> Kck.Core.Abstractions.Results.Result!
+static Kck.Core.Abstractions.Results.Result<T>.Failure(Kck.Core.Abstractions.Results.Error! error) -> Kck.Core.Abstractions.Results.Result<T>!
+static Kck.Core.Abstractions.Results.Result<T>.Success(T value) -> Kck.Core.Abstractions.Results.Result<T>!
+virtual Kck.Core.Abstractions.Entities.Entity<TId>.CreatedBy.get -> string!
+virtual Kck.Core.Abstractions.Entities.Entity<TId>.CreatedBy.set -> void
+virtual Kck.Core.Abstractions.Entities.Entity<TId>.CreatedDate.get -> System.DateTime
+virtual Kck.Core.Abstractions.Entities.Entity<TId>.CreatedDate.set -> void
+virtual Kck.Core.Abstractions.Entities.Entity<TId>.DeletedBy.get -> string?
+virtual Kck.Core.Abstractions.Entities.Entity<TId>.DeletedBy.set -> void
+virtual Kck.Core.Abstractions.Entities.Entity<TId>.DeletedDate.get -> System.DateTime?
+virtual Kck.Core.Abstractions.Entities.Entity<TId>.DeletedDate.set -> void
+virtual Kck.Core.Abstractions.Entities.Entity<TId>.Id.get -> TId
+virtual Kck.Core.Abstractions.Entities.Entity<TId>.Id.set -> void
+virtual Kck.Core.Abstractions.Entities.Entity<TId>.IsDeleted.get -> bool
+virtual Kck.Core.Abstractions.Entities.Entity<TId>.IsDeleted.set -> void
+virtual Kck.Core.Abstractions.Entities.Entity<TId>.ModifiedBy.get -> string?
+virtual Kck.Core.Abstractions.Entities.Entity<TId>.ModifiedBy.set -> void
+virtual Kck.Core.Abstractions.Entities.Entity<TId>.ModifiedDate.get -> System.DateTime?
+virtual Kck.Core.Abstractions.Entities.Entity<TId>.ModifiedDate.set -> void
+virtual Kck.Core.Abstractions.Entities.Entity<TId>.RowVersion.get -> byte[]?
+virtual Kck.Core.Abstractions.Entities.Entity<TId>.RowVersion.set -> void

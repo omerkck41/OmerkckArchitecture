@@ -1,0 +1,31 @@
+#nullable enable
+Kck.Search.Abstractions.ISearchService<T>
+Kck.Search.Abstractions.ISearchService<T>.BulkIndexAsync(string! indexName, System.Collections.Generic.IEnumerable<T!>! documents, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task!
+Kck.Search.Abstractions.ISearchService<T>.CreateIndexAsync(string! indexName, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task!
+Kck.Search.Abstractions.ISearchService<T>.DeleteDocumentAsync(string! indexName, string! documentId, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task!
+Kck.Search.Abstractions.ISearchService<T>.DeleteIndexAsync(string! indexName, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task!
+Kck.Search.Abstractions.ISearchService<T>.GetByIdAsync(string! indexName, string! documentId, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<T?>!
+Kck.Search.Abstractions.ISearchService<T>.IndexDocumentAsync(string! indexName, string! documentId, T! document, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task!
+Kck.Search.Abstractions.ISearchService<T>.IndexExistsAsync(string! indexName, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<bool>!
+Kck.Search.Abstractions.ISearchService<T>.SearchAsync(Kck.Search.Abstractions.SearchRequest! request, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<Kck.Search.Abstractions.SearchResult<T!>!>!
+Kck.Search.Abstractions.ISearchService<T>.UpdateDocumentAsync(string! indexName, string! documentId, T! document, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task!
+Kck.Search.Abstractions.SearchRequest
+Kck.Search.Abstractions.SearchRequest.From.get -> int
+Kck.Search.Abstractions.SearchRequest.From.init -> void
+Kck.Search.Abstractions.SearchRequest.IndexName.get -> string?
+Kck.Search.Abstractions.SearchRequest.IndexName.init -> void
+Kck.Search.Abstractions.SearchRequest.Query.get -> string!
+Kck.Search.Abstractions.SearchRequest.Query.init -> void
+Kck.Search.Abstractions.SearchRequest.SearchRequest() -> void
+Kck.Search.Abstractions.SearchRequest.Size.get -> int
+Kck.Search.Abstractions.SearchRequest.Size.init -> void
+Kck.Search.Abstractions.SearchRequest.SortAscending.get -> bool
+Kck.Search.Abstractions.SearchRequest.SortAscending.init -> void
+Kck.Search.Abstractions.SearchRequest.SortField.get -> string?
+Kck.Search.Abstractions.SearchRequest.SortField.init -> void
+Kck.Search.Abstractions.SearchResult<T>
+Kck.Search.Abstractions.SearchResult<T>.Items.get -> System.Collections.Generic.IReadOnlyList<T!>!
+Kck.Search.Abstractions.SearchResult<T>.Items.init -> void
+Kck.Search.Abstractions.SearchResult<T>.SearchResult() -> void
+Kck.Search.Abstractions.SearchResult<T>.TotalCount.get -> long
+Kck.Search.Abstractions.SearchResult<T>.TotalCount.init -> void

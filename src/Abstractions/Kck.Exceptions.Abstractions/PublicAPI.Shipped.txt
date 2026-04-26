@@ -1,0 +1,57 @@
+#nullable enable
+Kck.Exceptions.Attributes.HttpStatusCodeAttribute
+Kck.Exceptions.Attributes.HttpStatusCodeAttribute.HttpStatusCodeAttribute(int statusCode) -> void
+Kck.Exceptions.Attributes.HttpStatusCodeAttribute.StatusCode.get -> int
+Kck.Exceptions.BadRequestException
+Kck.Exceptions.BadRequestException.BadRequestException(string! message) -> void
+Kck.Exceptions.BadRequestException.BadRequestException(string! message, System.Exception! innerException) -> void
+Kck.Exceptions.BadRequestException.BadRequestException(string! message, object! additionalData) -> void
+Kck.Exceptions.ConflictException
+Kck.Exceptions.ConflictException.ConflictException(string! message = "Conflict occurred") -> void
+Kck.Exceptions.ConflictException.ConflictException(string! message, System.Exception! innerException) -> void
+Kck.Exceptions.CustomArgumentException
+Kck.Exceptions.CustomArgumentException.CustomArgumentException(string! message, System.Exception! innerException) -> void
+Kck.Exceptions.CustomArgumentException.CustomArgumentException(string! message, string? paramName = null) -> void
+Kck.Exceptions.CustomException
+Kck.Exceptions.CustomException.AdditionalData.get -> object?
+Kck.Exceptions.CustomException.CustomException(string! message) -> void
+Kck.Exceptions.CustomException.CustomException(string! message, System.Exception! innerException) -> void
+Kck.Exceptions.CustomException.CustomException(string! message, int? explicitStatusCode, object? additionalData, System.Exception? innerException) -> void
+Kck.Exceptions.CustomException.ErrorType.get -> string!
+Kck.Exceptions.CustomException.ExplicitStatusCode.get -> int?
+Kck.Exceptions.CustomInvalidOperationException
+Kck.Exceptions.CustomInvalidOperationException.CustomInvalidOperationException(string! message) -> void
+Kck.Exceptions.CustomInvalidOperationException.CustomInvalidOperationException(string! message, System.Exception! innerException) -> void
+Kck.Exceptions.FilterSecurityException
+Kck.Exceptions.FilterSecurityException.FilterSecurityException(string! propertyName) -> void
+Kck.Exceptions.FilterSecurityException.FilterSecurityException(string! propertyName, string! operatorName) -> void
+Kck.Exceptions.ForbiddenException
+Kck.Exceptions.ForbiddenException.ForbiddenException(string! message = "Insufficient permissions") -> void
+Kck.Exceptions.ForbiddenException.ForbiddenException(string! message, System.Exception! innerException) -> void
+Kck.Exceptions.Models.ValidationExceptionModel
+Kck.Exceptions.Models.ValidationExceptionModel.Errors.get -> System.Collections.Generic.IEnumerable<string!>!
+Kck.Exceptions.Models.ValidationExceptionModel.Errors.init -> void
+Kck.Exceptions.Models.ValidationExceptionModel.Property.get -> string!
+Kck.Exceptions.Models.ValidationExceptionModel.Property.init -> void
+Kck.Exceptions.Models.ValidationExceptionModel.ValidationExceptionModel() -> void
+Kck.Exceptions.NotFoundException
+Kck.Exceptions.NotFoundException.NotFoundException(string! message) -> void
+Kck.Exceptions.NotFoundException.NotFoundException(string! message, System.Exception! innerException) -> void
+Kck.Exceptions.NotFoundException.NotFoundException(string! message, object! additionalData) -> void
+Kck.Exceptions.RequestTimeoutException
+Kck.Exceptions.RequestTimeoutException.RequestTimeoutException(string! message = "Request timed out") -> void
+Kck.Exceptions.RequestTimeoutException.RequestTimeoutException(string! message, System.Exception! innerException) -> void
+Kck.Exceptions.SecurityTokenException
+Kck.Exceptions.SecurityTokenException.SecurityTokenException(string! message) -> void
+Kck.Exceptions.SecurityTokenException.SecurityTokenException(string! message, System.Exception! innerException) -> void
+Kck.Exceptions.TooManyRequestsException
+Kck.Exceptions.TooManyRequestsException.TooManyRequestsException(string! message = "Too many requests") -> void
+Kck.Exceptions.TooManyRequestsException.TooManyRequestsException(string! message, System.Exception! innerException) -> void
+Kck.Exceptions.UnauthorizedException
+Kck.Exceptions.UnauthorizedException.UnauthorizedException(string! message = "Authentication required") -> void
+Kck.Exceptions.UnauthorizedException.UnauthorizedException(string! message, System.Exception! innerException) -> void
+Kck.Exceptions.ValidationException
+Kck.Exceptions.ValidationException.Errors.get -> System.Collections.Generic.IEnumerable<Kck.Exceptions.Models.ValidationExceptionModel!>!
+Kck.Exceptions.ValidationException.ValidationException(System.Collections.Generic.IEnumerable<Kck.Exceptions.Models.ValidationExceptionModel!>! errors) -> void
+Kck.Exceptions.ValidationException.ValidationException(string! message, System.Collections.Generic.IEnumerable<Kck.Exceptions.Models.ValidationExceptionModel!>! errors) -> void
+Kck.Exceptions.ValidationException.ValidationException(string! message, System.Exception! innerException) -> void

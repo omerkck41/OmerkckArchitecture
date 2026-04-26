@@ -1,0 +1,14 @@
+<Project>
+  <!-- Import root Directory.Build.props (MSBuild stops at first found, so we re-import explicitly). -->
+  <Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))" />
+
+  <!--
+    LS-FAZ-3 (ADR-0013): Public API tracking.
+    PublicApiAnalyzers package auto-includes PublicAPI.Shipped.txt and
+    PublicAPI.Unshipped.txt as AdditionalFiles when they exist next to the csproj.
+    PrivateAssets=all ensures it is a build-time analyzer only (not a runtime dep).
+  -->
+  <ItemGroup>
+    <PackageReference Include="Microsoft.CodeAnalysis.PublicApiAnalyzers" PrivateAssets="all" />
+  </ItemGroup>
+</Project>

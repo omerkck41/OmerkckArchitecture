@@ -1,0 +1,49 @@
+#nullable enable
+Kck.Messaging.Abstractions.EmailAttachment
+Kck.Messaging.Abstractions.EmailAttachment.Content.get -> System.IO.Stream!
+Kck.Messaging.Abstractions.EmailAttachment.Content.init -> void
+Kck.Messaging.Abstractions.EmailAttachment.ContentType.get -> string!
+Kck.Messaging.Abstractions.EmailAttachment.ContentType.init -> void
+Kck.Messaging.Abstractions.EmailAttachment.EmailAttachment() -> void
+Kck.Messaging.Abstractions.EmailAttachment.FileName.get -> string!
+Kck.Messaging.Abstractions.EmailAttachment.FileName.init -> void
+Kck.Messaging.Abstractions.EmailMessage
+Kck.Messaging.Abstractions.EmailMessage.Attachments.get -> System.Collections.Generic.IReadOnlyList<Kck.Messaging.Abstractions.EmailAttachment!>!
+Kck.Messaging.Abstractions.EmailMessage.Attachments.init -> void
+Kck.Messaging.Abstractions.EmailMessage.Body.get -> string!
+Kck.Messaging.Abstractions.EmailMessage.Body.init -> void
+Kck.Messaging.Abstractions.EmailMessage.EmailMessage() -> void
+Kck.Messaging.Abstractions.EmailMessage.From.get -> string!
+Kck.Messaging.Abstractions.EmailMessage.From.init -> void
+Kck.Messaging.Abstractions.EmailMessage.FromName.get -> string?
+Kck.Messaging.Abstractions.EmailMessage.FromName.init -> void
+Kck.Messaging.Abstractions.EmailMessage.IsHtml.get -> bool
+Kck.Messaging.Abstractions.EmailMessage.IsHtml.init -> void
+Kck.Messaging.Abstractions.EmailMessage.Recipients.get -> System.Collections.Generic.IReadOnlyList<Kck.Messaging.Abstractions.EmailRecipient!>!
+Kck.Messaging.Abstractions.EmailMessage.Recipients.init -> void
+Kck.Messaging.Abstractions.EmailMessage.Subject.get -> string!
+Kck.Messaging.Abstractions.EmailMessage.Subject.init -> void
+Kck.Messaging.Abstractions.EmailRecipient
+Kck.Messaging.Abstractions.EmailRecipient.<Clone>$() -> Kck.Messaging.Abstractions.EmailRecipient!
+Kck.Messaging.Abstractions.EmailRecipient.Deconstruct(out string! Email, out string? Name, out Kck.Messaging.Abstractions.RecipientType Type) -> void
+Kck.Messaging.Abstractions.EmailRecipient.Email.get -> string!
+Kck.Messaging.Abstractions.EmailRecipient.Email.init -> void
+Kck.Messaging.Abstractions.EmailRecipient.EmailRecipient(string! Email, string? Name = null, Kck.Messaging.Abstractions.RecipientType Type = Kck.Messaging.Abstractions.RecipientType.To) -> void
+Kck.Messaging.Abstractions.EmailRecipient.Equals(Kck.Messaging.Abstractions.EmailRecipient? other) -> bool
+Kck.Messaging.Abstractions.EmailRecipient.Name.get -> string?
+Kck.Messaging.Abstractions.EmailRecipient.Name.init -> void
+Kck.Messaging.Abstractions.EmailRecipient.Type.get -> Kck.Messaging.Abstractions.RecipientType
+Kck.Messaging.Abstractions.EmailRecipient.Type.init -> void
+Kck.Messaging.Abstractions.IEmailProvider
+Kck.Messaging.Abstractions.IEmailProvider.SendAsync(Kck.Messaging.Abstractions.EmailMessage! message, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task!
+Kck.Messaging.Abstractions.IEmailService
+Kck.Messaging.Abstractions.IEmailService.SendAsync(Kck.Messaging.Abstractions.EmailMessage! message, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task!
+Kck.Messaging.Abstractions.RecipientType
+Kck.Messaging.Abstractions.RecipientType.Bcc = 2 -> Kck.Messaging.Abstractions.RecipientType
+Kck.Messaging.Abstractions.RecipientType.Cc = 1 -> Kck.Messaging.Abstractions.RecipientType
+Kck.Messaging.Abstractions.RecipientType.To = 0 -> Kck.Messaging.Abstractions.RecipientType
+override Kck.Messaging.Abstractions.EmailRecipient.Equals(object? obj) -> bool
+override Kck.Messaging.Abstractions.EmailRecipient.GetHashCode() -> int
+override Kck.Messaging.Abstractions.EmailRecipient.ToString() -> string!
+static Kck.Messaging.Abstractions.EmailRecipient.operator !=(Kck.Messaging.Abstractions.EmailRecipient? left, Kck.Messaging.Abstractions.EmailRecipient? right) -> bool
+static Kck.Messaging.Abstractions.EmailRecipient.operator ==(Kck.Messaging.Abstractions.EmailRecipient? left, Kck.Messaging.Abstractions.EmailRecipient? right) -> bool

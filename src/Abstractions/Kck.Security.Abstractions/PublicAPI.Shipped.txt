@@ -1,0 +1,111 @@
+#nullable enable
+Kck.Security.Abstractions.Encryption.IEncryptionService
+Kck.Security.Abstractions.Encryption.IEncryptionService.DecryptAsync(string! cipherText, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<string!>!
+Kck.Security.Abstractions.Encryption.IEncryptionService.EncryptAsync(string! plainText, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<string!>!
+Kck.Security.Abstractions.Entities.RefreshToken<TId, TUserId>
+Kck.Security.Abstractions.Entities.RefreshToken<TId, TUserId>.CreatedByIp.get -> string!
+Kck.Security.Abstractions.Entities.RefreshToken<TId, TUserId>.CreatedByIp.set -> void
+Kck.Security.Abstractions.Entities.RefreshToken<TId, TUserId>.ExpiresAt.get -> System.DateTime
+Kck.Security.Abstractions.Entities.RefreshToken<TId, TUserId>.ExpiresAt.set -> void
+Kck.Security.Abstractions.Entities.RefreshToken<TId, TUserId>.IsActive.get -> bool
+Kck.Security.Abstractions.Entities.RefreshToken<TId, TUserId>.IsExpired.get -> bool
+Kck.Security.Abstractions.Entities.RefreshToken<TId, TUserId>.IsRevoked.get -> bool
+Kck.Security.Abstractions.Entities.RefreshToken<TId, TUserId>.RefreshToken() -> void
+Kck.Security.Abstractions.Entities.RefreshToken<TId, TUserId>.ReplacedByToken.get -> string?
+Kck.Security.Abstractions.Entities.RefreshToken<TId, TUserId>.ReplacedByToken.set -> void
+Kck.Security.Abstractions.Entities.RefreshToken<TId, TUserId>.Revoke(string! revokedByIp, string! reason, string? replacedByToken = null) -> void
+Kck.Security.Abstractions.Entities.RefreshToken<TId, TUserId>.RevokeReason.get -> string?
+Kck.Security.Abstractions.Entities.RefreshToken<TId, TUserId>.RevokeReason.set -> void
+Kck.Security.Abstractions.Entities.RefreshToken<TId, TUserId>.RevokedAt.get -> System.DateTime?
+Kck.Security.Abstractions.Entities.RefreshToken<TId, TUserId>.RevokedAt.set -> void
+Kck.Security.Abstractions.Entities.RefreshToken<TId, TUserId>.RevokedByIp.get -> string?
+Kck.Security.Abstractions.Entities.RefreshToken<TId, TUserId>.RevokedByIp.set -> void
+Kck.Security.Abstractions.Entities.RefreshToken<TId, TUserId>.Token.get -> string!
+Kck.Security.Abstractions.Entities.RefreshToken<TId, TUserId>.Token.set -> void
+Kck.Security.Abstractions.Entities.RefreshToken<TId, TUserId>.UserId.get -> TUserId
+Kck.Security.Abstractions.Entities.RefreshToken<TId, TUserId>.UserId.set -> void
+Kck.Security.Abstractions.Hashing.IHashingService
+Kck.Security.Abstractions.Hashing.IHashingService.HashAsync(string! password, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<string!>!
+Kck.Security.Abstractions.Hashing.IHashingService.VerifyAsync(string! password, string! hash, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<bool>!
+Kck.Security.Abstractions.Mfa.IMfaProvider
+Kck.Security.Abstractions.Mfa.IMfaProvider.GenerateSetupAsync(string! accountName, string! issuer, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<Kck.Security.Abstractions.Mfa.MfaSetupResult!>!
+Kck.Security.Abstractions.Mfa.IMfaProvider.ValidateCodeAsync(string! secretKey, string! code, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<bool>!
+Kck.Security.Abstractions.Mfa.MfaSetupResult
+Kck.Security.Abstractions.Mfa.MfaSetupResult.<Clone>$() -> Kck.Security.Abstractions.Mfa.MfaSetupResult!
+Kck.Security.Abstractions.Mfa.MfaSetupResult.Equals(Kck.Security.Abstractions.Mfa.MfaSetupResult? other) -> bool
+Kck.Security.Abstractions.Mfa.MfaSetupResult.MfaSetupResult() -> void
+Kck.Security.Abstractions.Mfa.MfaSetupResult.ProvisioningUri.get -> string!
+Kck.Security.Abstractions.Mfa.MfaSetupResult.ProvisioningUri.init -> void
+Kck.Security.Abstractions.Mfa.MfaSetupResult.SecretKey.get -> string!
+Kck.Security.Abstractions.Mfa.MfaSetupResult.SecretKey.init -> void
+Kck.Security.Abstractions.Secrets.ISecretsManager
+Kck.Security.Abstractions.Secrets.ISecretsManager.ExistsAsync(string! key, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<bool>!
+Kck.Security.Abstractions.Secrets.ISecretsManager.GetSecretAsync(string! key, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<string?>!
+Kck.Security.Abstractions.Secrets.ISecretsManager.GetSecretAsync<T>(string! key, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<T?>!
+Kck.Security.Abstractions.Secrets.ISecretsManager.SetSecretAsync(string! key, string! value, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task!
+Kck.Security.Abstractions.Token.ITokenBlacklistService
+Kck.Security.Abstractions.Token.ITokenBlacklistService.IsRevokedAsync(string! tokenId, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<bool>!
+Kck.Security.Abstractions.Token.ITokenBlacklistService.RevokeAsync(string! tokenId, System.TimeSpan expiration, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task!
+Kck.Security.Abstractions.Token.ITokenService
+Kck.Security.Abstractions.Token.ITokenService.CreateAccessTokenAsync(Kck.Security.Abstractions.Token.TokenRequest! request, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<Kck.Security.Abstractions.Token.TokenResult!>!
+Kck.Security.Abstractions.Token.ITokenService.CreateRefreshTokenAsync(System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<string!>!
+Kck.Security.Abstractions.Token.ITokenService.GetClaimsFromToken(string! token) -> System.Collections.Generic.IReadOnlyDictionary<string!, string!>!
+Kck.Security.Abstractions.Token.ITokenService.ValidateTokenAsync(string! token, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<Kck.Security.Abstractions.Token.TokenValidationResult!>!
+Kck.Security.Abstractions.Token.TokenRequest
+Kck.Security.Abstractions.Token.TokenRequest.<Clone>$() -> Kck.Security.Abstractions.Token.TokenRequest!
+Kck.Security.Abstractions.Token.TokenRequest.CustomClaims.get -> System.Collections.Generic.IReadOnlyDictionary<string!, string!>!
+Kck.Security.Abstractions.Token.TokenRequest.CustomClaims.init -> void
+Kck.Security.Abstractions.Token.TokenRequest.Email.get -> string!
+Kck.Security.Abstractions.Token.TokenRequest.Email.init -> void
+Kck.Security.Abstractions.Token.TokenRequest.Equals(Kck.Security.Abstractions.Token.TokenRequest? other) -> bool
+Kck.Security.Abstractions.Token.TokenRequest.Name.get -> string?
+Kck.Security.Abstractions.Token.TokenRequest.Name.init -> void
+Kck.Security.Abstractions.Token.TokenRequest.Roles.get -> System.Collections.Generic.IReadOnlyList<string!>!
+Kck.Security.Abstractions.Token.TokenRequest.Roles.init -> void
+Kck.Security.Abstractions.Token.TokenRequest.TokenRequest() -> void
+Kck.Security.Abstractions.Token.TokenRequest.UserId.get -> string!
+Kck.Security.Abstractions.Token.TokenRequest.UserId.init -> void
+Kck.Security.Abstractions.Token.TokenResult
+Kck.Security.Abstractions.Token.TokenResult.<Clone>$() -> Kck.Security.Abstractions.Token.TokenResult!
+Kck.Security.Abstractions.Token.TokenResult.AccessToken.get -> string!
+Kck.Security.Abstractions.Token.TokenResult.AccessToken.init -> void
+Kck.Security.Abstractions.Token.TokenResult.Equals(Kck.Security.Abstractions.Token.TokenResult? other) -> bool
+Kck.Security.Abstractions.Token.TokenResult.ExpiresAt.get -> System.DateTime
+Kck.Security.Abstractions.Token.TokenResult.ExpiresAt.init -> void
+Kck.Security.Abstractions.Token.TokenResult.TokenResult() -> void
+Kck.Security.Abstractions.Token.TokenValidationResult
+Kck.Security.Abstractions.Token.TokenValidationResult.<Clone>$() -> Kck.Security.Abstractions.Token.TokenValidationResult!
+Kck.Security.Abstractions.Token.TokenValidationResult.Claims.get -> System.Collections.Generic.IReadOnlyDictionary<string!, string!>!
+Kck.Security.Abstractions.Token.TokenValidationResult.Claims.init -> void
+Kck.Security.Abstractions.Token.TokenValidationResult.Email.get -> string?
+Kck.Security.Abstractions.Token.TokenValidationResult.Email.init -> void
+Kck.Security.Abstractions.Token.TokenValidationResult.Equals(Kck.Security.Abstractions.Token.TokenValidationResult? other) -> bool
+Kck.Security.Abstractions.Token.TokenValidationResult.ErrorMessage.get -> string?
+Kck.Security.Abstractions.Token.TokenValidationResult.ErrorMessage.init -> void
+Kck.Security.Abstractions.Token.TokenValidationResult.IsValid.get -> bool
+Kck.Security.Abstractions.Token.TokenValidationResult.IsValid.init -> void
+Kck.Security.Abstractions.Token.TokenValidationResult.Roles.get -> System.Collections.Generic.IReadOnlyList<string!>!
+Kck.Security.Abstractions.Token.TokenValidationResult.Roles.init -> void
+Kck.Security.Abstractions.Token.TokenValidationResult.TokenValidationResult() -> void
+Kck.Security.Abstractions.Token.TokenValidationResult.UserId.get -> string?
+Kck.Security.Abstractions.Token.TokenValidationResult.UserId.init -> void
+override Kck.Security.Abstractions.Mfa.MfaSetupResult.Equals(object? obj) -> bool
+override Kck.Security.Abstractions.Mfa.MfaSetupResult.GetHashCode() -> int
+override Kck.Security.Abstractions.Mfa.MfaSetupResult.ToString() -> string!
+override Kck.Security.Abstractions.Token.TokenRequest.Equals(object? obj) -> bool
+override Kck.Security.Abstractions.Token.TokenRequest.GetHashCode() -> int
+override Kck.Security.Abstractions.Token.TokenRequest.ToString() -> string!
+override Kck.Security.Abstractions.Token.TokenResult.Equals(object? obj) -> bool
+override Kck.Security.Abstractions.Token.TokenResult.GetHashCode() -> int
+override Kck.Security.Abstractions.Token.TokenResult.ToString() -> string!
+override Kck.Security.Abstractions.Token.TokenValidationResult.Equals(object? obj) -> bool
+override Kck.Security.Abstractions.Token.TokenValidationResult.GetHashCode() -> int
+override Kck.Security.Abstractions.Token.TokenValidationResult.ToString() -> string!
+static Kck.Security.Abstractions.Mfa.MfaSetupResult.operator !=(Kck.Security.Abstractions.Mfa.MfaSetupResult? left, Kck.Security.Abstractions.Mfa.MfaSetupResult? right) -> bool
+static Kck.Security.Abstractions.Mfa.MfaSetupResult.operator ==(Kck.Security.Abstractions.Mfa.MfaSetupResult? left, Kck.Security.Abstractions.Mfa.MfaSetupResult? right) -> bool
+static Kck.Security.Abstractions.Token.TokenRequest.operator !=(Kck.Security.Abstractions.Token.TokenRequest? left, Kck.Security.Abstractions.Token.TokenRequest? right) -> bool
+static Kck.Security.Abstractions.Token.TokenRequest.operator ==(Kck.Security.Abstractions.Token.TokenRequest? left, Kck.Security.Abstractions.Token.TokenRequest? right) -> bool
+static Kck.Security.Abstractions.Token.TokenResult.operator !=(Kck.Security.Abstractions.Token.TokenResult? left, Kck.Security.Abstractions.Token.TokenResult? right) -> bool
+static Kck.Security.Abstractions.Token.TokenResult.operator ==(Kck.Security.Abstractions.Token.TokenResult? left, Kck.Security.Abstractions.Token.TokenResult? right) -> bool
+static Kck.Security.Abstractions.Token.TokenValidationResult.operator !=(Kck.Security.Abstractions.Token.TokenValidationResult? left, Kck.Security.Abstractions.Token.TokenValidationResult? right) -> bool
+static Kck.Security.Abstractions.Token.TokenValidationResult.operator ==(Kck.Security.Abstractions.Token.TokenValidationResult? left, Kck.Security.Abstractions.Token.TokenValidationResult? right) -> bool

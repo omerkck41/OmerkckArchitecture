@@ -1,0 +1,33 @@
+#nullable enable
+Kck.EventBus.Abstractions.EventHandlerInvoker
+Kck.EventBus.Abstractions.EventProcessor
+Kck.EventBus.Abstractions.EventProcessor.EventProcessor(System.IServiceProvider! serviceProvider, Microsoft.Extensions.Logging.ILogger! logger) -> void
+Kck.EventBus.Abstractions.EventProcessor.ProcessAsync(string! eventName, byte[]! body, System.Collections.Concurrent.ConcurrentDictionary<string!, System.Type!>! eventTypes, System.Collections.Concurrent.ConcurrentDictionary<string!, System.Collections.Concurrent.ConcurrentBag<System.Type!>!>! handlers) -> System.Threading.Tasks.Task!
+Kck.EventBus.Abstractions.IEventBus
+Kck.EventBus.Abstractions.IEventBus.PublishAsync<TEvent>(TEvent! event, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task!
+Kck.EventBus.Abstractions.IEventBus.Subscribe<TEvent, THandler>() -> void
+Kck.EventBus.Abstractions.IEventHandler<TEvent>
+Kck.EventBus.Abstractions.IEventHandler<TEvent>.HandleAsync(TEvent! event, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task!
+Kck.EventBus.Abstractions.IntegrationEvent
+Kck.EventBus.Abstractions.IntegrationEvent.Id.get -> System.Guid
+Kck.EventBus.Abstractions.IntegrationEvent.Id.init -> void
+Kck.EventBus.Abstractions.IntegrationEvent.IntegrationEvent() -> void
+Kck.EventBus.Abstractions.IntegrationEvent.IntegrationEvent(Kck.EventBus.Abstractions.IntegrationEvent! original) -> void
+Kck.EventBus.Abstractions.IntegrationEvent.OccurredOn.get -> System.DateTimeOffset
+Kck.EventBus.Abstractions.IntegrationEvent.OccurredOn.init -> void
+Microsoft.Extensions.DependencyInjection.KckEventBusBuilder
+Microsoft.Extensions.DependencyInjection.KckEventBusBuilder.KckEventBusBuilder(Microsoft.Extensions.DependencyInjection.IServiceCollection! services) -> void
+Microsoft.Extensions.DependencyInjection.KckEventBusBuilder.RegisterHandlersFromAssembly(params System.Reflection.Assembly![]! assemblies) -> Microsoft.Extensions.DependencyInjection.KckEventBusBuilder!
+Microsoft.Extensions.DependencyInjection.KckEventBusBuilder.Services.get -> Microsoft.Extensions.DependencyInjection.IServiceCollection!
+Microsoft.Extensions.DependencyInjection.KckEventBusServiceCollectionExtensions
+abstract Kck.EventBus.Abstractions.IntegrationEvent.<Clone>$() -> Kck.EventBus.Abstractions.IntegrationEvent!
+override Kck.EventBus.Abstractions.IntegrationEvent.Equals(object? obj) -> bool
+override Kck.EventBus.Abstractions.IntegrationEvent.GetHashCode() -> int
+override Kck.EventBus.Abstractions.IntegrationEvent.ToString() -> string!
+static Kck.EventBus.Abstractions.EventHandlerInvoker.InvokeAsync(object! handler, object! event, System.Type! eventType, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task!
+static Kck.EventBus.Abstractions.IntegrationEvent.operator !=(Kck.EventBus.Abstractions.IntegrationEvent? left, Kck.EventBus.Abstractions.IntegrationEvent? right) -> bool
+static Kck.EventBus.Abstractions.IntegrationEvent.operator ==(Kck.EventBus.Abstractions.IntegrationEvent? left, Kck.EventBus.Abstractions.IntegrationEvent? right) -> bool
+static Microsoft.Extensions.DependencyInjection.KckEventBusServiceCollectionExtensions.AddKckEventBus(this Microsoft.Extensions.DependencyInjection.IServiceCollection! services, System.Action<Microsoft.Extensions.DependencyInjection.KckEventBusBuilder!>! configure) -> Microsoft.Extensions.DependencyInjection.IServiceCollection!
+virtual Kck.EventBus.Abstractions.IntegrationEvent.EqualityContract.get -> System.Type!
+virtual Kck.EventBus.Abstractions.IntegrationEvent.Equals(Kck.EventBus.Abstractions.IntegrationEvent? other) -> bool
+virtual Kck.EventBus.Abstractions.IntegrationEvent.PrintMembers(System.Text.StringBuilder! builder) -> bool

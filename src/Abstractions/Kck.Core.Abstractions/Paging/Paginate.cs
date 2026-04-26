@@ -1,5 +1,8 @@
+using System.Diagnostics;
+
 namespace Kck.Core.Abstractions.Paging;
 
+[DebuggerDisplay("Page {Index}/{Pages}, Items: {Items.Count}, Total: {TotalRecords}")]
 public class Paginate<T> : IPaginate<T>
 {
     public Paginate()

@@ -1,0 +1,24 @@
+#nullable enable
+Kck.Caching.Abstractions.CacheOptions
+Kck.Caching.Abstractions.CacheOptions.CacheOptions() -> void
+Kck.Caching.Abstractions.CacheOptions.DefaultExpiration.get -> System.TimeSpan
+Kck.Caching.Abstractions.CacheOptions.DefaultExpiration.set -> void
+Kck.Caching.Abstractions.CacheOptions.KeyPrefix.get -> string?
+Kck.Caching.Abstractions.CacheOptions.KeyPrefix.set -> void
+Kck.Caching.Abstractions.CacheServiceBase
+Kck.Caching.Abstractions.CacheServiceBase.BuildKey(string! key) -> string!
+Kck.Caching.Abstractions.CacheServiceBase.CacheServiceBase() -> void
+Kck.Caching.Abstractions.CacheServiceBase.GetOrSetAsync<T>(string! key, System.Func<System.Threading.Tasks.Task<T>!>! factory, System.TimeSpan? expiration = null, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<T?>!
+Kck.Caching.Abstractions.ICacheService
+Kck.Caching.Abstractions.ICacheService.ExistsAsync(string! key, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<bool>!
+Kck.Caching.Abstractions.ICacheService.GetAsync<T>(string! key, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<T?>!
+Kck.Caching.Abstractions.ICacheService.GetOrSetAsync<T>(string! key, System.Func<System.Threading.Tasks.Task<T>!>! factory, System.TimeSpan? expiration = null, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<T?>!
+Kck.Caching.Abstractions.ICacheService.RemoveAsync(string! key, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task!
+Kck.Caching.Abstractions.ICacheService.RemoveByPrefixAsync(string! prefix, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task!
+Kck.Caching.Abstractions.ICacheService.SetAsync<T>(string! key, T value, System.TimeSpan? expiration = null, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task!
+abstract Kck.Caching.Abstractions.CacheServiceBase.ExistsAsync(string! key, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<bool>!
+abstract Kck.Caching.Abstractions.CacheServiceBase.GetAsync<T>(string! key, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<T?>!
+abstract Kck.Caching.Abstractions.CacheServiceBase.Options.get -> Kck.Caching.Abstractions.CacheOptions!
+abstract Kck.Caching.Abstractions.CacheServiceBase.RemoveAsync(string! key, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task!
+abstract Kck.Caching.Abstractions.CacheServiceBase.RemoveByPrefixAsync(string! prefix, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task!
+abstract Kck.Caching.Abstractions.CacheServiceBase.SetAsync<T>(string! key, T value, System.TimeSpan? expiration = null, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task!
