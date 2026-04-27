@@ -63,7 +63,7 @@
   <ItemGroup Label="Messaging">
     <PackageVersion Include="MailKit" Version="4.16.0" />
     <PackageVersion Include="SendGrid" Version="9.29.3" />
-    <PackageVersion Include="AWSSDK.SimpleEmailV2" Version="3.7.408.16" />
+    <PackageVersion Include="AWSSDK.SimpleEmailV2" Version="4.0.12.12" />
   </ItemGroup>
 
   <ItemGroup Label="Background Jobs">
