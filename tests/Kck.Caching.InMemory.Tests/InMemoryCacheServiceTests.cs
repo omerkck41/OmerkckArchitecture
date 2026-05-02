@@ -204,6 +204,21 @@ public sealed class InMemoryCacheServiceTests : IDisposable
         (await _sut.ExistsAsync("keep-me")).Should().BeTrue();
     }
 
+    [Fact]
+    public async Task GetOrSetAsync_HighCardinalityKeys_ShouldCompleteWithoutError()
+    {
+        // Eski implementasyon 1000 unique key için 1000 SemaphoreSlim biriktirirdi (memory leak).
+        // Yeni stripe implementasyonu sabit 64 instance kullanır.
+        // Not: memory doğrulaması için dotnet-counters profiler kullanın.
+        for (var i = 0; i < 1000; i++)
+        {
+            await _sut.GetOrSetAsync($"unique-key-{i}", () => Task.FromResult($"v{i}"));
+        }
+
+        var result = await _sut.GetOrSetAsync("unique-key-0", () => Task.FromResult("miss"));
+        result.Should().Be("v0", "cached value should still be accessible after high-cardinality load");
+    }
+
     private sealed class TestCacheItem
     {
         public int Id { get; set; }
