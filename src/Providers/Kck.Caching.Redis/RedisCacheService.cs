@@ -13,7 +13,7 @@ public sealed class RedisCacheService(
 {
     protected override CacheOptions Options { get; } = options.CurrentValue;
 
-    public override async Task<T?> GetAsync<T>(string key, CancellationToken ct = default) where T : default
+    public override async ValueTask<T?> GetAsync<T>(string key, CancellationToken ct = default) where T : default
     {
         var data = await cache.GetStringAsync(BuildKey(key), ct).ConfigureAwait(false);
         return data is null ? default : JsonSerializer.Deserialize<T>(data);
@@ -32,7 +32,7 @@ public sealed class RedisCacheService(
         await cache.RemoveAsync(BuildKey(key), ct).ConfigureAwait(false);
     }
 
-    public override async Task<bool> ExistsAsync(string key, CancellationToken ct = default)
+    public override async ValueTask<bool> ExistsAsync(string key, CancellationToken ct = default)
     {
         // LS-FAZ-5 (5.6): EXISTS komutu ile sadece varlik kontrolu — payload network'e cikmaz.
         // StackExchange.Redis KeyExistsAsync CancellationToken almıyor (API limiti); mevcut

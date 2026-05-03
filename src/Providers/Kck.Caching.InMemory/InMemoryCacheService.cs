@@ -13,10 +13,10 @@ public sealed class InMemoryCacheService(
 
     protected override CacheOptions Options { get; } = options.CurrentValue;
 
-    public override Task<T?> GetAsync<T>(string key, CancellationToken ct = default) where T : default
+    public override ValueTask<T?> GetAsync<T>(string key, CancellationToken ct = default) where T : default
     {
         cache.TryGetValue(BuildKey(key), out T? value);
-        return Task.FromResult(value);
+        return ValueTask.FromResult(value);
     }
 
     public override Task SetAsync<T>(string key, T value, TimeSpan? expiration = null, CancellationToken ct = default)
@@ -40,9 +40,9 @@ public sealed class InMemoryCacheService(
         return Task.CompletedTask;
     }
 
-    public override Task<bool> ExistsAsync(string key, CancellationToken ct = default)
+    public override ValueTask<bool> ExistsAsync(string key, CancellationToken ct = default)
     {
-        return Task.FromResult(cache.TryGetValue(BuildKey(key), out _));
+        return ValueTask.FromResult(cache.TryGetValue(BuildKey(key), out _));
     }
 
     public override Task RemoveByPrefixAsync(string prefix, CancellationToken ct = default)
