@@ -3,6 +3,15 @@
   <Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))" />
 
   <!--
+    LS-FAZ-8 (ADR-0018): AOT/trimming compatibility signal for all abstraction libraries.
+    Enables IL trimming and AOT analyzer warnings at build time. Providers that reference
+    untrimmable APIs must suppress individually with [UnconditionalSuppressMessage].
+  -->
+  <PropertyGroup>
+    <IsAotCompatible>true</IsAotCompatible>
+  </PropertyGroup>
+
+  <!--
     LS-FAZ-3 (ADR-0013): Public API tracking.
     PublicApiAnalyzers package auto-includes PublicAPI.Shipped.txt and
     PublicAPI.Unshipped.txt as AdditionalFiles when they exist next to the csproj.
