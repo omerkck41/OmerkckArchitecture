@@ -23,6 +23,7 @@ bir karar yeni ADR ile `superseded` isaretlenerek gecilir.
 | [0013](0013-public-api-discipline.md) | Public API disiplini (PublicApiAnalyzers + SemVer) | Onaylandi | 2026-04-26 | 16 abstraction projesi |
 | [0014](0014-test-strategy.md) | Test stratejisi (BenchmarkDotNet + Testcontainers + coverage policy) | Onaylandi | 2026-04-26 | Tum test projeleri + benchmarks |
 | [0015](0015-perf-quickwins.md) | Performans hizli kazanimlar (Redis EXISTS + Filter type safety) | Onaylandi | 2026-04-26 | `Kck.Caching.Redis`, `Kck.Persistence.Abstractions` |
+| [0016](0016-queryoptions-api.md) | QueryOptions API — IReadRepository bool bayraklarini kaldir | Onaylandi | 2026-05-03 | `Kck.Persistence.Abstractions`, `Kck.Core.Abstractions` |
 
 ## Kategori
 
@@ -54,6 +55,9 @@ bir karar yeni ADR ile `superseded` isaretlenerek gecilir.
 
 ### Performans
 - [0015](0015-perf-quickwins.md) — Redis EXISTS + Filter type safety + AOT-uyumlu GetValue<T>
+
+### Public API & DX
+- [0016](0016-queryoptions-api.md) — IReadRepository QueryOptions API + Result<T> fonksiyonel pipeline
 
 ## Yeni ADR Yazma
 
