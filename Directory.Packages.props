@@ -2,7 +2,6 @@
   <PropertyGroup>
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
   </PropertyGroup>
-
   <ItemGroup Label="Microsoft — ASP.NET Core &amp; EF Core">
     <PackageVersion Include="Microsoft.EntityFrameworkCore" Version="10.0.5" />
     <PackageVersion Include="Microsoft.EntityFrameworkCore.InMemory" Version="10.0.5" />
@@ -14,7 +13,6 @@
     <!-- LS-FAZ-4: PostgreSQL provider for Testcontainers integration tests (Kck.Persistence.EntityFramework.Tests) -->
     <PackageVersion Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.0" />
   </ItemGroup>
-
   <ItemGroup Label="Microsoft — System">
     <PackageVersion Include="System.Drawing.Common" Version="10.0.5" />
     <PackageVersion Include="System.Text.Encodings.Web" Version="10.0.5" />
@@ -24,34 +22,28 @@
          LS-FAZ-2 Bolum 2.3 madde 2. -->
     <PackageVersion Include="Microsoft.IdentityModel.JsonWebTokens" Version="8.17.0" />
   </ItemGroup>
-
   <ItemGroup Label="MediatR &amp; Validation">
     <PackageVersion Include="MediatR" Version="14.1.0" />
-    <PackageVersion Include="Mediator.Abstractions" Version="3.1.0" />
+    <PackageVersion Include="Mediator.Abstractions" Version="3.1.0-rc.1" />
     <PackageVersion Include="FluentValidation" Version="12.1.1" />
   </ItemGroup>
-
   <ItemGroup Label="Caching &amp; Data">
     <PackageVersion Include="StackExchange.Redis" Version="2.12.8" />
   </ItemGroup>
-
   <ItemGroup Label="Search">
     <PackageVersion Include="Elastic.Clients.Elasticsearch" Version="9.3.5" />
     <PackageVersion Include="Elastic.Transport" Version="0.5.9" />
   </ItemGroup>
-
   <ItemGroup Label="Event Bus">
     <PackageVersion Include="RabbitMQ.Client" Version="7.1.2" />
     <PackageVersion Include="Azure.Messaging.ServiceBus" Version="7.20.1" />
   </ItemGroup>
-
   <ItemGroup Label="DI &amp; Hosting">
     <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.7" />
     <PackageVersion Include="Microsoft.Extensions.Hosting.Abstractions" Version="10.0.7" />
     <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.7" />
     <PackageVersion Include="Microsoft.Extensions.ServiceDiscovery" Version="9.3.0" />
   </ItemGroup>
-
   <ItemGroup Label="Testing">
     <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.14.0" />
     <PackageVersion Include="xunit" Version="2.9.3" />
@@ -63,13 +55,11 @@
     <!-- LS-FAZ-4: Testcontainers for integration tests (gercek container ile gercek DB/broker testi) -->
     <PackageVersion Include="Testcontainers.PostgreSql" Version="4.5.0" />
   </ItemGroup>
-
   <ItemGroup Label="Messaging">
     <PackageVersion Include="MailKit" Version="4.16.0" />
     <PackageVersion Include="SendGrid" Version="9.29.3" />
     <PackageVersion Include="AWSSDK.SimpleEmailV2" Version="3.7.408.16" />
   </ItemGroup>
-
   <ItemGroup Label="Background Jobs">
     <PackageVersion Include="Hangfire" Version="1.8.23" />
     <PackageVersion Include="Hangfire.InMemory" Version="1.0.0" />
@@ -80,25 +70,21 @@
          Removable when Hangfire 2.x lands or replaces Newtonsoft.Json. -->
     <PackageVersion Include="Newtonsoft.Json" Version="13.0.3" />
   </ItemGroup>
-
   <ItemGroup Label="Security">
     <PackageVersion Include="Otp.NET" Version="1.4.1" />
     <PackageVersion Include="Konscious.Security.Cryptography.Argon2" Version="1.3.1" />
     <PackageVersion Include="Microsoft.Extensions.Configuration.UserSecrets" Version="10.0.5" />
   </ItemGroup>
-
   <ItemGroup Label="Azure Key Vault">
     <PackageVersion Include="Azure.Security.KeyVault.Secrets" Version="4.7.0" />
     <PackageVersion Include="Azure.Identity" Version="1.13.2" />
   </ItemGroup>
-
   <ItemGroup Label="Infrastructure">
     <PackageVersion Include="ClosedXML" Version="0.105.0" />
     <PackageVersion Include="FluentFTP" Version="54.0.2" />
     <PackageVersion Include="SixLabors.ImageSharp" Version="3.1.12" />
     <PackageVersion Include="YamlDotNet" Version="16.3.0" />
   </ItemGroup>
-
   <ItemGroup Label="Observability — OpenTelemetry">
     <PackageVersion Include="OpenTelemetry.Api" Version="1.15.3" />
     <PackageVersion Include="OpenTelemetry.Extensions.Hosting" Version="1.15.3" />
@@ -107,20 +93,16 @@
     <PackageVersion Include="OpenTelemetry.Instrumentation.Http" Version="1.15.1" />
     <PackageVersion Include="OpenTelemetry.Instrumentation.EntityFrameworkCore" Version="1.12.0-beta.2" />
   </ItemGroup>
-
   <ItemGroup Label="Logging">
     <PackageVersion Include="Serilog.AspNetCore" Version="10.0.0" />
     <PackageVersion Include="Serilog.Formatting.Compact" Version="3.0.0" />
   </ItemGroup>
-
   <ItemGroup Label="Versioning">
     <PackageVersion Include="MinVer" Version="7.0.0" />
   </ItemGroup>
-
   <ItemGroup Label="Source Link">
     <PackageVersion Include="Microsoft.SourceLink.GitHub" Version="8.0.0" />
   </ItemGroup>
-
   <ItemGroup Label="Analyzers">
     <PackageVersion Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="10.0.0-preview.25155.1" />
     <PackageVersion Include="Microsoft.CodeAnalysis.PublicApiAnalyzers" Version="4.14.0" />
