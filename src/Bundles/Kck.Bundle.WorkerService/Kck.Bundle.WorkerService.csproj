@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <!-- Pinned to net10.0; depends on AspNetCore-referencing packages (LS-FAZ-7 §1.1) -->
+    <TargetFrameworks>net10.0</TargetFrameworks>
+  </PropertyGroup>
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+  <ItemGroup Label="Core Abstractions">
+    <ProjectReference Include="../../Abstractions/Kck.Core.Abstractions/Kck.Core.Abstractions.csproj" />
+    <ProjectReference Include="../../Abstractions/Kck.EventBus.Abstractions/Kck.EventBus.Abstractions.csproj" />
+    <ProjectReference Include="../../Abstractions/Kck.Observability.Abstractions/Kck.Observability.Abstractions.csproj" />
+    <ProjectReference Include="../../Abstractions/Kck.BackgroundJobs.Abstractions/Kck.BackgroundJobs.Abstractions.csproj" />
+  </ItemGroup>
+  <ItemGroup Label="Default Providers">
+    <ProjectReference Include="../../Providers/Kck.Logging.Serilog/Kck.Logging.Serilog.csproj" />
+    <ProjectReference Include="../../Providers/Kck.Observability.OpenTelemetry/Kck.Observability.OpenTelemetry.csproj" />
+    <ProjectReference Include="../../Providers/Kck.EventBus.InMemory/Kck.EventBus.InMemory.csproj" />
+    <ProjectReference Include="../../Providers/Kck.BackgroundJobs.Hangfire/Kck.BackgroundJobs.Hangfire.csproj" />
+    <ProjectReference Include="../../Providers/Kck.BackgroundJobs.Quartz/Kck.BackgroundJobs.Quartz.csproj" />
+  </ItemGroup>
+</Project>
