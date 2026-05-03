@@ -9,12 +9,14 @@ namespace Kck.Persistence.Abstractions.Repositories;
 /// </summary>
 public interface IReadRepository<T, TId> : IQuery<T> where T : Entity<TId>
 {
+    [Obsolete("KCK0100: Use ReadRepositoryExtensions.GetAsync with QueryOptions instead.", DiagnosticId = "KCK0100")]
     Task<T?> GetAsync(Expression<Func<T, bool>> predicate,
                       Expression<Func<T, object>>[]? includes = null,
                       bool withDeleted = false,
                       bool enableTracking = true,
                       CancellationToken cancellationToken = default);
 
+    [Obsolete("KCK0100: Use ReadRepositoryExtensions.GetListAsync with QueryOptions instead.", DiagnosticId = "KCK0100")]
     Task<IPaginate<T>> GetListAsync(Expression<Func<T, bool>>? predicate = null,
                                     Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null,
                                     Expression<Func<T, object>>[]? includes = null,
@@ -23,6 +25,7 @@ public interface IReadRepository<T, TId> : IQuery<T> where T : Entity<TId>
                                     bool enableTracking = true,
                                     CancellationToken cancellationToken = default);
 
+    [Obsolete("KCK0100: Use ReadRepositoryExtensions.GetListByDynamicAsync with QueryOptions instead.", DiagnosticId = "KCK0100")]
     Task<IPaginate<T>> GetListByDynamicAsync(Dynamic.DynamicQuery dynamic,
                                              Expression<Func<T, bool>>? predicate = null,
                                              Expression<Func<T, object>>[]? includes = null,
@@ -31,16 +34,19 @@ public interface IReadRepository<T, TId> : IQuery<T> where T : Entity<TId>
                                              bool enableTracking = true,
                                              CancellationToken cancellationToken = default);
 
+    [Obsolete("KCK0100: Use ReadRepositoryExtensions.AnyAsync with QueryOptions instead.", DiagnosticId = "KCK0100")]
     Task<bool> AnyAsync(Expression<Func<T, bool>>? predicate = null,
                         bool withDeleted = false,
                         bool enableTracking = false,
                         CancellationToken cancellationToken = default);
 
+    [Obsolete("KCK0100: Use ReadRepositoryExtensions.GetByIdAsync with QueryOptions instead.", DiagnosticId = "KCK0100")]
     Task<T?> GetByIdAsync(TId id,
                           bool withDeleted = false,
                           bool enableTracking = false,
                           CancellationToken cancellationToken = default);
 
+    [Obsolete("KCK0100: Use ReadRepositoryExtensions.CountAsync with QueryOptions instead.", DiagnosticId = "KCK0100")]
     Task<int> CountAsync(Expression<Func<T, bool>>? predicate = null,
                          bool withDeleted = false,
                          bool enableTracking = false,
