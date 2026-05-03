@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added (LS-FAZ-7)
+
+- `Kck.Bundle.WorkerService` — Worker Service host için opinionated stack: Serilog + OpenTelemetry + InMemory EventBus + Hangfire **veya** Quartz (ikisi birden yasaklı, `Kck.BackgroundJobs.Provider` ile seçilir) (Library Strategy §1.1, ADR-0017).
+- `Kck.Bundle.MinimalApi` — WebApi'nin slim varyantı: Serilog + InMemory cache + JWT + exception handling + health checks; MVC, MediatR pipeline ve Argon2 kasıtlı olarak dışarıda (Library Strategy §1.1, ADR-0017).
+- `RedisHealthCheck` — `IConnectionMultiplexer` üzerinden PING; `AddKckCachingRedis` ile otomatik kayıt (`ready` tag'li) (Library Strategy §10.3, ADR-0017).
+- `EfCoreHealthCheck<TContext>` — `CanConnectAsync()` tabanlı; `AddHealthChecks().AddKckEfCoreCheck<MyContext>()` ile manuel kayıt (Library Strategy §10.3, ADR-0017).
+- `RabbitMqHealthCheck` — geçici bağlantı açma testi; `UseRabbitMq` ile otomatik kayıt (`ready` tag'li) (Library Strategy §10.3, ADR-0017).
+- `schemas/appsettings.kck.schema.json` — JSON Schema draft-07; tüm provider konfigürasyon anahtarları, tipler ve örnekler; `"$schema"` ile IDE autocomplete (Library Strategy §10.4, ADR-0017).
+- `docs/configuration-schema.md` — her provider için alan tablosu + tam `appsettings.json` örneği (Library Strategy §10.4).
+- `.github/release-drafter.yml` + `.github/workflows/release-drafter.yml` — PR merge'inde release notu taslağı otomatik oluşturulur; `feat` → minor, `breaking` → major, diğerleri → patch (Library Strategy §6.3, ADR-0017).
+- `docs/adr/0017-bundle-health-release.md` — Bundle + health check + release kararları.
+
 ### Added (LS-FAZ-6)
 
 - `ReadRepositoryExtensions` static class — `IReadRepository<T,TId>` üzerinde 6 `QueryOptions` tabanlı extension metot: `GetAsync`, `GetListAsync`, `GetListByDynamicAsync`, `AnyAsync`, `GetByIdAsync`, `CountAsync`. Pozisyonel `bool withDeleted / bool enableTracking` gürültüsü yerine self-documenting API (Library Strategy §4.2, ADR-0016).
