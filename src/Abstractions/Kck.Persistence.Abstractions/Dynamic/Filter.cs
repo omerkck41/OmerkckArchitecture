@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Text.Json;
 
@@ -60,6 +61,8 @@ public sealed class Filter
     /// donusturur; bilinmeyen tipler icin <c>Convert.ChangeType</c> fallback'i ile
     /// geri-uyumlulugu korur.
     /// </summary>
+    [RequiresUnreferencedCode("JsonElement.Deserialize<T> requires T to be preserved for trimming.")]
+    [RequiresDynamicCode("JsonElement.Deserialize<T> may require runtime code generation.")]
     public T GetValue<T>() => Value switch
     {
         null => default!,

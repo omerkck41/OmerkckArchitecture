@@ -1,4 +1,5 @@
 using System.Collections.Concurrent;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 
 namespace Kck.EventBus.Abstractions;
@@ -17,6 +18,8 @@ public static class EventHandlerInvoker
     /// <summary>
     /// Invokes HandleAsync on a handler instance using the specified event type.
     /// </summary>
+    [RequiresDynamicCode("Creates a generic IEventHandler<T> type at runtime using MakeGenericType.")]
+    [RequiresUnreferencedCode("Resolves HandleAsync via reflection on a runtime-constructed generic type.")]
     public static async Task InvokeAsync(
         object handler,
         object @event,

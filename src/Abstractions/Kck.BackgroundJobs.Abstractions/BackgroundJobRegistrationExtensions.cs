@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using Kck.BackgroundJobs.Abstractions;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
@@ -14,7 +15,7 @@ public static class BackgroundJobRegistrationExtensions
     /// Registers <typeparamref name="TJob"/> as a scoped service so the scheduler can
     /// resolve a fresh instance (with scoped dependencies such as <c>DbContext</c>) per execution.
     /// </summary>
-    public static IServiceCollection AddKckJob<TJob>(this IServiceCollection services)
+    public static IServiceCollection AddKckJob<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] TJob>(this IServiceCollection services)
         where TJob : class, IBackgroundJob
     {
         ArgumentNullException.ThrowIfNull(services);

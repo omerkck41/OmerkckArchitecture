@@ -1,9 +1,10 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
 using System.Reflection;
 
 namespace Kck.Persistence.Abstractions.Security;
 
-public class FilterPropertyWhitelist<T> : IFilterPropertyWhitelist<T>
+public class FilterPropertyWhitelist<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] T> : IFilterPropertyWhitelist<T>
 {
     private readonly HashSet<string> _allowed = new(StringComparer.OrdinalIgnoreCase);
 
