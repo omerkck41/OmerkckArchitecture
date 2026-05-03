@@ -10,17 +10,17 @@ public class Paginate<T> : IPaginate<T>
         Items = Array.Empty<T>();
     }
 
-    public int From { get; set; }
-    public int Index { get; set; }
-    public int Size { get; set; }
-    public int Count { get; set; }
-    public int Pages { get; set; }
-    public IReadOnlyList<T> Items { get; set; }
-    public bool HasPrevious { get; set; }
-    public bool HasNext { get; set; }
-    public int TotalRecords { get; set; }
-    public bool IsFirstPage { get; set; }
-    public bool IsLastPage { get; set; }
+    public int From { get; init; }
+    public int Index { get; init; }
+    public int Size { get; init; }
+    public int Count { get; init; }
+    public int Pages { get; init; }
+    public IReadOnlyList<T> Items { get; init; }
+    public bool HasPrevious { get; init; }
+    public bool HasNext { get; init; }
+    public int TotalRecords { get; init; }
+    public bool IsFirstPage { get; init; }
+    public bool IsLastPage { get; init; }
 
     /// <summary>
     /// Builds a <see cref="Paginate{T}"/> from pre-materialized counts and items.
