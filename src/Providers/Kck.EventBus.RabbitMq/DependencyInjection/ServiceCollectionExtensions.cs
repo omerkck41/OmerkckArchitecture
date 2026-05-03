@@ -1,5 +1,6 @@
 using Kck.EventBus.Abstractions;
 using Kck.EventBus.RabbitMq;
+using Kck.EventBus.RabbitMq.HealthChecks;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Microsoft.Extensions.DependencyInjection;
@@ -25,6 +26,9 @@ public static class KckEventBusRabbitMqServiceCollectionExtensions
         builder.Services.TryAddSingleton<RabbitMqEventBus>();
         builder.Services.TryAddSingleton<IEventBus>(sp => sp.GetRequiredService<RabbitMqEventBus>());
         builder.Services.AddHostedService<RabbitMqConsumerHostedService>();
+
+        builder.Services.AddHealthChecks()
+            .AddCheck<RabbitMqHealthCheck>("rabbitmq-eventbus", tags: ["ready"]);
 
         return builder;
     }

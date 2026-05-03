@@ -1,6 +1,7 @@
 using Kck.Caching.Abstractions;
 using Kck.Caching.Redis;
 using Kck.Caching.Redis.DependencyInjection;
+using Kck.Caching.Redis.HealthChecks;
 using Microsoft.Extensions.Caching.StackExchangeRedis;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using StackExchange.Redis;
@@ -63,6 +64,10 @@ public static class KckCachingRedisServiceCollectionExtensions
             services.Configure<CacheOptions>(_ => { });
 
         services.TryAddSingleton<ICacheService, RedisCacheService>();
+
+        services.AddHealthChecks()
+            .AddCheck<RedisHealthCheck>("redis-cache", tags: ["ready"]);
+
         return services;
     }
 }
