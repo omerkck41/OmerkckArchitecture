@@ -59,8 +59,8 @@
       },
       "AWSSDK.Core": {
         "type": "Transitive",
-        "resolved": "3.7.402.19",
-        "contentHash": "QNxPperAlN9LyZQ3XwQtGI3I3XeULucGzqI3PngR6jxNvwJTD++YyklL/6o2Q3CRfVmnj7noXh+nhiXuQbA/Ig=="
+        "resolved": "4.0.4",
+        "contentHash": "RjBk1WDrOCpsSRGn6j2lYhgiyYnXEhMctwJevNnIPIIGpgj49ifbU6FmG1Dk+1M/VSuqeTQ1WVsssziTty7b2w=="
       },
       "Microsoft.Build.Tasks.Git": {
         "type": "Transitive",
@@ -137,17 +137,17 @@
       "kck.messaging.amazonses": {
         "type": "Project",
         "dependencies": {
-          "AWSSDK.SimpleEmailV2": "[3.7.408.16, )",
+          "AWSSDK.SimpleEmailV2": "[4.0.12.12, )",
           "Kck.Messaging.Abstractions": "[1.0.0, )"
         }
       },
       "AWSSDK.SimpleEmailV2": {
         "type": "CentralTransitive",
-        "requested": "[3.7.408.16, )",
-        "resolved": "3.7.408.16",
-        "contentHash": "R/Tr2DWZB9xboGRKIaLGMsUfTVZRlfsbrYP3I2NlNSiBYTIFghT9v05QouIO6ARV4vzfICSftpNLBi0V5mL6Hg==",
+        "requested": "[4.0.12.12, )",
+        "resolved": "4.0.12.12",
+        "contentHash": "yXOVniaZoAFSBQVo5b35D3wi7asxEKddm9xJHWiTXm0wg+b1TjOyONtU1drqNQ3cqbLaJlAQhjUzKLxA57WZFw==",
         "dependencies": {
-          "AWSSDK.Core": "[3.7.402.19, 4.0.0)"
+          "AWSSDK.Core": "[4.0.4, 5.0.0)"
         }
       },
       "Newtonsoft.Json": {
