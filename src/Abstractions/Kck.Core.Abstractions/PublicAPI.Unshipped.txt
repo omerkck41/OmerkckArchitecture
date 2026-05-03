@@ -1,1 +1,6 @@
 #nullable enable
+Kck.Core.Abstractions.Results.ResultExtensions
+static Kck.Core.Abstractions.Results.ResultExtensions.Bind<T, TOut>(this Kck.Core.Abstractions.Results.Result<T>! result, System.Func<T, Kck.Core.Abstractions.Results.Result<TOut>!>! binder) -> Kck.Core.Abstractions.Results.Result<TOut>!
+static Kck.Core.Abstractions.Results.ResultExtensions.Ensure<T>(this Kck.Core.Abstractions.Results.Result<T>! result, System.Func<T, bool>! predicate, Kck.Core.Abstractions.Results.Error! error) -> Kck.Core.Abstractions.Results.Result<T>!
+static Kck.Core.Abstractions.Results.ResultExtensions.Map<T, TOut>(this Kck.Core.Abstractions.Results.Result<T>! result, System.Func<T, TOut>! mapper) -> Kck.Core.Abstractions.Results.Result<TOut>!
+static Kck.Core.Abstractions.Results.ResultExtensions.Tap<T>(this Kck.Core.Abstractions.Results.Result<T>! result, System.Action<T>! action) -> Kck.Core.Abstractions.Results.Result<T>!

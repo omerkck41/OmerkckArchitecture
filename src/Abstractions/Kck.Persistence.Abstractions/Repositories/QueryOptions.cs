@@ -9,6 +9,8 @@ namespace Kck.Persistence.Abstractions.Repositories;
 /// <param name="AsTracking">Attach returned entities to the change tracker.</param>
 public readonly record struct QueryOptions(bool IncludeDeleted = false, bool AsTracking = false)
 {
+    public static QueryOptions None { get; }
+
     public static QueryOptions Tracking { get; } = new(AsTracking: true);
 
     public static QueryOptions WithDeleted { get; } = new(IncludeDeleted: true);

@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added (LS-FAZ-6)
+
+- `ReadRepositoryExtensions` static class — `IReadRepository<T,TId>` üzerinde 6 `QueryOptions` tabanlı extension metot: `GetAsync`, `GetListAsync`, `GetListByDynamicAsync`, `AnyAsync`, `GetByIdAsync`, `CountAsync`. Pozisyonel `bool withDeleted / bool enableTracking` gürültüsü yerine self-documenting API (Library Strategy §4.2, ADR-0016).
+- `QueryOptions.None` static property — `QueryOptions(false, false)` için explicit isimli factory; `Tracking` ve `WithDeleted`'e paralel (Library Strategy §4.2).
+- `ResultExtensions` static class — `Result<T>` fonksiyonel pipeline: `Map<U>`, `Bind<U>`, `Tap`, `Ensure` (Library Strategy §4.3, ADR-0016).
+- `docs/adr/0016-queryoptions-api.md` — QueryOptions API + Result fonksiyonel pipeline karari.
+
+### Changed (LS-FAZ-6)
+
+- **Deprecation:** `IReadRepository<T,TId>` bool-parametreli 6 metot `[Obsolete(DiagnosticId = "KCK0100")]` ile işaretlendi. `EfRepository` implementasyonu değişmedi — KCK0100 yalnızca interface referansı üzerinden çağıranlarda uyarı üretir (Library Strategy §4.2, ADR-0016).
+- **Performance:** `CacheServiceBase` anahtar bazlı kilitleme, sınırsız büyüyebilen `ConcurrentDictionary<string, SemaphoreSlim>` yerine 64-şeritli lock dizisiyle değiştirildi — uzun ömürlü cache servislerinde bellek sızıntısı ve GC baskısı ortadan kaldırıldı (Library Strategy §5.2).
+
 ### Added (LS-FAZ-5)
 - `Filter` API: `Filter(string field, FilterOperator op, ...)` constructor (enum'u canonical lower-case wire string'e cevirir), `OperatorEnum` getter, `TryParseOperator` static helper. Wire format degismedi — JSON consumer'lar etkilenmez (Library Strategy §4.4).
 - `Filter.GetValue<T>` AOT-uyumlu rewrite: `Convert.ChangeType` yerine switch + tip-spesifik `ParseString<T>`. `JsonElement` artik native `Deserialize<T>` ile islenir; `Guid`, `DateTime`, `DateTimeOffset`, `DateOnly`, `TimeOnly`, `Enum` desteklenir; bilinmeyen tipler icin `Convert.ChangeType` fallback (Library Strategy §5.5).

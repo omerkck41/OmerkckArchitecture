@@ -1,10 +1,17 @@
-using System.Collections.Concurrent;
-
 namespace Kck.Caching.Abstractions;
 
 public abstract class CacheServiceBase : ICacheService
 {
-    private static readonly ConcurrentDictionary<string, SemaphoreSlim> Locks = new();
+    // 64-stripe lock array: constant memory, zero external deps, correct for cache stampede prevention.
+    // Instance-level (not static) so InMemory and Redis providers don't share stripes and
+    // unnecessarily serialize each other's GetOrSetAsync calls.
+    // False serialization (two distinct keys → same stripe) only reduces parallelism, never correctness.
+    // Power-of-two count enables cheap bitwise modulo.
+    private readonly SemaphoreSlim[] _stripes =
+        Enumerable.Range(0, 64).Select(_ => new SemaphoreSlim(1, 1)).ToArray();
+
+    private SemaphoreSlim GetStripe(string key) =>
+        _stripes[(uint)key.GetHashCode() % (uint)_stripes.Length];
 
     protected abstract CacheOptions Options { get; }
 
@@ -20,8 +27,7 @@ public abstract class CacheServiceBase : ICacheService
         if (existing is not null)
             return existing;
 
-        var fullKey = BuildKey(key);
-        var semaphore = Locks.GetOrAdd(fullKey, _ => new SemaphoreSlim(1, 1));
+        var semaphore = GetStripe(BuildKey(key));
         await semaphore.WaitAsync(ct).ConfigureAwait(false);
         try
         {
@@ -36,10 +42,6 @@ public abstract class CacheServiceBase : ICacheService
         finally
         {
             semaphore.Release();
-            // Eviction removed: CurrentCount-based eviction races with concurrent waiters and
-            // can cause the same key to map to two different semaphores, breaking mutual exclusion.
-            // Trade-off: Locks dictionary grows unbounded for unique keys. For typical cache usage
-            // (bounded key space), memory cost is negligible.
         }
     }
 
