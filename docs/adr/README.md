@@ -25,6 +25,7 @@ bir karar yeni ADR ile `superseded` isaretlenerek gecilir.
 | [0015](0015-perf-quickwins.md) | Performans hizli kazanimlar (Redis EXISTS + Filter type safety) | Onaylandi | 2026-04-26 | `Kck.Caching.Redis`, `Kck.Persistence.Abstractions` |
 | [0016](0016-queryoptions-api.md) | QueryOptions API — IReadRepository bool bayraklarini kaldir | Onaylandi | 2026-05-03 | `Kck.Persistence.Abstractions`, `Kck.Core.Abstractions` |
 | [0017](0017-bundle-health-release.md) | Bundle stratejisi, Health Check pattern ve release otomasyonu | Onaylandi | 2026-05-03 | `Kck.Bundle.*`, 3 provider, CI |
+| [0018](0018-v1-breaking-changes.md) | v1.0 breaking changes — Paginate immutability, ValueTask, Resilience, AOT | Onaylandi | 2026-05-03 | `Kck.Core.Abstractions`, `Kck.Caching.*`, `Kck.Resilience.Polly` |
 
 ## Kategori
 

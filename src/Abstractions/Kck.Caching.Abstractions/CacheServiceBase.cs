@@ -15,10 +15,10 @@ public abstract class CacheServiceBase : ICacheService
 
     protected abstract CacheOptions Options { get; }
 
-    public abstract Task<T?> GetAsync<T>(string key, CancellationToken ct = default);
+    public abstract ValueTask<T?> GetAsync<T>(string key, CancellationToken ct = default);
     public abstract Task SetAsync<T>(string key, T value, TimeSpan? expiration = null, CancellationToken ct = default);
     public abstract Task RemoveAsync(string key, CancellationToken ct = default);
-    public abstract Task<bool> ExistsAsync(string key, CancellationToken ct = default);
+    public abstract ValueTask<bool> ExistsAsync(string key, CancellationToken ct = default);
     public abstract Task RemoveByPrefixAsync(string prefix, CancellationToken ct = default);
 
     public async Task<T?> GetOrSetAsync<T>(string key, Func<Task<T>> factory, TimeSpan? expiration = null, CancellationToken ct = default)

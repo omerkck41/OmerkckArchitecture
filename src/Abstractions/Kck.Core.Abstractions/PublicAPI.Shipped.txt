@@ -51,28 +51,17 @@ Kck.Core.Abstractions.Paging.PageRequest.Size.get -> int
 Kck.Core.Abstractions.Paging.PageRequest.Size.init -> void
 Kck.Core.Abstractions.Paging.Paginate<T>
 Kck.Core.Abstractions.Paging.Paginate<T>.Count.get -> int
-Kck.Core.Abstractions.Paging.Paginate<T>.Count.set -> void
 Kck.Core.Abstractions.Paging.Paginate<T>.From.get -> int
-Kck.Core.Abstractions.Paging.Paginate<T>.From.set -> void
 Kck.Core.Abstractions.Paging.Paginate<T>.HasNext.get -> bool
-Kck.Core.Abstractions.Paging.Paginate<T>.HasNext.set -> void
 Kck.Core.Abstractions.Paging.Paginate<T>.HasPrevious.get -> bool
-Kck.Core.Abstractions.Paging.Paginate<T>.HasPrevious.set -> void
 Kck.Core.Abstractions.Paging.Paginate<T>.Index.get -> int
-Kck.Core.Abstractions.Paging.Paginate<T>.Index.set -> void
 Kck.Core.Abstractions.Paging.Paginate<T>.IsFirstPage.get -> bool
-Kck.Core.Abstractions.Paging.Paginate<T>.IsFirstPage.set -> void
 Kck.Core.Abstractions.Paging.Paginate<T>.IsLastPage.get -> bool
-Kck.Core.Abstractions.Paging.Paginate<T>.IsLastPage.set -> void
 Kck.Core.Abstractions.Paging.Paginate<T>.Items.get -> System.Collections.Generic.IReadOnlyList<T>!
-Kck.Core.Abstractions.Paging.Paginate<T>.Items.set -> void
 Kck.Core.Abstractions.Paging.Paginate<T>.Pages.get -> int
-Kck.Core.Abstractions.Paging.Paginate<T>.Pages.set -> void
 Kck.Core.Abstractions.Paging.Paginate<T>.Paginate() -> void
 Kck.Core.Abstractions.Paging.Paginate<T>.Size.get -> int
-Kck.Core.Abstractions.Paging.Paginate<T>.Size.set -> void
 Kck.Core.Abstractions.Paging.Paginate<T>.TotalRecords.get -> int
-Kck.Core.Abstractions.Paging.Paginate<T>.TotalRecords.set -> void
 Kck.Core.Abstractions.Pipeline.ICachableRequest
 Kck.Core.Abstractions.Pipeline.ICachableRequest.BypassCache.get -> bool
 Kck.Core.Abstractions.Pipeline.ICachableRequest.CacheGroupKey.get -> string?

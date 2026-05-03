@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.0] — 2026-05-03
+
+### Added (LS-FAZ-8)
+
+- `Kck.Resilience.Polly` — `Microsoft.Extensions.Resilience` (Polly v8) sarmalayıcı. `AddKckResilience("pipeline-adı", builder => ...)` ile adlandırılmış pipeline kaydı; `ResiliencePipelineProvider<string>` ile çözümleme (Library Strategy §3.1, ADR-0018).
+- `src/Abstractions/Directory.Build.props`: `<IsAotCompatible>true</IsAotCompatible>` tüm 16 abstraction projesine uygulandı — 0 yeni trim/AOT uyarısı (Library Strategy §2.2, ADR-0018).
+- `docs/adr/0018-v1-breaking-changes.md` — v1.0 breaking change gerekçesi ve migration rehberi.
+
+### Changed (LS-FAZ-8) — BREAKING
+
+- **`Paginate<T>` immutability:** Tüm 11 property `{ get; set; }` → `{ get; init; }`. Post-construction setter çağrıları artık derleme hatası verir. Migration: `Paginate<T>.Create(...)` factory kullanın (Library Strategy §4.1, ADR-0018).
+- **`ICacheService.GetAsync<T>` / `ExistsAsync`** dönüş tipi `Task<T?>` / `Task<bool>` → `ValueTask<T?>` / `ValueTask<bool>`. Çağrı sitesi sözdizimi değişmez; yalnızca `ICacheService` implementasyonları override imzasını güncellemeli (Library Strategy §5.3, ADR-0018).
+
 ### Added (LS-FAZ-7)
 
 - `Kck.Bundle.WorkerService` — Worker Service host için opinionated stack: Serilog + OpenTelemetry + InMemory EventBus + Hangfire **veya** Quartz (ikisi birden yasaklı, `Kck.BackgroundJobs.Provider` ile seçilir) (Library Strategy §1.1, ADR-0017).

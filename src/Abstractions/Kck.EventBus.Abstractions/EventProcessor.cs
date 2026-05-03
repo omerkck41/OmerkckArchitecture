@@ -1,4 +1,5 @@
 using System.Collections.Concurrent;
+using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -21,6 +22,8 @@ public sealed class EventProcessor(
     /// <summary>
     /// Deserializes the event body and invokes all registered handlers.
     /// </summary>
+    [RequiresUnreferencedCode("Deserializes integration events by runtime Type — types must be preserved for trimming.")]
+    [RequiresDynamicCode("Deserializes and dispatches events using runtime type information.")]
     public async Task ProcessAsync(
         string eventName,
         byte[] body,

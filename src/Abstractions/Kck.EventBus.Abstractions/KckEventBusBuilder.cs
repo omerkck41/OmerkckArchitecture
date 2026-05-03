@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using Kck.EventBus.Abstractions;
 
@@ -13,6 +14,8 @@ public sealed class KckEventBusBuilder(IServiceCollection services)
     /// <summary>
     /// Scans the specified assemblies and registers all <see cref="IEventHandler{TEvent}"/> implementations.
     /// </summary>
+    [RequiresUnreferencedCode("Scans assemblies using reflection to discover IEventHandler implementations. Types may be trimmed.")]
+    [RequiresDynamicCode("Registers discovered handler types via dynamic DI registration.")]
     public KckEventBusBuilder RegisterHandlersFromAssembly(params Assembly[] assemblies)
     {
         var handlerInterface = typeof(IEventHandler<>);

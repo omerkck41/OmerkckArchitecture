@@ -1,9 +1,12 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
 
 namespace Kck.Persistence.Abstractions.Dynamic;
 
 public static class DynamicFilterExtensions
 {
+    [RequiresUnreferencedCode("Builds LINQ expressions from string field names using Expression.Property — fields must be preserved for trimming.")]
+    [RequiresDynamicCode("Filter value deserialization via JsonElement.Deserialize<T> may require runtime code generation.")]
     public static IQueryable<T> ToDynamic<T>(this IQueryable<T> query, DynamicQuery dynamic)
     {
         if (dynamic.Filter is not null)
@@ -15,6 +18,8 @@ public static class DynamicFilterExtensions
         return query;
     }
 
+    [RequiresUnreferencedCode("Builds LINQ expressions from string field names using Expression.Property.")]
+    [RequiresDynamicCode("Filter value deserialization via JsonElement.Deserialize<T> may require runtime code generation.")]
     private static IQueryable<T> ApplyFilter<T>(IQueryable<T> query, Filter filter)
     {
         var parameter = Expression.Parameter(typeof(T), "x");
@@ -27,6 +32,8 @@ public static class DynamicFilterExtensions
         return query.Where(lambda);
     }
 
+    [RequiresUnreferencedCode("Builds LINQ expressions from string field names using Expression.Property.")]
+    [RequiresDynamicCode("Filter value deserialization via JsonElement.Deserialize<T> may require runtime code generation.")]
     private static Expression? BuildExpression<T>(ParameterExpression parameter, Filter filter)
     {
         // Group node: has child filters — combine them with the specified logic (default: "and")
@@ -76,6 +83,7 @@ public static class DynamicFilterExtensions
         };
     }
 
+    [RequiresUnreferencedCode("Builds LINQ sort expressions from string field names using Expression.Property.")]
     private static IQueryable<T> ApplySort<T>(IQueryable<T> query, IEnumerable<Sort> sort)
     {
         var sortList = sort.OrderBy(s => s.Priority).ToList();
@@ -98,6 +106,7 @@ public static class DynamicFilterExtensions
         return orderedQuery;
     }
 
+    [RequiresUnreferencedCode("Builds sort expressions from string field names using Expression.Property.")]
     private static Expression<Func<T, object>> CreateOrderExpression<T>(string field)
     {
         var parameter = Expression.Parameter(typeof(T), "x");
