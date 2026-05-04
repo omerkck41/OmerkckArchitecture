@@ -31,7 +31,7 @@
     <PackageVersion Include="StackExchange.Redis" Version="2.12.8" />
   </ItemGroup>
   <ItemGroup Label="Search">
-    <PackageVersion Include="Elastic.Clients.Elasticsearch" Version="9.3.5" />
+    <PackageVersion Include="Elastic.Clients.Elasticsearch" Version="9.3.6" />
     <PackageVersion Include="Elastic.Transport" Version="0.5.9" />
   </ItemGroup>
   <ItemGroup Label="Event Bus">
