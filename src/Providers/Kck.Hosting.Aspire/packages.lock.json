@@ -4,11 +4,11 @@
     "net10.0": {
       "Microsoft.Extensions.ServiceDiscovery": {
         "type": "Direct",
-        "requested": "[9.3.0, )",
-        "resolved": "9.3.0",
-        "contentHash": "rYDGIzU9XCf9Gg4DLzJ2vjlCiXbEXXJbIbFbGZQrKVppEV84sq2vkX3zH9HQIa5IVuqPzxpoCfIYWeG1x8Ipcg==",
+        "requested": "[10.5.0, )",
+        "resolved": "10.5.0",
+        "contentHash": "M7w+KSTX72nEHuizITgUAD7SZwDdiLTw+tpUvR5iKifuhYJPctghzjDJevkz2OQ6vNGvUuJEfReUpS9DU8kBpA==",
         "dependencies": {
-          "Microsoft.Extensions.ServiceDiscovery.Abstractions": "9.3.0"
+          "Microsoft.Extensions.ServiceDiscovery.Abstractions": "10.5.0"
         }
       },
       "Microsoft.SourceLink.GitHub": {
@@ -34,8 +34,8 @@
       },
       "Microsoft.Extensions.ServiceDiscovery.Abstractions": {
         "type": "Transitive",
-        "resolved": "9.3.0",
-        "contentHash": "EK+R8ZpSQdfpCPtGQoq8FJaWHdWfpTCtudTIf05P4xn/9ni4+/b3FCaeT+Xk2oT/DraEymJN4X9zxwNcBEYm6A=="
+        "resolved": "10.5.0",
+        "contentHash": "XWr8wCt2wC+HtonJoqZJB4Iwg2alfbDkgqgoBZv2dHcjNirYujEzSPwDexMYVYIMegaOECmMXdwPuyWlcwrODw=="
       },
       "Microsoft.SourceLink.Common": {
         "type": "Transitive",
