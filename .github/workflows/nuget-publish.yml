@@ -30,6 +30,12 @@ jobs:
           fetch-depth: 0   # MinVer requires full tag history
           fetch-tags: true # MinVer needs tags; actions/checkout@v6 defaults to false
 
+      - name: Resolve version
+        id: version
+        run: |
+          TAG="${{ github.event.inputs.tag || github.ref_name }}"
+          echo "version=${TAG#v}" >> "$GITHUB_OUTPUT"
+
       - name: Setup .NET
         uses: actions/setup-dotnet@v5
         with:
@@ -40,6 +46,8 @@ jobs:
 
       - name: Build
         run: dotnet build --configuration Release --no-restore
+        env:
+          MINVER_VERSION: ${{ steps.version.outputs.version }}
 
       - name: Test
         run: dotnet test --configuration Release --no-build
@@ -50,6 +58,8 @@ jobs:
             --configuration Release \
             --no-build \
             --output ./artifacts
+        env:
+          MINVER_VERSION: ${{ steps.version.outputs.version }}
 
       - name: Upload packages artifact
         uses: actions/upload-artifact@v7
