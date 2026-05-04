@@ -5,12 +5,7 @@ namespace Kck.BackgroundJobs.Quartz;
 
 public sealed class QuartzJobScheduler(ISchedulerFactory schedulerFactory) : IJobScheduler
 {
-    private static Guid NewJobId() =>
-#if NET9_0_OR_GREATER
-        Guid.CreateVersion7();
-#else
-        Guid.NewGuid();
-#endif
+    private static Guid NewJobId() => Guid.CreateVersion7();
 
     public async Task EnqueueAsync<TJob>(CancellationToken ct = default) where TJob : IBackgroundJob
     {
