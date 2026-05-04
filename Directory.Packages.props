@@ -20,7 +20,7 @@
          pulls Microsoft.IdentityModel.* 8.17. Locking this version prevents diamond
          dependency conflicts when consumers also reference IdentityModel directly.
          LS-FAZ-2 Bolum 2.3 madde 2. -->
-    <PackageVersion Include="Microsoft.IdentityModel.JsonWebTokens" Version="8.17.0" />
+    <PackageVersion Include="Microsoft.IdentityModel.JsonWebTokens" Version="8.18.0" />
   </ItemGroup>
   <ItemGroup Label="MediatR &amp; Validation">
     <PackageVersion Include="MediatR" Version="14.1.0" />
