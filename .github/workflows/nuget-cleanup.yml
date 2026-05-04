@@ -1,0 +1,106 @@
+name: nuget-cleanup
+
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Dry run (true = only list, false = actually unlist)'
+        required: true
+        default: 'true'
+
+permissions:
+  contents: read
+
+env:
+  DOTNET_NOLOGO: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+
+jobs:
+  cleanup:
+    name: Unlist wrong-versioned packages
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Unlist 0.0.0-alpha.* packages
+        env:
+          NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+          DRY_RUN: ${{ github.event.inputs.dry_run }}
+        run: |
+          PACKAGES=(
+            "Kck.AspNetCore"
+            "Kck.Authorization.Abstractions"
+            "Kck.BackgroundJobs.Abstractions"
+            "Kck.BackgroundJobs.Hangfire"
+            "Kck.BackgroundJobs.Quartz"
+            "Kck.Bundle.MinimalApi"
+            "Kck.Bundle.WebApi"
+            "Kck.Bundle.WorkerService"
+            "Kck.Caching.Abstractions"
+            "Kck.Caching.InMemory"
+            "Kck.Caching.Redis"
+            "Kck.Core.Abstractions"
+            "Kck.Documents.Abstractions"
+            "Kck.Documents.ClosedXml"
+            "Kck.Documents.ImageSharp"
+            "Kck.EventBus.Abstractions"
+            "Kck.EventBus.AzureServiceBus"
+            "Kck.EventBus.InMemory"
+            "Kck.EventBus.RabbitMq"
+            "Kck.Exceptions.Abstractions"
+            "Kck.Exceptions.AspNetCore"
+            "Kck.FeatureFlags.Abstractions"
+            "Kck.FeatureFlags.InMemory"
+            "Kck.FileStorage.Abstractions"
+            "Kck.FileStorage.FluentFtp"
+            "Kck.Hosting.Aspire"
+            "Kck.Http.Abstractions"
+            "Kck.Http.Resilience"
+            "Kck.Localization"
+            "Kck.Localization.Abstractions"
+            "Kck.Localization.Json"
+            "Kck.Localization.Yaml"
+            "Kck.Logging.Serilog"
+            "Kck.Messaging.Abstractions"
+            "Kck.Messaging.AmazonSes"
+            "Kck.Messaging.MailKit"
+            "Kck.Messaging.SendGrid"
+            "Kck.Observability.Abstractions"
+            "Kck.Observability.OpenTelemetry"
+            "Kck.Persistence.Abstractions"
+            "Kck.Persistence.EntityFramework"
+            "Kck.Pipeline.MediatR"
+            "Kck.Pipeline.Mediator"
+            "Kck.Resilience.Polly"
+            "Kck.Search.Abstractions"
+            "Kck.Search.Elasticsearch"
+            "Kck.Security.Abstractions"
+            "Kck.Security.Argon2"
+            "Kck.Security.Jwt"
+            "Kck.Security.Secrets.AzureKeyVault"
+            "Kck.Security.Secrets.UserSecrets"
+            "Kck.Security.TokenBlacklist.Redis"
+            "Kck.Security.Totp"
+          )
+          VERSIONS=("0.0.0-alpha.0.18" "0.0.0-alpha.0.19")
+          SOURCE="https://api.nuget.org/v3/index.json"
+
+          for PKG in "${PACKAGES[@]}"; do
+            for VER in "${VERSIONS[@]}"; do
+              # Check if version actually exists before trying to unlist
+              STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
+                "https://api.nuget.org/v3-flatcontainer/${PKG,,}/${VER}/${PKG,,}.${VER}.nupkg")
+              if [ "$STATUS" = "200" ]; then
+                if [ "$DRY_RUN" = "true" ]; then
+                  echo "[DRY RUN] Would unlist: $PKG $VER"
+                else
+                  echo "Unlisting: $PKG $VER"
+                  dotnet nuget delete "$PKG" "$VER" \
+                    --api-key "$NUGET_API_KEY" \
+                    --source "$SOURCE" \
+                    --non-interactive || echo "  WARNING: failed to unlist $PKG $VER"
+                fi
+              else
+                echo "  SKIP (not found): $PKG $VER"
+              fi
+            done
+          done
