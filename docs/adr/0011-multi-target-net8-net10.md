@@ -1,7 +1,7 @@
 # ADR-0011: Multi-Target net8.0 + net10.0
 
 Tarih: 2026-04-26
-Durum: Onaylandi
+Durum: Yerine Geçildi — bkz. [ADR-0019](0019-drop-net8-target.md) (2026-05-04)
 
 ## Baglam
 

@@ -18,7 +18,7 @@ bir karar yeni ADR ile `superseded` isaretlenerek gecilir.
 | [0008](0008-exceptions-abstractions-split.md) | `Kck.Exceptions` → `Abstractions` split | Onaylandi | 2026-04-20 | `Kck.Exceptions.*` |
 | [0009](0009-tryaddsingleton-consistency.md) | `TryAddSingleton` tutarliligi | Onaylandi | 2026-04-20 | 19 provider |
 | [0010](0010-deprecation-policy.md) | Deprecation policy + DiagnosticId numaralandirmasi | Onaylandi | 2026-04-25 | Tum public API |
-| [0011](0011-multi-target-net8-net10.md) | Multi-target net8.0 + net10.0 | Onaylandi | 2026-04-26 | Abstraction'lar + saf provider'lar |
+| [0011](0011-multi-target-net8-net10.md) | Multi-target net8.0 + net10.0 | ~~Onaylandi~~ Yerine Geçildi (ADR-0019) | 2026-04-26 | Abstraction'lar + saf provider'lar |
 | [0012](0012-remove-automapper-package.md) | AutoMapper paketi kaldirildi (kullanilmiyor) | Onaylandi | 2026-04-26 | `Directory.Packages.props` |
 | [0013](0013-public-api-discipline.md) | Public API disiplini (PublicApiAnalyzers + SemVer) | Onaylandi | 2026-04-26 | 16 abstraction projesi |
 | [0014](0014-test-strategy.md) | Test stratejisi (BenchmarkDotNet + Testcontainers + coverage policy) | Onaylandi | 2026-04-26 | Tum test projeleri + benchmarks |
@@ -26,6 +26,7 @@ bir karar yeni ADR ile `superseded` isaretlenerek gecilir.
 | [0016](0016-queryoptions-api.md) | QueryOptions API — IReadRepository bool bayraklarini kaldir | Onaylandi | 2026-05-03 | `Kck.Persistence.Abstractions`, `Kck.Core.Abstractions` |
 | [0017](0017-bundle-health-release.md) | Bundle stratejisi, Health Check pattern ve release otomasyonu | Onaylandi | 2026-05-03 | `Kck.Bundle.*`, 3 provider, CI |
 | [0018](0018-v1-breaking-changes.md) | v1.0 breaking changes — Paginate immutability, ValueTask, Resilience, AOT | Onaylandi | 2026-05-03 | `Kck.Core.Abstractions`, `Kck.Caching.*`, `Kck.Resilience.Polly` |
+| [0019](0019-drop-net8-target.md) | net8.0 desteğinin kaldırılması | Onaylandi | 2026-05-04 | Tüm projeler |
 
 ## Kategori
 
@@ -50,7 +51,8 @@ bir karar yeni ADR ile `superseded` isaretlenerek gecilir.
 - [0013](0013-public-api-discipline.md) — Public API tracking + SemVer
 
 ### Build / Hedef Framework
-- [0011](0011-multi-target-net8-net10.md) — net8.0 LTS + net10.0 STS
+- [0011](0011-multi-target-net8-net10.md) — net8.0 LTS + net10.0 STS (Yerine Geçildi)
+- [0019](0019-drop-net8-target.md) — net8.0 kaldırıldı, net10.0 tek hedef
 
 ### Test / Kalite
 - [0014](0014-test-strategy.md) — BenchmarkDotNet + Testcontainers + coverage policy

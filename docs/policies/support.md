@@ -11,12 +11,12 @@ Kutuphane Microsoft'un .NET destek politikasini takip eder:
 - **STS** (Standard Term Support, 18 ay): kutuphane **destek penceresi suresince** hedefler.
 - LTS donemi sonu yaklastiginda yeni LTS yayinlandiktan sonra eski LTS kademeli olarak kaldirilir.
 
-## Mevcut Destek Matrisi (2026-04-26 itibariyle)
+## Mevcut Destek Matrisi (2026-05-04 itibariyle)
 
 | TFM | Tip | Microsoft Destek Sonu | Kutuphane Durumu |
 |---|---|---|---|
-| `net8.0` | LTS | 2026-11-10 | **Destekli** (LS-FAZ-2 sonrasi) |
-| `net10.0` | STS (LTS adayi) | 2027-11-09 (STS olarak), kontroI:Microsoft sayfasi | **Birincil hedef** |
+| `net8.0` | LTS | 2026-11-10 | **Kaldırıldı** (ADR-0019, v2.0) |
+| `net10.0` | STS (LTS adayi) | 2027-11-09 | **Birincil hedef** |
 
 > .NET 10 yayin doneminde STS olarak duyurulmus, ancak Microsoft destek sayfasi
 > guncellenirse LTS'e cevrilebilir. Resmi durum icin:
@@ -24,13 +24,12 @@ Kutuphane Microsoft'un .NET destek politikasini takip eder:
 
 ## Hedef Framework Karari
 
-**Multi-target politikasi (ADR-0011):**
+**Hedef framework politikasi (ADR-0019):**
 
-- `src/Abstractions/*`: `net8.0;net10.0` (16 paket — multi-target)
-- Saf provider'lar (transitive olarak ASP.NET Core 10 / EF Core 10 cekmeyen): `net8.0;net10.0`
-- Net10-only provider'lar: ASP.NET Core 10 veya EF Core 10 cekenler — tek hedef `net10.0`
+- Tüm paketler: `net10.0` (tek hedef)
+- ADR-0011 (multi-target net8+net10) ADR-0019 ile yerine geçildi.
 
-Multi-target detaylari: [`docs/adr/0011-multi-target-net8-net10.md`](../adr/0011-multi-target-net8-net10.md)
+Detaylar: [`docs/adr/0019-drop-net8-target.md`](../adr/0019-drop-net8-target.md)
 
 ## Surum Cikarma Politikasi
 
@@ -50,5 +49,6 @@ Multi-target detaylari: [`docs/adr/0011-multi-target-net8-net10.md`](../adr/0011
 ## Referanslar
 
 - [.NET Support Policy (Microsoft)](https://dotnet.microsoft.com/platform/support/policy/dotnet-core)
-- [ADR-0011: Multi-Target net8.0 + net10.0](../adr/0011-multi-target-net8-net10.md)
+- [ADR-0011: Multi-Target net8.0 + net10.0 (Superseded)](../adr/0011-multi-target-net8-net10.md)
+- [ADR-0019: net8.0 desteğinin kaldırılması](../adr/0019-drop-net8-target.md)
 - `tasks/library-strategy-2026-04-25.md` Bolum 6.4
