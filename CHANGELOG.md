@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Removed
+- **net8.0 TFM desteği kaldırıldı** (ADR-0019). Kütüphane artık yalnızca `net10.0` ve üzerini hedefler. net8.0 kullanan tüketiciler bu sürüme geçemez — bu bir **breaking change**'dir ve v2.0 major bump gerektirir. net8.0 destek sonu: 2026-11-10.
+- `#if NET9_0_OR_GREATER` / net8 fallback blokları (`IntegrationEvent.Id`, `QuartzJobScheduler.NewJobId()`, `TotpMfaProvider` secret hash) kaldırıldı.
+
 ## [1.0.0] — 2026-05-03
 
 ### Added (LS-FAZ-8)
