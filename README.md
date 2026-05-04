@@ -3,7 +3,7 @@
 [![Build](https://img.shields.io/github/actions/workflow/status/omerkck41/OmerkckArchitecture/build-test.yml?branch=main)](https://github.com/omerkck41/OmerkckArchitecture/actions/workflows/build-test.yml)
 [![NuGet](https://img.shields.io/nuget/v/Kck.Core.Abstractions.svg)](https://www.nuget.org/packages/Kck.Core.Abstractions/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![.NET](https://img.shields.io/badge/.NET-8.0%20%7C%2010.0-512BD4.svg)](https://dotnet.microsoft.com/)
+[![.NET](https://img.shields.io/badge/.NET-10.0-512BD4.svg)](https://dotnet.microsoft.com/)
 
 Modular, extensible .NET framework organized around an **Abstractions → Providers → Bundles** pattern. Abstractions declare contracts; providers implement them against concrete technologies; bundles compose opinionated defaults for specific hosting models (WebApi, WorkerService, etc.).
 
@@ -86,10 +86,9 @@ await builder.Build().RunAsync();
 
 | Paket Sinifi | TFM |
 |---|---|
-| `Kck.*.Abstractions` ve saf provider'lar | `net8.0` + `net10.0` |
-| `Kck.Bundle.WebApi`, `Kck.Persistence.EntityFramework`, `Kck.AspNetCore`, `Kck.Security.Jwt`, `Kck.Caching.Redis`, `Kck.Http.Resilience`, `Kck.Exceptions.AspNetCore` | `net10.0` (tek hedef) |
+| Tüm paketler | `net10.0` |
 
-Net10-only paketler ASP.NET Core 10 / EF Core 10 framework reference'ina bagimli oldugundan multi-target degildir. Detay: [ADR-0011](docs/adr/0011-multi-target-net8-net10.md).
+Kütüphane yalnızca `net10.0` ve üzerini hedefler (ADR-0019). Detay: [ADR-0019](docs/adr/0019-drop-net8-target.md).
 
 ## Why Kck?
 
@@ -101,7 +100,7 @@ Kck, ABP'den **daha hafif**, FastEndpoints'ten **daha kapsamli**, Aspire'a **uyu
 | **Yaklasim** | Modular, opt-in | Tum-in-bir, opinionated | Endpoint-only | Orchestration |
 | **DI Konvansiyonu** | `Microsoft.Extensions.*` native | ABP DI extension'lari | `Microsoft.Extensions.*` | `Microsoft.Extensions.*` |
 | **Source-gen / Proxy** | Yok (saf C#) | Cok (UoW interceptor, dynamic proxy) | Yok | Yok |
-| **TFM Destegi** | net8 LTS + net10 STS | net8 + net9 | net8 + net9 + net10 | net8 + net9 + net10 |
+| **TFM Destegi** | net10.0 | net8 + net9 | net8 + net9 + net10 | net8 + net9 + net10 |
 | **AOT-uyumu** | Kismen (abstraction'lar) | Hayir | Evet | Evet |
 | **Provider Sayisi** | 30+ resmi | 15+ resmi (Pro) | N/A | N/A (orchestration) |
 | **Battery-included** | Opt-in modullerle | Tum-in-bir | Sadece HTTP | Yok |
@@ -112,7 +111,7 @@ Kck, ABP'den **daha hafif**, FastEndpoints'ten **daha kapsamli**, Aspire'a **uyu
 - ASP.NET Core'a sadik kalmak istiyorsan (DI, options, hosting konvansiyonlari)
 - Modul modul ekleme/cikarma yetkisi istiyorsan (ABP'nin "her sey otomatik" yaklasimini istemeyen)
 - Source-gen veya runtime proxy magic'inden kaciniyorsan (debug edilebilirlik onemliyse)
-- net8 LTS + net10 STS multi-target istiyorsan
+- Modern .NET 10 API'larını (AOT, `Guid.CreateVersion7()`) tam destekleyen framework istiyorsan
 - 9+ ADR + 17 provider doc + 0 warning build hijiyenine deger veriyorsan
 
 **Kck'i secmemen gerekiyorsa:**
@@ -205,7 +204,7 @@ dotnet build -c Release
 dotnet test -c Release --no-build
 ```
 
-**Requirements:** .NET 10 SDK (multi-target paketleri net8 icin de derler)
+**Requirements:** .NET 10 SDK
 
 ### Benchmarks
 
