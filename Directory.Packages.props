@@ -68,7 +68,7 @@
     <PackageVersion Include="Quartz.Extensions.Hosting" Version="3.16.1" />
     <!-- Override Hangfire's transitive Newtonsoft.Json 11.0.1 (GHSA-5crp-9r3c-p9vr High DoS).
          Removable when Hangfire 2.x lands or replaces Newtonsoft.Json. -->
-    <PackageVersion Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageVersion Include="Newtonsoft.Json" Version="13.0.4" />
   </ItemGroup>
   <ItemGroup Label="Security">
     <PackageVersion Include="Otp.NET" Version="1.4.1" />
