@@ -39,8 +39,9 @@ public sealed class RabbitMqEventBusIntegrationTests : IAsyncLifetime
             UserName = "guest",
             Password = "guest",
             ExchangeName = "kck.test",
-            RetryCount = 2,
-            RetryDelay = TimeSpan.FromMilliseconds(200)
+            RetryCount = 10,
+            RetryDelay = TimeSpan.FromSeconds(1),
+            MaxRetryDelay = TimeSpan.FromSeconds(10)
         };
 
         var services = new ServiceCollection()

@@ -14,7 +14,8 @@ namespace Kck.Search.Elasticsearch.Tests;
 /// </summary>
 /// <remarks>
 /// Requires Docker. CI: ubuntu-only (Category=Integration filter).
-/// Security disabled via env var so HTTP (not HTTPS) is used — no cert setup.
+/// Uses ElasticsearchBuilder defaults (HTTPS, elastic:elastic).
+/// DisableSslVerification=true because the container uses a self-signed cert.
 /// </remarks>
 [Trait("Category", "Integration")]
 #pragma warning disable CA1001
@@ -22,10 +23,6 @@ public sealed class ElasticsearchSearchIntegrationTests : IAsyncLifetime
 #pragma warning restore CA1001
 {
     private readonly ElasticsearchContainer _es = new ElasticsearchBuilder()
-        .WithImage("docker.elastic.co/elasticsearch/elasticsearch:8.13.4")
-        .WithEnvironment("xpack.security.enabled", "false")
-        .WithEnvironment("discovery.type", "single-node")
-        .WithEnvironment("ES_JAVA_OPTS", "-Xms512m -Xmx512m")
         .Build();
 
     private const string IndexName = "test-docs";
@@ -35,10 +32,12 @@ public sealed class ElasticsearchSearchIntegrationTests : IAsyncLifetime
     {
         await _es.StartAsync();
 
-        var connStr = $"http://{_es.Hostname}:{_es.GetMappedPublicPort(9200)}";
         var options = new StaticOptionsMonitor<ElasticsearchOptions>(new ElasticsearchOptions
         {
-            ConnectionString = connStr,
+            ConnectionString = _es.GetConnectionString(),
+            Username = ElasticsearchBuilder.DefaultUsername,
+            Password = ElasticsearchBuilder.DefaultPassword,
+            DisableSslVerification = true,
             DefaultIndex = IndexName,
             NumberOfShards = 1,
             NumberOfReplicas = 0
@@ -60,7 +59,6 @@ public sealed class ElasticsearchSearchIntegrationTests : IAsyncLifetime
     public async Task IndexExistsAsync_AfterCreate_ReturnsTrue()
     {
         var exists = await _sut.IndexExistsAsync(IndexName);
-
         exists.Should().BeTrue();
     }
 
@@ -70,7 +68,7 @@ public sealed class ElasticsearchSearchIntegrationTests : IAsyncLifetime
         var doc = new EsTestDoc { Id = Guid.NewGuid().ToString(), Name = "Integration Test" };
 
         await _sut.IndexDocumentAsync(IndexName, doc.Id, doc);
-        await Task.Delay(1000); // ES near-real-time indexing
+        await Task.Delay(1000);
 
         var fetched = await _sut.GetByIdAsync(IndexName, doc.Id);
 

@@ -8,4 +8,8 @@ public sealed class ElasticsearchOptions
     public string? Password { get; set; }
     public int NumberOfShards { get; set; } = 1;
     public int NumberOfReplicas { get; set; } = 1;
+    /// <summary>
+    /// Disable TLS certificate verification. Use only in development/testing.
+    /// </summary>
+    public bool DisableSslVerification { get; set; }
 }
