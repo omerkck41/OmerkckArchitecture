@@ -28,6 +28,7 @@ bir karar yeni ADR ile `superseded` isaretlenerek gecilir.
 | [0018](0018-v1-breaking-changes.md) | v1.0 breaking changes — Paginate immutability, ValueTask, Resilience, AOT | Onaylandi | 2026-05-03 | `Kck.Core.Abstractions`, `Kck.Caching.*`, `Kck.Resilience.Polly` |
 | [0019](0019-drop-net8-target.md) | net8.0 desteğinin kaldırılması | Onaylandi | 2026-05-04 | Tüm projeler |
 | [0020](0020-hybridcache-provider.md) | Kck.Caching.Hybrid (HybridCache L1+L2) | Onaylandi | 2026-05-07 | `Kck.Caching.Hybrid` |
+| [0021](0021-deprecate-mediatR-pipeline.md) | Kck.Pipeline.MediatR deprecasyonu (KCK0200) | Onaylandi | 2026-05-07 | `Kck.Pipeline.MediatR` |
 
 ## Kategori
 
