@@ -10,6 +10,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - `Kck.Caching.Hybrid` — `Microsoft.Extensions.Caching.Hybrid` (HybridCache) sarmalayan yeni provider. L1 (in-process bellek) + L2 (Redis) iki katmanlı önbellekleme; `SetAsync` L1+L2 doldurur, `RemoveAsync` L1+L2'den evict eder. `AddKckCachingHybrid()` DI extension (ADR-0020).
 
+### Deprecated
+- `Kck.Pipeline.MediatR` — `KckPipelineBuilder` ve `AddKckPipeline()` **KCK0200** uyarısıyla deprecated edildi. `Kck.Pipeline.Mediator` ve `AddKckMediator()` kullanın. Migration kılavuzu: `docs/migrations/mediatR-to-mediator.md` (ADR-0021).
+
 ## [2.0.0] — 2026-05-07
 
 ### Removed — BREAKING

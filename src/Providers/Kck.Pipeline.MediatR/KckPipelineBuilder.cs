@@ -8,6 +8,18 @@ namespace Kck.Pipeline.MediatR;
 /// <summary>
 /// Fluent builder for configuring MediatR pipeline behaviors.
 /// </summary>
+/// <remarks>
+/// <b>Deprecated (KCK0200):</b> Use <c>Kck.Pipeline.Mediator</c> and
+/// <c>AddKckMediator()</c> instead. <c>Kck.Pipeline.MediatR</c> will be
+/// removed in a future major release.
+/// Migration guide: docs/migrations/mediatR-to-mediator.md
+/// </remarks>
+[Obsolete(
+    "Kck.Pipeline.MediatR is deprecated (KCK0200). " +
+    "Migrate to Kck.Pipeline.Mediator: see docs/migrations/mediatR-to-mediator.md",
+    error: false,
+    DiagnosticId = "KCK0200",
+    UrlFormat = "https://github.com/omerkck41/OmerkckArchitecture/blob/main/docs/migrations/mediatR-to-mediator.md")]
 public sealed class KckPipelineBuilder
 {
     /// <summary>
