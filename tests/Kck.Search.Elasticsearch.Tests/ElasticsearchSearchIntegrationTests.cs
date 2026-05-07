@@ -10,37 +10,31 @@ using Xunit;
 namespace Kck.Search.Elasticsearch.Tests;
 
 /// <summary>
-/// LS-FAZ-4.5: Real Elasticsearch container integration tests.
-/// Verifies index lifecycle, document CRUD, and search against a real ES node.
+/// Shared Elasticsearch container for all integration tests in this assembly.
+/// xUnit Collection Fixture: container is started once, shared across all test methods.
 /// </summary>
-/// <remarks>
-/// Requires Docker. CI: ubuntu-only (Category=Integration filter).
-/// Uses ContainerBuilder directly with xpack.security.enabled=false so the
-/// node runs plain HTTP — no TLS/cert management needed.
-/// </remarks>
-[Trait("Category", "Integration")]
-#pragma warning disable CA1001
-public sealed class ElasticsearchSearchIntegrationTests : IAsyncLifetime
-#pragma warning restore CA1001
+public sealed class ElasticsearchFixture : IAsyncLifetime
 {
-    private readonly IContainer _es = new ContainerBuilder()
+    private readonly IContainer _container = new ContainerBuilder()
         .WithImage("docker.elastic.co/elasticsearch/elasticsearch:8.13.4")
         .WithEnvironment("xpack.security.enabled", "false")
         .WithEnvironment("discovery.type", "single-node")
         .WithEnvironment("ES_JAVA_OPTS", "-Xms512m -Xmx512m")
         .WithPortBinding(9200, true)
         .WithWaitStrategy(Wait.ForUnixContainer()
-            .UntilHttpRequestIsSucceeded(r => r.ForPort(9200)))
+            .UntilHttpRequestIsSucceeded(r => r
+                .ForPort(9200)
+                .ForPath("/_cluster/health")))
         .Build();
 
-    private const string IndexName = "test-docs";
-    private ElasticsearchSearchService<EsTestDoc> _sut = default!;
+    internal ElasticsearchSearchService<EsTestDoc> Service { get; private set; } = default!;
+    public const string IndexName = "test-docs";
 
     public async Task InitializeAsync()
     {
-        await _es.StartAsync();
+        await _container.StartAsync();
 
-        var connStr = $"http://{_es.Hostname}:{_es.GetMappedPublicPort(9200)}";
+        var connStr = $"http://{_container.Hostname}:{_container.GetMappedPublicPort(9200)}";
         var options = new StaticOptionsMonitor<ElasticsearchOptions>(new ElasticsearchOptions
         {
             ConnectionString = connStr,
@@ -49,22 +43,46 @@ public sealed class ElasticsearchSearchIntegrationTests : IAsyncLifetime
             NumberOfReplicas = 0
         });
 
-        _sut = new ElasticsearchSearchService<EsTestDoc>(
+        Service = new ElasticsearchSearchService<EsTestDoc>(
             options,
             NullLogger<ElasticsearchSearchService<EsTestDoc>>.Instance);
 
-        await _sut.CreateIndexAsync(IndexName);
+        await Service.CreateIndexAsync(IndexName);
     }
 
     public async Task DisposeAsync()
     {
-        await _es.DisposeAsync();
+        await _container.DisposeAsync();
+    }
+}
+
+[CollectionDefinition("Elasticsearch")]
+public class ElasticsearchShared : ICollectionFixture<ElasticsearchFixture> { }
+
+/// <summary>
+/// LS-FAZ-4.5: Real Elasticsearch container integration tests.
+/// Verifies index lifecycle, document CRUD, and search against a real ES node.
+/// </summary>
+/// <remarks>
+/// Requires Docker. CI: ubuntu-only (Category=Integration filter).
+/// Single container instance shared via xUnit Collection Fixture.
+/// Security disabled — plain HTTP, no cert management.
+/// </remarks>
+[Collection("Elasticsearch")]
+[Trait("Category", "Integration")]
+public sealed class ElasticsearchSearchIntegrationTests
+{
+    private readonly ElasticsearchSearchService<EsTestDoc> _sut;
+
+    public ElasticsearchSearchIntegrationTests(ElasticsearchFixture fixture)
+    {
+        _sut = fixture.Service;
     }
 
     [Fact]
     public async Task IndexExistsAsync_AfterCreate_ReturnsTrue()
     {
-        var exists = await _sut.IndexExistsAsync(IndexName);
+        var exists = await _sut.IndexExistsAsync(ElasticsearchFixture.IndexName);
         exists.Should().BeTrue();
     }
 
@@ -73,10 +91,10 @@ public sealed class ElasticsearchSearchIntegrationTests : IAsyncLifetime
     {
         var doc = new EsTestDoc { Id = Guid.NewGuid().ToString(), Name = "Integration Test" };
 
-        await _sut.IndexDocumentAsync(IndexName, doc.Id, doc);
+        await _sut.IndexDocumentAsync(ElasticsearchFixture.IndexName, doc.Id, doc);
         await Task.Delay(1000);
 
-        var fetched = await _sut.GetByIdAsync(IndexName, doc.Id);
+        var fetched = await _sut.GetByIdAsync(ElasticsearchFixture.IndexName, doc.Id);
 
         fetched.Should().NotBeNull();
         fetched!.Name.Should().Be("Integration Test");
@@ -91,7 +109,7 @@ public sealed class ElasticsearchSearchIntegrationTests : IAsyncLifetime
             new EsTestDoc { Id = Guid.NewGuid().ToString(), Name = "BulkBeta" }
         };
 
-        await _sut.BulkIndexAsync(IndexName, docs);
+        await _sut.BulkIndexAsync(ElasticsearchFixture.IndexName, docs);
         await Task.Delay(1500);
 
         var result = await _sut.SearchAsync(new SearchRequest { Query = "Bulk*", Size = 10 });
@@ -104,13 +122,13 @@ public sealed class ElasticsearchSearchIntegrationTests : IAsyncLifetime
     public async Task DeleteDocumentAsync_GetByIdAsync_ReturnsNull()
     {
         var doc = new EsTestDoc { Id = Guid.NewGuid().ToString(), Name = "ToDelete" };
-        await _sut.IndexDocumentAsync(IndexName, doc.Id, doc);
+        await _sut.IndexDocumentAsync(ElasticsearchFixture.IndexName, doc.Id, doc);
         await Task.Delay(1000);
 
-        await _sut.DeleteDocumentAsync(IndexName, doc.Id);
+        await _sut.DeleteDocumentAsync(ElasticsearchFixture.IndexName, doc.Id);
         await Task.Delay(500);
 
-        var result = await _sut.GetByIdAsync(IndexName, doc.Id);
+        var result = await _sut.GetByIdAsync(ElasticsearchFixture.IndexName, doc.Id);
         result.Should().BeNull();
     }
 }
