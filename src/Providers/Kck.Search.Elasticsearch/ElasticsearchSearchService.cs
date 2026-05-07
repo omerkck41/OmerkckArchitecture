@@ -40,6 +40,9 @@ public sealed partial class ElasticsearchSearchService<T> : ISearchService<T> wh
         if (!string.IsNullOrEmpty(opts.Username) && !string.IsNullOrEmpty(opts.Password))
             settings = settings.Authentication(new BasicAuthentication(opts.Username, opts.Password));
 
+        if (opts.DisableSslVerification)
+            settings = settings.ServerCertificateValidationCallback((_, _, _, _) => true);
+
         return settings;
     }
 
