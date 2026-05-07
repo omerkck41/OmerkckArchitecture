@@ -1,0 +1,122 @@
+name: nuget-unlist-old-versions
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  DOTNET_NOLOGO: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+
+jobs:
+  unlist:
+    name: Unlist all non-2.0.0 versions
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Unlist old versions for every Kck.* package
+        env:
+          NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+        run: |
+          set -euo pipefail
+
+          KEEP_VERSION="2.0.0"
+
+          PACKAGES=(
+            "Kck.Authorization.Abstractions"
+            "Kck.BackgroundJobs.Abstractions"
+            "Kck.Caching.Abstractions"
+            "Kck.Core.Abstractions"
+            "Kck.Documents.Abstractions"
+            "Kck.EventBus.Abstractions"
+            "Kck.Exceptions.Abstractions"
+            "Kck.FeatureFlags.Abstractions"
+            "Kck.FileStorage.Abstractions"
+            "Kck.Http.Abstractions"
+            "Kck.Localization.Abstractions"
+            "Kck.Messaging.Abstractions"
+            "Kck.Observability.Abstractions"
+            "Kck.Persistence.Abstractions"
+            "Kck.Search.Abstractions"
+            "Kck.Security.Abstractions"
+            "Kck.Bundle.MinimalApi"
+            "Kck.Bundle.WebApi"
+            "Kck.Bundle.WorkerService"
+            "Kck.AspNetCore"
+            "Kck.BackgroundJobs.Hangfire"
+            "Kck.BackgroundJobs.Quartz"
+            "Kck.Caching.Hybrid"
+            "Kck.Caching.InMemory"
+            "Kck.Caching.Redis"
+            "Kck.Documents.ClosedXml"
+            "Kck.Documents.ImageSharp"
+            "Kck.EventBus.AzureServiceBus"
+            "Kck.EventBus.InMemory"
+            "Kck.EventBus.RabbitMq"
+            "Kck.Exceptions.AspNetCore"
+            "Kck.FeatureFlags.InMemory"
+            "Kck.FileStorage.FluentFtp"
+            "Kck.Hosting.Aspire"
+            "Kck.Http.Resilience"
+            "Kck.Localization"
+            "Kck.Localization.Json"
+            "Kck.Localization.Yaml"
+            "Kck.Logging.Serilog"
+            "Kck.Messaging.AmazonSes"
+            "Kck.Messaging.MailKit"
+            "Kck.Messaging.SendGrid"
+            "Kck.Observability.OpenTelemetry"
+            "Kck.Persistence.EntityFramework"
+            "Kck.Pipeline.MediatR"
+            "Kck.Pipeline.Mediator"
+            "Kck.Resilience.Polly"
+            "Kck.Search.Elasticsearch"
+            "Kck.Security.Argon2"
+            "Kck.Security.Jwt"
+            "Kck.Security.Secrets.AzureKeyVault"
+            "Kck.Security.Secrets.UserSecrets"
+            "Kck.Security.TokenBlacklist.Redis"
+            "Kck.Security.Totp"
+          )
+
+          TOTAL_UNLISTED=0
+
+          for pkg in "${PACKAGES[@]}"; do
+            pkg_lower="${pkg,,}"
+            index_url="https://api.nuget.org/v3-flatcontainer/${pkg_lower}/index.json"
+
+            versions_json=$(curl -sf "$index_url" 2>/dev/null || echo '{"versions":[]}')
+            versions=$(echo "$versions_json" | python3 -c "
+          import json, sys
+          data = json.load(sys.stdin)
+          for v in data.get('versions', []):
+              print(v)
+          " 2>/dev/null || true)
+
+            if [ -z "$versions" ]; then
+              echo "  $pkg — NuGet'te versiyon yok, atlanıyor"
+              continue
+            fi
+
+            for version in $versions; do
+              if [ "$version" = "$KEEP_VERSION" ]; then
+                continue
+              fi
+              echo "  Unlisting $pkg $version ..."
+              dotnet nuget delete "$pkg" "$version" \
+                --api-key "$NUGET_API_KEY" \
+                --source https://api.nuget.org/v3/index.json \
+                --non-interactive 2>&1 || true
+              TOTAL_UNLISTED=$((TOTAL_UNLISTED + 1))
+            done
+          done
+
+          echo ""
+          echo "Toplam unlist edilen versiyon: $TOTAL_UNLISTED"
