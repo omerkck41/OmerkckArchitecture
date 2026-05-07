@@ -1,6 +1,6 @@
 <Project>
   <PropertyGroup>
-    <!-- net10.0 tek hedef. net8.0 desteği ADR-0019 ile kaldırıldı (ADR-0011 superseded). -->
+    <!-- net10.0 tek hedef (ADR-0019). -->
     <TargetFrameworks Condition=" '$(TargetFrameworks)' == '' ">net10.0</TargetFrameworks>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>

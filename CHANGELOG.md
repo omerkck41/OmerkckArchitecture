@@ -5,11 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [2.0.0] — 2026-05-07
 
-### Removed
-- **net8.0 TFM desteği kaldırıldı** (ADR-0019). Kütüphane artık yalnızca `net10.0` ve üzerini hedefler. net8.0 kullanan tüketiciler bu sürüme geçemez — bu bir **breaking change**'dir ve v2.0 major bump gerektirir. net8.0 destek sonu: 2026-11-10.
-- `#if NET9_0_OR_GREATER` / net8 fallback blokları (`IntegrationEvent.Id`, `QuartzJobScheduler.NewJobId()`, `TotpMfaProvider` secret hash) kaldırıldı.
+### Removed — BREAKING
+- **TFM desteği kaldırıldı** (ADR-0019). Kütüphane artık yalnızca `net10.0` ve üzerini hedefler. Bu bir **breaking change**'dir; EOS tarihi 2026-11-10.
+- `#if NET9_0_OR_GREATER` fallback blokları (`IntegrationEvent.Id`, `QuartzJobScheduler.NewJobId()`, `TotpMfaProvider` secret hash) kaldırıldı.
+
+### Changed
+- `Mediator.Abstractions` 3.0.2 kararlı sürüme güncellendi (önceki: 3.1.0-prerelease).
+
+## [1.1.0] — 2026-05-03
+
+### Added
+- `Kck.Pipeline.Mediator` — `Mediator.Abstractions` tabanlı pipeline builder; 5 yerleşik behavior: Authorization, Caching, Logging, Transaction, Validation. `AddKckMediator()` DI extension ile kaydedilir (Library Strategy §1.3, FAZ-9).
+- `Kck.Hosting.Aspire` — .NET Aspire host entegrasyonu; `AddKckServiceDefaults()` ile health check, resilience ve observability defaults tek satırda yapılandırılır (Library Strategy §10.2, FAZ-9).
 
 ## [1.0.0] — 2026-05-03
 
