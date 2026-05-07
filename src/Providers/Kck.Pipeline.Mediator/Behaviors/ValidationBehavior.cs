@@ -22,12 +22,12 @@ public sealed class ValidationBehavior<TMessage, TResponse>(
         CancellationToken cancellationToken)
     {
         if (!validators.Any())
-            return await next(message, cancellationToken);
+            return await next(message, cancellationToken).ConfigureAwait(false);
 
         var context = new ValidationContext<TMessage>(message);
 
         var results = await Task.WhenAll(
-            validators.Select(v => v.ValidateAsync(context, cancellationToken)));
+            validators.Select(v => v.ValidateAsync(context, cancellationToken))).ConfigureAwait(false);
 
         var failures = results
             .SelectMany(r => r.Errors)
@@ -48,6 +48,6 @@ public sealed class ValidationBehavior<TMessage, TResponse>(
             throw new ValidationException(errors);
         }
 
-        return await next(message, cancellationToken);
+        return await next(message, cancellationToken).ConfigureAwait(false);
     }
 }

@@ -24,7 +24,7 @@ public sealed class LoggingBehavior<TRequest, TResponse>(
         Log.HandlingRequest(logger, requestName);
 
         var sw = Stopwatch.StartNew();
-        var response = await next(cancellationToken);
+        var response = await next(cancellationToken).ConfigureAwait(false);
         sw.Stop();
 
         if (sw.ElapsedMilliseconds > 500)

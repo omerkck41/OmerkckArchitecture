@@ -32,6 +32,6 @@ public sealed class AuthorizationBehavior<TRequest, TResponse>(
                 throw new ForbiddenException($"Required roles: {string.Join(", ", requiredRoles)}");
         }
 
-        return await next(cancellationToken);
+        return await next(cancellationToken).ConfigureAwait(false);
     }
 }
