@@ -10,6 +10,8 @@
     <PackageReference Include="xunit.runner.visualstudio" />
     <PackageReference Include="FluentAssertions" />
     <PackageReference Include="NSubstitute" />
+    <!-- LS-FAZ-4.5: Testcontainers integration tests -->
+    <PackageReference Include="Testcontainers.RabbitMq" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="../../src/Providers/Kck.EventBus.RabbitMq/Kck.EventBus.RabbitMq.csproj" />
