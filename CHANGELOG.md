@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- `PiiMaskingEnricher` — Serilog enricher that redacts named log properties (e.g. `email`, `password`, `token`) with `***`. Enable via `builder.UsePiiMasking()` (defaults) or `builder.MaskPiiProperties("field1", ...)` (custom). Case-insensitive matching.
 - `Kck.Caching.Hybrid` — `Microsoft.Extensions.Caching.Hybrid` (HybridCache) sarmalayan yeni provider. L1 (in-process bellek) + L2 (Redis) iki katmanlı önbellekleme; `SetAsync` L1+L2 doldurur, `RemoveAsync` L1+L2'den evict eder. `AddKckCachingHybrid()` DI extension (ADR-0020).
 
 ### Deprecated

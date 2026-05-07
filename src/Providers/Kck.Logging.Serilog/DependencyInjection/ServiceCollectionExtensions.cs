@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.Globalization;
+using Kck.Logging.Serilog;
 using Serilog;
 using Serilog.Formatting.Compact;
 
@@ -22,9 +23,10 @@ public static class KckLoggingSerilogServiceCollectionExtensions
                 .Enrich.WithProperty("Application", builder.ApplicationName ?? "KckApp");
 
             if (builder.EnrichWithTraceContext)
-            {
                 loggerConfig.Enrich.With(new TraceContextEnricher());
-            }
+
+            if (builder.PiiProperties.Count > 0)
+                loggerConfig.Enrich.With(new PiiMaskingEnricher(builder.PiiProperties));
 
             if (builder.UseConsoleOutput)
             {
@@ -62,6 +64,7 @@ public sealed class KckSerilogBuilder
     public RollingInterval RollingInterval { get; set; } = RollingInterval.Day;
     public int RetainedFileCount { get; set; } = 31;
     public Action<LoggerConfiguration>? AdditionalConfig { get; set; }
+    internal List<string> PiiProperties { get; } = [];
 
     public KckSerilogBuilder WriteToConsole()
     {
@@ -99,6 +102,26 @@ public sealed class KckSerilogBuilder
     public KckSerilogBuilder Configure(Action<LoggerConfiguration> config)
     {
         AdditionalConfig = config;
+        return this;
+    }
+
+    /// <summary>
+    /// Masks the default set of PII property names in all log events.
+    /// Default list: password, token, email, phone, creditCard, ssn, etc.
+    /// </summary>
+    public KckSerilogBuilder UsePiiMasking()
+    {
+        PiiProperties.AddRange(PiiMaskingEnricher.DefaultPiiProperties);
+        return this;
+    }
+
+    /// <summary>
+    /// Masks the specified property names in all log events, replacing their
+    /// values with <c>***</c>. Matching is case-insensitive.
+    /// </summary>
+    public KckSerilogBuilder MaskPiiProperties(params string[] propertyNames)
+    {
+        PiiProperties.AddRange(propertyNames);
         return this;
     }
 }
