@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+- `Kck.Caching.Hybrid` — `Microsoft.Extensions.Caching.Hybrid` (HybridCache) sarmalayan yeni provider. L1 (in-process bellek) + L2 (Redis) iki katmanlı önbellekleme; `SetAsync` L1+L2 doldurur, `RemoveAsync` L1+L2'den evict eder. `AddKckCachingHybrid()` DI extension (ADR-0020).
+
 ## [2.0.0] — 2026-05-07
 
 ### Removed — BREAKING
