@@ -23,18 +23,18 @@ public sealed class CachingBehavior<TRequest, TResponse>(
         CancellationToken cancellationToken)
     {
         if (request.BypassCache)
-            return await next(cancellationToken);
+            return await next(cancellationToken).ConfigureAwait(false);
 
         var cacheKey = request.CacheKey;
 
-        var cached = await cache.GetStringAsync(cacheKey, cancellationToken);
+        var cached = await cache.GetStringAsync(cacheKey, cancellationToken).ConfigureAwait(false);
         if (cached is not null)
         {
             Log.CacheHit(logger, cacheKey);
             return JsonSerializer.Deserialize<TResponse>(cached)!;
         }
 
-        var response = await next(cancellationToken);
+        var response = await next(cancellationToken).ConfigureAwait(false);
 
         var options = new DistributedCacheEntryOptions
         {
@@ -42,7 +42,7 @@ public sealed class CachingBehavior<TRequest, TResponse>(
         };
 
         var serialized = JsonSerializer.Serialize(response);
-        await cache.SetStringAsync(cacheKey, serialized, options, cancellationToken);
+        await cache.SetStringAsync(cacheKey, serialized, options, cancellationToken).ConfigureAwait(false);
 
         Log.CacheSet(logger, cacheKey);
 

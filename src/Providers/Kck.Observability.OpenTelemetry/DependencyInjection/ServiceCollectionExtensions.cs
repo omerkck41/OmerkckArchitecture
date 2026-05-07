@@ -79,6 +79,6 @@ public static class KckObservabilityServiceCollectionExtensions
         };
 
         await System.Text.Json.JsonSerializer.SerializeAsync(
-            context.Response.Body, result, JsonOptions);
+            context.Response.Body, result, JsonOptions).ConfigureAwait(false);
     }
 }

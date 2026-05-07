@@ -21,20 +21,20 @@ public sealed class TransactionBehavior<TMessage, TResponse>(
         CancellationToken cancellationToken)
     {
         var messageName = typeof(TMessage).Name;
-        await unitOfWork.BeginTransactionAsync(cancellationToken);
+        await unitOfWork.BeginTransactionAsync(cancellationToken).ConfigureAwait(false);
         Log.TransactionStarted(logger, messageName);
 
         try
         {
-            var response = await next(message, cancellationToken);
-            await unitOfWork.SaveChangesAsync(cancellationToken: cancellationToken);
-            await unitOfWork.CommitAsync(cancellationToken);
+            var response = await next(message, cancellationToken).ConfigureAwait(false);
+            await unitOfWork.SaveChangesAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
+            await unitOfWork.CommitAsync(cancellationToken).ConfigureAwait(false);
             Log.TransactionCommitted(logger, messageName);
             return response;
         }
         catch
         {
-            await unitOfWork.RollbackAsync(cancellationToken);
+            await unitOfWork.RollbackAsync(cancellationToken).ConfigureAwait(false);
             Log.TransactionRolledBack(logger, messageName);
             throw;
         }

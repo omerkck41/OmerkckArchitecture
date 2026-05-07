@@ -25,6 +25,6 @@ public sealed class AuthorizationBehavior<TMessage, TResponse>(
         if (message.Roles.Length > 0 && !message.Roles.Any(r => currentUser.IsInRole(r)))
             throw new ForbiddenException($"Required roles: {string.Join(", ", message.Roles)}");
 
-        return await next(message, cancellationToken);
+        return await next(message, cancellationToken).ConfigureAwait(false);
     }
 }

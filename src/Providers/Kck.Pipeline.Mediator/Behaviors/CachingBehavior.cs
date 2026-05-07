@@ -23,25 +23,25 @@ public sealed class CachingBehavior<TMessage, TResponse>(
         CancellationToken cancellationToken)
     {
         if (message.BypassCache)
-            return await next(message, cancellationToken);
+            return await next(message, cancellationToken).ConfigureAwait(false);
 
         var cacheKey = message.CacheKey;
 
-        var cached = await cache.GetStringAsync(cacheKey, cancellationToken);
+        var cached = await cache.GetStringAsync(cacheKey, cancellationToken).ConfigureAwait(false);
         if (cached is not null)
         {
             Log.CacheHit(logger, cacheKey);
             return JsonSerializer.Deserialize<TResponse>(cached)!;
         }
 
-        var response = await next(message, cancellationToken);
+        var response = await next(message, cancellationToken).ConfigureAwait(false);
 
         var options = new DistributedCacheEntryOptions
         {
             SlidingExpiration = message.SlidingExpiration ?? TimeSpan.FromMinutes(5)
         };
 
-        await cache.SetStringAsync(cacheKey, JsonSerializer.Serialize(response), options, cancellationToken);
+        await cache.SetStringAsync(cacheKey, JsonSerializer.Serialize(response), options, cancellationToken).ConfigureAwait(false);
         Log.CacheSet(logger, cacheKey);
         return response;
     }
