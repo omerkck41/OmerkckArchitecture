@@ -1,9 +1,10 @@
+using DotNet.Testcontainers.Builders;
+using DotNet.Testcontainers.Containers;
 using FluentAssertions;
 using Kck.Search.Abstractions;
 using Kck.Search.Elasticsearch;
 using Kck.Testing;
 using Microsoft.Extensions.Logging.Abstractions;
-using Testcontainers.Elasticsearch;
 using Xunit;
 
 namespace Kck.Search.Elasticsearch.Tests;
@@ -14,15 +15,22 @@ namespace Kck.Search.Elasticsearch.Tests;
 /// </summary>
 /// <remarks>
 /// Requires Docker. CI: ubuntu-only (Category=Integration filter).
-/// Uses ElasticsearchBuilder defaults (HTTPS, elastic:elastic).
-/// DisableSslVerification=true because the container uses a self-signed cert.
+/// Uses ContainerBuilder directly with xpack.security.enabled=false so the
+/// node runs plain HTTP — no TLS/cert management needed.
 /// </remarks>
 [Trait("Category", "Integration")]
 #pragma warning disable CA1001
 public sealed class ElasticsearchSearchIntegrationTests : IAsyncLifetime
 #pragma warning restore CA1001
 {
-    private readonly ElasticsearchContainer _es = new ElasticsearchBuilder()
+    private readonly IContainer _es = new ContainerBuilder()
+        .WithImage("docker.elastic.co/elasticsearch/elasticsearch:8.13.4")
+        .WithEnvironment("xpack.security.enabled", "false")
+        .WithEnvironment("discovery.type", "single-node")
+        .WithEnvironment("ES_JAVA_OPTS", "-Xms512m -Xmx512m")
+        .WithPortBinding(9200, true)
+        .WithWaitStrategy(Wait.ForUnixContainer()
+            .UntilHttpRequestIsSucceeded(r => r.ForPort(9200)))
         .Build();
 
     private const string IndexName = "test-docs";
@@ -32,12 +40,10 @@ public sealed class ElasticsearchSearchIntegrationTests : IAsyncLifetime
     {
         await _es.StartAsync();
 
+        var connStr = $"http://{_es.Hostname}:{_es.GetMappedPublicPort(9200)}";
         var options = new StaticOptionsMonitor<ElasticsearchOptions>(new ElasticsearchOptions
         {
-            ConnectionString = _es.GetConnectionString(),
-            Username = ElasticsearchBuilder.DefaultUsername,
-            Password = ElasticsearchBuilder.DefaultPassword,
-            DisableSslVerification = true,
+            ConnectionString = connStr,
             DefaultIndex = IndexName,
             NumberOfShards = 1,
             NumberOfReplicas = 0
