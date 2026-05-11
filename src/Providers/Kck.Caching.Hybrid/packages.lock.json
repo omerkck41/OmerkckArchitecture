@@ -4,14 +4,14 @@
     "net10.0": {
       "Microsoft.Extensions.Caching.Hybrid": {
         "type": "Direct",
-        "requested": "[10.1.0, )",
-        "resolved": "10.1.0",
-        "contentHash": "mcqlFN2TidtsD/ZUs+m5Xbj9oyNFtlHrawSp57DS8Pq6/Gf316sdSLdoo8i4LfQX5MFPQRdTMKddAQtfZ1uXxQ==",
+        "requested": "[10.5.0, )",
+        "resolved": "10.5.0",
+        "contentHash": "INkOmE/6q6txxCS45A9HfY8dCqqjTMJfGzr3cNoMwuZpHVSr0JhMfgr/QNm9BvtvyzsyiK+q7yhCn57fBmoy9Q==",
         "dependencies": {
-          "Microsoft.Extensions.Caching.Abstractions": "10.0.1",
-          "Microsoft.Extensions.Caching.Memory": "10.0.1",
-          "Microsoft.Extensions.Logging.Abstractions": "10.0.1",
-          "Microsoft.Extensions.Options": "10.0.1"
+          "Microsoft.Extensions.Caching.Abstractions": "10.0.6",
+          "Microsoft.Extensions.Caching.Memory": "10.0.6",
+          "Microsoft.Extensions.Logging.Abstractions": "10.0.6",
+          "Microsoft.Extensions.Options": "10.0.6"
         }
       },
       "Microsoft.Extensions.Caching.StackExchangeRedis": {
@@ -68,14 +68,14 @@
       },
       "Microsoft.Extensions.Caching.Memory": {
         "type": "Transitive",
-        "resolved": "10.0.1",
-        "contentHash": "NxqSP0Ky4dZ5ybszdZCqs1X2C70s+dXflqhYBUh/vhcQVTIooNCXIYnLVbafoAFGZMs51d9+rHxveXs0ZC3SQQ==",
+        "resolved": "10.0.6",
+        "contentHash": "5godKXBBsObgl/dBQKgrFeHFd6vVVOMGK3TuKLPNlwJgabFKl5vISSHLw5hWUtd+zKcl/Llmw25dsGlySxXJJg==",
         "dependencies": {
-          "Microsoft.Extensions.Caching.Abstractions": "10.0.1",
-          "Microsoft.Extensions.DependencyInjection.Abstractions": "10.0.1",
-          "Microsoft.Extensions.Logging.Abstractions": "10.0.1",
-          "Microsoft.Extensions.Options": "10.0.1",
-          "Microsoft.Extensions.Primitives": "10.0.1"
+          "Microsoft.Extensions.Caching.Abstractions": "10.0.6",
+          "Microsoft.Extensions.DependencyInjection.Abstractions": "10.0.6",
+          "Microsoft.Extensions.Logging.Abstractions": "10.0.6",
+          "Microsoft.Extensions.Options": "10.0.6",
+          "Microsoft.Extensions.Primitives": "10.0.6"
         }
       },
       "Microsoft.Extensions.Options": {
