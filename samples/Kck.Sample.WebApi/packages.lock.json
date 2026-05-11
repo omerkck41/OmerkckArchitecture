@@ -151,7 +151,7 @@
         "type": "Project",
         "dependencies": {
           "Kck.EventBus.Abstractions": "[1.0.0, )",
-          "RabbitMQ.Client": "[7.1.2, )"
+          "RabbitMQ.Client": "[7.2.1, )"
         }
       },
       "kck.exceptions.abstractions": {
@@ -262,9 +262,9 @@
       },
       "RabbitMQ.Client": {
         "type": "CentralTransitive",
-        "requested": "[7.1.2, )",
-        "resolved": "7.1.2",
-        "contentHash": "y3c6ulgULScWthHw5PLM1ShHRLhxg0vCtzX/hh61gRgNecL3ZC3WoBW2HYHoXOVRqTl99Br9E7CZEytGZEsCyQ=="
+        "requested": "[7.2.1, )",
+        "resolved": "7.2.1",
+        "contentHash": "YKXEfg9fVQiTKgZlvIhAfPSFaamEgi8DsQmisCH0IAsU4FYLrtoguDrDj6JtJVGUt40QPnBLRH6fTQcAC4qsOg=="
       },
       "Serilog.AspNetCore": {
         "type": "CentralTransitive",
