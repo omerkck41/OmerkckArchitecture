@@ -67,7 +67,7 @@
   <ItemGroup Label="Background Jobs">
     <PackageVersion Include="Hangfire" Version="1.8.23" />
     <PackageVersion Include="Hangfire.InMemory" Version="1.0.0" />
-    <PackageVersion Include="Quartz" Version="3.16.1" />
+    <PackageVersion Include="Quartz" Version="3.18.1" />
     <PackageVersion Include="Quartz.Extensions.DependencyInjection" Version="3.16.1" />
     <PackageVersion Include="Quartz.Extensions.Hosting" Version="3.16.1" />
     <!-- Override Hangfire's transitive Newtonsoft.Json 11.0.1 (GHSA-5crp-9r3c-p9vr High DoS).
