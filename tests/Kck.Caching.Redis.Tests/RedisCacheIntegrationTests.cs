@@ -23,8 +23,7 @@ namespace Kck.Caching.Redis.Tests;
 public sealed class RedisCacheIntegrationTests : IAsyncLifetime
 #pragma warning restore CA1001
 {
-    private readonly RedisContainer _redis = new RedisBuilder()
-        .WithImage("redis:7-alpine")
+    private readonly RedisContainer _redis = new RedisBuilder("redis:7-alpine")
         .Build();
 
     private RedisCacheService _sut = default!;

@@ -18,8 +18,7 @@ namespace Kck.Security.TokenBlacklist.Redis.Tests;
 public sealed class RedisTokenBlacklistIntegrationTests : IAsyncLifetime
 #pragma warning restore CA1001
 {
-    private readonly RedisContainer _redis = new RedisBuilder()
-        .WithImage("redis:7-alpine")
+    private readonly RedisContainer _redis = new RedisBuilder("redis:7-alpine")
         .Build();
 
     private RedisTokenBlacklistService _sut = default!;

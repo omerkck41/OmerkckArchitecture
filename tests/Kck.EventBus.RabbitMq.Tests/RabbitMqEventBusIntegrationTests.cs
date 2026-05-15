@@ -22,8 +22,7 @@ namespace Kck.EventBus.RabbitMq.Tests;
 public sealed class RabbitMqEventBusIntegrationTests : IAsyncLifetime
 #pragma warning restore CA1001
 {
-    private readonly RabbitMqContainer _rabbit = new RabbitMqBuilder()
-        .WithImage("rabbitmq:3-alpine")
+    private readonly RabbitMqContainer _rabbit = new RabbitMqBuilder("rabbitmq:3-alpine")
         .Build();
 
     private RabbitMqEventBus _bus = default!;

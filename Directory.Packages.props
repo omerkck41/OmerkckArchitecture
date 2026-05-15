@@ -36,7 +36,7 @@
     <PackageVersion Include="Elastic.Transport" Version="0.5.9" />
   </ItemGroup>
   <ItemGroup Label="Event Bus">
-    <PackageVersion Include="RabbitMQ.Client" Version="7.1.2" />
+    <PackageVersion Include="RabbitMQ.Client" Version="7.2.1" />
     <PackageVersion Include="Azure.Messaging.ServiceBus" Version="7.20.1" />
   </ItemGroup>
   <ItemGroup Label="DI &amp; Hosting">
