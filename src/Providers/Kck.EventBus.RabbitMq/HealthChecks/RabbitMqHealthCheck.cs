@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using RabbitMQ.Client;
+using RabbitMQ.Client.Exceptions;
 
 namespace Kck.EventBus.RabbitMq.HealthChecks;
 
@@ -31,7 +32,7 @@ internal sealed class RabbitMqHealthCheck(RabbitMqOptions options) : IHealthChec
                 ? HealthCheckResult.Healthy($"RabbitMQ connection to '{options.HostName}:{options.Port}' is open.")
                 : HealthCheckResult.Unhealthy($"RabbitMQ connection to '{options.HostName}:{options.Port}' is closed.");
         }
-        catch (Exception ex)
+        catch (BrokerUnreachableException ex)
         {
             return HealthCheckResult.Unhealthy($"RabbitMQ broker '{options.HostName}:{options.Port}' is unavailable.", ex);
         }

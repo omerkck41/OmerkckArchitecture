@@ -77,20 +77,22 @@ public sealed class Filter
         var type = typeof(T);
         var underlying = Nullable.GetUnderlyingType(type) ?? type;
 
-        if (underlying == typeof(string)) return (T)(object)s;
-        if (underlying == typeof(Guid)) return (T)(object)Guid.Parse(s);
-        if (underlying == typeof(int)) return (T)(object)int.Parse(s, CultureInfo.InvariantCulture);
-        if (underlying == typeof(long)) return (T)(object)long.Parse(s, CultureInfo.InvariantCulture);
-        if (underlying == typeof(short)) return (T)(object)short.Parse(s, CultureInfo.InvariantCulture);
-        if (underlying == typeof(double)) return (T)(object)double.Parse(s, CultureInfo.InvariantCulture);
-        if (underlying == typeof(decimal)) return (T)(object)decimal.Parse(s, CultureInfo.InvariantCulture);
-        if (underlying == typeof(float)) return (T)(object)float.Parse(s, CultureInfo.InvariantCulture);
-        if (underlying == typeof(bool)) return (T)(object)bool.Parse(s);
-        if (underlying == typeof(DateTime)) return (T)(object)DateTime.Parse(s, CultureInfo.InvariantCulture);
-        if (underlying == typeof(DateTimeOffset)) return (T)(object)DateTimeOffset.Parse(s, CultureInfo.InvariantCulture);
-        if (underlying == typeof(DateOnly)) return (T)(object)DateOnly.Parse(s, CultureInfo.InvariantCulture);
-        if (underlying == typeof(TimeOnly)) return (T)(object)TimeOnly.Parse(s, CultureInfo.InvariantCulture);
+        if (underlying == typeof(string)) return BoxAs<T>(s);
+        if (underlying == typeof(Guid)) return BoxAs<T>(Guid.Parse(s));
+        if (underlying == typeof(int)) return BoxAs<T>(int.Parse(s, CultureInfo.InvariantCulture));
+        if (underlying == typeof(long)) return BoxAs<T>(long.Parse(s, CultureInfo.InvariantCulture));
+        if (underlying == typeof(short)) return BoxAs<T>(short.Parse(s, CultureInfo.InvariantCulture));
+        if (underlying == typeof(double)) return BoxAs<T>(double.Parse(s, CultureInfo.InvariantCulture));
+        if (underlying == typeof(decimal)) return BoxAs<T>(decimal.Parse(s, CultureInfo.InvariantCulture));
+        if (underlying == typeof(float)) return BoxAs<T>(float.Parse(s, CultureInfo.InvariantCulture));
+        if (underlying == typeof(bool)) return BoxAs<T>(bool.Parse(s));
+        if (underlying == typeof(DateTime)) return BoxAs<T>(DateTime.Parse(s, CultureInfo.InvariantCulture));
+        if (underlying == typeof(DateTimeOffset)) return BoxAs<T>(DateTimeOffset.Parse(s, CultureInfo.InvariantCulture));
+        if (underlying == typeof(DateOnly)) return BoxAs<T>(DateOnly.Parse(s, CultureInfo.InvariantCulture));
+        if (underlying == typeof(TimeOnly)) return BoxAs<T>(TimeOnly.Parse(s, CultureInfo.InvariantCulture));
         if (underlying.IsEnum) return (T)Enum.Parse(underlying, s, ignoreCase: true);
         return (T)Convert.ChangeType(s, underlying, CultureInfo.InvariantCulture);
     }
+
+    private static T BoxAs<T>(object value) => (T)value;
 }

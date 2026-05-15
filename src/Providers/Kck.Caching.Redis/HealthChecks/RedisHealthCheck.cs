@@ -21,7 +21,7 @@ internal sealed class RedisHealthCheck(IConnectionMultiplexer multiplexer) : IHe
 
             return HealthCheckResult.Healthy($"Redis PING latency: {latency.TotalMilliseconds:F1} ms");
         }
-        catch (Exception ex)
+        catch (RedisException ex)
         {
             return HealthCheckResult.Unhealthy("Redis is unavailable.", ex);
         }

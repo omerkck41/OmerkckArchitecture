@@ -32,6 +32,7 @@ public sealed class PiiMaskingEnricher : ILogEventEnricher
         "ssn", "socialsecuritynumber"
     ];
 
+    /// <summary>Initializes a new instance of <see cref="PiiMaskingEnricher"/> with the specified properties to redact.</summary>
     /// <param name="propertiesToMask">Property names to redact. Matching is case-insensitive.</param>
     public PiiMaskingEnricher(IEnumerable<string> propertiesToMask)
     {

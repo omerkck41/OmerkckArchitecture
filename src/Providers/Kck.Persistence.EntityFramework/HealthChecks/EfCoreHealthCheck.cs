@@ -1,3 +1,4 @@
+using System.Data.Common;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 
@@ -23,7 +24,7 @@ internal sealed class EfCoreHealthCheck<TContext>(TContext context) : IHealthChe
                 ? HealthCheckResult.Healthy($"Database '{typeof(TContext).Name}' is reachable.")
                 : HealthCheckResult.Unhealthy($"Database '{typeof(TContext).Name}' is unreachable.");
         }
-        catch (Exception ex)
+        catch (DbException ex)
         {
             return HealthCheckResult.Unhealthy($"Database '{typeof(TContext).Name}' check failed.", ex);
         }
