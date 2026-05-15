@@ -29,7 +29,7 @@
     <PackageVersion Include="FluentValidation" Version="12.1.1" />
   </ItemGroup>
   <ItemGroup Label="Caching &amp; Data">
-    <PackageVersion Include="StackExchange.Redis" Version="2.12.8" />
+    <PackageVersion Include="StackExchange.Redis" Version="2.12.14" />
   </ItemGroup>
   <ItemGroup Label="Search">
     <PackageVersion Include="Elastic.Clients.Elasticsearch" Version="9.4.0" />
