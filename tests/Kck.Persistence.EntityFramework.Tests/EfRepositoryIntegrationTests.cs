@@ -23,8 +23,7 @@ namespace Kck.Persistence.EntityFramework.Tests;
 public sealed class EfRepositoryIntegrationTests : IAsyncLifetime
 #pragma warning restore CA1001
 {
-    private readonly PostgreSqlContainer _postgres = new PostgreSqlBuilder()
-        .WithImage("postgres:16-alpine")
+    private readonly PostgreSqlContainer _postgres = new PostgreSqlBuilder("postgres:16-alpine")
         .WithDatabase("kck_test")
         .WithUsername("kck")
         .WithPassword("kck-test-password")
