@@ -151,25 +151,25 @@
       "kck.search.elasticsearch": {
         "type": "Project",
         "dependencies": {
-          "Elastic.Clients.Elasticsearch": "[9.3.5, )",
+          "Elastic.Clients.Elasticsearch": "[9.4.0, )",
           "Kck.Search.Abstractions": "[1.0.0, )"
         }
       },
       "Elastic.Clients.Elasticsearch": {
         "type": "CentralTransitive",
-        "requested": "[9.3.5, )",
-        "resolved": "9.3.5",
-        "contentHash": "79c52HmIlL/DW+llmv4wxV1le6GmocGfQ0PKOkDY3STPF3kL1L6zOKEMCRxB8UOt7huanjhpTL59l0Nh3p0s4Q==",
+        "requested": "[9.4.0, )",
+        "resolved": "9.4.0",
+        "contentHash": "jDLn9WcFSMKR8t/3dFQPjTPxK5HD/YU61EyhpZIObFCaj0sj5XIYh27IqlE7wzcFYMLbH8MdT+2pjfJsz6kKGQ==",
         "dependencies": {
           "Elastic.Esql": "0.11.0",
-          "Elastic.Transport": "0.16.0"
+          "Elastic.Transport": "0.17.1"
         }
       },
       "Elastic.Transport": {
         "type": "CentralTransitive",
         "requested": "[0.5.9, )",
-        "resolved": "0.16.0",
-        "contentHash": "1UKivcp3yo6Bdt5o6QEKmPdgSNvNWPexKjBKkYRm2gED7qhoNo/H30dMkW0PQOenA4Kq6EMy9+7lTnOzBTvwjw=="
+        "resolved": "0.17.1",
+        "contentHash": "PpDoD+6zxtYgK/DAqQEiVSlkC2Zt1x0JKGaygAx8Oqrkft9Nr1VTuysOWZ6NKsav9WtB4jyHuU/eIZXuc2oZuw=="
       },
       "Newtonsoft.Json": {
         "type": "CentralTransitive",
