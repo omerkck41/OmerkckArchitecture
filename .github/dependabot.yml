@@ -21,6 +21,39 @@ updates:
       aspnetcore:
         patterns:
           - "Microsoft.AspNetCore.*"
+      entityframework:
+        patterns:
+          - "Microsoft.EntityFrameworkCore*"
+          - "Npgsql.EntityFrameworkCore.*"
+      azure:
+        patterns:
+          - "Azure.*"
+      testcontainers:
+        patterns:
+          - "Testcontainers*"
+      quartz:
+        patterns:
+          - "Quartz*"
+      hangfire:
+        patterns:
+          - "Hangfire*"
+      serilog:
+        patterns:
+          - "Serilog*"
+      elastic:
+        patterns:
+          - "Elastic.*"
+      testing:
+        patterns:
+          - "xunit*"
+          - "Microsoft.NET.Test.Sdk"
+          - "FluentAssertions"
+          - "NSubstitute"
+          - "coverlet*"
+          - "BenchmarkDotNet"
+      analyzers:
+        patterns:
+          - "Microsoft.CodeAnalysis.*"
     commit-message:
       prefix: "chore(deps)"
 
