@@ -1,4 +1,5 @@
 using System.Collections.Concurrent;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using Kck.Exceptions.AspNetCore.Models;
 using Kck.Exceptions.Attributes;
@@ -65,6 +66,7 @@ public sealed partial class GlobalExceptionHandler : IKckExceptionHandler
     [LoggerMessage(Level = LogLevel.Error, Message = "Unhandled exception routed to GlobalExceptionHandler. TraceId: {TraceId}")]
     private static partial void LogUnhandledGlobalException(ILogger logger, Exception exception, string traceId);
 
+    [RequiresUnreferencedCode("Reads HttpStatusCodeAttribute from runtime exception types via reflection.")]
     private static int ResolveStatusCode(Exception exception)
     {
         // 1. ExplicitStatusCode varsa onu kullan

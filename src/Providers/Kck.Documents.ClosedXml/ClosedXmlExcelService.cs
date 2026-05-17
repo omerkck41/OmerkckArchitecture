@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Reflection;
 using ClosedXML.Excel;
@@ -36,7 +37,7 @@ public sealed class ClosedXmlExcelService : IExcelService
         return Task.FromResult(ToResult(workbook, "export.xlsx"));
     }
 
-    public Task<DocumentResult> CreateFromDataAsync<T>(IEnumerable<T> data, string worksheetName = "Sheet1", CancellationToken ct = default)
+    public Task<DocumentResult> CreateFromDataAsync<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] T>(IEnumerable<T> data, string worksheetName = "Sheet1", CancellationToken ct = default)
     {
         using var workbook = new XLWorkbook();
         var sheet = workbook.Worksheets.Add(worksheetName);
