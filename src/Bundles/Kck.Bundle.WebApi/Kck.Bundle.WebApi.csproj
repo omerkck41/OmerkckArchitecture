@@ -2,6 +2,9 @@
   <PropertyGroup>
     <!-- Pinned to net10.0; depends on net10-only packages (LS-FAZ-2 ADR-0011) -->
     <TargetFrameworks>net10.0</TargetFrameworks>
+    <Title>Kck WebAPI Bundle</Title>
+    <Description>Opinionated ASP.NET Core WebAPI starter pack. Registers Serilog, in-memory caching, JWT auth, Argon2 hashing, InMemory event bus, OpenTelemetry, rate limiting, security headers, CORS, and global exception handling in a single AddKckWebApiDefaults() call.</Description>
+    <PackageTags>dotnet;kck;webapi;aspnetcore;bundle;starter;serilog;opentelemetry</PackageTags>
   </PropertyGroup>
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />

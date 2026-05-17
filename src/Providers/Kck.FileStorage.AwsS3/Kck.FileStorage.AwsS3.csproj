@@ -1,4 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <Title>Kck File Storage (AWS S3)</Title>
+    <Description>Amazon S3-backed IFileStorageService. Supports explicit AccessKey/SecretKey credentials or IAM role authentication, paginated ListObjectsV2, and optional KeyPrefix for multi-tenant bucket isolation. Registered via AddKckFileStorageAwsS3().</Description>
+    <PackageTags>dotnet;kck;file-storage;aws;s3;amazon;cloud-storage</PackageTags>
+  </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="../../Abstractions/Kck.FileStorage.Abstractions/Kck.FileStorage.Abstractions.csproj" />
   </ItemGroup>

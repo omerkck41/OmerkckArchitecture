@@ -3,6 +3,9 @@
   <PropertyGroup>
     <!-- OpenTelemetry.Instrumentation.EntityFrameworkCore has no stable release yet; suppress NU5104 -->
     <NoWarn>$(NoWarn);NU5104</NoWarn>
+    <Title>Kck Observability (OpenTelemetry)</Title>
+    <Description>OpenTelemetry-backed ITracingService and IMetricsService implementations. Exports traces and metrics via OTLP protocol, wires ASP.NET Core and EF Core auto-instrumentation, and registers Kck health checks at /health. Registered via AddKckObservability().</Description>
+    <PackageTags>dotnet;kck;observability;opentelemetry;tracing;metrics;otlp;health-checks</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>

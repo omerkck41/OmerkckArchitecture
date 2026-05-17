@@ -5,5 +5,8 @@
   <PropertyGroup>
     <!-- E4: CS1591 docs complete — enforce XML doc requirement as error for this package. -->
     <NoWarn>$(NoWarn.Replace(';1591','').Replace('1591;','').Replace('1591',''))</NoWarn>
+    <Title>Kck Persistence Abstractions</Title>
+    <Description>Provider-agnostic persistence contracts following Repository and Unit of Work patterns. Defines IReadRepository&lt;T,TId&gt;, IWriteRepository&lt;T,TId&gt;, IUnitOfWork, dynamic filtering, and Specification pattern. Implement with the Entity Framework Core provider.</Description>
+    <PackageTags>dotnet;kck;persistence;repository;unit-of-work;specification;ef-core;abstractions</PackageTags>
   </PropertyGroup>
 </Project>

@@ -25,23 +25,45 @@
     <Deterministic>true</Deterministic>
   </PropertyGroup>
 
-  <!-- NuGet Package Metadata -->
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+  <!-- NuGet Package Metadata                                                 -->
+  <!-- Global defaults — overridden per-project via <Description>, <Title>   -->
+  <!-- and <PackageTags> in each .csproj                                      -->
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
   <PropertyGroup>
-    <Authors>Omerkck</Authors>
+    <!-- Identity -->
+    <Authors>Ömer Küçük</Authors>
     <Company>Omerkck</Company>
+    <Copyright>Copyright © 2026 Ömer Küçük (omerkck41)</Copyright>
+    <NeutralLanguage>en</NeutralLanguage>
+
+    <!-- License -->
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+
+    <!-- URLs -->
     <PackageProjectUrl>https://github.com/omerkck41/OmerkckArchitecture</PackageProjectUrl>
     <RepositoryUrl>https://github.com/omerkck41/OmerkckArchitecture</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
-    <Description>Kck Modular Architecture Framework - A modular, extensible .NET framework with abstractions and providers for caching, messaging, persistence, observability, security, and more.</Description>
-    <PackageTags>dotnet;architecture;modular;framework;clean-architecture;ddd</PackageTags>
-    <Copyright>Copyright (c) Omerkck</Copyright>
+
+    <!-- Content -->
     <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageIcon>icon.png</PackageIcon>
+
+    <!-- Release notes link (uses MinVer-resolved version at pack time) -->
+    <PackageReleaseNotes>https://github.com/omerkck41/OmerkckArchitecture/releases/tag/v$(MinVerVersion)</PackageReleaseNotes>
+
+    <!-- Default description — overridden in every individual .csproj -->
+    <Description>Kck Modular Architecture Framework — a modular, extensible .NET 10 framework providing production-ready abstractions and providers for caching, persistence, messaging, security, observability, and more.</Description>
+
+    <!-- Default tags — extended per project -->
+    <PackageTags>dotnet;dotnet10;kck;framework;modular;clean-architecture;ddd;net10</PackageTags>
   </PropertyGroup>
 
-  <!-- Bundle root README.md into every NuGet package (NuGet.org displays it on the package page). -->
+  <!-- Include root README.md and icon into every publishable package -->
   <ItemGroup Condition="'$(IsPackable)' != 'false'">
     <None Include="$(MSBuildThisFileDirectory)README.md" Pack="true" PackagePath="\" />
+    <None Include="$(MSBuildThisFileDirectory)assets\icon.png" Pack="true" PackagePath="\" />
   </ItemGroup>
 
   <ItemGroup>

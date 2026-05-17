@@ -2,5 +2,8 @@
   <PropertyGroup>
     <!-- E4: CS1591 docs complete — enforce XML doc requirement as error for this package. -->
     <NoWarn>$(NoWarn.Replace(';1591','').Replace('1591;','').Replace('1591',''))</NoWarn>
+    <Title>Kck Caching Abstractions</Title>
+    <Description>Storage-agnostic caching contracts for the Kck framework. Defines ICacheService with stampede-safe GetOrSetAsync (64-stripe locking), prefix-based bulk invalidation, and TTL support. Implement with InMemory, Redis, or HybridCache providers.</Description>
+    <PackageTags>dotnet;kck;caching;distributed-cache;abstractions</PackageTags>
   </PropertyGroup>
 </Project>

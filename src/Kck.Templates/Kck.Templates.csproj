@@ -3,8 +3,8 @@
     <PackageType>Template</PackageType>
     <PackageId>Kck.Templates</PackageId>
     <Title>Kck Project Templates</Title>
-    <Description>dotnet new templates for Kck-based .NET projects. kck-webapi: WebAPI with Kck.Bundle.WebApi (Mediator, caching, JWT, Argon2, Serilog, OpenTelemetry, rate limiting).</Description>
-    <PackageTags>dotnet;template;kck;webapi;clean-architecture</PackageTags>
+    <Description>dotnet new templates for Kck-based .NET projects. Install with 'dotnet new install Kck.Templates' then scaffold with 'dotnet new kck-webapi -n MyApp'. Includes kck-webapi template pre-wired with Kck.Bundle.WebApi.</Description>
+    <PackageTags>dotnet;kck;templates;dotnet-new;scaffolding;webapi</PackageTags>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <TargetFramework>net10.0</TargetFramework>
     <!-- Keep build output: the stub assembly in lib/ satisfies NuGet's NU5017 content check. -->

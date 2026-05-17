@@ -1,4 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <Title>Kck Feature Flags (Azure App Configuration)</Title>
+    <Description>Azure App Configuration-backed IFeatureFlagService. Supports ConnectionString and Managed Identity authentication, configurable refresh interval, and stampede-safe cache. Registered via AddKckFeatureFlagsAzureAppConfig().</Description>
+    <PackageTags>dotnet;kck;feature-flags;azure;app-configuration;managed-identity</PackageTags>
+  </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="../../Abstractions/Kck.FeatureFlags.Abstractions/Kck.FeatureFlags.Abstractions.csproj" />
   </ItemGroup>

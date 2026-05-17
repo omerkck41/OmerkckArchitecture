@@ -1,4 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <Title>Kck Localization Core</Title>
+    <Description>Core ILocalizationService implementation with culture fallback, caching layer, and missing-key handling. Acts as the orchestrator for resource providers (JSON, YAML). Registered via AddKckLocalization().</Description>
+    <PackageTags>dotnet;kck;localization;i18n;culture;fallback</PackageTags>
+  </PropertyGroup>
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>

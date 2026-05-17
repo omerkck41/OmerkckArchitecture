@@ -1,5 +1,11 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
+  <PropertyGroup>
+    <Title>Kck Logging (Serilog)</Title>
+    <Description>Serilog structured logging integration for Kck applications. Configures compact JSON console output, PII masking enricher, and ASP.NET Core request logging. Registered via AddKckSerilog() / UseSerilog().</Description>
+    <PackageTags>dotnet;kck;logging;serilog;structured-logging;pii-masking</PackageTags>
+  </PropertyGroup>
+
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>

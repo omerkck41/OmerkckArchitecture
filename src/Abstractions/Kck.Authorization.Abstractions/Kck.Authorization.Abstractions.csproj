@@ -1,2 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <Title>Kck Authorization Abstractions</Title>
+    <Description>Abstractions for permission-based authorization in the Kck framework. Defines IAuthorizationService, IPermissionChecker, and ICurrentUserProvider contracts. Implement with any auth provider.</Description>
+    <PackageTags>dotnet;kck;authorization;permissions;abstractions</PackageTags>
+  </PropertyGroup>
 </Project>

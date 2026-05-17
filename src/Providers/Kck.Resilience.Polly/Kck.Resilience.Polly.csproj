@@ -1,4 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <Title>Kck Resilience (Polly)</Title>
+    <Description>Microsoft.Extensions.Resilience (Polly v8) integration for Kck. Registers named resilience pipelines with retry, circuit breaker, and timeout strategies. Inject ResiliencePipelineProvider&lt;string&gt; to resolve pipelines by name at runtime.</Description>
+    <PackageTags>dotnet;kck;resilience;polly;retry;circuit-breaker;timeout</PackageTags>
+  </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Resilience" />
   </ItemGroup>

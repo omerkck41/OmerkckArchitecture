@@ -1,4 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <Title>Kck Image Processing (ImageSharp)</Title>
+    <Description>SixLabors.ImageSharp-backed IImageProcessor for server-side image operations. Supports resize (with aspect-ratio preservation), format conversion (JPEG, PNG, WebP, AVIF), and image dimension reading. Registered via AddKckDocumentsImageSharp().</Description>
+    <PackageTags>dotnet;kck;image-processing;imagesharp;resize;image-conversion</PackageTags>
+  </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
   </ItemGroup>

@@ -2,6 +2,9 @@
   <PropertyGroup>
     <!-- Pinned to net10.0; depends on net10-only packages (LS-FAZ-2 ADR-0011) -->
     <TargetFrameworks>net10.0</TargetFrameworks>
+    <Title>Kck ASP.NET Core Extras</Title>
+    <Description>ASP.NET Core enhancements for Kck applications. Adds rate limiting, security headers middleware, CORS policy, session/cookie management, input sanitization, and KckApiControllerBase with standardized ApiResponse&lt;T&gt; helpers.</Description>
+    <PackageTags>dotnet;kck;aspnetcore;rate-limiting;security-headers;cors;middleware</PackageTags>
   </PropertyGroup>
   <ItemGroup>
     <InternalsVisibleTo Include="Kck.AspNetCore.Tests" />

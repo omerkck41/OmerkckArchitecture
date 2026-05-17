@@ -1,4 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <Title>Kck Security Abstractions</Title>
+    <Description>Provider-agnostic security contracts. Defines IHashingService (password hashing), IEncryptionService, ITokenService (JWT), ITokenBlacklistService, ISecretsManager, and IMfaProvider. Implement with Argon2, JWT, and Key Vault providers.</Description>
+    <PackageTags>dotnet;kck;security;authentication;jwt;hashing;encryption;abstractions</PackageTags>
+  </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="../../Abstractions/Kck.Core.Abstractions/Kck.Core.Abstractions.csproj" />
   </ItemGroup>

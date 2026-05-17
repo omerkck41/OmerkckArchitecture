@@ -1,4 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <Title>Kck Email (SendGrid)</Title>
+    <Description>Twilio SendGrid-backed IEmailProvider for transactional email. Supports HTML/plain-text bodies, attachments, and multiple recipients via SendGrid's v3 Mail API. Registered via AddKckMessagingSendGrid().</Description>
+    <PackageTags>dotnet;kck;email;sendgrid;transactional-email;twilio</PackageTags>
+  </PropertyGroup>
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
