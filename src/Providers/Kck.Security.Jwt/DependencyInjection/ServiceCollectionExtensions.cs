@@ -1,6 +1,8 @@
 using Kck.Security.Abstractions.Token;
 using Kck.Security.Jwt;
+using Kck.Security.Jwt.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Options;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -12,6 +14,8 @@ public static class KckSecurityJwtServiceCollectionExtensions
         Action<JwtOptions> configure)
     {
         services.Configure(configure);
+        services.TryAddSingleton<IValidateOptions<JwtOptions>, JwtOptionsValidator>();
+        services.AddOptions<JwtOptions>().ValidateOnStart();
         services.TryAddSingleton<ITokenService, JwtTokenService>();
         return services;
     }

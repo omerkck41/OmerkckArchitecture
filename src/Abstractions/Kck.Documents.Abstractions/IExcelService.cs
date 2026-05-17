@@ -1,3 +1,5 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace Kck.Documents.Abstractions;
 
 /// <summary>
@@ -9,7 +11,7 @@ public interface IExcelService
     Task<DocumentResult> CreateAsync(IEnumerable<ExcelWorksheet> worksheets, CancellationToken ct = default);
 
     /// <summary>Creates an Excel file from a typed collection (one worksheet, auto-headers).</summary>
-    Task<DocumentResult> CreateFromDataAsync<T>(IEnumerable<T> data, string worksheetName = "Sheet1", CancellationToken ct = default);
+    Task<DocumentResult> CreateFromDataAsync<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] T>(IEnumerable<T> data, string worksheetName = "Sheet1", CancellationToken ct = default);
 
     /// <summary>Reads all rows from the first worksheet.</summary>
     Task<IReadOnlyList<IReadOnlyList<object?>>> ReadAsync(Stream stream, CancellationToken ct = default);

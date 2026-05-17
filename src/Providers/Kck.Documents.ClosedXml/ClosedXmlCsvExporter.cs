@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using System.Text;
 using Kck.Documents.Abstractions;
@@ -6,7 +7,7 @@ namespace Kck.Documents.ClosedXml;
 
 public sealed class ClosedXmlCsvExporter : ICsvExporter
 {
-    public Task<DocumentResult> ExportAsync<T>(IEnumerable<T> data, string fileName = "export.csv", CancellationToken ct = default)
+    public Task<DocumentResult> ExportAsync<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] T>(IEnumerable<T> data, string fileName = "export.csv", CancellationToken ct = default)
     {
         var properties = typeof(T).GetProperties(BindingFlags.Public | BindingFlags.Instance);
         var sb = new StringBuilder();
