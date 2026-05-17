@@ -5,5 +5,6 @@
     <Title>Kck Messaging Abstractions</Title>
     <Description>Provider-agnostic email messaging contracts. Defines IEmailService and IEmailProvider with EmailMessage, EmailRecipient, and EmailAttachment models. Implement with MailKit, SendGrid, or Amazon SES providers.</Description>
     <PackageTags>dotnet;kck;messaging;email;smtp;abstractions</PackageTags>
+    <PackageReadmeFile>README.nuget.md</PackageReadmeFile>
   </PropertyGroup>
 </Project>

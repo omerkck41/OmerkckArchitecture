@@ -3,6 +3,7 @@
     <Title>Kck File Storage (FTP)</Title>
     <Description>FluentFTP-backed IFileStorageService with connection pooling (FtpConnectionPool). Supports SSL/TLS and configurable pool size for high-throughput scenarios. Path sanitization prevents directory traversal. Registered via AddKckFileStorageFluentFtp().</Description>
     <PackageTags>dotnet;kck;file-storage;ftp;ftps;fluentftp;connection-pool</PackageTags>
+    <PackageReadmeFile>README.nuget.md</PackageReadmeFile>
   </PropertyGroup>
   <ItemGroup>
     <InternalsVisibleTo Include="Kck.FileStorage.FluentFtp.Tests" />

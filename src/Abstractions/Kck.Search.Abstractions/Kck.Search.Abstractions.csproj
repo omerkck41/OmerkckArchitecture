@@ -3,5 +3,6 @@
     <Title>Kck Search Abstractions</Title>
     <Description>Provider-agnostic full-text search contracts. Defines ISearchService&lt;T&gt; with index management (create/delete/exists), document CRUD, bulk indexing, and query operations. Implement with the Elasticsearch provider.</Description>
     <PackageTags>dotnet;kck;search;full-text-search;elasticsearch;abstractions</PackageTags>
+    <PackageReadmeFile>README.nuget.md</PackageReadmeFile>
   </PropertyGroup>
 </Project>

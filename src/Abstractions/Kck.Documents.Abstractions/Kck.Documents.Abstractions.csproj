@@ -5,5 +5,6 @@
     <Title>Kck Documents Abstractions</Title>
     <Description>Provider-agnostic document processing contracts. Defines IExcelService, ICsvExporter, and IImageProcessor for spreadsheet generation, CSV export, and image resizing. Implement with ClosedXml or ImageSharp providers.</Description>
     <PackageTags>dotnet;kck;documents;excel;csv;image-processing;abstractions</PackageTags>
+    <PackageReadmeFile>README.nuget.md</PackageReadmeFile>
   </PropertyGroup>
 </Project>

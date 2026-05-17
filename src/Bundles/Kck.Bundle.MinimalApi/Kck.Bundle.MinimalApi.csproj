@@ -5,6 +5,7 @@
     <Title>Kck Minimal API Bundle</Title>
     <Description>Lightweight ASP.NET Core Minimal API starter pack. Slim variant of the WebAPI bundle — provides Serilog, in-memory caching, JWT, exception handling, and health checks without MediatR pipeline or Argon2 overhead.</Description>
     <PackageTags>dotnet;kck;minimal-api;aspnetcore;bundle;lightweight;serilog</PackageTags>
+    <PackageReadmeFile>README.nuget.md</PackageReadmeFile>
   </PropertyGroup>
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />

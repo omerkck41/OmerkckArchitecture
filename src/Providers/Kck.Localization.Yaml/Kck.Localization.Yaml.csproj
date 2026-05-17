@@ -3,6 +3,7 @@
     <Title>Kck Localization (YAML)</Title>
     <Description>YAML file-backed ILocalizationService resource provider. Loads translations from YAML files per culture with optional hot-reload. Human-friendly alternative to JSON resources. Registered via AddKckLocalizationYaml().</Description>
     <PackageTags>dotnet;kck;localization;i18n;yaml;resource-files</PackageTags>
+    <PackageReadmeFile>README.nuget.md</PackageReadmeFile>
   </PropertyGroup>
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />

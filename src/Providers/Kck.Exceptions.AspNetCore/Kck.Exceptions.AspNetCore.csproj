@@ -5,6 +5,7 @@
     <Title>Kck Exception Handling Middleware</Title>
     <Description>ASP.NET Core global exception handler for Kck exceptions. Maps Kck exception types to RFC 7807 ProblemDetails responses with correct HTTP status codes via [HttpStatusCodeAttribute]. Registered via AddKckExceptionHandling().</Description>
     <PackageTags>dotnet;kck;exception-handling;problem-details;aspnetcore;middleware</PackageTags>
+    <PackageReadmeFile>README.nuget.md</PackageReadmeFile>
   </PropertyGroup>
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />

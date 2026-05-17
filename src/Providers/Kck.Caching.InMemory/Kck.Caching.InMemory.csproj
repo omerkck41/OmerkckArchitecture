@@ -3,6 +3,7 @@
     <Title>Kck In-Memory Cache Provider</Title>
     <Description>IMemoryCache-backed ICacheService implementation with key tracking and stampede-safe GetOrSetAsync (64-stripe locking). Suitable for single-instance deployments. Registered via AddKckCachingInMemory().</Description>
     <PackageTags>dotnet;kck;caching;in-memory;memory-cache</PackageTags>
+    <PackageReadmeFile>README.nuget.md</PackageReadmeFile>
   </PropertyGroup>
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />

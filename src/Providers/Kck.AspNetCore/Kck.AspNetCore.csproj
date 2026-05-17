@@ -5,6 +5,7 @@
     <Title>Kck ASP.NET Core Extras</Title>
     <Description>ASP.NET Core enhancements for Kck applications. Adds rate limiting, security headers middleware, CORS policy, session/cookie management, input sanitization, and KckApiControllerBase with standardized ApiResponse&lt;T&gt; helpers.</Description>
     <PackageTags>dotnet;kck;aspnetcore;rate-limiting;security-headers;cors;middleware</PackageTags>
+    <PackageReadmeFile>README.nuget.md</PackageReadmeFile>
   </PropertyGroup>
   <ItemGroup>
     <InternalsVisibleTo Include="Kck.AspNetCore.Tests" />

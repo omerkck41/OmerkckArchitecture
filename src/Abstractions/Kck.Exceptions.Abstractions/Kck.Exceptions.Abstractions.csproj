@@ -5,5 +5,6 @@
     <Title>Kck Exceptions Abstractions</Title>
     <Description>Structured HTTP-aware exception hierarchy for the Kck framework. Provides CustomException base and concrete types (BadRequestException, NotFoundException, UnauthorizedException) with automatic HTTP status code mapping via [HttpStatusCodeAttribute].</Description>
     <PackageTags>dotnet;kck;exceptions;error-handling;http-exceptions;abstractions</PackageTags>
+    <PackageReadmeFile>README.nuget.md</PackageReadmeFile>
   </PropertyGroup>
 </Project>

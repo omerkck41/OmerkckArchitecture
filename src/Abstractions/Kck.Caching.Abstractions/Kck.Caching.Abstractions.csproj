@@ -5,5 +5,6 @@
     <Title>Kck Caching Abstractions</Title>
     <Description>Storage-agnostic caching contracts for the Kck framework. Defines ICacheService with stampede-safe GetOrSetAsync (64-stripe locking), prefix-based bulk invalidation, and TTL support. Implement with InMemory, Redis, or HybridCache providers.</Description>
     <PackageTags>dotnet;kck;caching;distributed-cache;abstractions</PackageTags>
+    <PackageReadmeFile>README.nuget.md</PackageReadmeFile>
   </PropertyGroup>
 </Project>

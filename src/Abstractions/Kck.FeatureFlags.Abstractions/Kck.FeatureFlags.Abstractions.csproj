@@ -5,5 +5,6 @@
     <Title>Kck Feature Flags Abstractions</Title>
     <Description>Provider-agnostic feature flag contracts. Defines IFeatureFlagService for checking, retrieving, and listing feature definitions with optional per-user/tenant context evaluation. Implement with InMemory or Azure App Configuration providers.</Description>
     <PackageTags>dotnet;kck;feature-flags;feature-toggles;abstractions</PackageTags>
+    <PackageReadmeFile>README.nuget.md</PackageReadmeFile>
   </PropertyGroup>
 </Project>

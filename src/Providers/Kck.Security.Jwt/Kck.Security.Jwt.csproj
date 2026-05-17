@@ -5,6 +5,7 @@
     <Title>Kck JWT Token Service</Title>
     <Description>RS256-signed JWT ITokenService using Microsoft.IdentityModel.JsonWebTokens. Supports RSA key loading from file, base64-encoded configuration, or ISecretsManager. Generates and validates access tokens with configurable expiry. Registered via AddKckJwt().</Description>
     <PackageTags>dotnet;kck;security;jwt;authentication;rs256;tokens</PackageTags>
+    <PackageReadmeFile>README.nuget.md</PackageReadmeFile>
   </PropertyGroup>
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />

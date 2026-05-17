@@ -47,11 +47,16 @@
     <RepositoryType>git</RepositoryType>
 
     <!-- Content -->
+    <!--
+      PackageReadmeFile: each project can override with its own README.nuget.md.
+      When a project-local README.nuget.md does not exist, root README.md is used
+      (added via ItemGroup below). Override per-project:
+        <PackageReadmeFile>README.nuget.md</PackageReadmeFile>
+    -->
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageIcon>icon.png</PackageIcon>
 
-    <!-- Release notes link (uses MinVer-resolved version at pack time) -->
-    <PackageReleaseNotes>https://github.com/omerkck41/OmerkckArchitecture/releases/tag/v$(MinVerVersion)</PackageReleaseNotes>
+    <PackageReleaseNotes>Changelog: https://github.com/omerkck41/OmerkckArchitecture/blob/main/CHANGELOG.md | Releases: https://github.com/omerkck41/OmerkckArchitecture/releases</PackageReleaseNotes>
 
     <!-- Default description — overridden in every individual .csproj -->
     <Description>Kck Modular Architecture Framework — a modular, extensible .NET 10 framework providing production-ready abstractions and providers for caching, persistence, messaging, security, observability, and more.</Description>
@@ -60,10 +65,24 @@
     <PackageTags>dotnet;dotnet10;kck;framework;modular;clean-architecture;ddd;net10</PackageTags>
   </PropertyGroup>
 
-  <!-- Include root README.md and icon into every publishable package -->
+  <!-- Icon included in every publishable package -->
   <ItemGroup Condition="'$(IsPackable)' != 'false'">
-    <None Include="$(MSBuildThisFileDirectory)README.md" Pack="true" PackagePath="\" />
     <None Include="$(MSBuildThisFileDirectory)assets\icon.png" Pack="true" PackagePath="\" />
+  </ItemGroup>
+
+  <!--
+    README strategy:
+      1. If the project has a local README.nuget.md → use it (set PackageReadmeFile per .csproj)
+      2. Otherwise → include root README.md as fallback
+    Projects with README.nuget.md must set:
+      <PackageReadmeFile>README.nuget.md</PackageReadmeFile>
+    and exclude themselves from the root-README fallback via Condition.
+  -->
+  <ItemGroup Condition="'$(IsPackable)' != 'false' AND '$(PackageReadmeFile)' == 'README.md'">
+    <None Include="$(MSBuildThisFileDirectory)README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(IsPackable)' != 'false' AND '$(PackageReadmeFile)' == 'README.nuget.md'">
+    <None Include="$(MSBuildProjectDirectory)\README.nuget.md" Pack="true" PackagePath="\" />
   </ItemGroup>
 
   <ItemGroup>

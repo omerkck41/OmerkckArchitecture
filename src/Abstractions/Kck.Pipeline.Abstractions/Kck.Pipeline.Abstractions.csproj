@@ -3,5 +3,6 @@
     <Title>Kck Pipeline Abstractions</Title>
     <Description>Marker interfaces for the Kck pipeline behavior system. Provides ICachableRequest, ILoggableRequest, ISecuredRequest, and ITransactionalRequest — implement on MediatR or Mediator commands/queries to opt into cross-cutting behaviors.</Description>
     <PackageTags>dotnet;kck;pipeline;mediator;cqrs;behaviors;markers;abstractions</PackageTags>
+    <PackageReadmeFile>README.nuget.md</PackageReadmeFile>
   </PropertyGroup>
 </Project>

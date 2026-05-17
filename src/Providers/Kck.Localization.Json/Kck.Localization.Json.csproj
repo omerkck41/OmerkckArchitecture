@@ -3,6 +3,7 @@
     <Title>Kck Localization (JSON)</Title>
     <Description>JSON file-backed ILocalizationService resource provider. Loads translations from JSON files per culture (e.g. en.json, tr.json) with optional hot-reload support. Registered via AddKckLocalizationJson().</Description>
     <PackageTags>dotnet;kck;localization;i18n;json;resource-files</PackageTags>
+    <PackageReadmeFile>README.nuget.md</PackageReadmeFile>
   </PropertyGroup>
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />

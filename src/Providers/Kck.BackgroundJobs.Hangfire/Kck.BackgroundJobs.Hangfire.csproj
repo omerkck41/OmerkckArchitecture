@@ -3,6 +3,7 @@
     <Title>Kck Background Jobs (Hangfire)</Title>
     <Description>Hangfire-backed IJobScheduler implementation for the Kck framework. Supports fire-and-forget, recurring (cron), and delayed job scheduling with the Hangfire dashboard. Registered via AddKckJob&lt;TJob&gt;().</Description>
     <PackageTags>dotnet;kck;hangfire;background-jobs;cron;job-scheduler</PackageTags>
+    <PackageReadmeFile>README.nuget.md</PackageReadmeFile>
   </PropertyGroup>
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
