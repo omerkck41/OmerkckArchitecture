@@ -97,16 +97,34 @@ msbuild.wrn
 ## Claude / local workspace notes
 .claude/
 
-## Internal dev notes / planning (not published)
-## Bu klasörler sadece yerel planlama/analiz içindir, repoya eklenmez.
+## ─────────────────────────────────────────────────────────────────────────────
+## LOCAL-ONLY: Planning, analysis and session notes
+##
+## Rule: GitHub contains ONLY source code and project documentation.
+##       Anything created during a planning/analysis session (ideas, proposals,
+##       roadmap drafts, sprint notes, AI conversation artifacts) stays local.
+##
+##       Common patterns to use for local work:
+##         öneri/          → suggestions / proposals
+##         analiz/         → analysis documents
+##         planlama/       → planning documents
+##         tasks/          → sprint notes, checkpoints, todo lists
+##         _drafts/        → work-in-progress documents
+## ─────────────────────────────────────────────────────────────────────────────
 tasks/
 .superdesign/
 öneri*/
 analiz*/
 planlama*/
+fikir*/
+strateji*/
 _drafts/
 _notes/
+_ideas/
 _temp*/
+*.session.md
+*.planning.md
+*.draft.md
 
 ## Mutation testing output
 mutation-report/
