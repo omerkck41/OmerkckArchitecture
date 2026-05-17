@@ -3,6 +3,7 @@
     <Title>Kck Email (Amazon SES)</Title>
     <Description>Amazon Simple Email Service v2-backed IEmailProvider. Supports explicit AWS credentials or IAM role authentication with SES v2 BulkEmail API for high-volume sending. Registered via AddKckMessagingAmazonSes().</Description>
     <PackageTags>dotnet;kck;email;amazon;ses;aws;transactional-email</PackageTags>
+    <PackageReadmeFile>README.nuget.md</PackageReadmeFile>
   </PropertyGroup>
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />

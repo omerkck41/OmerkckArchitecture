@@ -3,6 +3,7 @@
     <Title>Kck Event Bus (RabbitMQ)</Title>
     <Description>RabbitMQ-backed IEventBus using AMQP topic exchanges. Supports durable exchanges, per-event queues, configurable retry with exponential backoff, and consumer health checks. Registered via builder.UseRabbitMq().</Description>
     <PackageTags>dotnet;kck;event-bus;rabbitmq;amqp;message-broker;pub-sub</PackageTags>
+    <PackageReadmeFile>README.nuget.md</PackageReadmeFile>
   </PropertyGroup>
   <ItemGroup>
     <InternalsVisibleTo Include="Kck.EventBus.RabbitMq.Tests" />

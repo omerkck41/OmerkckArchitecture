@@ -3,6 +3,7 @@
     <Title>Kck Pipeline (MediatR) [Deprecated]</Title>
     <Description>MediatR-backed pipeline behaviors for Kck. Provides Authorization, Caching, Logging, Transaction, and Validation behaviors. DEPRECATED — use Kck.Pipeline.Mediator instead. Will be removed in a future version (KCK0200).</Description>
     <PackageTags>dotnet;kck;pipeline;mediatr;cqrs;behaviors;deprecated</PackageTags>
+    <PackageReadmeFile>README.nuget.md</PackageReadmeFile>
   </PropertyGroup>
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />

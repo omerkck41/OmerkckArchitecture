@@ -5,6 +5,7 @@
     <Title>Kck Persistence (Entity Framework Core)</Title>
     <Description>Entity Framework Core implementations of IReadRepository&lt;T,TId&gt;, IWriteRepository&lt;T,TId&gt;, and IUnitOfWork. Includes AuditInterceptor (auto CreatedDate/ModifiedDate), DynamicFilterExtensions, soft-delete support, and ToPaginateAsync extension. Registered via AddKckEntityFramework&lt;TContext&gt;().</Description>
     <PackageTags>dotnet;kck;persistence;entity-framework;ef-core;repository;unit-of-work</PackageTags>
+    <PackageReadmeFile>README.nuget.md</PackageReadmeFile>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="../../Abstractions/Kck.Core.Abstractions/Kck.Core.Abstractions.csproj" />

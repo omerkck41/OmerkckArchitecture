@@ -5,5 +5,6 @@
     <Title>Kck File Storage Abstractions</Title>
     <Description>Provider-agnostic file storage contracts. Defines IFileStorageService (Upload/Download/Delete/Exists/List) with FileUploadRequest and FileMetadata models. Implement with FTP, Azure Blob, or AWS S3 providers.</Description>
     <PackageTags>dotnet;kck;file-storage;blob-storage;cloud-storage;abstractions</PackageTags>
+    <PackageReadmeFile>README.nuget.md</PackageReadmeFile>
   </PropertyGroup>
 </Project>

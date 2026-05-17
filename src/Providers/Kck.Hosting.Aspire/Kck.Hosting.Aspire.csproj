@@ -5,6 +5,7 @@
     <Title>Kck .NET Aspire Integration</Title>
     <Description>.NET Aspire host integration for Kck applications. Applies Aspire's service defaults (health checks, resilience, observability) alongside Kck-specific configuration via AddKckServiceDefaults().</Description>
     <PackageTags>dotnet;kck;aspire;hosting;cloud-native;service-defaults</PackageTags>
+    <PackageReadmeFile>README.nuget.md</PackageReadmeFile>
   </PropertyGroup>
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />

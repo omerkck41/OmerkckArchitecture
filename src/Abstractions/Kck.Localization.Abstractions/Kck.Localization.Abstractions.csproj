@@ -3,5 +3,6 @@
     <Title>Kck Localization Abstractions</Title>
     <Description>Provider-agnostic localization contracts. Defines ILocalizationService for string lookup with culture support and dynamic reload. Implement with JSON or YAML resource providers.</Description>
     <PackageTags>dotnet;kck;localization;i18n;l10n;abstractions</PackageTags>
+    <PackageReadmeFile>README.nuget.md</PackageReadmeFile>
   </PropertyGroup>
 </Project>

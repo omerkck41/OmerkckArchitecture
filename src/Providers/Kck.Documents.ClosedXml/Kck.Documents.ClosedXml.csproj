@@ -3,6 +3,7 @@
     <Title>Kck Documents (ClosedXML)</Title>
     <Description>ClosedXML-backed IExcelService and ICsvExporter implementations. Generates Excel workbooks from typed collections with auto-generated headers, and exports data to CSV format. Registered via AddKckDocumentsClosedXml().</Description>
     <PackageTags>dotnet;kck;excel;csv;closedxml;documents;report-generation</PackageTags>
+    <PackageReadmeFile>README.nuget.md</PackageReadmeFile>
   </PropertyGroup>
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />

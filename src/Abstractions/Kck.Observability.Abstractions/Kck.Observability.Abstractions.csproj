@@ -5,5 +5,6 @@
     <Title>Kck Observability Abstractions</Title>
     <Description>Provider-agnostic observability contracts. Defines ITracingService, IMetricsService (ICounter/IHistogram/IGauge), and health check interfaces (IHealthCheck, IHealthCheckRegistrar). Implement with the OpenTelemetry provider.</Description>
     <PackageTags>dotnet;kck;observability;tracing;metrics;health-checks;opentelemetry;abstractions</PackageTags>
+    <PackageReadmeFile>README.nuget.md</PackageReadmeFile>
   </PropertyGroup>
 </Project>

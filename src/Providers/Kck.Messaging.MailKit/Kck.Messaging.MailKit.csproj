@@ -3,6 +3,7 @@
     <Title>Kck Email (MailKit/SMTP)</Title>
     <Description>MailKit-backed IEmailProvider for SMTP email delivery with connection pooling (SmtpConnectionPool). Supports SSL/TLS, STARTTLS, and configurable pool size. Registered via AddKckMessagingMailKit().</Description>
     <PackageTags>dotnet;kck;email;smtp;mailkit;starttls;connection-pool</PackageTags>
+    <PackageReadmeFile>README.nuget.md</PackageReadmeFile>
   </PropertyGroup>
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />

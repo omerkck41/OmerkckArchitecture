@@ -3,6 +3,7 @@
     <Title>Kck Search (Elasticsearch)</Title>
     <Description>Elastic.Clients.Elasticsearch 9.x-backed ISearchService&lt;T&gt; for full-text search. Supports index lifecycle (create/delete/exists), document CRUD, bulk indexing, and query operations. Requires Elasticsearch 9.x server. Registered via AddKckSearchElasticsearch&lt;T&gt;().</Description>
     <PackageTags>dotnet;kck;search;elasticsearch;full-text-search;elastic</PackageTags>
+    <PackageReadmeFile>README.nuget.md</PackageReadmeFile>
   </PropertyGroup>
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />

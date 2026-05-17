@@ -5,6 +5,7 @@
     <Title>Kck WebAPI Bundle</Title>
     <Description>Opinionated ASP.NET Core WebAPI starter pack. Registers Serilog, in-memory caching, JWT auth, Argon2 hashing, InMemory event bus, OpenTelemetry, rate limiting, security headers, CORS, and global exception handling in a single AddKckWebApiDefaults() call.</Description>
     <PackageTags>dotnet;kck;webapi;aspnetcore;bundle;starter;serilog;opentelemetry</PackageTags>
+    <PackageReadmeFile>README.nuget.md</PackageReadmeFile>
   </PropertyGroup>
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />

@@ -3,6 +3,7 @@
     <Title>Kck Token Blacklist (Redis)</Title>
     <Description>Redis-backed ITokenBlacklistService for JWT revocation. Stores blacklisted token identifiers in Redis with automatic TTL expiration. Enables immediate token invalidation on logout or security events. Registered via AddKckTokenBlacklistRedis().</Description>
     <PackageTags>dotnet;kck;security;jwt;token-blacklist;redis;revocation</PackageTags>
+    <PackageReadmeFile>README.nuget.md</PackageReadmeFile>
   </PropertyGroup>
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />

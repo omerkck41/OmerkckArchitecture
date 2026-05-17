@@ -5,6 +5,7 @@
     <Title>Kck Redis Cache Provider</Title>
     <Description>StackExchange.Redis-backed ICacheService for distributed caching. Supports key-prefix namespacing, O(1) EXISTS checks, and chunked 1000-key prefix-delete operations. Registered via AddKckCachingRedis() with connection string or ConfigurationOptions.</Description>
     <PackageTags>dotnet;kck;caching;redis;distributed-cache;stackexchange-redis</PackageTags>
+    <PackageReadmeFile>README.nuget.md</PackageReadmeFile>
   </PropertyGroup>
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />

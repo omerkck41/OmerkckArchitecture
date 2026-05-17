@@ -3,6 +3,7 @@
     <Title>Kck Event Bus (Azure Service Bus)</Title>
     <Description>Azure Service Bus-backed IEventBus for reliable cloud messaging. Supports topic/subscription model with configurable MaxConcurrentCalls, auto lock renewal, and retry policy. Registered via builder.UseAzureServiceBus().</Description>
     <PackageTags>dotnet;kck;event-bus;azure;service-bus;cloud-messaging;pub-sub</PackageTags>
+    <PackageReadmeFile>README.nuget.md</PackageReadmeFile>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="../../Abstractions/Kck.EventBus.Abstractions/Kck.EventBus.Abstractions.csproj" />

@@ -5,6 +5,7 @@
     <Title>Kck HTTP Resilience Client</Title>
     <Description>Polly-backed IApiClient implementation using Microsoft.Extensions.Resilience. Supports named resilience pipelines with retry, circuit breaker, and timeout strategies. Registered via AddKckHttpClient&lt;TClient&gt;().</Description>
     <PackageTags>dotnet;kck;httpclient;resilience;polly;retry;circuit-breaker</PackageTags>
+    <PackageReadmeFile>README.nuget.md</PackageReadmeFile>
   </PropertyGroup>
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />

@@ -6,6 +6,7 @@
     <Title>Kck Observability (OpenTelemetry)</Title>
     <Description>OpenTelemetry-backed ITracingService and IMetricsService implementations. Exports traces and metrics via OTLP protocol, wires ASP.NET Core and EF Core auto-instrumentation, and registers Kck health checks at /health. Registered via AddKckObservability().</Description>
     <PackageTags>dotnet;kck;observability;opentelemetry;tracing;metrics;otlp;health-checks</PackageTags>
+    <PackageReadmeFile>README.nuget.md</PackageReadmeFile>
   </PropertyGroup>
 
   <ItemGroup>
