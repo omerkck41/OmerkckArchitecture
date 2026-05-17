@@ -7,5 +7,8 @@ namespace Kck.Documents.Abstractions;
 /// </summary>
 public interface ICsvExporter
 {
+    /// <summary>
+    /// Exports data collection to CSV format and returns the result as a DocumentResult.
+    /// </summary>
     Task<DocumentResult> ExportAsync<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] T>(IEnumerable<T> data, string fileName = "export.csv", CancellationToken ct = default);
 }
