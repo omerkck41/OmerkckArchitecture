@@ -1,0 +1,24 @@
+#nullable enable
+Kck.FileStorage.AwsS3.AwsS3Options
+Kck.FileStorage.AwsS3.AwsS3Options.AccessKey.get -> string?
+Kck.FileStorage.AwsS3.AwsS3Options.AccessKey.set -> void
+Kck.FileStorage.AwsS3.AwsS3Options.AwsS3Options() -> void
+Kck.FileStorage.AwsS3.AwsS3Options.BucketName.get -> string!
+Kck.FileStorage.AwsS3.AwsS3Options.BucketName.set -> void
+Kck.FileStorage.AwsS3.AwsS3Options.KeyPrefix.get -> string?
+Kck.FileStorage.AwsS3.AwsS3Options.KeyPrefix.set -> void
+Kck.FileStorage.AwsS3.AwsS3Options.Region.get -> string!
+Kck.FileStorage.AwsS3.AwsS3Options.Region.set -> void
+Kck.FileStorage.AwsS3.AwsS3Options.SecretKey.get -> string?
+Kck.FileStorage.AwsS3.AwsS3Options.SecretKey.set -> void
+Kck.FileStorage.AwsS3.AwsS3StorageService
+Kck.FileStorage.AwsS3.AwsS3StorageService.AwsS3StorageService(Microsoft.Extensions.Options.IOptionsMonitor<Kck.FileStorage.AwsS3.AwsS3Options!>! options) -> void
+Kck.FileStorage.AwsS3.AwsS3StorageService.DeleteAsync(string! path, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task!
+Kck.FileStorage.AwsS3.AwsS3StorageService.Dispose() -> void
+Kck.FileStorage.AwsS3.AwsS3StorageService.DownloadAsync(string! path, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<System.IO.Stream!>!
+Kck.FileStorage.AwsS3.AwsS3StorageService.ExistsAsync(string! path, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<bool>!
+Kck.FileStorage.AwsS3.AwsS3StorageService.ListAsync(string! directoryPath, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<System.Collections.Generic.IReadOnlyList<Kck.FileStorage.Abstractions.FileMetadata!>!>!
+Kck.FileStorage.AwsS3.AwsS3StorageService.UploadAsync(Kck.FileStorage.Abstractions.FileUploadRequest! request, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task!
+Kck.FileStorage.AwsS3.DependencyInjection.AwsS3OptionsValidator
+Kck.FileStorage.AwsS3.DependencyInjection.AwsS3OptionsValidator.AwsS3OptionsValidator() -> void
+Kck.FileStorage.AwsS3.DependencyInjection.AwsS3OptionsValidator.Validate(string? name, Kck.FileStorage.AwsS3.AwsS3Options! options) -> Microsoft.Extensions.Options.ValidateOptionsResult!
