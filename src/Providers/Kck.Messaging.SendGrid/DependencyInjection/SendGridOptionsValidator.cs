@@ -2,7 +2,7 @@ using Microsoft.Extensions.Options;
 
 namespace Kck.Messaging.SendGrid.DependencyInjection;
 
-internal sealed class SendGridOptionsValidator : IValidateOptions<SendGridOptions>
+public sealed class SendGridOptionsValidator : IValidateOptions<SendGridOptions>
 {
     public ValidateOptionsResult Validate(string? name, SendGridOptions options)
     {

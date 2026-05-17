@@ -2,7 +2,7 @@ using Microsoft.Extensions.Options;
 
 namespace Kck.Search.Elasticsearch.DependencyInjection;
 
-internal sealed class ElasticsearchOptionsValidator : IValidateOptions<ElasticsearchOptions>
+public sealed class ElasticsearchOptionsValidator : IValidateOptions<ElasticsearchOptions>
 {
     public ValidateOptionsResult Validate(string? name, ElasticsearchOptions options)
     {

@@ -2,7 +2,7 @@ using Microsoft.Extensions.Options;
 
 namespace Kck.Messaging.MailKit.DependencyInjection;
 
-internal sealed class MailKitOptionsValidator : IValidateOptions<MailKitOptions>
+public sealed class MailKitOptionsValidator : IValidateOptions<MailKitOptions>
 {
     public ValidateOptionsResult Validate(string? name, MailKitOptions options)
     {

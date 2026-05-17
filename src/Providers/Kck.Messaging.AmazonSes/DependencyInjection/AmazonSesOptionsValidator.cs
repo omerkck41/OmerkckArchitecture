@@ -2,7 +2,7 @@ using Microsoft.Extensions.Options;
 
 namespace Kck.Messaging.AmazonSes.DependencyInjection;
 
-internal sealed class AmazonSesOptionsValidator : IValidateOptions<AmazonSesOptions>
+public sealed class AmazonSesOptionsValidator : IValidateOptions<AmazonSesOptions>
 {
     public ValidateOptionsResult Validate(string? name, AmazonSesOptions options)
     {

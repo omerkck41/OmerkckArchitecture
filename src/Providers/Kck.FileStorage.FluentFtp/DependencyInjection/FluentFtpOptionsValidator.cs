@@ -2,7 +2,7 @@ using Microsoft.Extensions.Options;
 
 namespace Kck.FileStorage.FluentFtp.DependencyInjection;
 
-internal sealed class FluentFtpOptionsValidator : IValidateOptions<FluentFtpOptions>
+public sealed class FluentFtpOptionsValidator : IValidateOptions<FluentFtpOptions>
 {
     public ValidateOptionsResult Validate(string? name, FluentFtpOptions options)
     {

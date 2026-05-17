@@ -2,7 +2,7 @@ using Microsoft.Extensions.Options;
 
 namespace Kck.Security.Jwt.DependencyInjection;
 
-internal sealed class JwtOptionsValidator : IValidateOptions<JwtOptions>
+public sealed class JwtOptionsValidator : IValidateOptions<JwtOptions>
 {
     public ValidateOptionsResult Validate(string? name, JwtOptions options)
     {

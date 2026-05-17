@@ -2,7 +2,7 @@ using Microsoft.Extensions.Options;
 
 namespace Kck.Security.TokenBlacklist.Redis.DependencyInjection;
 
-internal sealed class RedisTokenBlacklistOptionsValidator : IValidateOptions<RedisTokenBlacklistOptions>
+public sealed class RedisTokenBlacklistOptionsValidator : IValidateOptions<RedisTokenBlacklistOptions>
 {
     public ValidateOptionsResult Validate(string? name, RedisTokenBlacklistOptions options)
     {

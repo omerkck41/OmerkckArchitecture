@@ -2,7 +2,7 @@ using Microsoft.Extensions.Options;
 
 namespace Kck.EventBus.AzureServiceBus.DependencyInjection;
 
-internal sealed class AzureServiceBusOptionsValidator : IValidateOptions<AzureServiceBusOptions>
+public sealed class AzureServiceBusOptionsValidator : IValidateOptions<AzureServiceBusOptions>
 {
     public ValidateOptionsResult Validate(string? name, AzureServiceBusOptions options)
     {

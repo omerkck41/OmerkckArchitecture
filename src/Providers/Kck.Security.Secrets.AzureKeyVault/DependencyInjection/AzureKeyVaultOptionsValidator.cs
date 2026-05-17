@@ -2,7 +2,7 @@ using Microsoft.Extensions.Options;
 
 namespace Kck.Security.Secrets.AzureKeyVault.DependencyInjection;
 
-internal sealed class AzureKeyVaultOptionsValidator : IValidateOptions<AzureKeyVaultOptions>
+public sealed class AzureKeyVaultOptionsValidator : IValidateOptions<AzureKeyVaultOptions>
 {
     public ValidateOptionsResult Validate(string? name, AzureKeyVaultOptions options)
     {

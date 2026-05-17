@@ -2,7 +2,7 @@ using Microsoft.Extensions.Options;
 
 namespace Kck.Security.Argon2.DependencyInjection;
 
-internal sealed class Argon2OptionsValidator : IValidateOptions<Argon2Options>
+public sealed class Argon2OptionsValidator : IValidateOptions<Argon2Options>
 {
     // OWASP minimums: https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html
     private const int MinMemoryKb = 19456;  // 19 MB (OWASP 2023 minimum)
