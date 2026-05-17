@@ -3,8 +3,17 @@ using Microsoft.AspNetCore.Http.Extensions;
 
 namespace Kck.AspNetCore.Responses;
 
+/// <summary>
+/// Factory helpers for building <see cref="ApiResponse{T}"/> instances with HTTP-method-aware
+/// status code inference and automatic Location header population for POST requests.
+/// </summary>
 public static class ApiResponseHelper
 {
+    /// <summary>
+    /// Creates a successful <see cref="ApiResponse{T}"/> whose HTTP status code is inferred from
+    /// the current request method (200/201/204).  When <paramref name="resourceId"/> is supplied
+    /// on a POST request the Location URL is also populated.
+    /// </summary>
     public static ApiResponse<T> CreateSuccess<T>(
         T data,
         HttpContext httpContext,
@@ -38,6 +47,10 @@ public static class ApiResponseHelper
         };
     }
 
+    /// <summary>
+    /// Creates a failed <see cref="ApiResponse{T}"/> whose HTTP status code is inferred from the
+    /// request method (400/404) and populates error classification fields.
+    /// </summary>
     public static ApiResponse<T> CreateFail<T>(
         string message,
         HttpContext httpContext,

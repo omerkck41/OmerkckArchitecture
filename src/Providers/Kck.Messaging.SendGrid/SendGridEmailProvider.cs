@@ -5,10 +5,16 @@ using SendGrid.Helpers.Mail;
 
 namespace Kck.Messaging.SendGrid;
 
+/// <summary>
+/// Sends emails via the SendGrid Web API v3, supporting multiple recipients, Cc/Bcc, and file attachments.
+/// </summary>
 public sealed class SendGridEmailProvider(IOptionsMonitor<SendGridOptions> options) : IEmailProvider
 {
     private readonly SendGridClient _client = new(options.CurrentValue.ApiKey);
 
+    /// <summary>
+    /// Sends the given <paramref name="message"/> through SendGrid and throws <see cref="InvalidOperationException"/> if the API returns a non-success status.
+    /// </summary>
     public async Task SendAsync(EmailMessage message, CancellationToken ct = default)
     {
         var from = new EmailAddress(message.From, message.FromName);

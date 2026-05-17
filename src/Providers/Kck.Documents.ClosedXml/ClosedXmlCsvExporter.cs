@@ -5,8 +5,16 @@ using Kck.Documents.Abstractions;
 
 namespace Kck.Documents.ClosedXml;
 
+/// <summary>
+/// Implementation of <see cref="ICsvExporter"/> that uses reflection to enumerate public
+/// properties of the exported type and writes RFC-4180-compliant CSV content.
+/// </summary>
 public sealed class ClosedXmlCsvExporter : ICsvExporter
 {
+    /// <summary>
+    /// Exports <paramref name="data"/> to a UTF-8 CSV <see cref="DocumentResult"/> whose
+    /// file name defaults to <c>export.csv</c>.
+    /// </summary>
     public Task<DocumentResult> ExportAsync<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] T>(IEnumerable<T> data, string fileName = "export.csv", CancellationToken ct = default)
     {
         var properties = typeof(T).GetProperties(BindingFlags.Public | BindingFlags.Instance);

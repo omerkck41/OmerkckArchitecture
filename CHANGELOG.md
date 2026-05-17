@@ -7,12 +7,51 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.1.0] — 2026-05-17
+
 ### Added
-- `PiiMaskingEnricher` — Serilog enricher that redacts named log properties (e.g. `email`, `password`, `token`) with `***`. Enable via `builder.UsePiiMasking()` (defaults) or `builder.MaskPiiProperties("field1", ...)` (custom). Case-insensitive matching.
-- `Kck.Caching.Hybrid` — `Microsoft.Extensions.Caching.Hybrid` (HybridCache) sarmalayan yeni provider. L1 (in-process bellek) + L2 (Redis) iki katmanlı önbellekleme; `SetAsync` L1+L2 doldurur, `RemoveAsync` L1+L2'den evict eder. `AddKckCachingHybrid()` DI extension (ADR-0020).
+- `Kck.FeatureFlags.AzureAppConfig` — Azure App Configuration backed feature flags. Supports ConnectionString and Managed Identity (Endpoint). Configurable refresh interval, stampede-safe double-check locking, OWASP-style validator.
+- `Kck.FileStorage.AzureBlob` — Azure Blob Storage `IFileStorageService` implementation. ConnectionString or Managed Identity. `CreateContainerIfNotExists` on startup. Full `Upload / Download / Delete / Exists / List` support.
+- `Kck.FileStorage.AwsS3` — Amazon S3 `IFileStorageService` implementation. Explicit credentials or IAM role. Paginated `ListObjectsV2`. Optional `KeyPrefix` for multi-tenant isolation.
+- `Kck.Templates` NuGet package — `dotnet new kck-webapi` project template pre-wired with `Kck.Bundle.WebApi` (Mediator, caching, JWT, Argon2, Serilog, OpenTelemetry, rate limiting, exception handling). `--IncludeSample false` to skip WeatherForecast sample.
+- `Azure.Storage.Blobs 12.28.0`, `AWSSDK.S3 4.0.13`, `Azure.Data.AppConfiguration 1.9.0` → `Directory.Packages.props`.
+
+## [3.0.0] — 2026-05-17
+
+### Added — ADR-0022 / ADR-0023 / ADR-0024 / ADR-0025 / ADR-0026
+- `Kck.Caching.Hybrid` — `Microsoft.Extensions.Caching.Hybrid` (HybridCache) provider; L1+L2 two-tier caching (ADR-0020).
+- `docs/adr/0022-di-lifetime-strategy.md` — Singleton/Scoped/Transient rules for all framework services.
+- `docs/adr/0023-argon2-built-in-assessment.md` — .NET 10 has no built-in Argon2; Konscious.Argon2 retained.
+- `docs/adr/0024-entity-hierarchy.md` — Entity\<TId\> hierarchy rationale.
+- `docs/adr/0025-paginate-record-result-unchanged.md` — Paginate sealed record, Result\<T\> unchanged.
+- `docs/adr/0026-pipeline-abstractions-package.md` — Kck.Pipeline.Abstractions package rationale.
+- `Kck.Pipeline.Abstractions` — new package with `ICachableRequest`, `ILoggableRequest`, `ISecuredRequest`, `ITransactionalRequest`. Pipeline behaviors migrated to reference this package directly.
+- `IValidateOptions<T>` + `ValidateOnStart()` for 10 providers: MailKit, SendGrid, AmazonSes, AzureServiceBus, Elasticsearch, JWT, AzureKeyVault, FluentFtp, RedisTokenBlacklist, Argon2 — with rich pit-of-success error messages.
+- XML `<summary>` documentation for all 11 Abstractions packages; CS1591 enforced as error per-package.
+- `docs/faq.md` — 13 categories of common questions and solutions.
+- `.github/workflows/sonar.yml` — SonarCloud PR decoration (requires `SONAR_TOKEN` secret).
+- `.github/workflows/benchmark.yml` — BenchmarkDotNet regression CI; 10%+ slowdown → fail.
+- `.github/workflows/mutation.yml` — weekly mutation testing (Core, Caching, Security modules).
+- `docfx.json` + `toc.yml` + `.github/workflows/docs.yml` — DocFX GitHub Pages API site.
+- `stryker-caching.json`, `stryker-security.json` — Stryker.NET configs for additional modules.
+- `[DebuggerDisplay]` on `Entity<TId>`, `IntegrationEvent`, `InMemoryCacheService`, `RedisCacheService`, `HybridCacheService`.
+- `docs/migrations/entity-hierarchy-v3.md` — step-by-step guide for the Entity\<TId\> → FullEntity\<TId\> migration.
+- `PiiMaskingEnricher` — Serilog enricher that redacts named log properties (ADR-0021 area).
+- 80+ new unit tests (EntityTests, PaginateTests, ErrorTests, property-based with CsCheck, validator tests for 10 providers).
+- AOT attributes: `[DynamicallyAccessedMembers(PublicProperties)]` on `ICsvExporter`/`IExcelService` generics; `[RequiresUnreferencedCode]` on `GlobalExceptionHandler.ResolveStatusCode`.
+
+### Changed — BREAKING
+- **`Entity<TId>`** no longer implements `IAuditable` or `ISoftDeletable`. Migrate to `FullEntity<TId>` (drop-in replacement) or `AuditableEntity<TId>`. See `docs/migrations/entity-hierarchy-v3.md` (ADR-0024).
+- **`Paginate<T>`** is now `sealed record Paginate<T>`. Structural equality replaces reference equality. `with` operator is now available (ADR-0025).
+- **`Kck.Core.Abstractions.Pipeline.*`** interfaces are `[Obsolete]` — use `Kck.Pipeline.Abstractions.*` instead. Will be removed in v3.1 (ADR-0026).
 
 ### Deprecated
-- `Kck.Pipeline.MediatR` — `KckPipelineBuilder` ve `AddKckPipeline()` **KCK0200** uyarısıyla deprecated edildi. `Kck.Pipeline.Mediator` ve `AddKckMediator()` kullanın. Migration kılavuzu: `docs/migrations/mediatR-to-mediator.md` (ADR-0021).
+- `Kck.Core.Abstractions.Pipeline.ICachableRequest` / `ILoggableRequest` / `ISecuredRequest` / `ITransactionalRequest` — use `Kck.Pipeline.Abstractions.*`. Will be removed in v3.1.
+- `Kck.Pipeline.MediatR` — **KCK0200** warning. Use `Kck.Pipeline.Mediator`. Migration: `docs/migrations/mediatR-to-mediator.md` (ADR-0021).
+
+### Security
+- SBOM (CycloneDX JSON) generated on every NuGet release as artifact.
+- Coverage threshold gate: Line ≥ 43%, Branch ≥ 38% (enforced in CI).
 
 ## [2.0.0] — 2026-05-07
 

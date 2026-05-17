@@ -6,8 +6,16 @@ using Kck.Documents.Abstractions;
 
 namespace Kck.Documents.ClosedXml;
 
+/// <summary>
+/// Implementation of <see cref="IExcelService"/> that creates, populates and reads
+/// Excel workbooks using the ClosedXML library.
+/// </summary>
 public sealed class ClosedXmlExcelService : IExcelService
 {
+    /// <summary>
+    /// Creates an Excel workbook from a collection of <see cref="ExcelWorksheet"/> definitions
+    /// and returns the result as an OOXML byte array.
+    /// </summary>
     public Task<DocumentResult> CreateAsync(IEnumerable<ExcelWorksheet> worksheets, CancellationToken ct = default)
     {
         using var workbook = new XLWorkbook();
@@ -37,6 +45,10 @@ public sealed class ClosedXmlExcelService : IExcelService
         return Task.FromResult(ToResult(workbook, "export.xlsx"));
     }
 
+    /// <summary>
+    /// Creates a single-worksheet Excel workbook from a typed <paramref name="data"/> sequence
+    /// by reflecting public properties of <typeparamref name="T"/> as column headers.
+    /// </summary>
     public Task<DocumentResult> CreateFromDataAsync<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] T>(IEnumerable<T> data, string worksheetName = "Sheet1", CancellationToken ct = default)
     {
         using var workbook = new XLWorkbook();
@@ -59,6 +71,10 @@ public sealed class ClosedXmlExcelService : IExcelService
         return Task.FromResult(ToResult(workbook, $"{worksheetName}.xlsx"));
     }
 
+    /// <summary>
+    /// Reads all used rows from the first worksheet of the Excel <paramref name="stream"/> and
+    /// returns them as a list of cell-value lists.
+    /// </summary>
     public Task<IReadOnlyList<IReadOnlyList<object?>>> ReadAsync(Stream stream, CancellationToken ct = default)
     {
         using var workbook = new XLWorkbook(stream);

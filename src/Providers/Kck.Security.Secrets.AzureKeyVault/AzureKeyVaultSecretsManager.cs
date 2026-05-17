@@ -7,6 +7,10 @@ using Microsoft.Extensions.Options;
 
 namespace Kck.Security.Secrets.AzureKeyVault;
 
+/// <summary>
+/// Retrieves and stores secrets in Azure Key Vault using <see cref="DefaultAzureCredential"/> for authentication.
+/// Supports optional key prefixing to isolate secrets across environments or tenants.
+/// </summary>
 public sealed partial class AzureKeyVaultSecretsManager(
     IOptionsMonitor<AzureKeyVaultOptions> options,
     ILogger<AzureKeyVaultSecretsManager> logger) : ISecretsManager
@@ -16,6 +20,9 @@ public sealed partial class AzureKeyVaultSecretsManager(
         new DefaultAzureCredential());
     private readonly string? _prefix = options.CurrentValue.SecretPrefix;
 
+    /// <summary>
+    /// Retrieves the raw string value of the secret identified by <paramref name="key"/>, or returns <see langword="null"/> if the secret does not exist.
+    /// </summary>
     public async Task<string?> GetSecretAsync(string key, CancellationToken ct = default)
     {
         try
@@ -29,6 +36,9 @@ public sealed partial class AzureKeyVaultSecretsManager(
         }
     }
 
+    /// <summary>
+    /// Retrieves the secret for <paramref name="key"/> and deserializes its JSON value to <typeparamref name="T"/>, returning <see langword="default"/> if not found.
+    /// </summary>
     public async Task<T?> GetSecretAsync<T>(string key, CancellationToken ct = default)
     {
         var value = await GetSecretAsync(key, ct).ConfigureAwait(false);
@@ -45,12 +55,14 @@ public sealed partial class AzureKeyVaultSecretsManager(
         return JsonSerializer.Deserialize<T>(value);
     }
 
+    /// <summary>Creates or updates the secret identified by <paramref name="key"/> in Azure Key Vault and logs the operation at Information level.</summary>
     public async Task SetSecretAsync(string key, string value, CancellationToken ct = default)
     {
         await _client.SetSecretAsync(BuildKey(key), value, ct).ConfigureAwait(false);
         LogSecretUpdated(logger, key);
     }
 
+    /// <summary>Returns <see langword="true"/> if a secret with the given <paramref name="key"/> exists in Azure Key Vault.</summary>
     public async Task<bool> ExistsAsync(string key, CancellationToken ct = default)
     {
         return await GetSecretAsync(key, ct).ConfigureAwait(false) is not null;

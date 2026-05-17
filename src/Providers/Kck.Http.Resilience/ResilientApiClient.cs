@@ -4,6 +4,11 @@ using Microsoft.Extensions.Logging;
 
 namespace Kck.Http.Resilience;
 
+/// <summary>
+/// Implementation of <see cref="IApiClient"/> that wraps <see cref="HttpClient"/> with
+/// structured error logging and timeout handling, returning typed <see cref="ApiResponse{T}"/>
+/// results instead of throwing on non-success status codes.
+/// </summary>
 public sealed partial class ResilientApiClient(
     HttpClient httpClient,
     ILogger<ResilientApiClient> logger) : IApiClient
@@ -14,18 +19,27 @@ public sealed partial class ResilientApiClient(
     [LoggerMessage(Level = LogLevel.Warning, Message = "HTTP {Method} {Url} timed out")]
     private static partial void LogHttpTimeout(ILogger logger, HttpMethod method, string url);
 
+    /// <summary>Sends a GET request to <paramref name="url"/> and deserialises the response body as <typeparamref name="T"/>.</summary>
     public Task<ApiResponse<T>> GetAsync<T>(string url, CancellationToken ct = default) =>
         SendAsync<T>(HttpMethod.Get, url, ct: ct);
 
+    /// <summary>Sends a POST request to <paramref name="url"/> with an optional JSON <paramref name="body"/>.</summary>
     public Task<ApiResponse<T>> PostAsync<T>(string url, object? body = null, CancellationToken ct = default) =>
         SendAsync<T>(HttpMethod.Post, url, body, ct: ct);
 
+    /// <summary>Sends a PUT request to <paramref name="url"/> with an optional JSON <paramref name="body"/>.</summary>
     public Task<ApiResponse<T>> PutAsync<T>(string url, object? body = null, CancellationToken ct = default) =>
         SendAsync<T>(HttpMethod.Put, url, body, ct: ct);
 
+    /// <summary>Sends a DELETE request to <paramref name="url"/> and deserialises the response body as <typeparamref name="T"/>.</summary>
     public Task<ApiResponse<T>> DeleteAsync<T>(string url, CancellationToken ct = default) =>
         SendAsync<T>(HttpMethod.Delete, url, ct: ct);
 
+    /// <summary>
+    /// Builds and sends an HTTP request using the given <paramref name="method"/>, <paramref name="url"/>,
+    /// optional <paramref name="body"/> and custom <paramref name="headers"/>.  Returns a failure
+    /// response (408) on timeout instead of propagating the exception.
+    /// </summary>
     public async Task<ApiResponse<T>> SendAsync<T>(HttpMethod method, string url, object? body = null,
         IDictionary<string, string>? headers = null, CancellationToken ct = default)
     {

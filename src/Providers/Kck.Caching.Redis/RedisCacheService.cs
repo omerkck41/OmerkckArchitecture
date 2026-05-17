@@ -7,20 +7,28 @@ using StackExchange.Redis;
 
 namespace Kck.Caching.Redis;
 
+/// <summary>
+/// Redis-backed implementation of <see cref="CacheServiceBase"/> that serialises values as JSON
+/// via <see cref="IDistributedCache"/> and uses <see cref="IConnectionMultiplexer"/> for
+/// key-existence checks and prefix-based bulk deletion.
+/// </summary>
 [DebuggerDisplay("Prefix={Options.KeyPrefix,nq}, Provider=Redis")]
 public sealed class RedisCacheService(
     IDistributedCache cache,
     IConnectionMultiplexer redis,
     IOptionsMonitor<CacheOptions> options) : CacheServiceBase
 {
+    /// <inheritdoc/>
     protected override CacheOptions Options { get; } = options.CurrentValue;
 
+    /// <inheritdoc/>
     public override async ValueTask<T?> GetAsync<T>(string key, CancellationToken ct = default) where T : default
     {
         var data = await cache.GetStringAsync(BuildKey(key), ct).ConfigureAwait(false);
         return data is null ? default : JsonSerializer.Deserialize<T>(data);
     }
 
+    /// <inheritdoc/>
     public override async Task SetAsync<T>(string key, T value, TimeSpan? expiration = null, CancellationToken ct = default)
     {
         var exp = expiration ?? Options.DefaultExpiration;
@@ -29,11 +37,13 @@ public sealed class RedisCacheService(
         await cache.SetStringAsync(BuildKey(key), data, entry, ct).ConfigureAwait(false);
     }
 
+    /// <inheritdoc/>
     public override async Task RemoveAsync(string key, CancellationToken ct = default)
     {
         await cache.RemoveAsync(BuildKey(key), ct).ConfigureAwait(false);
     }
 
+    /// <inheritdoc/>
     public override async ValueTask<bool> ExistsAsync(string key, CancellationToken ct = default)
     {
         // LS-FAZ-5 (5.6): EXISTS komutu ile sadece varlik kontrolu — payload network'e cikmaz.
@@ -45,6 +55,10 @@ public sealed class RedisCacheService(
 
     private const int DeleteChunkSize = 1000;
 
+    /// <summary>
+    /// Deletes all Redis keys that begin with the given <paramref name="prefix"/> by iterating
+    /// every server endpoint and batch-deleting in chunks of <c>1000</c>.
+    /// </summary>
     public override async Task RemoveByPrefixAsync(string prefix, CancellationToken ct = default)
     {
         var fullPrefix = BuildKey(prefix);
