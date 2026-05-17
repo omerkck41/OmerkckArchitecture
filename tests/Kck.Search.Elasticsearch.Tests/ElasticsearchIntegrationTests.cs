@@ -20,9 +20,15 @@ namespace Kck.Search.Elasticsearch.Tests;
 public sealed class ElasticsearchIntegrationTests : IAsyncLifetime
 #pragma warning restore CA1001
 {
-    private readonly ElasticsearchContainer _container = new ElasticsearchBuilder(
-            "docker.elastic.co/elasticsearch/elasticsearch:8.15.0")
-        .Build();
+    // Explicit password so ELASTIC_PASSWORD env var is guaranteed regardless of
+    // how Testcontainers.Elasticsearch 4.x initialises the container for ES 8.x.
+    // TLS is enabled by default in this module; DisableSslVerification=true in opts.
+    private const string ElasticPassword = "elastic_test";
+
+    private readonly ElasticsearchContainer _container =
+        new ElasticsearchBuilder("docker.elastic.co/elasticsearch/elasticsearch:8.15.0")
+            .WithPassword(ElasticPassword)
+            .Build();
 
     private ElasticsearchSearchService<TestDoc> _sut = default!;
     private ElasticsearchClient _directClient = default!;
@@ -34,13 +40,12 @@ public sealed class ElasticsearchIntegrationTests : IAsyncLifetime
 
         var rawUri = new Uri(_container.GetConnectionString());
         var baseUrl = $"{rawUri.Scheme}://{rawUri.Host}:{rawUri.Port}";
-        var userParts = rawUri.UserInfo.Split(':', 2);
 
         var opts = new ElasticsearchOptions
         {
             ConnectionString = baseUrl,
-            Username = userParts.Length > 0 ? userParts[0] : "elastic",
-            Password = userParts.Length > 1 ? userParts[1] : string.Empty,
+            Username = "elastic",
+            Password = ElasticPassword,
             DefaultIndex = TestIndex,
             NumberOfShards = 1,
             NumberOfReplicas = 0,
@@ -52,7 +57,7 @@ public sealed class ElasticsearchIntegrationTests : IAsyncLifetime
             NullLogger<ElasticsearchSearchService<TestDoc>>.Instance);
 
         var settings = new ElasticsearchClientSettings(new Uri(baseUrl))
-            .Authentication(new Elastic.Transport.BasicAuthentication(opts.Username!, opts.Password!))
+            .Authentication(new Elastic.Transport.BasicAuthentication("elastic", ElasticPassword))
             .ServerCertificateValidationCallback((_, _, _, _) => true);
         _directClient = new ElasticsearchClient(settings);
     }

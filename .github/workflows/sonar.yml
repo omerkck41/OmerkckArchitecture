@@ -21,8 +21,8 @@ jobs:
   sonar:
     name: SonarCloud Analysis
     runs-on: ubuntu-latest
-    # Skip Dependabot PRs — they don't have access to SONAR_TOKEN secret.
-    if: github.actor != 'dependabot[bot]'
+    # Skip when SONAR_TOKEN is not configured (forks, Dependabot PRs, first-time setup).
+    if: ${{ secrets.SONAR_TOKEN != '' && github.actor != 'dependabot[bot]' }}
 
     steps:
       - name: Checkout

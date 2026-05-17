@@ -56,7 +56,8 @@ public sealed partial class ElasticsearchSearchService<T> : ISearchService<T> wh
         if (!response.Acknowledged)
         {
             LogIndexCreateFailed(_logger, indexName, response.DebugInformation);
-            throw new InvalidOperationException($"Failed to create index '{indexName}'.");
+            throw new InvalidOperationException(
+                $"Failed to create index '{indexName}'. ES response: {response.DebugInformation}");
         }
     }
 

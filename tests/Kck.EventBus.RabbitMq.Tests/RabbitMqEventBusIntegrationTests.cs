@@ -22,7 +22,14 @@ namespace Kck.EventBus.RabbitMq.Tests;
 public sealed class RabbitMqEventBusIntegrationTests : IAsyncLifetime
 #pragma warning restore CA1001
 {
-    private readonly RabbitMqContainer _rabbit = new RabbitMqBuilder("rabbitmq:3-alpine")
+    private const string RabbitUser = "kck_test";
+    private const string RabbitPass = "kck_test_pw";
+
+    // rabbitmq:3-management provides the management API used by the Testcontainers health check.
+    // 'guest' is loopback-only inside the container; explicit credentials avoid auth rejection.
+    private readonly RabbitMqContainer _rabbit = new RabbitMqBuilder("rabbitmq:3-management")
+        .WithUsername(RabbitUser)
+        .WithPassword(RabbitPass)
         .Build();
 
     private RabbitMqEventBus _bus = default!;
@@ -35,8 +42,8 @@ public sealed class RabbitMqEventBusIntegrationTests : IAsyncLifetime
         {
             HostName = _rabbit.Hostname,
             Port = _rabbit.GetMappedPublicPort(5672),
-            UserName = "guest",
-            Password = "guest",
+            UserName = RabbitUser,
+            Password = RabbitPass,
             ExchangeName = "kck.test"
         };
 
