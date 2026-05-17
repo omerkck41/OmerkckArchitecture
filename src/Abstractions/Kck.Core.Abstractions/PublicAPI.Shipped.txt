@@ -63,13 +63,8 @@ Kck.Core.Abstractions.Paging.Paginate<T>.Paginate() -> void
 Kck.Core.Abstractions.Paging.Paginate<T>.Size.get -> int
 Kck.Core.Abstractions.Paging.Paginate<T>.TotalRecords.get -> int
 Kck.Core.Abstractions.Pipeline.ICachableRequest
-Kck.Core.Abstractions.Pipeline.ICachableRequest.BypassCache.get -> bool
-Kck.Core.Abstractions.Pipeline.ICachableRequest.CacheGroupKey.get -> string?
-Kck.Core.Abstractions.Pipeline.ICachableRequest.CacheKey.get -> string!
-Kck.Core.Abstractions.Pipeline.ICachableRequest.SlidingExpiration.get -> System.TimeSpan?
 Kck.Core.Abstractions.Pipeline.ILoggableRequest
 Kck.Core.Abstractions.Pipeline.ISecuredRequest
-Kck.Core.Abstractions.Pipeline.ISecuredRequest.Roles.get -> string![]!
 Kck.Core.Abstractions.Pipeline.ITransactionalRequest
 Kck.Core.Abstractions.Results.Error
 Kck.Core.Abstractions.Results.Error.<Clone>$() -> Kck.Core.Abstractions.Results.Error!
@@ -113,24 +108,8 @@ static Kck.Core.Abstractions.Results.Result.Failure(Kck.Core.Abstractions.Result
 static Kck.Core.Abstractions.Results.Result.Success() -> Kck.Core.Abstractions.Results.Result!
 static Kck.Core.Abstractions.Results.Result<T>.Failure(Kck.Core.Abstractions.Results.Error! error) -> Kck.Core.Abstractions.Results.Result<T>!
 static Kck.Core.Abstractions.Results.Result<T>.Success(T value) -> Kck.Core.Abstractions.Results.Result<T>!
-virtual Kck.Core.Abstractions.Entities.Entity<TId>.CreatedBy.get -> string!
-virtual Kck.Core.Abstractions.Entities.Entity<TId>.CreatedBy.set -> void
-virtual Kck.Core.Abstractions.Entities.Entity<TId>.CreatedDate.get -> System.DateTime
-virtual Kck.Core.Abstractions.Entities.Entity<TId>.CreatedDate.set -> void
-virtual Kck.Core.Abstractions.Entities.Entity<TId>.DeletedBy.get -> string?
-virtual Kck.Core.Abstractions.Entities.Entity<TId>.DeletedBy.set -> void
-virtual Kck.Core.Abstractions.Entities.Entity<TId>.DeletedDate.get -> System.DateTime?
-virtual Kck.Core.Abstractions.Entities.Entity<TId>.DeletedDate.set -> void
 virtual Kck.Core.Abstractions.Entities.Entity<TId>.Id.get -> TId
 virtual Kck.Core.Abstractions.Entities.Entity<TId>.Id.set -> void
-virtual Kck.Core.Abstractions.Entities.Entity<TId>.IsDeleted.get -> bool
-virtual Kck.Core.Abstractions.Entities.Entity<TId>.IsDeleted.set -> void
-virtual Kck.Core.Abstractions.Entities.Entity<TId>.ModifiedBy.get -> string?
-virtual Kck.Core.Abstractions.Entities.Entity<TId>.ModifiedBy.set -> void
-virtual Kck.Core.Abstractions.Entities.Entity<TId>.ModifiedDate.get -> System.DateTime?
-virtual Kck.Core.Abstractions.Entities.Entity<TId>.ModifiedDate.set -> void
-virtual Kck.Core.Abstractions.Entities.Entity<TId>.RowVersion.get -> byte[]?
-virtual Kck.Core.Abstractions.Entities.Entity<TId>.RowVersion.set -> void
 Kck.Core.Abstractions.Paging.Paginate<T>.Count.init -> void
 Kck.Core.Abstractions.Paging.Paginate<T>.From.init -> void
 Kck.Core.Abstractions.Paging.Paginate<T>.HasNext.init -> void

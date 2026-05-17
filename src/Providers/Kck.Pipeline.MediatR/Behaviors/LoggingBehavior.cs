@@ -1,5 +1,5 @@
 using System.Diagnostics;
-using Kck.Core.Abstractions.Pipeline;
+using Kck.Pipeline.Abstractions;
 using MediatR;
 using Microsoft.Extensions.Logging;
 

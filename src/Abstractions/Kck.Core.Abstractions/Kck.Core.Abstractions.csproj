@@ -3,4 +3,8 @@
     <!-- E4: CS1591 docs complete — enforce XML doc requirement as error for this package. -->
     <NoWarn>$(NoWarn.Replace(';1591','').Replace('1591;','').Replace('1591',''))</NoWarn>
   </PropertyGroup>
+  <ItemGroup>
+    <!-- E3: Pipeline marker interfaces moved to Kck.Pipeline.Abstractions (ADR-0026). -->
+    <ProjectReference Include="..\Kck.Pipeline.Abstractions\Kck.Pipeline.Abstractions.csproj" />
+  </ItemGroup>
 </Project>

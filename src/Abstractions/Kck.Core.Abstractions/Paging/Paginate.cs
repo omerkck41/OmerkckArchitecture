@@ -6,9 +6,16 @@ namespace Kck.Core.Abstractions.Paging;
 /// Concrete paginated result. Use <see cref="Create"/> to build from pre-materialised data,
 /// or the EF Core <c>ToPaginateAsync</c> extension for database-backed pagination.
 /// </summary>
+/// <remarks>
+/// <para>
+/// Changed to <c>sealed record</c> in v3.0: supports <c>with</c> operator and structural
+/// equality. Existing code unaffected unless it compares <see cref="Paginate{T}"/> instances
+/// with <c>==</c> (now structural instead of reference equality).
+/// </para>
+/// </remarks>
 /// <typeparam name="T">The type of items on this page.</typeparam>
 [DebuggerDisplay("Page {Index}/{Pages}, Items: {Items.Count}, Total: {TotalRecords}")]
-public class Paginate<T> : IPaginate<T>
+public sealed record Paginate<T> : IPaginate<T>
 {
     /// <summary>Initialises an empty paginate with zero items.</summary>
     public Paginate()
@@ -41,8 +48,6 @@ public class Paginate<T> : IPaginate<T>
 
     /// <summary>
     /// Builds a <see cref="Paginate{T}"/> from pre-materialised counts and items.
-    /// Provider-specific async factories (e.g., EF Core <c>ToPaginateAsync</c>)
-    /// use this to avoid duplicating the derived-field math.
     /// </summary>
     /// <param name="items">The items on the current page.</param>
     /// <param name="totalCount">Total number of items across all pages.</param>
