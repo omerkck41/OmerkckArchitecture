@@ -2,6 +2,9 @@ using System.Collections.Frozen;
 
 namespace Kck.Persistence.Abstractions.Dynamic;
 
+/// <summary>
+/// Validates a <see cref="Filter"/> tree before it is applied to a query.
+/// </summary>
 public static class FilterValidator
 {
     private static readonly FrozenSet<string> SupportedOperators =
@@ -12,6 +15,9 @@ public static class FilterValidator
             "isnull", "isnotnull"
         }.ToFrozenSet(StringComparer.OrdinalIgnoreCase);
 
+    /// <summary>
+    /// Returns <c>false</c> if the filter contains an unsupported operator, empty field, or missing value where required.
+    /// </summary>
     public static bool Validate(Filter filter)
     {
         if (string.IsNullOrWhiteSpace(filter.Field))

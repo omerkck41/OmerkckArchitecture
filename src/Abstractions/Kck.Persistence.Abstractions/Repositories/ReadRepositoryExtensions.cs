@@ -6,11 +6,11 @@ using Kck.Persistence.Abstractions.Dynamic;
 namespace Kck.Persistence.Abstractions.Repositories;
 
 /// <summary>
-/// <see cref="IReadRepository{T, TId}"/> için <see cref="QueryOptions"/> tabanlı overload'lar.
-/// Pozisyonel bool bayraklar yerine tip güvenli sorgu yapılandırması sağlar.
+/// Convenience extensions that accept <see cref="QueryOptions"/> instead of raw bool parameters.
 /// </summary>
 public static class ReadRepositoryExtensions
 {
+    /// <summary><see cref="QueryOptions"/>-based overload of <c>IReadRepository.GetAsync</c>.</summary>
     public static Task<T?> GetAsync<T, TId>(
         this IReadRepository<T, TId> repository,
         Expression<Func<T, bool>> predicate,
@@ -24,6 +24,7 @@ public static class ReadRepositoryExtensions
 #pragma warning restore KCK0100
     }
 
+    /// <summary><see cref="QueryOptions"/>-based overload of <c>IReadRepository.GetListAsync</c>.</summary>
     public static Task<IPaginate<T>> GetListAsync<T, TId>(
         this IReadRepository<T, TId> repository,
         QueryOptions options,
@@ -40,6 +41,7 @@ public static class ReadRepositoryExtensions
 #pragma warning restore KCK0100
     }
 
+    /// <summary><see cref="QueryOptions"/>-based overload of <c>IReadRepository.GetListByDynamicAsync</c>.</summary>
     public static Task<IPaginate<T>> GetListByDynamicAsync<T, TId>(
         this IReadRepository<T, TId> repository,
         DynamicQuery dynamic,
@@ -56,6 +58,7 @@ public static class ReadRepositoryExtensions
 #pragma warning restore KCK0100
     }
 
+    /// <summary><see cref="QueryOptions"/>-based overload of <c>IReadRepository.AnyAsync</c>.</summary>
     public static Task<bool> AnyAsync<T, TId>(
         this IReadRepository<T, TId> repository,
         QueryOptions options,
@@ -68,6 +71,7 @@ public static class ReadRepositoryExtensions
 #pragma warning restore KCK0100
     }
 
+    /// <summary><see cref="QueryOptions"/>-based overload of <c>IReadRepository.GetByIdAsync</c>.</summary>
     public static Task<T?> GetByIdAsync<T, TId>(
         this IReadRepository<T, TId> repository,
         TId id,
@@ -80,6 +84,7 @@ public static class ReadRepositoryExtensions
 #pragma warning restore KCK0100
     }
 
+    /// <summary><see cref="QueryOptions"/>-based overload of <c>IReadRepository.CountAsync</c>.</summary>
     public static Task<int> CountAsync<T, TId>(
         this IReadRepository<T, TId> repository,
         QueryOptions options,

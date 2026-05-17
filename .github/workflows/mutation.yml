@@ -1,0 +1,65 @@
+name: mutation
+
+on:
+  # Weekly — Sundays 02:00 UTC. Mutation testing is slow (5-15 min per module);
+  # running on every PR would block delivery, so schedule-only is intentional.
+  schedule:
+    - cron: '0 2 * * 0'
+  workflow_dispatch:
+    inputs:
+      module:
+        description: 'Module to test (core | caching | security | all)'
+        required: false
+        default: 'all'
+
+permissions:
+  contents: read
+
+env:
+  DOTNET_NOLOGO: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+
+jobs:
+  mutation:
+    name: Mutation Testing — ${{ matrix.module }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - module: core
+            config: stryker-config.json
+          - module: caching
+            config: stryker-caching.json
+          - module: security
+            config: stryker-security.json
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: '10.0.203'
+
+      - name: Restore
+        run: dotnet restore --locked-mode
+
+      - name: Build (Release)
+        run: dotnet build --configuration Release --no-restore
+
+      - name: Install Stryker.NET
+        run: dotnet tool restore
+
+      - name: Run mutation tests — ${{ matrix.module }}
+        run: dotnet stryker --config-file ${{ matrix.config }}
+        # break threshold is enforced inside stryker-config; exit code != 0 fails the job
+
+      - name: Upload mutation report
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: mutation-report-${{ matrix.module }}
+          path: mutation-report/${{ matrix.module }}/**
+          retention-days: 30

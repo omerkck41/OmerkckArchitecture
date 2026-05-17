@@ -4,16 +4,30 @@ using System.Text.Json;
 
 namespace Kck.Persistence.Abstractions.Dynamic;
 
+/// <summary>
+/// A single filter condition used in dynamic queries (field, operator, value).
+/// </summary>
 public sealed class Filter
 {
+    /// <summary>Property name to filter on.</summary>
     public required string Field { get; set; }
+
+    /// <summary>Comparison operator (e.g. "eq", "contains").</summary>
     public required string Operator { get; set; }
+
+    /// <summary>Value to compare against.</summary>
     public object? Value { get; set; }
+
+    /// <summary>"and"/"or" combinator for nested filters.</summary>
     public string? Logic { get; set; }
+
+    /// <summary>Nested filter conditions for complex queries.</summary>
     public IEnumerable<Filter>? Filters { get; set; }
 
+    /// <summary>Initializes a new <see cref="Filter"/> with all properties at their defaults.</summary>
     public Filter() { }
 
+    /// <summary>Initializes a new <see cref="Filter"/> with the specified field, operator, and value.</summary>
     public Filter(string field, string @operator, object? value, string? logic = null, IEnumerable<Filter>? filters = null)
     {
         Field = field;

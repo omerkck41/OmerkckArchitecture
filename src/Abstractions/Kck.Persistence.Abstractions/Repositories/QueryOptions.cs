@@ -9,9 +9,12 @@ namespace Kck.Persistence.Abstractions.Repositories;
 /// <param name="AsTracking">Attach returned entities to the change tracker.</param>
 public readonly record struct QueryOptions(bool IncludeDeleted = false, bool AsTracking = false)
 {
+    /// <summary>Default options: no tracking, no soft-deleted rows.</summary>
     public static QueryOptions None { get; }
 
+    /// <summary>Options preset that enables change tracking.</summary>
     public static QueryOptions Tracking { get; } = new(AsTracking: true);
 
+    /// <summary>Options preset that includes soft-deleted rows.</summary>
     public static QueryOptions WithDeleted { get; } = new(IncludeDeleted: true);
 }
