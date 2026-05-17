@@ -2,6 +2,9 @@
   <PropertyGroup>
     <!-- Pinned to net10.0; depends on net10-only packages (LS-FAZ-2 ADR-0011) -->
     <TargetFrameworks>net10.0</TargetFrameworks>
+    <Title>Kck Persistence (Entity Framework Core)</Title>
+    <Description>Entity Framework Core implementations of IReadRepository&lt;T,TId&gt;, IWriteRepository&lt;T,TId&gt;, and IUnitOfWork. Includes AuditInterceptor (auto CreatedDate/ModifiedDate), DynamicFilterExtensions, soft-delete support, and ToPaginateAsync extension. Registered via AddKckEntityFramework&lt;TContext&gt;().</Description>
+    <PackageTags>dotnet;kck;persistence;entity-framework;ef-core;repository;unit-of-work</PackageTags>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="../../Abstractions/Kck.Core.Abstractions/Kck.Core.Abstractions.csproj" />

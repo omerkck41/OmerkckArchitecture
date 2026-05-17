@@ -1,4 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <Title>Kck TOTP MFA Provider</Title>
+    <Description>RFC 6238-compliant TOTP IMfaProvider for two-factor authentication. Compatible with Google Authenticator and any TOTP app. Generates setup URIs and QR-code-ready secrets. Registered via AddKckTotp().</Description>
+    <PackageTags>dotnet;kck;security;totp;mfa;2fa;authenticator;rfc6238</PackageTags>
+  </PropertyGroup>
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>

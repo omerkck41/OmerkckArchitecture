@@ -2,6 +2,9 @@
   <PropertyGroup>
     <!-- E4: CS1591 docs complete — enforce XML doc requirement as error for this package. -->
     <NoWarn>$(NoWarn.Replace(';1591','').Replace('1591;','').Replace('1591',''))</NoWarn>
+    <Title>Kck Core Abstractions</Title>
+    <Description>Core domain primitives for the Kck framework. Provides Entity&lt;TId&gt;/AuditableEntity&lt;TId&gt;/FullEntity&lt;TId&gt; hierarchy, Result&lt;T&gt;/Error pattern, Paginate&lt;T&gt; pagination, domain events, and pipeline marker interfaces.</Description>
+    <PackageTags>dotnet;kck;core;domain;entity;result;pagination;ddd;abstractions</PackageTags>
   </PropertyGroup>
   <ItemGroup>
     <!-- E3: Pipeline marker interfaces moved to Kck.Pipeline.Abstractions (ADR-0026). -->

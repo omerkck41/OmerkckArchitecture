@@ -1,6 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <!-- E4: CS1591 docs complete — enforce XML doc requirement as error for this package. -->
+    <!-- E4: CS1591 docs complete â€” enforce XML doc requirement as error for this package. -->
     <NoWarn>$(NoWarn.Replace(';1591','').Replace('1591;','').Replace('1591',''))</NoWarn>
+    <Title>Kck Feature Flags Abstractions</Title>
+    <Description>Provider-agnostic feature flag contracts. Defines IFeatureFlagService for checking, retrieving, and listing feature definitions with optional per-user/tenant context evaluation. Implement with InMemory or Azure App Configuration providers.</Description>
+    <PackageTags>dotnet;kck;feature-flags;feature-toggles;abstractions</PackageTags>
   </PropertyGroup>
 </Project>

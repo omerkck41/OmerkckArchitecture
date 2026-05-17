@@ -2,6 +2,9 @@
   <PropertyGroup>
     <!-- Pinned to net10.0; depends on net10-only packages (LS-FAZ-2 ADR-0011) -->
     <TargetFrameworks>net10.0</TargetFrameworks>
+    <Title>Kck Exception Handling Middleware</Title>
+    <Description>ASP.NET Core global exception handler for Kck exceptions. Maps Kck exception types to RFC 7807 ProblemDetails responses with correct HTTP status codes via [HttpStatusCodeAttribute]. Registered via AddKckExceptionHandling().</Description>
+    <PackageTags>dotnet;kck;exception-handling;problem-details;aspnetcore;middleware</PackageTags>
   </PropertyGroup>
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />

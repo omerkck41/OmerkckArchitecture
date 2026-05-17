@@ -2,6 +2,9 @@
   <PropertyGroup>
     <!-- Pinned to net10.0; depends on net10-only packages (LS-FAZ-2 ADR-0011) -->
     <TargetFrameworks>net10.0</TargetFrameworks>
+    <Title>Kck HTTP Resilience Client</Title>
+    <Description>Polly-backed IApiClient implementation using Microsoft.Extensions.Resilience. Supports named resilience pipelines with retry, circuit breaker, and timeout strategies. Registered via AddKckHttpClient&lt;TClient&gt;().</Description>
+    <PackageTags>dotnet;kck;httpclient;resilience;polly;retry;circuit-breaker</PackageTags>
   </PropertyGroup>
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />

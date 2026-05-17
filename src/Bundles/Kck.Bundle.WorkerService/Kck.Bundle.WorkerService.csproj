@@ -2,6 +2,9 @@
   <PropertyGroup>
     <!-- Pinned to net10.0; depends on AspNetCore-referencing packages (LS-FAZ-7 §1.1) -->
     <TargetFrameworks>net10.0</TargetFrameworks>
+    <Title>Kck Worker Service Bundle</Title>
+    <Description>Opinionated .NET Worker Service starter pack. Registers Serilog, OpenTelemetry, InMemory event bus, and a mutually-exclusive background job scheduler (Hangfire or Quartz) in a single call.</Description>
+    <PackageTags>dotnet;kck;worker-service;background-jobs;bundle;serilog;hangfire;quartz</PackageTags>
   </PropertyGroup>
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />

@@ -1,6 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <!-- E4: CS1591 docs complete — enforce XML doc requirement as error for this package. -->
+    <!-- E4: CS1591 docs complete â€” enforce XML doc requirement as error for this package. -->
     <NoWarn>$(NoWarn.Replace(';1591','').Replace('1591;','').Replace('1591',''))</NoWarn>
+    <Title>Kck Documents Abstractions</Title>
+    <Description>Provider-agnostic document processing contracts. Defines IExcelService, ICsvExporter, and IImageProcessor for spreadsheet generation, CSV export, and image resizing. Implement with ClosedXml or ImageSharp providers.</Description>
+    <PackageTags>dotnet;kck;documents;excel;csv;image-processing;abstractions</PackageTags>
   </PropertyGroup>
 </Project>

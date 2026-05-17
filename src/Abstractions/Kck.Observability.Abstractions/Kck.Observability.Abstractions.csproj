@@ -1,6 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <!-- E4: CS1591 docs complete — enforce XML doc requirement as error for this package. -->
+    <!-- E4: CS1591 docs complete â€” enforce XML doc requirement as error for this package. -->
     <NoWarn>$(NoWarn.Replace(';1591','').Replace('1591;','').Replace('1591',''))</NoWarn>
+    <Title>Kck Observability Abstractions</Title>
+    <Description>Provider-agnostic observability contracts. Defines ITracingService, IMetricsService (ICounter/IHistogram/IGauge), and health check interfaces (IHealthCheck, IHealthCheckRegistrar). Implement with the OpenTelemetry provider.</Description>
+    <PackageTags>dotnet;kck;observability;tracing;metrics;health-checks;opentelemetry;abstractions</PackageTags>
   </PropertyGroup>
 </Project>

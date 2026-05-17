@@ -1,4 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <Title>Kck Pipeline (Mediator)</Title>
+    <Description>Mediator.Abstractions 3.x-backed pipeline behaviors for Kck. Provides Authorization, Caching, Logging, Transaction, and Validation cross-cutting behaviors. The recommended pipeline provider since Kck v2. Registered via AddKckMediator().</Description>
+    <PackageTags>dotnet;kck;pipeline;mediator;cqrs;behaviors;commands;queries</PackageTags>
+  </PropertyGroup>
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>

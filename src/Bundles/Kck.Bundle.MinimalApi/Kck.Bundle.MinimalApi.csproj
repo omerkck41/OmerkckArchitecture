@@ -2,6 +2,9 @@
   <PropertyGroup>
     <!-- Pinned to net10.0; depends on AspNetCore-referencing packages (LS-FAZ-7 §1.1) -->
     <TargetFrameworks>net10.0</TargetFrameworks>
+    <Title>Kck Minimal API Bundle</Title>
+    <Description>Lightweight ASP.NET Core Minimal API starter pack. Slim variant of the WebAPI bundle — provides Serilog, in-memory caching, JWT, exception handling, and health checks without MediatR pipeline or Argon2 overhead.</Description>
+    <PackageTags>dotnet;kck;minimal-api;aspnetcore;bundle;lightweight;serilog</PackageTags>
   </PropertyGroup>
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />

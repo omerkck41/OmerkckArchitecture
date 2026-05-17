@@ -2,6 +2,9 @@
   <PropertyGroup>
     <!-- Pinned to net10.0; depends on net10-only packages (LS-FAZ-2 ADR-0011) -->
     <TargetFrameworks>net10.0</TargetFrameworks>
+    <Title>Kck JWT Token Service</Title>
+    <Description>RS256-signed JWT ITokenService using Microsoft.IdentityModel.JsonWebTokens. Supports RSA key loading from file, base64-encoded configuration, or ISecretsManager. Generates and validates access tokens with configurable expiry. Registered via AddKckJwt().</Description>
+    <PackageTags>dotnet;kck;security;jwt;authentication;rs256;tokens</PackageTags>
   </PropertyGroup>
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />

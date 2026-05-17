@@ -1,4 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <Title>Kck In-Memory Feature Flags</Title>
+    <Description>Dictionary-backed IFeatureFlagService for development and testing. Feature states defined via InMemoryFeatureFlagOptions at startup. Registered via AddKckFeatureFlagsInMemory().</Description>
+    <PackageTags>dotnet;kck;feature-flags;in-memory;feature-toggles;testing</PackageTags>
+  </PropertyGroup>
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>

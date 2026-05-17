@@ -1,4 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <Title>Kck In-Memory Event Bus</Title>
+    <Description>In-process IEventBus implementation for development and testing. Dispatches integration events synchronously within the same process. Not suitable for distributed scenarios. Registered via builder.UseInMemory().</Description>
+    <PackageTags>dotnet;kck;event-bus;in-memory;testing;development</PackageTags>
+  </PropertyGroup>
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
