@@ -1,10 +1,3 @@
-namespace Kck.Core.Abstractions.Pipeline;
-
-/// <summary>
-/// Marks a pipeline request that requires role-based authorization.
-/// </summary>
-/// <remarks>
-/// Migrate to <see cref="Kck.Pipeline.Abstractions.ISecuredRequest"/> before v3.1.
-/// </remarks>
-[Obsolete("Use Kck.Pipeline.Abstractions.ISecuredRequest. This type will be removed in v3.1.")]
-public interface ISecuredRequest : Kck.Pipeline.Abstractions.ISecuredRequest { }
+// This file is intentionally empty. ISecuredRequest has been moved to
+// Kck.Pipeline.Abstractions (ADR-0026). The [Obsolete] forwarding type
+// was removed in v3.2 as planned.

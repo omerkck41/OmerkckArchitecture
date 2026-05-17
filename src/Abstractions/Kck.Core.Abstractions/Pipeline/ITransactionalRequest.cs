@@ -1,10 +1,3 @@
-namespace Kck.Core.Abstractions.Pipeline;
-
-/// <summary>
-/// Marks a pipeline request that must execute within a database transaction.
-/// </summary>
-/// <remarks>
-/// Migrate to <see cref="Kck.Pipeline.Abstractions.ITransactionalRequest"/> before v3.1.
-/// </remarks>
-[Obsolete("Use Kck.Pipeline.Abstractions.ITransactionalRequest. This type will be removed in v3.1.")]
-public interface ITransactionalRequest : Kck.Pipeline.Abstractions.ITransactionalRequest { }
+// This file is intentionally empty. ITransactionalRequest has been moved to
+// Kck.Pipeline.Abstractions (ADR-0026). The [Obsolete] forwarding type
+// was removed in v3.2 as planned.
