@@ -103,3 +103,4 @@ tasks/
 
 ## MinVer does not read tags from shallow clones; allow override by developer
 minver.props
+template-artifacts/
