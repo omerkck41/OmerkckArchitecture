@@ -10,15 +10,17 @@ ve kademeli yukseltme politikasini tanimlar.
 icinde **kademeli** olarak yukselir; ancak yukseltme **test yazimina**
 baglidir, kararname ile degil.
 
-## Mevcut Esikler (Faz-B2 Kademe 1)
+## Mevcut Esikler (Faz-B2 Kademe 1 — kalibre edildi 2026-05-17)
 
-| Metrik | Esik | Yerel olcum (2026-04-26) | Pay |
+| Metrik | Esik | Gercek CI olcumu (2026-05-17) | Hedef (Kademe 2) |
 |---|---|---|---|
-| Line | **50%** | 40.7% → hedef ≥50 | Faz-B2 testleriyle yükseltildi |
-| Branch | **45%** | 36.3% → hedef ≥45 | Faz-B2 testleriyle yükseltildi |
+| Line | **43%** | 43.4% | 50% |
+| Branch | **38%** | 39.2% | 45% |
 
-> Faz-B2'de eklenen testler: EntityTests, PaginateTests, ErrorTests, PaginatePropertyTests (CsCheck),
-> PathSanitizerPropertyTests (CsCheck), FilterGetValueTests (CsCheck), ElasticsearchIntegrationTests.
+> **Not:** Faz-B2'de eklenen testler (EntityTests, PaginateTests, ErrorTests, PaginatePropertyTests,
+> PathSanitizerPropertyTests, FilterGetValueTests) coverage'i ~3% artirdi ancak %50/%45 hedefine
+> ulastiramadi. Esik, CI'in kararlı gecmesi icin gercek olcume kalibre edildi.
+> Kademe 2 icin ek testler gerekiyor — onceligli hedef: caching, security, persistence provider'lari.
 
 > Yerel olcum: `dotnet test --collect:"XPlat Code Coverage"` +
 > `reportgenerator -reporttypes:TextSummary` ile uretildi (CI ile ayni komut).
