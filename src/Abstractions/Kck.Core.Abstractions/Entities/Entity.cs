@@ -1,7 +1,9 @@
 using System.ComponentModel.DataAnnotations;
+using System.Diagnostics;
 
 namespace Kck.Core.Abstractions.Entities;
 
+[DebuggerDisplay("Id={Id}, IsDeleted={IsDeleted}, CreatedBy={CreatedBy,nq}")]
 public abstract class Entity<TId> : IEntity<TId>, IAuditable, ISoftDeletable
 {
     private readonly List<IDomainEvent> _domainEvents = [];

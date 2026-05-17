@@ -20,7 +20,7 @@
     <ProjectReference Include="../../Providers/Kck.Caching.InMemory/Kck.Caching.InMemory.csproj" />
     <ProjectReference Include="../../Providers/Kck.Security.Jwt/Kck.Security.Jwt.csproj" />
     <ProjectReference Include="../../Providers/Kck.Security.Argon2/Kck.Security.Argon2.csproj" />
-    <ProjectReference Include="../../Providers/Kck.Pipeline.MediatR/Kck.Pipeline.MediatR.csproj" />
+    <ProjectReference Include="../../Providers/Kck.Pipeline.Mediator/Kck.Pipeline.Mediator.csproj" />
     <ProjectReference Include="../../Providers/Kck.EventBus.InMemory/Kck.EventBus.InMemory.csproj" />
     <ProjectReference Include="../../Providers/Kck.Exceptions.AspNetCore/Kck.Exceptions.AspNetCore.csproj" />
     <ProjectReference Include="../../Providers/Kck.Logging.Serilog/Kck.Logging.Serilog.csproj" />

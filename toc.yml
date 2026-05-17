@@ -1,0 +1,12 @@
+- name: Overview
+  href: README.md
+- name: Changelog
+  href: CHANGELOG.md
+- name: Contributing
+  href: CONTRIBUTING.md
+- name: Docs
+  href: docs/
+  homepage: docs/README.md
+- name: API Reference
+  href: api/
+  homepage: api/index.md

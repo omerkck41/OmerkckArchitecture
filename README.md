@@ -41,7 +41,7 @@ app.Run();
 ```bash
 dotnet add package Kck.AspNetCore
 dotnet add package Kck.Caching.InMemory
-dotnet add package Kck.Pipeline.MediatR
+dotnet add package Kck.Pipeline.Mediator
 ```
 
 ```csharp
@@ -50,7 +50,10 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services
     .AddKckExceptions()
     .AddKckCachingInMemory()
-    .AddKckMediatR(typeof(Program).Assembly);
+    .AddMediator()                          // Mediator source-gen dispatcher
+    .AddKckMediatorPipeline(p => p
+        .UseValidationBehavior()
+        .UseLoggingBehavior());
 
 var app = builder.Build();
 app.MapPost("/users", async (CreateUserCommand cmd, IMediator mediator) =>
@@ -147,19 +150,21 @@ Kck, ABP'den **daha hafif**, FastEndpoints'ten **daha kapsamli**, Aspire'a **uyu
 | Area | Packages |
 |---|---|
 | Background Jobs | `Kck.BackgroundJobs.Hangfire`, `Kck.BackgroundJobs.Quartz` |
-| Caching | `Kck.Caching.InMemory`, `Kck.Caching.Redis` |
+| Caching | `Kck.Caching.InMemory`, `Kck.Caching.Redis`, `Kck.Caching.Hybrid` |
 | Documents | `Kck.Documents.ClosedXml`, `Kck.Documents.ImageSharp` |
 | Event Bus | `Kck.EventBus.InMemory`, `Kck.EventBus.RabbitMq`, `Kck.EventBus.AzureServiceBus` |
 | Exceptions | `Kck.Exceptions.AspNetCore` |
 | Feature Flags | `Kck.FeatureFlags.InMemory` |
 | File Storage | `Kck.FileStorage.FluentFtp` |
 | HTTP | `Kck.Http.Resilience` |
+| Hosting | `Kck.Hosting.Aspire` |
+| Resilience | `Kck.Resilience.Polly` |
 | Localization | `Kck.Localization`, `Kck.Localization.Json`, `Kck.Localization.Yaml` |
 | Logging | `Kck.Logging.Serilog` |
 | Messaging | `Kck.Messaging.MailKit`, `Kck.Messaging.SendGrid`, `Kck.Messaging.AmazonSes` |
 | Observability | `Kck.Observability.OpenTelemetry` |
 | Persistence | `Kck.Persistence.EntityFramework` |
-| Pipeline | `Kck.Pipeline.MediatR` |
+| Pipeline | `Kck.Pipeline.MediatR` *(deprecated, KCK0200)*, `Kck.Pipeline.Mediator` |
 | Search | `Kck.Search.Elasticsearch` |
 | Security | `Kck.Security.Argon2`, `Kck.Security.Jwt`, `Kck.Security.Totp`, `Kck.Security.TokenBlacklist.Redis`, `Kck.Security.Secrets.UserSecrets`, `Kck.Security.Secrets.AzureKeyVault` |
 | Web | `Kck.AspNetCore` |
@@ -170,7 +175,9 @@ Kck, ABP'den **daha hafif**, FastEndpoints'ten **daha kapsamli**, Aspire'a **uyu
 
 | Bundle | Contents |
 |---|---|
-| `Kck.Bundle.WebApi` | Opinionated ASP.NET Core stack: MediatR pipeline, exception handler, Serilog, OpenTelemetry, JWT |
+| `Kck.Bundle.WebApi` | Opinionated ASP.NET Core stack: Mediator pipeline, exception handler, Serilog, OpenTelemetry, JWT |
+| `Kck.Bundle.MinimalApi` | Slim ASP.NET Core stack: exception handler, caching, JWT, Serilog, OpenTelemetry |
+| `Kck.Bundle.WorkerService` | Worker/daemon stack: Serilog, OpenTelemetry, EventBus, Hangfire + Quartz |
 
 ## Samples
 

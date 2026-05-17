@@ -9,6 +9,7 @@
     <PackageReference Include="xunit" />
     <PackageReference Include="xunit.runner.visualstudio" />
     <PackageReference Include="FluentAssertions" />
+    <PackageReference Include="CsCheck" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\Abstractions\Kck.Core.Abstractions\Kck.Core.Abstractions.csproj" />

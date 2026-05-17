@@ -1,17 +1,1 @@
 #nullable enable
-Kck.Core.Abstractions.Paging.Paginate<T>.Count.init -> void
-Kck.Core.Abstractions.Paging.Paginate<T>.From.init -> void
-Kck.Core.Abstractions.Paging.Paginate<T>.HasNext.init -> void
-Kck.Core.Abstractions.Paging.Paginate<T>.HasPrevious.init -> void
-Kck.Core.Abstractions.Paging.Paginate<T>.Index.init -> void
-Kck.Core.Abstractions.Paging.Paginate<T>.IsFirstPage.init -> void
-Kck.Core.Abstractions.Paging.Paginate<T>.IsLastPage.init -> void
-Kck.Core.Abstractions.Paging.Paginate<T>.Items.init -> void
-Kck.Core.Abstractions.Paging.Paginate<T>.Pages.init -> void
-Kck.Core.Abstractions.Paging.Paginate<T>.Size.init -> void
-Kck.Core.Abstractions.Paging.Paginate<T>.TotalRecords.init -> void
-Kck.Core.Abstractions.Results.ResultExtensions
-static Kck.Core.Abstractions.Results.ResultExtensions.Bind<T, TOut>(this Kck.Core.Abstractions.Results.Result<T>! result, System.Func<T, Kck.Core.Abstractions.Results.Result<TOut>!>! binder) -> Kck.Core.Abstractions.Results.Result<TOut>!
-static Kck.Core.Abstractions.Results.ResultExtensions.Ensure<T>(this Kck.Core.Abstractions.Results.Result<T>! result, System.Func<T, bool>! predicate, Kck.Core.Abstractions.Results.Error! error) -> Kck.Core.Abstractions.Results.Result<T>!
-static Kck.Core.Abstractions.Results.ResultExtensions.Map<T, TOut>(this Kck.Core.Abstractions.Results.Result<T>! result, System.Func<T, TOut>! mapper) -> Kck.Core.Abstractions.Results.Result<TOut>!
-static Kck.Core.Abstractions.Results.ResultExtensions.Tap<T>(this Kck.Core.Abstractions.Results.Result<T>! result, System.Action<T>! action) -> Kck.Core.Abstractions.Results.Result<T>!

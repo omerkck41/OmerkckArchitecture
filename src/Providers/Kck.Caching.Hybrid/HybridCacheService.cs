@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Text.Json;
 using Kck.Caching.Abstractions;
 using Microsoft.Extensions.Caching.Distributed;
@@ -12,6 +13,7 @@ namespace Kck.Caching.Hybrid;
 /// L2 Redis). GetOrSetAsync uses HybridCache's built-in stampede protection;
 /// other methods fall back to the distributed cache or Redis directly.
 /// </summary>
+[DebuggerDisplay("Prefix={_opts.KeyPrefix,nq}, Provider=HybridCache(L1+L2)")]
 public sealed class HybridCacheService(
     HybridCache hybridCache,
     IDistributedCache distributedCache,

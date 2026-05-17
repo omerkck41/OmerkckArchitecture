@@ -58,6 +58,9 @@
     <!-- LS-FAZ-4.5: Testcontainers expansion — Redis, RabbitMQ, Elasticsearch -->
     <PackageVersion Include="Testcontainers.Redis" Version="4.11.0" />
     <PackageVersion Include="Testcontainers.RabbitMq" Version="4.11.0" />
+    <PackageVersion Include="Testcontainers.Elasticsearch" Version="4.11.0" />
+    <!-- Faz-B3: Property-based testing -->
+    <PackageVersion Include="CsCheck" Version="4.0.0" />
   </ItemGroup>
   <ItemGroup Label="Messaging">
     <PackageVersion Include="MailKit" Version="4.16.0" />

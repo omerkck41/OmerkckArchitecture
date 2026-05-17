@@ -23,11 +23,6 @@
         "resolved": "1.1.1",
         "contentHash": "odwOyzj/J/lHJZNwFWJGU/LRecBShupAJ2S8TQqZfhUe9niHzu/voBYK5wuVKsvSpzbfupKQYZguVyIk1sgOkQ=="
       },
-      "MediatR.Contracts": {
-        "type": "Transitive",
-        "resolved": "2.0.1",
-        "contentHash": "FYv95bNT4UwcNA+G/J1oX5OpRiSUxteXaUt2BJbRSdRNiIUNbggJF69wy6mnk2wYToaanpdXZdCwVylt96MpwQ=="
-      },
       "Microsoft.Build.Tasks.Git": {
         "type": "Transitive",
         "resolved": "8.0.0",
@@ -220,7 +215,7 @@
           "Microsoft.EntityFrameworkCore": "[10.0.8, )"
         }
       },
-      "kck.pipeline.mediatr": {
+      "kck.pipeline.mediator": {
         "type": "Project",
         "dependencies": {
           "FluentValidation": "[12.1.1, )",
@@ -228,7 +223,7 @@
           "Kck.Core.Abstractions": "[1.0.0, )",
           "Kck.Exceptions.Abstractions": "[1.0.0, )",
           "Kck.Persistence.Abstractions": "[1.0.0, )",
-          "MediatR": "[14.1.0, )"
+          "Mediator.Abstractions": "[3.0.2, )"
         }
       },
       "kck.security.abstractions": {
@@ -266,15 +261,11 @@
           "Konscious.Security.Cryptography.Blake2": "1.1.1"
         }
       },
-      "MediatR": {
+      "Mediator.Abstractions": {
         "type": "CentralTransitive",
-        "requested": "[14.1.0, )",
-        "resolved": "14.1.0",
-        "contentHash": "pdxza1pLqAk+06LV3THzNJrw5K5Ah6EC17TEkoC90gsAxwtXDJAQrGuDSDinHGgxWKWEn5ebqTNN3k1bLJOb0g==",
-        "dependencies": {
-          "MediatR.Contracts": "[2.0.1, 3.0.0)",
-          "Microsoft.IdentityModel.JsonWebTokens": "8.14.0"
-        }
+        "requested": "[3.0.2, )",
+        "resolved": "3.0.2",
+        "contentHash": "TytjnyN8gLObZBxkM7HHPFJF3LHtk6Y8mHW56ONuXRuVEK6Fmed3f0z79H9TpmoZQP2zQAIS4/0O9R2w0v02qw=="
       },
       "Microsoft.EntityFrameworkCore": {
         "type": "CentralTransitive",

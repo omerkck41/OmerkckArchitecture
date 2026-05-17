@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Text.Json;
 using Kck.Caching.Abstractions;
 using Microsoft.Extensions.Caching.Distributed;
@@ -6,6 +7,7 @@ using StackExchange.Redis;
 
 namespace Kck.Caching.Redis;
 
+[DebuggerDisplay("Prefix={Options.KeyPrefix,nq}, Provider=Redis")]
 public sealed class RedisCacheService(
     IDistributedCache cache,
     IConnectionMultiplexer redis,

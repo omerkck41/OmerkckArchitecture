@@ -60,6 +60,17 @@ public sealed class RabbitMqEventBusIntegrationTests : IAsyncLifetime
 
         act.Should().NotThrow();
     }
+
+    [Fact]
+    public async Task PublishAsync_WithSubscribedHandler_DoesNotThrow()
+    {
+        _bus.Subscribe<RabbitIntegrationTestEvent, RabbitIntegrationTestEventHandler>();
+        var @event = new RabbitIntegrationTestEvent("publish-integration-test");
+
+        var act = async () => await _bus.PublishAsync(@event);
+
+        await act.Should().NotThrowAsync();
+    }
 }
 
 internal sealed record RabbitIntegrationTestEvent(string Payload) : IntegrationEvent;

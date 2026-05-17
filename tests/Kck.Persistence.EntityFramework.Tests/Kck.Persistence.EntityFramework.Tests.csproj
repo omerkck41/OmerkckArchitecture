@@ -14,6 +14,7 @@
     <!-- LS-FAZ-4: Testcontainers PoC — gercek PostgreSQL container ile integration testleri -->
     <PackageReference Include="Testcontainers.PostgreSql" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" />
+    <PackageReference Include="CsCheck" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\Providers\Kck.Persistence.EntityFramework\Kck.Persistence.EntityFramework.csproj" />

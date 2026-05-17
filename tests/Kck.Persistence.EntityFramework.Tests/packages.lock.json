@@ -8,6 +8,12 @@
         "resolved": "6.0.2",
         "contentHash": "bJShQ6uWRTQ100ZeyiMqcFlhP7WJ+bCuabUs885dJiBEzMsJMSFr7BOyeCw4rgvQokteGi5rKQTlkhfQPUXg2A=="
       },
+      "CsCheck": {
+        "type": "Direct",
+        "requested": "[4.0.0, )",
+        "resolved": "4.0.0",
+        "contentHash": "ak2BPnVbwkHfqIw/wPhqSdoMl3ugs+OhjixttAFeALQPpawvlu+en3QS2wA/mGi0VlBB3/6FJxBxu4vS4azWmA=="
+      },
       "FluentAssertions": {
         "type": "Direct",
         "requested": "[8.3.0, )",
