@@ -98,8 +98,18 @@ msbuild.wrn
 .claude/
 
 ## Internal dev notes / planning (not published)
+## Bu klasörler sadece yerel planlama/analiz içindir, repoya eklenmez.
 tasks/
 .superdesign/
+öneri*/
+analiz*/
+planlama*/
+_drafts/
+_notes/
+_temp*/
+
+## Mutation testing output
+mutation-report/
 
 ## MinVer does not read tags from shallow clones; allow override by developer
 minver.props
