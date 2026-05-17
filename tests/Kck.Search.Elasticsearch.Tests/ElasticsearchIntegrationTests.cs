@@ -20,13 +20,13 @@ namespace Kck.Search.Elasticsearch.Tests;
 public sealed class ElasticsearchIntegrationTests : IAsyncLifetime
 #pragma warning restore CA1001
 {
-    // Explicit password so ELASTIC_PASSWORD env var is guaranteed regardless of
-    // how Testcontainers.Elasticsearch 4.x initialises the container for ES 8.x.
-    // TLS is enabled by default in this module; DisableSslVerification=true in opts.
+    // Elastic.Clients.Elasticsearch 9.x sends Accept: compatible-with=9 which ES 8.x rejects.
+    // Container must match the client major version (9.x).
+    // Explicit password avoids relying on Testcontainers default credential detection.
     private const string ElasticPassword = "elastic_test";
 
     private readonly ElasticsearchContainer _container =
-        new ElasticsearchBuilder("docker.elastic.co/elasticsearch/elasticsearch:8.15.0")
+        new ElasticsearchBuilder("docker.elastic.co/elasticsearch/elasticsearch:9.0.1")
             .WithPassword(ElasticPassword)
             .Build();
 
