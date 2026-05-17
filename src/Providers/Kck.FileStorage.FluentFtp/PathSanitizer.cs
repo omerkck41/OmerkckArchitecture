@@ -1,7 +1,16 @@
 namespace Kck.FileStorage.FluentFtp;
 
+/// <summary>
+/// Security utility that validates FTP path strings against common path-traversal and
+/// injection attack vectors before they are sent to the FTP server.
+/// </summary>
 internal static class PathSanitizer
 {
+    /// <summary>
+    /// Throws <see cref="ArgumentException"/> when <paramref name="path"/> is null/whitespace,
+    /// contains percent-encoded characters, control characters, is absolute, or contains
+    /// directory-traversal sequences (<c>..</c>).
+    /// </summary>
     public static void Validate(string path)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(path);

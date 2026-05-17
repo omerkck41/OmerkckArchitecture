@@ -3,8 +3,14 @@ using MimeKit;
 
 namespace Kck.Messaging.MailKit;
 
+/// <summary>
+/// Sends emails via SMTP using MailKit, borrowing connections from a shared <see cref="SmtpConnectionPool"/>.
+/// </summary>
 public sealed class MailKitEmailProvider(SmtpConnectionPool pool) : IEmailProvider
 {
+    /// <summary>
+    /// Builds a MIME message from <paramref name="message"/> and transmits it over a pooled SMTP connection.
+    /// </summary>
     public async Task SendAsync(EmailMessage message, CancellationToken ct = default)
     {
         using var mime = new MimeMessage();

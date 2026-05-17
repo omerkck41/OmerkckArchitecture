@@ -7,6 +7,9 @@ using YamlDotNet.Serialization.NamingConventions;
 
 namespace Kck.Localization.Yaml;
 
+/// <summary>
+/// Loads localization resources from YAML files on disk, with optional in-memory caching and dynamic reload support.
+/// </summary>
 public sealed partial class YamlResourceProvider(
     IOptionsMonitor<LocalizationOptions> options,
     ILogger<YamlResourceProvider> logger,
@@ -19,27 +22,35 @@ public sealed partial class YamlResourceProvider(
         .WithNamingConvention(CamelCaseNamingConvention.Instance)
         .Build();
 
+    /// <summary>Gets the priority of this provider relative to others; lower values are evaluated first.</summary>
     public int Priority => priority;
 
+    /// <summary>Indicates that this provider supports clearing and reloading its cached resources at runtime.</summary>
     public bool SupportsDynamicReload => true;
 
+    /// <summary>
+    /// Returns the localized string for the given key and culture, or <see langword="null"/> if not found.
+    /// </summary>
     public async Task<string?> GetStringAsync(string key, string culture, CancellationToken ct = default)
     {
         var resources = await LoadResourcesAsync(culture, ct).ConfigureAwait(false);
         return resources.GetValueOrDefault(key);
     }
 
+    /// <summary>Returns all localized key-value pairs available for the specified culture.</summary>
     public async Task<IReadOnlyDictionary<string, string>> GetAllStringsAsync(string culture, CancellationToken ct = default)
     {
         return await LoadResourcesAsync(culture, ct).ConfigureAwait(false);
     }
 
+    /// <summary>Returns <see langword="true"/> if the given key exists for the specified culture.</summary>
     public async Task<bool> KeyExistsAsync(string key, string culture, CancellationToken ct = default)
     {
         var resources = await LoadResourcesAsync(culture, ct).ConfigureAwait(false);
         return resources.ContainsKey(key);
     }
 
+    /// <summary>Clears the in-memory cache so that subsequent reads reload resources from disk.</summary>
     public Task ReloadAsync(CancellationToken ct = default)
     {
         _cache.Clear();

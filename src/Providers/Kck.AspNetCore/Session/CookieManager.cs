@@ -2,8 +2,13 @@ using Microsoft.AspNetCore.Http;
 
 namespace Kck.AspNetCore.Session;
 
+/// <summary>
+/// Default implementation of <see cref="ICookieManager"/> that enforces secure cookie defaults
+/// (HttpOnly, Secure, SameSite=Strict, 7-day absolute expiry).
+/// </summary>
 internal sealed class CookieManager : ICookieManager
 {
+    /// <inheritdoc/>
     public void Set(HttpResponse response, string key, string value, CookieOptions? options = null)
     {
         ArgumentNullException.ThrowIfNull(response);
@@ -12,6 +17,7 @@ internal sealed class CookieManager : ICookieManager
         response.Cookies.Append(key, value, options ?? GetDefaultOptions());
     }
 
+    /// <inheritdoc/>
     public string? Get(HttpRequest request, string key)
     {
         ArgumentNullException.ThrowIfNull(request);
@@ -20,6 +26,7 @@ internal sealed class CookieManager : ICookieManager
         return request.Cookies[key];
     }
 
+    /// <inheritdoc/>
     public void Remove(HttpResponse response, string key)
     {
         ArgumentNullException.ThrowIfNull(response);
@@ -28,6 +35,7 @@ internal sealed class CookieManager : ICookieManager
         response.Cookies.Delete(key);
     }
 
+    /// <inheritdoc/>
     public CookieOptions GetDefaultOptions()
     {
         return new CookieOptions

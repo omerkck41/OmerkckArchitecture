@@ -6,10 +6,18 @@ using Microsoft.Extensions.Options;
 
 namespace Kck.Messaging.AmazonSes;
 
+/// <summary>
+/// Sends emails via Amazon Simple Email Service v2 using the AWS SDK.
+/// Supports To, Cc, and Bcc recipients as well as plain-text and HTML bodies.
+/// </summary>
 public sealed class AmazonSesEmailProvider : IEmailProvider
 {
     private readonly AmazonSimpleEmailServiceV2Client _client;
 
+    /// <summary>
+    /// Initializes the provider and configures the SES client from the supplied options,
+    /// using explicit credentials when provided or the default credential chain otherwise.
+    /// </summary>
     public AmazonSesEmailProvider(IOptionsMonitor<AmazonSesOptions> options)
     {
         var opts = options.CurrentValue;
@@ -18,6 +26,9 @@ public sealed class AmazonSesEmailProvider : IEmailProvider
             : new AmazonSimpleEmailServiceV2Client(opts.AccessKey, opts.SecretKey, RegionEndpoint.GetBySystemName(opts.Region));
     }
 
+    /// <summary>
+    /// Sends the given <paramref name="message"/> through Amazon SES and throws <see cref="InvalidOperationException"/> if the service returns an HTTP error.
+    /// </summary>
     public async Task SendAsync(EmailMessage message, CancellationToken ct = default)
     {
         var destination = new Destination

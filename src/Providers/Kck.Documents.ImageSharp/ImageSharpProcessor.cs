@@ -10,8 +10,16 @@ using SixLabors.ImageSharp.Processing;
 
 namespace Kck.Documents.ImageSharp;
 
+/// <summary>
+/// Implementation of <see cref="IImageProcessor"/> that uses the SixLabors ImageSharp library
+/// to resize, convert and inspect image streams without native dependencies.
+/// </summary>
 public sealed class ImageSharpProcessor : IImageProcessor
 {
+    /// <summary>
+    /// Resizes the image from <paramref name="input"/> according to <paramref name="options"/>
+    /// and returns the encoded bytes in the requested output format.
+    /// </summary>
     public async Task<byte[]> ResizeAsync(Stream input, ImageProcessingOptions options, CancellationToken ct = default)
     {
         using var image = await Image.LoadAsync(input, ct).ConfigureAwait(false);
@@ -33,6 +41,10 @@ public sealed class ImageSharpProcessor : IImageProcessor
         return ms.ToArray();
     }
 
+    /// <summary>
+    /// Decodes the image from <paramref name="input"/> and re-encodes it to the specified
+    /// <paramref name="targetFormat"/> (e.g. "png", "webp", "jpeg").
+    /// </summary>
     public async Task<byte[]> ConvertFormatAsync(Stream input, string targetFormat, CancellationToken ct = default)
     {
         using var image = await Image.LoadAsync(input, ct).ConfigureAwait(false);
@@ -42,6 +54,10 @@ public sealed class ImageSharpProcessor : IImageProcessor
         return ms.ToArray();
     }
 
+    /// <summary>
+    /// Returns the pixel dimensions of the image contained in <paramref name="input"/> without
+    /// fully decoding the pixel data.
+    /// </summary>
     public async Task<(int Width, int Height)> GetDimensionsAsync(Stream input, CancellationToken ct = default)
     {
         using var image = await Image.LoadAsync(input, ct).ConfigureAwait(false);
