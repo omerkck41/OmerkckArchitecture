@@ -3,8 +3,14 @@ using System.Linq.Expressions;
 
 namespace Kck.Persistence.Abstractions.Dynamic;
 
+/// <summary>
+/// Extension methods for applying <see cref="DynamicQuery"/> filters to <see cref="IQueryable{T}"/>.
+/// </summary>
 public static class DynamicFilterExtensions
 {
+    /// <summary>
+    /// Applies the filter, sort, and page spec from a <see cref="DynamicQuery"/> to the queryable.
+    /// </summary>
     [RequiresUnreferencedCode("Builds LINQ expressions from string field names using Expression.Property — fields must be preserved for trimming.")]
     [RequiresDynamicCode("Filter value deserialization via JsonElement.Deserialize<T> may require runtime code generation.")]
     public static IQueryable<T> ToDynamic<T>(this IQueryable<T> query, DynamicQuery dynamic)

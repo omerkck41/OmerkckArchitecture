@@ -2,7 +2,7 @@
   "stryker-config": {
     "project-info": {
       "name": "Kck Modular Architecture",
-      "module": "core"
+      "module": "Security (Argon2)"
     },
     "mutation-level": "Standard",
     "thresholds": {
@@ -10,12 +10,12 @@
       "low": 70,
       "break": 60
     },
-    "project": "src/Abstractions/Kck.Core.Abstractions/Kck.Core.Abstractions.csproj",
+    "project": "src/Providers/Kck.Security.Argon2/Kck.Security.Argon2.csproj",
     "test-projects": [
-      "tests/Kck.Core.Abstractions.Tests/Kck.Core.Abstractions.Tests.csproj"
+      "tests/Kck.Security.Argon2.Tests/Kck.Security.Argon2.Tests.csproj"
     ],
     "reporters": ["html", "progress", "cleartext"],
-    "output-path": "mutation-report/core",
+    "output-path": "mutation-report/security",
     "since": {
       "enabled": false
     },
