@@ -1,6 +1,6 @@
 using FluentAssertions;
 using Kck.Authorization.Abstractions;
-using Kck.Core.Abstractions.Pipeline;
+using Kck.Pipeline.Abstractions;
 using Kck.Exceptions;
 using Kck.Pipeline.MediatR.Behaviors;
 using MediatR;

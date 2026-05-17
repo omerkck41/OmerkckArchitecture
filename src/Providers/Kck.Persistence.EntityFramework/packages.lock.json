@@ -145,13 +145,19 @@
         "contentHash": "dk9JPxTCIevS75HyEQ0E4OVAFhB2N+V9ShCXf8Q6FkUQZDkgLI12y679Nym1YqsiSysuQskT7Z+6nUf3yab6Vw=="
       },
       "kck.core.abstractions": {
-        "type": "Project"
+        "type": "Project",
+        "dependencies": {
+          "Kck.Pipeline.Abstractions": "[1.0.0, )"
+        }
       },
       "kck.persistence.abstractions": {
         "type": "Project",
         "dependencies": {
           "Kck.Core.Abstractions": "[1.0.0, )"
         }
+      },
+      "kck.pipeline.abstractions": {
+        "type": "Project"
       },
       "Microsoft.Extensions.DependencyInjection.Abstractions": {
         "type": "CentralTransitive",

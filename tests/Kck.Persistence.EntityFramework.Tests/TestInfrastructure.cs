@@ -3,7 +3,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Kck.Persistence.EntityFramework.Tests;
 
-public class TestEntity : Entity<Guid>
+// E1 (v3.0): FullEntity replaces old Entity as the "batteries-included" base class.
+public class TestEntity : FullEntity<Guid>
 {
     public string Name { get; set; } = string.Empty;
     public int Value { get; set; }

@@ -1,4 +1,4 @@
-using Kck.Core.Abstractions.Pipeline;
+using Kck.Pipeline.Abstractions;
 using Kck.Persistence.Abstractions.UnitOfWork;
 using MediatR;
 using Microsoft.Extensions.Logging;

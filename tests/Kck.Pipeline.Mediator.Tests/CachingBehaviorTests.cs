@@ -1,6 +1,6 @@
 using System.Text.Json;
 using FluentAssertions;
-using Kck.Core.Abstractions.Pipeline;
+using Kck.Pipeline.Abstractions;
 using Kck.Pipeline.Mediator.Behaviors;
 using Mediator;
 using Microsoft.Extensions.Caching.Distributed;

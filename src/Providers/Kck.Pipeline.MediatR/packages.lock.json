@@ -74,7 +74,10 @@
         "type": "Project"
       },
       "kck.core.abstractions": {
-        "type": "Project"
+        "type": "Project",
+        "dependencies": {
+          "Kck.Pipeline.Abstractions": "[1.0.0, )"
+        }
       },
       "kck.exceptions.abstractions": {
         "type": "Project"
@@ -84,6 +87,9 @@
         "dependencies": {
           "Kck.Core.Abstractions": "[1.0.0, )"
         }
+      },
+      "kck.pipeline.abstractions": {
+        "type": "Project"
       },
       "Microsoft.IdentityModel.JsonWebTokens": {
         "type": "CentralTransitive",

@@ -1,5 +1,5 @@
 using System.Text.Json;
-using Kck.Core.Abstractions.Pipeline;
+using Kck.Pipeline.Abstractions;
 using MediatR;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Logging;

@@ -49,6 +49,12 @@
         "contentHash": "AKJknIFi9O3+rGExxTry188JPvUoZAPcCtS2qdqyFhIzsxQ1Ap94BeGDG0VzVEHakhmRxmJtVih6TsHoghIt/g=="
       },
       "kck.core.abstractions": {
+        "type": "Project",
+        "dependencies": {
+          "Kck.Pipeline.Abstractions": "[1.0.0, )"
+        }
+      },
+      "kck.pipeline.abstractions": {
         "type": "Project"
       },
       "kck.security.abstractions": {

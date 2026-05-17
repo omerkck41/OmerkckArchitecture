@@ -156,7 +156,10 @@
         }
       },
       "kck.core.abstractions": {
-        "type": "Project"
+        "type": "Project",
+        "dependencies": {
+          "Kck.Pipeline.Abstractions": "[1.0.0, )"
+        }
       },
       "kck.eventbus.abstractions": {
         "type": "Project"
@@ -214,6 +217,9 @@
           "Kck.Persistence.Abstractions": "[1.0.0, )",
           "Microsoft.EntityFrameworkCore": "[10.0.8, )"
         }
+      },
+      "kck.pipeline.abstractions": {
+        "type": "Project"
       },
       "kck.pipeline.mediator": {
         "type": "Project",

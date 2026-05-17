@@ -6,7 +6,8 @@ namespace Kck.Core.Abstractions.Tests.Entities;
 
 public sealed class EntityTests
 {
-    private sealed class Order : Entity<Guid>
+    // E1 (v3.0): FullEntity replaces old Entity as the "batteries-included" base class.
+    private sealed class Order : FullEntity<Guid>
     {
         public Order(Guid id) : base(id) { }
         public Order() { }

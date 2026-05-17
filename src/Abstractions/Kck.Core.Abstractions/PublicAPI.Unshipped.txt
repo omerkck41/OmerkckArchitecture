@@ -1,1 +1,30 @@
 #nullable enable
+Kck.Core.Abstractions.Entities.AuditableEntity<TId>
+Kck.Core.Abstractions.Entities.AuditableEntity<TId>.AuditableEntity() -> void
+Kck.Core.Abstractions.Entities.FullEntity<TId>
+Kck.Core.Abstractions.Entities.FullEntity<TId>.FullEntity() -> void
+virtual Kck.Core.Abstractions.Entities.AuditableEntity<TId>.CreatedBy.get -> string!
+virtual Kck.Core.Abstractions.Entities.AuditableEntity<TId>.CreatedBy.set -> void
+virtual Kck.Core.Abstractions.Entities.AuditableEntity<TId>.CreatedDate.get -> System.DateTime
+virtual Kck.Core.Abstractions.Entities.AuditableEntity<TId>.CreatedDate.set -> void
+virtual Kck.Core.Abstractions.Entities.AuditableEntity<TId>.ModifiedBy.get -> string?
+virtual Kck.Core.Abstractions.Entities.AuditableEntity<TId>.ModifiedBy.set -> void
+virtual Kck.Core.Abstractions.Entities.AuditableEntity<TId>.ModifiedDate.get -> System.DateTime?
+virtual Kck.Core.Abstractions.Entities.AuditableEntity<TId>.ModifiedDate.set -> void
+virtual Kck.Core.Abstractions.Entities.FullEntity<TId>.DeletedBy.get -> string?
+virtual Kck.Core.Abstractions.Entities.FullEntity<TId>.DeletedBy.set -> void
+virtual Kck.Core.Abstractions.Entities.FullEntity<TId>.DeletedDate.get -> System.DateTime?
+virtual Kck.Core.Abstractions.Entities.FullEntity<TId>.DeletedDate.set -> void
+virtual Kck.Core.Abstractions.Entities.FullEntity<TId>.IsDeleted.get -> bool
+virtual Kck.Core.Abstractions.Entities.FullEntity<TId>.IsDeleted.set -> void
+virtual Kck.Core.Abstractions.Entities.FullEntity<TId>.RowVersion.get -> byte[]?
+virtual Kck.Core.Abstractions.Entities.FullEntity<TId>.RowVersion.set -> void
+Kck.Core.Abstractions.Paging.Paginate<T>.<Clone>$() -> Kck.Core.Abstractions.Paging.Paginate<T>!
+Kck.Core.Abstractions.Paging.Paginate<T>.Equals(Kck.Core.Abstractions.Paging.Paginate<T>? other) -> bool
+override Kck.Core.Abstractions.Paging.Paginate<T>.Equals(object? obj) -> bool
+override Kck.Core.Abstractions.Paging.Paginate<T>.GetHashCode() -> int
+override Kck.Core.Abstractions.Paging.Paginate<T>.ToString() -> string!
+static Kck.Core.Abstractions.Paging.Paginate<T>.operator !=(Kck.Core.Abstractions.Paging.Paginate<T>? left, Kck.Core.Abstractions.Paging.Paginate<T>? right) -> bool
+static Kck.Core.Abstractions.Paging.Paginate<T>.operator ==(Kck.Core.Abstractions.Paging.Paginate<T>? left, Kck.Core.Abstractions.Paging.Paginate<T>? right) -> bool
+Kck.Core.Abstractions.Entities.AuditableEntity<TId>.AuditableEntity(TId id) -> void
+Kck.Core.Abstractions.Entities.FullEntity<TId>.FullEntity(TId id) -> void

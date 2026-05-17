@@ -2,14 +2,17 @@
   "version": 2,
   "dependencies": {
     "net10.0": {
-      "Konscious.Security.Cryptography.Argon2": {
+      "Microsoft.CodeAnalysis.PublicApiAnalyzers": {
         "type": "Direct",
-        "requested": "[1.3.1, )",
-        "resolved": "1.3.1",
-        "contentHash": "T+OAGwzYYXftahpOxO7J4xA5K6urxwGnWQf3M+Jpi+76Azv/0T3M5SuN+h7/QvXuiqNw3ZEZ5QqVLI5ygDAylw==",
-        "dependencies": {
-          "Konscious.Security.Cryptography.Blake2": "1.1.1"
-        }
+        "requested": "[4.14.0, )",
+        "resolved": "4.14.0",
+        "contentHash": "5zBDSa8D1pfn5VyDzRekcYdVx/DGAzwegblVJhzdN0kvPt97TPr12haA6ZG0wS2WgBb1W42GeZJRiRtlNaoY1w=="
+      },
+      "Microsoft.NET.ILLink.Tasks": {
+        "type": "Direct",
+        "requested": "[10.0.7, )",
+        "resolved": "10.0.7",
+        "contentHash": "AA/yhzFHNtQZXLdqjzujPy25G8EWwGWsAnxOE2zYSBoT/8QHP6ketN3CToD3DFreO653ipUwnKHo22B8AlBMCw=="
       },
       "Microsoft.SourceLink.GitHub": {
         "type": "Direct",
@@ -27,11 +30,6 @@
         "resolved": "7.0.0",
         "contentHash": "2lMTCQl5bGP4iv0JNkockPnyllC6eHLz+CoK2ICvalvHod+exXSxueu9hq+zNkU7bZBJf8wMfeRC/Edn8AGmEg=="
       },
-      "Konscious.Security.Cryptography.Blake2": {
-        "type": "Transitive",
-        "resolved": "1.1.1",
-        "contentHash": "odwOyzj/J/lHJZNwFWJGU/LRecBShupAJ2S8TQqZfhUe9niHzu/voBYK5wuVKsvSpzbfupKQYZguVyIk1sgOkQ=="
-      },
       "Microsoft.Build.Tasks.Git": {
         "type": "Transitive",
         "resolved": "8.0.0",
@@ -41,21 +39,6 @@
         "type": "Transitive",
         "resolved": "8.0.0",
         "contentHash": "dk9JPxTCIevS75HyEQ0E4OVAFhB2N+V9ShCXf8Q6FkUQZDkgLI12y679Nym1YqsiSysuQskT7Z+6nUf3yab6Vw=="
-      },
-      "kck.core.abstractions": {
-        "type": "Project",
-        "dependencies": {
-          "Kck.Pipeline.Abstractions": "[1.0.0, )"
-        }
-      },
-      "kck.pipeline.abstractions": {
-        "type": "Project"
-      },
-      "kck.security.abstractions": {
-        "type": "Project",
-        "dependencies": {
-          "Kck.Core.Abstractions": "[1.0.0, )"
-        }
       }
     }
   }

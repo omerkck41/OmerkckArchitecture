@@ -133,6 +133,12 @@
         }
       },
       "kck.core.abstractions": {
+        "type": "Project",
+        "dependencies": {
+          "Kck.Pipeline.Abstractions": "[1.0.0, )"
+        }
+      },
+      "kck.pipeline.abstractions": {
         "type": "Project"
       },
       "Newtonsoft.Json": {
