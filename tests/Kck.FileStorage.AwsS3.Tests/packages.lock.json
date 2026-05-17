@@ -40,6 +40,15 @@
         "resolved": "7.0.0",
         "contentHash": "2lMTCQl5bGP4iv0JNkockPnyllC6eHLz+CoK2ICvalvHod+exXSxueu9hq+zNkU7bZBJf8wMfeRC/Edn8AGmEg=="
       },
+      "NSubstitute": {
+        "type": "Direct",
+        "requested": "[5.3.0, )",
+        "resolved": "5.3.0",
+        "contentHash": "lJ47Cps5Qzr86N99lcwd+OUvQma7+fBgr8+Mn+aOC0WrlqMNkdivaYD9IvnZ5Mqo6Ky3LS7ZI+tUq1/s9ERd0Q==",
+        "dependencies": {
+          "Castle.Core": "5.1.1"
+        }
+      },
       "xunit": {
         "type": "Direct",
         "requested": "[2.9.3, )",
@@ -56,6 +65,11 @@
         "requested": "[2.8.2, )",
         "resolved": "2.8.2",
         "contentHash": "vm1tbfXhFmjFMUmS4M0J0ASXz3/U5XvXBa6DOQUL3fEz4Vt6YPhv+ESCarx6M6D+9kJkJYZKCNvJMas1+nVfmQ=="
+      },
+      "Castle.Core": {
+        "type": "Transitive",
+        "resolved": "5.1.1",
+        "contentHash": "rpYtIczkzGpf+EkZgDr9CClTdemhsrwA/W5hMoPjLkRFnXzH44zDLoovXeKtmxb1ykXK9aJVODSpiJml8CTw2g=="
       },
       "Microsoft.Build.Tasks.Git": {
         "type": "Transitive",
@@ -126,29 +140,30 @@
           "xunit.extensibility.core": "[2.9.3]"
         }
       },
-      "kck.messaging.abstractions": {
+      "kck.filestorage.abstractions": {
         "type": "Project"
       },
-      "kck.messaging.amazonses": {
+      "kck.filestorage.awss3": {
         "type": "Project",
         "dependencies": {
-          "AWSSDK.SimpleEmailV2": "[4.0.12.13, )",
-          "Kck.Messaging.Abstractions": "[1.0.0, )"
+          "AWSSDK.Core": "[4.0.7.1, )",
+          "AWSSDK.S3": "[4.0.13, )",
+          "Kck.FileStorage.Abstractions": "[1.0.0, )"
         }
       },
       "AWSSDK.Core": {
         "type": "CentralTransitive",
         "requested": "[4.0.7.1, )",
-        "resolved": "4.0.6.1",
-        "contentHash": "rPhyuf5BtxAxI1x4a9DlMfknODiVzr9Kc5QWDjn/thmnmCLT6ggBh0zlpaXlP/MtdpN/mhEpTIODvzMIWrICVQ=="
+        "resolved": "4.0.7.1",
+        "contentHash": "XA0GHLwEMkoVu3u8neKnLEDD9ViXpn26ie9UhKXZXYRzCRfSFrLWpBOhupWlf+cJEFBYCC5mx2NsN8h59Y+M2Q=="
       },
-      "AWSSDK.SimpleEmailV2": {
+      "AWSSDK.S3": {
         "type": "CentralTransitive",
-        "requested": "[4.0.12.13, )",
-        "resolved": "4.0.12.13",
-        "contentHash": "d+CXSfe1zTS0wSjuhqd5Va6DAlT0R+/lQgIHU6odMIhdkNAaXS+bdMMw6ENypfyz7blN9Gdv6WZVcHBCGKtgfg==",
+        "requested": "[4.0.13, )",
+        "resolved": "4.0.13",
+        "contentHash": "yoC6rxInWRYkDIetJDgR7Q2Q/CKwngxuobGnmOihYx/mPJ9yZdD2ikPR2ZqOPunpY26PUF3rvM9/HjDhd/k8wA==",
         "dependencies": {
-          "AWSSDK.Core": "[4.0.6.1, 5.0.0)"
+          "AWSSDK.Core": "[4.0.3.2, 5.0.0)"
         }
       },
       "Newtonsoft.Json": {

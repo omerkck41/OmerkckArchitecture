@@ -1,0 +1,21 @@
+#nullable enable
+Kck.FileStorage.AzureBlob.AzureBlobOptions
+Kck.FileStorage.AzureBlob.AzureBlobOptions.AccountName.get -> string?
+Kck.FileStorage.AzureBlob.AzureBlobOptions.AccountName.set -> void
+Kck.FileStorage.AzureBlob.AzureBlobOptions.AzureBlobOptions() -> void
+Kck.FileStorage.AzureBlob.AzureBlobOptions.ConnectionString.get -> string?
+Kck.FileStorage.AzureBlob.AzureBlobOptions.ConnectionString.set -> void
+Kck.FileStorage.AzureBlob.AzureBlobOptions.ContainerName.get -> string!
+Kck.FileStorage.AzureBlob.AzureBlobOptions.ContainerName.set -> void
+Kck.FileStorage.AzureBlob.AzureBlobOptions.CreateContainerIfNotExists.get -> bool
+Kck.FileStorage.AzureBlob.AzureBlobOptions.CreateContainerIfNotExists.set -> void
+Kck.FileStorage.AzureBlob.AzureBlobStorageService
+Kck.FileStorage.AzureBlob.AzureBlobStorageService.AzureBlobStorageService(Microsoft.Extensions.Options.IOptionsMonitor<Kck.FileStorage.AzureBlob.AzureBlobOptions!>! options) -> void
+Kck.FileStorage.AzureBlob.AzureBlobStorageService.DeleteAsync(string! path, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task!
+Kck.FileStorage.AzureBlob.AzureBlobStorageService.DownloadAsync(string! path, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<System.IO.Stream!>!
+Kck.FileStorage.AzureBlob.AzureBlobStorageService.ExistsAsync(string! path, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<bool>!
+Kck.FileStorage.AzureBlob.AzureBlobStorageService.ListAsync(string! directoryPath, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<System.Collections.Generic.IReadOnlyList<Kck.FileStorage.Abstractions.FileMetadata!>!>!
+Kck.FileStorage.AzureBlob.AzureBlobStorageService.UploadAsync(Kck.FileStorage.Abstractions.FileUploadRequest! request, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task!
+Kck.FileStorage.AzureBlob.DependencyInjection.AzureBlobOptionsValidator
+Kck.FileStorage.AzureBlob.DependencyInjection.AzureBlobOptionsValidator.AzureBlobOptionsValidator() -> void
+Kck.FileStorage.AzureBlob.DependencyInjection.AzureBlobOptionsValidator.Validate(string? name, Kck.FileStorage.AzureBlob.AzureBlobOptions! options) -> Microsoft.Extensions.Options.ValidateOptionsResult!
