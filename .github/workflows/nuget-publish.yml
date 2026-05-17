@@ -59,6 +59,8 @@ jobs:
             -p:MinVerVersionOverride=${{ steps.version.outputs.version }}
 
       - name: Generate SBOM
+        # SBOM is a best-effort artifact — never block NuGet push on SBOM generation failure.
+        continue-on-error: true
         run: |
           dotnet tool restore
           dotnet CycloneDX OmerkckArchitecture.sln \
@@ -71,6 +73,8 @@ jobs:
         shell: bash
 
       - name: Upload SBOM artifact
+        if: always()
+        continue-on-error: true
         uses: actions/upload-artifact@v7
         with:
           name: sbom
