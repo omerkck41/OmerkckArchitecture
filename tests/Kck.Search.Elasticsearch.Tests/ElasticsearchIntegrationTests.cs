@@ -56,7 +56,7 @@ public sealed class ElasticsearchIntegrationTests : IAsyncLifetime
             new StaticOptionsMonitor<ElasticsearchOptions>(opts),
             NullLogger<ElasticsearchSearchService<TestDoc>>.Instance);
 
-        var settings = new ElasticsearchClientSettings(new Uri(baseUrl))
+        using var settings = new ElasticsearchClientSettings(new Uri(baseUrl))
             .Authentication(new Elastic.Transport.BasicAuthentication("elastic", ElasticPassword))
             .ServerCertificateValidationCallback((_, _, _, _) => true);
         _directClient = new ElasticsearchClient(settings);

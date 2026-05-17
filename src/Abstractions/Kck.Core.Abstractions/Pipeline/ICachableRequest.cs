@@ -1,11 +1,4 @@
-namespace Kck.Core.Abstractions.Pipeline;
-
-/// <summary>
-/// Marks a pipeline request whose response should be cached.
-/// </summary>
-/// <remarks>
-/// This type is retained for backwards compatibility. Migrate to
-/// <see cref="Kck.Pipeline.Abstractions.ICachableRequest"/> before v3.1.
-/// </remarks>
-[Obsolete("Use Kck.Pipeline.Abstractions.ICachableRequest. This type will be removed in v3.1.")]
-public interface ICachableRequest : Kck.Pipeline.Abstractions.ICachableRequest { }
+// This file is intentionally empty. ICachableRequest has been moved to
+// Kck.Pipeline.Abstractions (ADR-0026). The [Obsolete] forwarding type
+// was removed in v3.2 as planned.
+// Use: using Kck.Pipeline.Abstractions; and ICachableRequest from there.
