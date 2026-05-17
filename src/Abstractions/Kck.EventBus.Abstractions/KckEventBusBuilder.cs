@@ -9,6 +9,9 @@ namespace Microsoft.Extensions.DependencyInjection;
 /// </summary>
 public sealed class KckEventBusBuilder(IServiceCollection services)
 {
+    /// <summary>
+    /// Gets the underlying <see cref="IServiceCollection"/> used to register event bus services.
+    /// </summary>
     public IServiceCollection Services { get; } = services;
 
     /// <summary>

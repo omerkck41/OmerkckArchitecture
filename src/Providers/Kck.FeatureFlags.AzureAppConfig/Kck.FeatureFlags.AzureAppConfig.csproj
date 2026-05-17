@@ -1,0 +1,9 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <ProjectReference Include="../../Abstractions/Kck.FeatureFlags.Abstractions/Kck.FeatureFlags.Abstractions.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Azure.Data.AppConfiguration" />
+    <PackageReference Include="Azure.Identity" />
+  </ItemGroup>
+</Project>

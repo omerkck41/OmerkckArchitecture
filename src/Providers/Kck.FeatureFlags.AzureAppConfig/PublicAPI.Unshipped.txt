@@ -1,0 +1,23 @@
+#nullable enable
+Kck.FeatureFlags.AzureAppConfig.AzureAppConfigFeatureFlagService
+Kck.FeatureFlags.AzureAppConfig.AzureAppConfigFeatureFlagService.AzureAppConfigFeatureFlagService(Microsoft.Extensions.Options.IOptionsMonitor<Kck.FeatureFlags.AzureAppConfig.AzureAppConfigOptions!>! options, Microsoft.Extensions.Logging.ILogger<Kck.FeatureFlags.AzureAppConfig.AzureAppConfigFeatureFlagService!>! logger) -> void
+Kck.FeatureFlags.AzureAppConfig.AzureAppConfigFeatureFlagService.DisposeAsync() -> System.Threading.Tasks.ValueTask
+Kck.FeatureFlags.AzureAppConfig.AzureAppConfigFeatureFlagService.GetAllAsync(System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<System.Collections.Generic.IReadOnlyList<Kck.FeatureFlags.Abstractions.FeatureDefinition!>!>!
+Kck.FeatureFlags.AzureAppConfig.AzureAppConfigFeatureFlagService.GetValueAsync<T>(string! featureName, T defaultValue, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<T>!
+Kck.FeatureFlags.AzureAppConfig.AzureAppConfigFeatureFlagService.IsEnabledAsync(string! featureName, Kck.FeatureFlags.Abstractions.IFeatureContext! context, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<bool>!
+Kck.FeatureFlags.AzureAppConfig.AzureAppConfigFeatureFlagService.IsEnabledAsync(string! featureName, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<bool>!
+Kck.FeatureFlags.AzureAppConfig.AzureAppConfigOptions
+Kck.FeatureFlags.AzureAppConfig.AzureAppConfigOptions.AzureAppConfigOptions() -> void
+Kck.FeatureFlags.AzureAppConfig.AzureAppConfigOptions.ConnectionString.get -> string?
+Kck.FeatureFlags.AzureAppConfig.AzureAppConfigOptions.ConnectionString.set -> void
+Kck.FeatureFlags.AzureAppConfig.AzureAppConfigOptions.Endpoint.get -> string?
+Kck.FeatureFlags.AzureAppConfig.AzureAppConfigOptions.Endpoint.set -> void
+Kck.FeatureFlags.AzureAppConfig.AzureAppConfigOptions.KeyPrefix.get -> string!
+Kck.FeatureFlags.AzureAppConfig.AzureAppConfigOptions.KeyPrefix.set -> void
+Kck.FeatureFlags.AzureAppConfig.AzureAppConfigOptions.Label.get -> string?
+Kck.FeatureFlags.AzureAppConfig.AzureAppConfigOptions.Label.set -> void
+Kck.FeatureFlags.AzureAppConfig.AzureAppConfigOptions.RefreshInterval.get -> System.TimeSpan
+Kck.FeatureFlags.AzureAppConfig.AzureAppConfigOptions.RefreshInterval.set -> void
+Kck.FeatureFlags.AzureAppConfig.DependencyInjection.AzureAppConfigFeatureFlagOptionsValidator
+Kck.FeatureFlags.AzureAppConfig.DependencyInjection.AzureAppConfigFeatureFlagOptionsValidator.AzureAppConfigFeatureFlagOptionsValidator() -> void
+Kck.FeatureFlags.AzureAppConfig.DependencyInjection.AzureAppConfigFeatureFlagOptionsValidator.Validate(string? name, Kck.FeatureFlags.AzureAppConfig.AzureAppConfigOptions! options) -> Microsoft.Extensions.Options.ValidateOptionsResult!

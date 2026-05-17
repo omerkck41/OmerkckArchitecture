@@ -1,2 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <!-- E4: CS1591 docs complete — enforce XML doc requirement as error for this package. -->
+    <NoWarn>$(NoWarn.Replace(';1591','').Replace('1591;','').Replace('1591',''))</NoWarn>
+  </PropertyGroup>
 </Project>
