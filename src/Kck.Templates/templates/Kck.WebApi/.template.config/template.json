@@ -1,0 +1,43 @@
+{
+  "$schema": "http://json.schemastore.org/template",
+  "author": "Omerkck",
+  "classifications": ["Web", "API", "Kck"],
+  "identity": "Kck.Templates.WebApi",
+  "name": "Kck WebAPI",
+  "shortName": "kck-webapi",
+  "description": "A WebAPI project pre-wired with Kck.Bundle.WebApi: Mediator pipeline, in-memory caching, JWT, Argon2, Serilog, OpenTelemetry, rate limiting, and exception handling.",
+  "tags": {
+    "language": "C#",
+    "type": "project"
+  },
+  "sourceName": "KckWebApiTemplate",
+  "preferNameDirectory": true,
+  "symbols": {
+    "Framework": {
+      "type": "parameter",
+      "description": "Target framework",
+      "datatype": "choice",
+      "choices": [
+        { "choice": "net10.0", "description": ".NET 10" }
+      ],
+      "defaultValue": "net10.0",
+      "replaces": "net10.0"
+    },
+    "IncludeSample": {
+      "type": "parameter",
+      "datatype": "bool",
+      "description": "Include a WeatherForecast sample feature to illustrate Kck patterns.",
+      "defaultValue": "true"
+    }
+  },
+  "sources": [
+    {
+      "modifiers": [
+        {
+          "condition": "(!IncludeSample)",
+          "exclude": ["Features/**"]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>kck-webapi-KckWebApiTemplate</UserSecretsId>
+  </PropertyGroup>
+  <ItemGroup>
+    <!--
+      Kck.Bundle.WebApi includes: Mediator pipeline, in-memory caching, JWT, Argon2,
+      Serilog, OpenTelemetry, rate limiting, CORS, security headers, exception handling.
+      Replace individual providers (e.g. AddKckCachingRedis) as your needs grow.
+    -->
+    <PackageReference Include="Kck.Bundle.WebApi" Version="3.0.0" />
+  </ItemGroup>
+</Project>
