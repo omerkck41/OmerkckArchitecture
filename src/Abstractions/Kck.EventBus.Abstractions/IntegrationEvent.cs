@@ -1,8 +1,11 @@
+using System.Diagnostics;
+
 namespace Kck.EventBus.Abstractions;
 
 /// <summary>
 /// Base record for integration events used in event-driven communication.
 /// </summary>
+[DebuggerDisplay("{GetType().Name,nq} Id={Id}, OccurredOn={OccurredOn}")]
 public abstract record IntegrationEvent
 {
     /// <summary>

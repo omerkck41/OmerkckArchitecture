@@ -4,15 +4,13 @@ OmerkckArchitecture (Kck.* paket ailesi) icin guvenlik politikasi.
 
 ## Supported Versions
 
-Bu kutuphane su anda `0.x` (pre-1.0) suruminde olup yalniz **en son minor**
-versiyon icin guvenlik yamasi alir. v1.0 yayinlandiktan sonra en son iki
-minor surumu (N, N-1) destekleyecegiz.
+Bu kutuphane `v2.x` surumundedir. Guvenlik yamasi asagidaki surumler icin saglanir:
 
-| Version                  | Supported |
-| ------------------------ | --------- |
-| 0.x.x (latest minor)     | YES       |
-| 0.x.x (previous minors)  | NO        |
-| < 0.1                    | NO        |
+| Version         | Supported           |
+| --------------- | ------------------- |
+| 2.x (latest)    | YES ✅              |
+| 1.x             | Security-only ⚠️   |
+| < 1.0           | NO ❌               |
 
 ## Reporting a Vulnerability
 

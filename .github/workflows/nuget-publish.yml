@@ -58,6 +58,25 @@ jobs:
             --output ./artifacts \
             -p:MinVerVersionOverride=${{ steps.version.outputs.version }}
 
+      - name: Generate SBOM
+        run: |
+          dotnet tool restore
+          dotnet CycloneDX OmerkckArchitecture.sln \
+            --output ./artifacts \
+            --filename kck-sbom-${{ steps.version.outputs.version }} \
+            --output-format Json \
+            --exclude-test-projects \
+            --set-type Library \
+            --set-version ${{ steps.version.outputs.version }}
+        shell: bash
+
+      - name: Upload SBOM artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: sbom
+          path: ./artifacts/kck-sbom-*.json
+          retention-days: 90
+
       - name: Upload packages artifact
         uses: actions/upload-artifact@v7
         with:

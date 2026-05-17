@@ -115,10 +115,11 @@ jobs:
       - name: Enforce coverage threshold
         if: matrix.os == 'ubuntu-latest'
         env:
-          # LS-FAZ-4: regression onleyici esik. Yerel olcum (2026-04-26): line %40.7, branch %36.3.
-          # Yukseltme test yazimi gerektirir — yol haritasi: docs/policies/test-coverage.md
-          LINE_THRESHOLD: '40'
-          BRANCH_THRESHOLD: '35'
+          # Faz-B2 Kademe 1 — gercek olcum (2026-05-17): line %43.7, branch %38.7.
+          # Hedef %50/%45 icin ek testler gerekiyor (Kademe 2 oncesi).
+          # Yol haritasi: docs/policies/test-coverage.md
+          LINE_THRESHOLD: '43'
+          BRANCH_THRESHOLD: '38'
         run: |
           LINE=$(awk '/Line coverage:/ {gsub("%",""); print $3; exit}' ./coverage-report/Summary.txt)
           BRANCH=$(awk '/Branch coverage:/ {gsub("%",""); print $3; exit}' ./coverage-report/Summary.txt)

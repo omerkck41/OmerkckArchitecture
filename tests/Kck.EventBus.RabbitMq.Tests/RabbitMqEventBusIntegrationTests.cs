@@ -22,7 +22,14 @@ namespace Kck.EventBus.RabbitMq.Tests;
 public sealed class RabbitMqEventBusIntegrationTests : IAsyncLifetime
 #pragma warning restore CA1001
 {
-    private readonly RabbitMqContainer _rabbit = new RabbitMqBuilder("rabbitmq:3-alpine")
+    private const string RabbitUser = "kck_test";
+    private const string RabbitPass = "kck_test_pw";
+
+    // rabbitmq:3-management provides the management API used by the Testcontainers health check.
+    // 'guest' is loopback-only inside the container; explicit credentials avoid auth rejection.
+    private readonly RabbitMqContainer _rabbit = new RabbitMqBuilder("rabbitmq:3-management")
+        .WithUsername(RabbitUser)
+        .WithPassword(RabbitPass)
         .Build();
 
     private RabbitMqEventBus _bus = default!;
@@ -35,8 +42,8 @@ public sealed class RabbitMqEventBusIntegrationTests : IAsyncLifetime
         {
             HostName = _rabbit.Hostname,
             Port = _rabbit.GetMappedPublicPort(5672),
-            UserName = "guest",
-            Password = "guest",
+            UserName = RabbitUser,
+            Password = RabbitPass,
             ExchangeName = "kck.test"
         };
 
@@ -59,6 +66,17 @@ public sealed class RabbitMqEventBusIntegrationTests : IAsyncLifetime
         var act = () => _bus.Subscribe<RabbitIntegrationTestEvent, RabbitIntegrationTestEventHandler>();
 
         act.Should().NotThrow();
+    }
+
+    [Fact]
+    public async Task PublishAsync_WithSubscribedHandler_DoesNotThrow()
+    {
+        _bus.Subscribe<RabbitIntegrationTestEvent, RabbitIntegrationTestEventHandler>();
+        var @event = new RabbitIntegrationTestEvent("publish-integration-test");
+
+        var act = async () => await _bus.PublishAsync(@event);
+
+        await act.Should().NotThrowAsync();
     }
 }
 

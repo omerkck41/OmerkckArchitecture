@@ -11,6 +11,7 @@
     <PackageReference Include="xunit.runner.visualstudio" />
     <PackageReference Include="FluentAssertions" />
     <PackageReference Include="NSubstitute" />
+    <PackageReference Include="Testcontainers.Elasticsearch" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="../../src/Providers/Kck.Search.Elasticsearch/Kck.Search.Elasticsearch.csproj" />

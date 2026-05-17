@@ -1,0 +1,41 @@
+{
+  "metadata": [
+    {
+      "src": [
+        {
+          "files": ["src/**/*.csproj"],
+          "exclude": ["**/obj/**", "**/bin/**"]
+        }
+      ],
+      "dest": "api",
+      "includePrivateMembers": false,
+      "disableGitFeatures": false,
+      "disableDefaultFilter": false
+    }
+  ],
+  "build": {
+    "content": [
+      { "files": ["api/**.yml", "api/index.md"] },
+      { "files": ["docs/**/*.md"], "dest": "docs" },
+      { "files": ["README.md", "CHANGELOG.md", "CONTRIBUTING.md"] },
+      { "files": ["toc.yml"] }
+    ],
+    "resource": [],
+    "output": "_site",
+    "template": ["default", "modern"],
+    "globalMetadata": {
+      "_appName": "Kck Architecture Framework",
+      "_appTitle": "Kck Architecture Framework",
+      "_appFooter": "MIT Licensed — <a href=\"https://github.com/omerkck41/OmerkckArchitecture\">GitHub</a>",
+      "_enableSearch": true,
+      "_gitContribute": {
+        "repo": "https://github.com/omerkck41/OmerkckArchitecture",
+        "branch": "main",
+        "path": "docs"
+      }
+    },
+    "sitemap": {
+      "baseUrl": "https://omerkck41.github.io/OmerkckArchitecture"
+    }
+  }
+}

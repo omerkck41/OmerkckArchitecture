@@ -1,0 +1,62 @@
+name: benchmark
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  # Required by benchmark-action to push results to gh-pages and write PR comments.
+  contents: write
+  deployments: write
+
+env:
+  DOTNET_NOLOGO: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+
+jobs:
+  benchmark:
+    name: Performance Regression
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: '10.0.203'
+
+      - name: Restore
+        run: dotnet restore --locked-mode
+
+      - name: Build (Release)
+        run: dotnet build --configuration Release --no-restore
+
+      - name: Run benchmarks
+        run: |
+          dotnet run \
+            --project tests/Kck.Benchmarks/Kck.Benchmarks.csproj \
+            --configuration Release \
+            --no-build \
+            -- \
+            --filter '*' \
+            --exporters json \
+            --artifacts ./BenchmarkDotNet.Artifacts
+        shell: bash
+
+      - name: Store benchmark results / detect regression
+        uses: benchmark-action/github-action-benchmark@v1
+        with:
+          tool: benchmarkdotnet
+          output-file-path: BenchmarkDotNet.Artifacts/results/*.json
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          # Persist results to the gh-pages branch so successive runs can compare.
+          auto-push: true
+          # Fail the workflow if any benchmark regresses more than 10%.
+          alert-threshold: '110%'
+          fail-on-alert: true
+          comment-on-alert: true
+          # Summary comment in PRs (no push required — read-only comment).
+          summary-always: true

@@ -1,10 +1,12 @@
 using System.Collections.Concurrent;
+using System.Diagnostics;
 using Kck.Caching.Abstractions;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
 
 namespace Kck.Caching.InMemory;
 
+[DebuggerDisplay("Prefix={Options.KeyPrefix,nq}, Keys={_keys.Count}")]
 public sealed class InMemoryCacheService(
     IMemoryCache cache,
     IOptionsMonitor<CacheOptions> options) : CacheServiceBase
