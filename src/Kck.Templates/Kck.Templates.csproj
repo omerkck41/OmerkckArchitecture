@@ -7,18 +7,22 @@
     <PackageTags>dotnet;template;kck;webapi;clean-architecture</PackageTags>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <TargetFramework>net10.0</TargetFramework>
-    <IncludeContentInPack>true</IncludeContentInPack>
-    <IncludeBuildOutput>false</IncludeBuildOutput>
-    <ContentTargetFolders>content</ContentTargetFolders>
+    <!-- Keep build output: the stub assembly in lib/ satisfies NuGet's NU5017 content check. -->
     <NoDefaultExcludes>true</NoDefaultExcludes>
-    <!-- NU5128: no lib/ expected. NU5118: duplicate README. NU5017: content-only pack. -->
-    <NoWarn>$(NoWarn);NU5128;NU5118</NoWarn>
-    <WarningsNotAsErrors>$(WarningsNotAsErrors);NU5017;NU5128;NU5118</WarningsNotAsErrors>
+    <NoWarn>$(NoWarn);NU5118</NoWarn>
     <IsPackable>true</IsPackable>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Remove="templates/**/*.cs" />
-    <Content Include="templates/**/*" Exclude="templates/**/bin/**;templates/**/obj/**" />
+    <!-- Exclude template source files from compilation — they are content only. -->
+    <Compile Remove="content/**/*.cs" />
+    <!--
+      Explicit PackagePath to avoid double content/ prefix.
+      Files at src/content/Kck.WebApi/... → package at content/Kck.WebApi/...
+    -->
+    <Content Include="content/**/*"
+             Exclude="content/**/bin/**;content/**/obj/**"
+             Pack="true"
+             PackagePath="content/%(RecursiveDir)%(Filename)%(Extension)" />
     <None Include="README.md" Pack="true" PackagePath="\" />
   </ItemGroup>
 </Project>
