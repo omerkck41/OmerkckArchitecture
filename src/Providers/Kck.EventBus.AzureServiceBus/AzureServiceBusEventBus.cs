@@ -37,18 +37,18 @@ public sealed class AzureServiceBusEventBus : IEventBus, IAsyncDisposable
     }
 
     /// <inheritdoc />
-    public async Task PublishAsync<TEvent>(TEvent @event, CancellationToken ct = default)
+    public async Task PublishAsync<TEvent>(TEvent eventData, CancellationToken ct = default)
         where TEvent : IntegrationEvent
     {
         var eventName = typeof(TEvent).Name;
 
         await EnsureClientAsync(ct).ConfigureAwait(false);
 
-        var body = JsonSerializer.SerializeToUtf8Bytes(@event, JsonOptions);
+        var body = JsonSerializer.SerializeToUtf8Bytes(eventData, JsonOptions);
 
         var message = new ServiceBusMessage(body)
         {
-            MessageId = @event.Id.ToString(),
+            MessageId = eventData.Id.ToString(),
             Subject = eventName,
             ContentType = "application/json",
             ApplicationProperties = { ["EventType"] = eventName }
@@ -56,7 +56,7 @@ public sealed class AzureServiceBusEventBus : IEventBus, IAsyncDisposable
 
         await _sender!.SendMessageAsync(message, ct).ConfigureAwait(false);
 
-        Log.Published(_logger, eventName, @event.Id);
+        Log.Published(_logger, eventName, eventData.Id);
     }
 
     /// <inheritdoc />

@@ -15,14 +15,14 @@ public sealed class InMemoryEventBus(
     private readonly ConcurrentDictionary<Type, ConcurrentDictionary<Type, byte>> _handlers = new();
 
     /// <inheritdoc />
-    public async Task PublishAsync<TEvent>(TEvent @event, CancellationToken ct = default)
+    public async Task PublishAsync<TEvent>(TEvent eventData, CancellationToken ct = default)
         where TEvent : IntegrationEvent
     {
         var eventType = typeof(TEvent);
 
         if (!_handlers.TryGetValue(eventType, out var handlerTypes))
         {
-            await DispatchViaDi(@event, ct).ConfigureAwait(false);
+            await DispatchViaDi(eventData, ct).ConfigureAwait(false);
             return;
         }
 
@@ -35,7 +35,7 @@ public sealed class InMemoryEventBus(
         {
             try
             {
-                await handler!.HandleAsync(@event, ct).ConfigureAwait(false);
+                await handler!.HandleAsync(eventData, ct).ConfigureAwait(false);
             }
             catch (Exception ex) when (ex is not OperationCanceledException)
             {
@@ -53,7 +53,7 @@ public sealed class InMemoryEventBus(
         handlerTypes.TryAdd(typeof(THandler), 0);
     }
 
-    private async Task DispatchViaDi<TEvent>(TEvent @event, CancellationToken ct)
+    private async Task DispatchViaDi<TEvent>(TEvent eventData, CancellationToken ct)
         where TEvent : IntegrationEvent
     {
         using var scope = serviceProvider.CreateScope();
@@ -62,7 +62,7 @@ public sealed class InMemoryEventBus(
         {
             try
             {
-                await handler.HandleAsync(@event, ct).ConfigureAwait(false);
+                await handler.HandleAsync(eventData, ct).ConfigureAwait(false);
             }
             catch (Exception ex) when (ex is not OperationCanceledException)
             {
