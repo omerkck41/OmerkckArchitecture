@@ -1,0 +1,18 @@
+# Default owner for everything
+* @omerkck41
+
+# CI/CD and workflow changes
+/.github/ @omerkck41
+
+# Source packages
+/src/ @omerkck41
+
+# Tests
+/tests/ @omerkck41
+
+# Docs and ADRs
+/docs/ @omerkck41
+
+# NuGet / versioning config
+/Directory.Build.props @omerkck41
+/Directory.Packages.props @omerkck41
