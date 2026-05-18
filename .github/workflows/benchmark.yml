@@ -43,7 +43,6 @@ jobs:
           dotnet run \
             --project tests/Kck.Benchmarks/Kck.Benchmarks.csproj \
             --configuration Release \
-            --no-build \
             -- \
             --filter '*' \
             --exporters json \
@@ -52,8 +51,14 @@ jobs:
 
       - name: Merge benchmark JSON reports
         run: |
+          shopt -s nullglob
+          files=(BenchmarkDotNet.Artifacts/results/*-report.json)
+          if [ ${#files[@]} -eq 0 ]; then
+            echo "::error::No benchmark JSON output found. BenchmarkDotNet may have failed silently."
+            exit 1
+          fi
           jq -s '{"Title":"Kck Benchmarks","Benchmarks":[.[].Benchmarks[]]}' \
-            BenchmarkDotNet.Artifacts/results/*-report.json \
+            "${files[@]}" \
             > BenchmarkDotNet.Artifacts/results/merged-report.json
         shell: bash
 
