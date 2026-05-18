@@ -18,9 +18,7 @@ concurrency:
   cancel-in-progress: true
 
 permissions:
-  contents: write
-  pages: write
-  id-token: write
+  contents: read
 
 env:
   DOTNET_NOLOGO: true
@@ -30,6 +28,9 @@ jobs:
   build-docs:
     name: Build & Deploy DocFX
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pages: write
 
     steps:
       - name: Checkout
@@ -66,6 +67,9 @@ jobs:
     name: Deploy to GitHub Pages
     needs: build-docs
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      pages: write
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}

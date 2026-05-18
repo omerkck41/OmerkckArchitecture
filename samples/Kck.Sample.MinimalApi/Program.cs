@@ -70,5 +70,5 @@ app.MapDelete("/todos/{id:guid}", async (Guid id, SampleDbContext db, Cancellati
     return Results.NoContent();
 });
 
-app.Run();
+await app.RunAsync();
 

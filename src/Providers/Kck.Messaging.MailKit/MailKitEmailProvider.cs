@@ -36,7 +36,7 @@ public sealed class MailKitEmailProvider(SmtpConnectionPool pool) : IEmailProvid
             builder.TextBody = message.Body;
 
         foreach (var att in message.Attachments)
-            builder.Attachments.Add(att.FileName, att.Content, ContentType.Parse(att.ContentType), ct);
+            await builder.Attachments.AddAsync(att.FileName, att.Content, ContentType.Parse(att.ContentType), ct).ConfigureAwait(false);
 
         mime.Body = builder.ToMessageBody();
 

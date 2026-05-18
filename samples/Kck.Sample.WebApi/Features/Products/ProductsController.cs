@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using Kck.AspNetCore.Controllers;
 using Kck.Sample.WebApi.Data;
 using Microsoft.AspNetCore.Authorization;
@@ -64,7 +65,7 @@ public sealed partial class ProductsController(AppDbContext db, ILogger<Products
     }
 }
 
-public sealed record CreateProductRequest(string Name, string Category, decimal Price);
+public sealed record CreateProductRequest(string Name, string Category, [property: Required] decimal Price);
 
 public sealed partial class ProductsController
 {

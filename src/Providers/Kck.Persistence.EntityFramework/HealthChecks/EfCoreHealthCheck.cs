@@ -7,16 +7,16 @@ namespace Kck.Persistence.EntityFramework.HealthChecks;
 /// <summary>
 /// Health check that verifies the database connection for a specific <see cref="DbContext"/>.
 /// </summary>
-internal sealed class EfCoreHealthCheck<TContext>(TContext context) : IHealthCheck
+internal sealed class EfCoreHealthCheck<TContext>(TContext dbContext) : IHealthCheck
     where TContext : DbContext
 {
     public async Task<HealthCheckResult> CheckHealthAsync(
-        HealthCheckContext healthContext,
+        HealthCheckContext context,
         CancellationToken cancellationToken = default)
     {
         try
         {
-            var canConnect = await context.Database
+            var canConnect = await dbContext.Database
                 .CanConnectAsync(cancellationToken)
                 .ConfigureAwait(false);
 
