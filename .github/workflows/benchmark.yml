@@ -50,11 +50,18 @@ jobs:
             --artifacts ./BenchmarkDotNet.Artifacts
         shell: bash
 
+      - name: Merge benchmark JSON reports
+        run: |
+          jq -s '{"Title":"Kck Benchmarks","Benchmarks":[.[].Benchmarks[]]}' \
+            BenchmarkDotNet.Artifacts/results/*-report.json \
+            > BenchmarkDotNet.Artifacts/results/merged-report.json
+        shell: bash
+
       - name: Store benchmark results / detect regression
         uses: benchmark-action/github-action-benchmark@v1
         with:
           tool: benchmarkdotnet
-          output-file-path: BenchmarkDotNet.Artifacts/results/*.json
+          output-file-path: BenchmarkDotNet.Artifacts/results/merged-report.json
           github-token: ${{ secrets.GITHUB_TOKEN }}
           # Persist results to the gh-pages branch so successive runs can compare.
           auto-push: true
