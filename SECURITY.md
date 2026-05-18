@@ -4,13 +4,13 @@ OmerkckArchitecture (Kck.* paket ailesi) icin guvenlik politikasi.
 
 ## Supported Versions
 
-Bu kutuphane `v2.x` surumundedir. Guvenlik yamasi asagidaki surumler icin saglanir:
+Bu kutuphane `v3.x` surumundedir. Guvenlik yamasi asagidaki surumler icin saglanir:
 
 | Version         | Supported           |
 | --------------- | ------------------- |
-| 2.x (latest)    | YES ✅              |
-| 1.x             | Security-only ⚠️   |
-| < 1.0           | NO ❌               |
+| 3.x (latest)    | YES ✅              |
+| 2.x             | Security-only ⚠️   |
+| < 2.0           | NO ❌               |
 
 ## Reporting a Vulnerability
 

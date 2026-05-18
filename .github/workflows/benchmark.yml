@@ -5,6 +5,10 @@ on:
     branches: [main]
   workflow_dispatch:
 
+concurrency:
+  group: benchmark
+  cancel-in-progress: false  # gh-pages history must not be interrupted mid-write
+
 permissions:
   # Required by benchmark-action to push results to gh-pages and write PR comments.
   contents: write

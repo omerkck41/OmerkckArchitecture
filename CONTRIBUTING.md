@@ -66,8 +66,8 @@ IOptionsMonitor<T> instead of IOptions<T>. Migration: see ADR-0004.
 
 ## Security
 
-Do **not** open public issues for security vulnerabilities. Email the maintainer
-listed in [CODEOWNERS](CODEOWNERS).
+Do **not** open public issues for security vulnerabilities. Follow the
+responsible disclosure process in [SECURITY.md](SECURITY.md).
 
 ## Code style
 
