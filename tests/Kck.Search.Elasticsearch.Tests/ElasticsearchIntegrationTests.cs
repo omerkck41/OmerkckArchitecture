@@ -16,7 +16,7 @@ namespace Kck.Search.Elasticsearch.Tests;
 /// Requires Docker. CI: ubuntu-only (Category=Integration filter).
 /// </remarks>
 [Trait("Category", "Integration")]
-public sealed class ElasticsearchIntegrationTests : IAsyncLifetime
+public sealed class ElasticsearchIntegrationTests : IAsyncLifetime, IDisposable
 {
     // Elastic.Clients.Elasticsearch 9.x sends Accept: compatible-with=9 which ES 8.x rejects.
     // Container must match the client major version (9.x).
@@ -61,12 +61,13 @@ public sealed class ElasticsearchIntegrationTests : IAsyncLifetime
         _directClient = new ElasticsearchClient(_clientSettings);
     }
 
+    public void Dispose() => ((IDisposable?)_clientSettings)?.Dispose();
+
     public async Task DisposeAsync()
     {
         if (await _sut.IndexExistsAsync(TestIndex))
             await _sut.DeleteIndexAsync(TestIndex);
         await _container.DisposeAsync();
-        ((IDisposable)_clientSettings).Dispose();
     }
 
     [Fact]
