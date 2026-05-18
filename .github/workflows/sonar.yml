@@ -25,8 +25,7 @@ jobs:
   sonar:
     name: SonarCloud Analysis
     runs-on: ubuntu-latest
-    # Skip when SONAR_TOKEN is not configured (forks, Dependabot PRs, first-time setup).
-    if: ${{ secrets.SONAR_TOKEN != '' && github.actor != 'dependabot[bot]' }}
+    if: ${{ github.actor != 'dependabot[bot]' }}
 
     steps:
       - name: Checkout
