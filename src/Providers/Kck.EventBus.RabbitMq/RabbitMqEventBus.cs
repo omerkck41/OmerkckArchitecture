@@ -38,18 +38,18 @@ public sealed class RabbitMqEventBus : IEventBus, IAsyncDisposable
     }
 
     /// <inheritdoc />
-    public async Task PublishAsync<TEvent>(TEvent @event, CancellationToken ct = default)
+    public async Task PublishAsync<TEvent>(TEvent eventData, CancellationToken ct = default)
         where TEvent : IntegrationEvent
     {
         var eventName = typeof(TEvent).Name;
 
         await EnsureConnectionAsync(ct).ConfigureAwait(false);
 
-        var body = JsonSerializer.SerializeToUtf8Bytes(@event, JsonOptions);
+        var body = JsonSerializer.SerializeToUtf8Bytes(eventData, JsonOptions);
 
         var props = new BasicProperties
         {
-            MessageId = @event.Id.ToString(),
+            MessageId = eventData.Id.ToString(),
             Timestamp = new AmqpTimestamp(DateTimeOffset.UtcNow.ToUnixTimeSeconds()),
             ContentType = "application/json",
             DeliveryMode = DeliveryModes.Persistent
@@ -63,7 +63,7 @@ public sealed class RabbitMqEventBus : IEventBus, IAsyncDisposable
             body: body,
             cancellationToken: ct).ConfigureAwait(false);
 
-        Log.Published(_logger, eventName, @event.Id);
+        Log.Published(_logger, eventName, eventData.Id);
     }
 
     /// <inheritdoc />
