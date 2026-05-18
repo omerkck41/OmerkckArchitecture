@@ -5,7 +5,7 @@ namespace Kck.Core.Abstractions.Paging;
 /// or EF Core extension <c>ToPaginateAsync</c>.
 /// </summary>
 /// <typeparam name="T">The type of items in this page.</typeparam>
-public interface IPaginate<T>
+public interface IPaginate<out T>
 {
     /// <summary>Zero-based starting page index (default: 0).</summary>
     int From { get; }

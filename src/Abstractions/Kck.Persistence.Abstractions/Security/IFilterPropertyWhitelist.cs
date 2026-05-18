@@ -1,3 +1,5 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace Kck.Persistence.Abstractions.Security;
 
 /// <summary>
@@ -5,6 +7,7 @@ namespace Kck.Persistence.Abstractions.Security;
 /// Implementations declare which properties of <typeparamref name="T"/> may be referenced in client-supplied filters.
 /// </summary>
 /// <typeparam name="T">The entity type whose filterable properties are being governed.</typeparam>
+[SuppressMessage("Design", "CA1715:Identifiers should have correct prefix", Justification = "T is intentionally unbound in members — it serves as a DI registration discriminator so IFilterPropertyWhitelist<Product> and IFilterPropertyWhitelist<Order> can be resolved independently.")]
 public interface IFilterPropertyWhitelist<T>
 {
     /// <summary>

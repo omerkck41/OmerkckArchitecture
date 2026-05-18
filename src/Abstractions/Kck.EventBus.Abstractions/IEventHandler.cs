@@ -12,7 +12,7 @@ public interface IEventHandler<in TEvent> where TEvent : IntegrationEvent
     /// <summary>
     /// Handles the specified integration event.
     /// </summary>
-    /// <param name="event">The event to handle.</param>
+    /// <param name="eventData">The event to handle.</param>
     /// <param name="ct">Cancellation token.</param>
-    Task HandleAsync(TEvent @event, CancellationToken ct = default);
+    Task HandleAsync(TEvent eventData, CancellationToken ct = default);
 }

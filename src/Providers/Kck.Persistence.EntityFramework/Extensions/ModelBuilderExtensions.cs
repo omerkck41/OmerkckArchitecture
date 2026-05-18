@@ -13,7 +13,7 @@ public static class ModelBuilderExtensions
     private static readonly MethodInfo ApplyFilterMethod =
         typeof(ModelBuilderExtensions).GetMethod(
             nameof(ApplySoftDeleteFilter),
-            BindingFlags.NonPublic | BindingFlags.Static)!;
+            BindingFlags.NonPublic | BindingFlags.Static)!; // NOSONAR S3011 - NonPublic reflection is intentional: EF Core global filter requires generic method invocation via reflection
 
     /// <summary>
     /// Applies a global query filter to exclude soft-deleted entities

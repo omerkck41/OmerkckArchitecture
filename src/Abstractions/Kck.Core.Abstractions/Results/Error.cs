@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Kck.Core.Abstractions.Results;
 
@@ -7,6 +8,7 @@ namespace Kck.Core.Abstractions.Results;
 /// <param name="Message">Human-readable description of the error.</param>
 /// <param name="Type">Error category; defaults to <see cref="ErrorType.Failure"/>.</param>
 [DebuggerDisplay("[{Type}] {Code}: {Message,nq}")]
+[SuppressMessage("Naming", "CA1716:Identifiers should not match keywords", Justification = "Error is the established domain name; renaming would be a major breaking change. VB.NET consumers can use the fully-qualified name.")]
 public sealed record Error(string Code, string Message, ErrorType Type = ErrorType.Failure);
 
 /// <summary>Categorises an <see cref="Error"/> so callers can map it to the appropriate HTTP status or UI message.</summary>
