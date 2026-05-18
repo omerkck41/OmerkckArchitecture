@@ -27,8 +27,8 @@ public static class KckBackgroundJobsHangfireServiceCollectionExtensions
                     config.UseInMemoryStorage();
                     break;
                 default:
-                    config.UseInMemoryStorage();
-                    break;
+                    throw new NotSupportedException(
+                        $"Hangfire storage type '{options.StorageType}' is not supported. Use 'inmemory'.");
             }
         });
 

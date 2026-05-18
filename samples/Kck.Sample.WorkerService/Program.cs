@@ -21,4 +21,4 @@ var scheduler = host.Services.GetRequiredService<IJobScheduler>();
 await scheduler.AddOrUpdateRecurringAsync<SampleRecurringJob>(
     "sample-recurring", CronExpressions.Every5Minutes);
 
-host.Run();
+await host.RunAsync();

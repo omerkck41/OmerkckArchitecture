@@ -41,7 +41,7 @@ public sealed class FtpConnectionPool : IAsyncDisposable
             if (pooled.IsConnected)
                 return pooled;
 
-            pooled.Dispose();
+            await pooled.DisposeAsync().ConfigureAwait(false);
             Interlocked.Decrement(ref _totalCreated);
         }
 
@@ -77,7 +77,7 @@ public sealed class FtpConnectionPool : IAsyncDisposable
         }
         catch
         {
-            client.Dispose();
+            await client.DisposeAsync().ConfigureAwait(false);
             throw;
         }
     }
@@ -99,7 +99,7 @@ public sealed class FtpConnectionPool : IAsyncDisposable
             // best-effort disconnect; the client is being discarded anyway
         }
 
-        client.Dispose();
+        await client.DisposeAsync().ConfigureAwait(false);
         Interlocked.Decrement(ref _totalCreated);
     }
 
