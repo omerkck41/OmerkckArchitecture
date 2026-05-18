@@ -12,13 +12,13 @@ public interface ISessionManager
     /// Serialises <paramref name="value"/> as JSON and stores it in <paramref name="session"/>
     /// under <paramref name="key"/>.
     /// </summary>
-    void Set<T>(ISession session, string key, T value);
+    void Set<T>(ISession session, string key, T value); // NOSONAR S1700 - session API convention; VB.NET callers can use fully-qualified name
 
     /// <summary>
     /// Retrieves and deserialises the value stored under <paramref name="key"/>, or returns
     /// the default for <typeparamref name="T"/> when the key is absent.
     /// </summary>
-    T? Get<T>(ISession session, string key);
+    T? Get<T>(ISession session, string key); // NOSONAR S1700 - session API convention
 
     /// <summary>Removes the entry identified by <paramref name="key"/> from <paramref name="session"/>.</summary>
     void Remove(ISession session, string key);

@@ -4,10 +4,10 @@ Kck.EventBus.Abstractions.EventProcessor
 Kck.EventBus.Abstractions.EventProcessor.EventProcessor(System.IServiceProvider! serviceProvider, Microsoft.Extensions.Logging.ILogger! logger) -> void
 Kck.EventBus.Abstractions.EventProcessor.ProcessAsync(string! eventName, byte[]! body, System.Collections.Concurrent.ConcurrentDictionary<string!, System.Type!>! eventTypes, System.Collections.Concurrent.ConcurrentDictionary<string!, System.Collections.Concurrent.ConcurrentBag<System.Type!>!>! handlers) -> System.Threading.Tasks.Task!
 Kck.EventBus.Abstractions.IEventBus
-Kck.EventBus.Abstractions.IEventBus.PublishAsync<TEvent>(TEvent! event, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task!
+Kck.EventBus.Abstractions.IEventBus.PublishAsync<TEvent>(TEvent! eventData, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task!
 Kck.EventBus.Abstractions.IEventBus.Subscribe<TEvent, THandler>() -> void
 Kck.EventBus.Abstractions.IEventHandler<TEvent>
-Kck.EventBus.Abstractions.IEventHandler<TEvent>.HandleAsync(TEvent! event, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task!
+Kck.EventBus.Abstractions.IEventHandler<TEvent>.HandleAsync(TEvent! eventData, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task!
 Kck.EventBus.Abstractions.IntegrationEvent
 Kck.EventBus.Abstractions.IntegrationEvent.Id.get -> System.Guid
 Kck.EventBus.Abstractions.IntegrationEvent.Id.init -> void
