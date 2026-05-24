@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1779660611739,
+  "lastUpdate": 1779661956705,
   "repoUrl": "https://github.com/omerkck41/OmerkckArchitecture",
   "entries": {
     "Benchmark": [
@@ -166,6 +166,174 @@ window.BENCHMARK_DATA = {
             "value": 712.658324877421,
             "unit": "ns",
             "range": "± 2.694332594459767"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "106805727+omerkck41@users.noreply.github.com",
+            "name": "Ömer KÜÇÜK",
+            "username": "omerkck41"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "02627083e18138de49579a4b474b19a4569f978c",
+          "message": "fix(ci): move stryker output dir to CLI flag (#92)\n\n## Summary\n- Stryker.NET 4.8.0 does not accept `output` or `output-path` in config\nfiles — only as `--output` CLI argument\n- Remove unsupported key from all 3 stryker config files\n- Pass `--output mutation-report/<module>` via CLI in mutation workflow\n\n## Context\nPR #90 renamed `output-path` to `output` but neither key is valid in\nStryker 4.8.0's config schema. The allowed config keys are:\n`additional-timeout`, `mutation-level`, `project`, `project-info`,\n`report-file-name`, `reporters`, `since`, `solution`,\n`target-framework`, `test-case-filter`, `test-projects`, `thresholds`,\n`verbosity`.\n\n## Test plan\n- [ ] Trigger mutation workflow via workflow_dispatch after merge\n- [ ] Verify all 3 matrix jobs (core, caching, security) pass\n\n:robot: Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-authored-by: Claude Opus 4.7 <noreply@anthropic.com>",
+          "timestamp": "2026-05-24T22:25:37Z",
+          "tree_id": "d5fd2c4a8915fa82e3bcabe8a561c346318b57d2",
+          "url": "https://github.com/omerkck41/OmerkckArchitecture/commit/02627083e18138de49579a4b474b19a4569f978c"
+        },
+        "date": 1779661955851,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Success_Factory",
+            "value": 5.89529705620729,
+            "unit": "ns",
+            "range": "± 0.07621054382408847"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Failure_Factory",
+            "value": 8.161376205086707,
+            "unit": "ns",
+            "range": "± 0.21202000725186632"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Success",
+            "value": 1.6376991724738708,
+            "unit": "ns",
+            "range": "± 0.00433452793100092"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Failure",
+            "value": 0.683873155287334,
+            "unit": "ns",
+            "range": "± 0.004878552190412419"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Serialize_Reflection",
+            "value": 465.7116725921631,
+            "unit": "ns",
+            "range": "± 2.403164317913461"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Deserialize_Reflection",
+            "value": 793.6127172470093,
+            "unit": "ns",
+            "range": "± 5.554332794775759"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Success_Factory",
+            "value": 5.89529705620729,
+            "unit": "ns",
+            "range": "± 0.07621054382408847"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Failure_Factory",
+            "value": 8.161376205086707,
+            "unit": "ns",
+            "range": "± 0.21202000725186632"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Success",
+            "value": 1.6376991724738708,
+            "unit": "ns",
+            "range": "± 0.00433452793100092"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Failure",
+            "value": 0.683873155287334,
+            "unit": "ns",
+            "range": "± 0.004878552190412419"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 0)",
+            "value": 10.427820303610392,
+            "unit": "ns",
+            "range": "± 0.19302510022605987"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 5)",
+            "value": 10.688490637038884,
+            "unit": "ns",
+            "range": "± 0.3023845671679136"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 0)",
+            "value": 10.538749978939693,
+            "unit": "ns",
+            "range": "± 0.11938704561663634"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 5)",
+            "value": 10.429306491145066,
+            "unit": "ns",
+            "range": "± 0.3773916854494944"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 0)",
+            "value": 10.150506963332495,
+            "unit": "ns",
+            "range": "± 0.15979253045801764"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 5)",
+            "value": 10.454216781258584,
+            "unit": "ns",
+            "range": "± 0.25300172587645964"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 0)",
+            "value": 10.427820303610392,
+            "unit": "ns",
+            "range": "± 0.19302510022605987"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 5)",
+            "value": 10.688490637038884,
+            "unit": "ns",
+            "range": "± 0.3023845671679136"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 0)",
+            "value": 10.538749978939693,
+            "unit": "ns",
+            "range": "± 0.11938704561663634"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 5)",
+            "value": 10.429306491145066,
+            "unit": "ns",
+            "range": "± 0.3773916854494944"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 0)",
+            "value": 10.150506963332495,
+            "unit": "ns",
+            "range": "± 0.15979253045801764"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 5)",
+            "value": 10.454216781258584,
+            "unit": "ns",
+            "range": "± 0.25300172587645964"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Serialize_Reflection",
+            "value": 465.7116725921631,
+            "unit": "ns",
+            "range": "± 2.403164317913461"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Deserialize_Reflection",
+            "value": 793.6127172470093,
+            "unit": "ns",
+            "range": "± 5.554332794775759"
           }
         ]
       }
