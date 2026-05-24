@@ -104,8 +104,8 @@ static Kck.Core.Abstractions.Results.Result.Failure(Kck.Core.Abstractions.Result
 static Kck.Core.Abstractions.Results.Result.Success() -> Kck.Core.Abstractions.Results.Result!
 static Kck.Core.Abstractions.Results.Result<T>.Failure(Kck.Core.Abstractions.Results.Error! error) -> Kck.Core.Abstractions.Results.Result<T>!
 static Kck.Core.Abstractions.Results.Result<T>.Success(T value) -> Kck.Core.Abstractions.Results.Result<T>!
-virtual Kck.Core.Abstractions.Entities.Entity<TId>.Id.get -> TId
-virtual Kck.Core.Abstractions.Entities.Entity<TId>.Id.set -> void
+Kck.Core.Abstractions.Entities.Entity<TId>.Id.get -> TId
+Kck.Core.Abstractions.Entities.Entity<TId>.Id.set -> void
 Kck.Core.Abstractions.Paging.Paginate<T>.Count.init -> void
 Kck.Core.Abstractions.Paging.Paginate<T>.From.init -> void
 Kck.Core.Abstractions.Paging.Paginate<T>.HasNext.init -> void

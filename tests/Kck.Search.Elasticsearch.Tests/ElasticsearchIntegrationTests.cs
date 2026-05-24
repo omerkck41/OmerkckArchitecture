@@ -61,7 +61,10 @@ public sealed class ElasticsearchIntegrationTests : IAsyncLifetime, IDisposable
         _directClient = new ElasticsearchClient(_clientSettings);
     }
 
-    public void Dispose() => ((IDisposable?)_clientSettings)?.Dispose();
+    public void Dispose()
+    {
+        ((IDisposable?)_clientSettings)?.Dispose();
+    }
 
     public async Task DisposeAsync()
     {

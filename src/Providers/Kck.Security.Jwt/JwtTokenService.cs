@@ -161,6 +161,7 @@ public sealed partial class JwtTokenService : ITokenService, IDisposable
     private RsaSecurityKey LoadSigningKey()
     {
         var rsa = RSA.Create();
+        var succeeded = false;
         try
         {
             switch (_options.KeySource)
@@ -191,12 +192,13 @@ public sealed partial class JwtTokenService : ITokenService, IDisposable
             }
 
             LogSigningKeyLoaded(_logger, _options.KeySource);
+            succeeded = true;
             return new RsaSecurityKey(rsa);
         }
-        catch
+        finally
         {
-            rsa.Dispose();
-            throw;
+            if (!succeeded)
+                rsa.Dispose();
         }
     }
 

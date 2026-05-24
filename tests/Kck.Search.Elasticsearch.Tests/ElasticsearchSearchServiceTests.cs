@@ -27,6 +27,26 @@ public sealed class ElasticsearchSearchServiceTests
     }
 
     [Fact]
+    public void AddKckSearchElasticsearch_ServiceIsDisposable()
+    {
+        var services = new ServiceCollection();
+        services.AddLogging();
+
+        services.AddKckSearchElasticsearch<TestDocument>(opts =>
+        {
+            opts.ConnectionString = "http://localhost:9200";
+            opts.DefaultIndex = "test";
+        });
+
+        var provider = services.BuildServiceProvider();
+        var service = provider.GetRequiredService<ISearchService<TestDocument>>();
+        service.Should().BeAssignableTo<IDisposable>();
+
+        var act = () => ((IDisposable)service).Dispose();
+        act.Should().NotThrow();
+    }
+
+    [Fact]
     public void SearchRequest_DefaultValues_AreCorrect()
     {
         var request = new SearchRequest { Query = "test" };
