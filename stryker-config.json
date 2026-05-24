@@ -15,7 +15,6 @@
       "tests/Kck.Core.Abstractions.Tests/Kck.Core.Abstractions.Tests.csproj"
     ],
     "reporters": ["html", "progress", "cleartext"],
-    "output": "mutation-report/core",
     "since": {
       "enabled": false
     },

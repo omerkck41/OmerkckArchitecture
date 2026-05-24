@@ -53,8 +53,7 @@ jobs:
         run: dotnet tool restore
 
       - name: Run mutation tests — ${{ matrix.module }}
-        run: dotnet stryker --config-file ${{ matrix.config }}
-        # break threshold is enforced inside stryker-config; exit code != 0 fails the job
+        run: dotnet stryker --config-file ${{ matrix.config }} --output mutation-report/${{ matrix.module }}
 
       - name: Upload mutation report
         if: always()
