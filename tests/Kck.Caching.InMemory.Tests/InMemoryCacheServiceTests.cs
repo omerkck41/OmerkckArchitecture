@@ -3,6 +3,7 @@ using Kck.Caching.Abstractions;
 using Kck.Caching.InMemory;
 using Kck.Testing;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
 namespace Kck.Caching.InMemory.Tests;
@@ -217,6 +218,41 @@ public sealed class InMemoryCacheServiceTests : IDisposable
 
         var result = await _sut.GetOrSetAsync("unique-key-0", () => Task.FromResult("miss"));
         result.Should().Be("v0", "cached value should still be accessible after high-cardinality load");
+    }
+
+    [Fact]
+    public void AddKckCachingInMemory_WithConfigure_ShouldRegisterService()
+    {
+        var services = new Microsoft.Extensions.DependencyInjection.ServiceCollection();
+        services.AddKckCachingInMemory(opts => opts.KeyPrefix = "custom:");
+
+        var provider = services.BuildServiceProvider();
+        var service = provider.GetService<ICacheService>();
+        service.Should().NotBeNull();
+        service.Should().BeOfType<InMemoryCacheService>();
+    }
+
+    [Fact]
+    public void AddKckCachingInMemory_WithoutConfigure_ShouldRegisterServiceWithDefaults()
+    {
+        var services = new Microsoft.Extensions.DependencyInjection.ServiceCollection();
+        services.AddKckCachingInMemory();
+
+        var provider = services.BuildServiceProvider();
+        var service = provider.GetService<ICacheService>();
+        service.Should().NotBeNull();
+        service.Should().BeOfType<InMemoryCacheService>();
+    }
+
+    [Fact]
+    public async Task SetAsync_WhenEntryEvicted_ShouldRemoveFromKeyTracking()
+    {
+        await _sut.SetAsync("evict-key", "value", TimeSpan.FromMilliseconds(50));
+        (await _sut.ExistsAsync("evict-key")).Should().BeTrue();
+
+        await Task.Delay(100);
+
+        (await _sut.ExistsAsync("evict-key")).Should().BeFalse();
     }
 
     private sealed class TestCacheItem
