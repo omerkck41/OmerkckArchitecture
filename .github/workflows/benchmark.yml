@@ -56,7 +56,7 @@ jobs:
           files=()
           while IFS= read -r -d '' f; do
             files+=("$f")
-          done < <(find "$GITHUB_WORKSPACE/BenchmarkDotNet.Artifacts" -name '*-report.json' ! -name 'merged-report.json' -print0 2>/dev/null)
+          done < <(find "$GITHUB_WORKSPACE/BenchmarkDotNet.Artifacts" -name '*-report*.json' ! -name 'merged-report.json' -print0 2>/dev/null)
           if [ ${#files[@]} -eq 0 ]; then
             echo "::error::No benchmark JSON output found."
             echo "Artifacts directory contents:"
