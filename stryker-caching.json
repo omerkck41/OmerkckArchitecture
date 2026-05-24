@@ -15,7 +15,7 @@
       "tests/Kck.Caching.InMemory.Tests/Kck.Caching.InMemory.Tests.csproj"
     ],
     "reporters": ["html", "progress", "cleartext"],
-    "output-path": "mutation-report/caching",
+    "output": "mutation-report/caching",
     "since": {
       "enabled": false
     },

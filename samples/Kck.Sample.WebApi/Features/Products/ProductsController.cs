@@ -35,6 +35,7 @@ public sealed partial class ProductsController(AppDbContext db, ILogger<Products
     }
 
     [HttpPost]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Create([FromBody] CreateProductRequest request, CancellationToken ct)
     {
         var product = new Product
@@ -53,8 +54,13 @@ public sealed partial class ProductsController(AppDbContext db, ILogger<Products
     }
 
     [HttpDelete("{id:guid}")]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Delete(Guid id, CancellationToken ct)
     {
+        var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+        if (string.IsNullOrEmpty(userId))
+            return ApiFail("Unauthorized", 401);
+
         var product = await db.Products.FindAsync([id], ct);
         if (product is null) return ApiFail("Product not found", 404);
 

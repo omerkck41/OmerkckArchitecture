@@ -15,7 +15,7 @@
       "tests/Kck.Security.Argon2.Tests/Kck.Security.Argon2.Tests.csproj"
     ],
     "reporters": ["html", "progress", "cleartext"],
-    "output-path": "mutation-report/security",
+    "output": "mutation-report/security",
     "since": {
       "enabled": false
     },

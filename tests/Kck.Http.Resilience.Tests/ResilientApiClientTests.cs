@@ -20,7 +20,7 @@ public sealed class ResilientApiClientTests : IDisposable
     public async Task GetAsync_Success200_ShouldReturnSuccessResponse()
     {
         var expected = new TestDto { Id = 1, Name = "Test" };
-        var handler = new MockHttpMessageHandler(
+        using var handler = new MockHttpMessageHandler(
             new HttpResponseMessage(HttpStatusCode.OK)
             {
                 Content = new StringContent(JsonSerializer.Serialize(expected), System.Text.Encoding.UTF8, "application/json")
@@ -38,7 +38,7 @@ public sealed class ResilientApiClientTests : IDisposable
     [Fact]
     public async Task GetAsync_NotFound404_ShouldReturnFailure()
     {
-        var handler = new MockHttpMessageHandler(
+        using var handler = new MockHttpMessageHandler(
             new HttpResponseMessage(HttpStatusCode.NotFound)
             {
                 Content = new StringContent("Not found")
@@ -55,7 +55,7 @@ public sealed class ResilientApiClientTests : IDisposable
     [Fact]
     public async Task GetAsync_Timeout_ShouldReturn408()
     {
-        var handler = new MockHttpMessageHandler(
+        using var handler = new MockHttpMessageHandler(
             new TaskCanceledException("Timeout", new TimeoutException()));
         var client = CreateClient(handler);
 
@@ -70,7 +70,7 @@ public sealed class ResilientApiClientTests : IDisposable
     public async Task SendAsync_WithHeaders_ShouldIncludeHeaders()
     {
         HttpRequestMessage? capturedRequest = null;
-        var handler = new MockHttpMessageHandler(
+        using var handler = new MockHttpMessageHandler(
             new HttpResponseMessage(HttpStatusCode.OK)
             {
                 Content = new StringContent("{\"id\":1,\"name\":\"ok\"}", System.Text.Encoding.UTF8, "application/json")
@@ -124,5 +124,12 @@ internal sealed class MockHttpMessageHandler : HttpMessageHandler
             throw _exception;
 
         return Task.FromResult(_response!);
+    }
+
+    protected override void Dispose(bool disposing)
+    {
+        if (disposing)
+            _response?.Dispose();
+        base.Dispose(disposing);
     }
 }

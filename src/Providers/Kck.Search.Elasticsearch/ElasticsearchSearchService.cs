@@ -9,9 +9,10 @@ namespace Kck.Search.Elasticsearch;
 /// <summary>
 /// Elasticsearch-backed implementation of <see cref="ISearchService{T}"/> that supports index management, document CRUD, bulk indexing, and full-text search for documents of type <typeparamref name="T"/>.
 /// </summary>
-public sealed partial class ElasticsearchSearchService<T> : ISearchService<T> where T : class
+public sealed partial class ElasticsearchSearchService<T> : ISearchService<T>, IDisposable where T : class
 {
     private readonly ElasticsearchClient _client;
+    private readonly ElasticsearchClientSettings _clientSettings;
     private readonly ElasticsearchOptions _options;
     private readonly ILogger<ElasticsearchSearchService<T>> _logger;
 
@@ -24,8 +25,12 @@ public sealed partial class ElasticsearchSearchService<T> : ISearchService<T> wh
     {
         _options = options.CurrentValue;
         _logger = logger;
-        _client = new ElasticsearchClient(CreateSettings(_options));
+        _clientSettings = CreateSettings(_options);
+        _client = new ElasticsearchClient(_clientSettings);
     }
+
+    /// <inheritdoc/>
+    public void Dispose() => ((IDisposable?)_clientSettings)?.Dispose();
 
     [LoggerMessage(Level = LogLevel.Error, Message = "Failed to create index {IndexName}: {DebugInfo}")]
     private static partial void LogIndexCreateFailed(ILogger logger, string indexName, string debugInfo);

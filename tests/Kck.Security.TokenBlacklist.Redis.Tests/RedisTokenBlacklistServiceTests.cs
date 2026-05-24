@@ -41,7 +41,7 @@ public class RedisTokenBlacklistServiceTests
         {
             ConnectionString = "localhost:6379"
         });
-        var sut = new RedisTokenBlacklistService(options);
+        using var sut = new RedisTokenBlacklistService(options);
 
         var act = () => sut.RevokeAsync(null!, TimeSpan.FromMinutes(15));
 
@@ -55,7 +55,7 @@ public class RedisTokenBlacklistServiceTests
         {
             ConnectionString = "localhost:6379"
         });
-        var sut = new RedisTokenBlacklistService(options);
+        using var sut = new RedisTokenBlacklistService(options);
         using var cts = new CancellationTokenSource();
         cts.Cancel();
 
@@ -71,7 +71,7 @@ public class RedisTokenBlacklistServiceTests
         {
             ConnectionString = "localhost:6379"
         });
-        var sut = new RedisTokenBlacklistService(options);
+        using var sut = new RedisTokenBlacklistService(options);
         using var cts = new CancellationTokenSource();
         cts.Cancel();
 

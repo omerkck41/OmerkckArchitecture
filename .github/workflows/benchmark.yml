@@ -43,30 +43,37 @@ jobs:
           dotnet run \
             --project tests/Kck.Benchmarks/Kck.Benchmarks.csproj \
             --configuration Release \
+            --no-build \
             -- \
             --filter '*' \
             --exporters json \
-            --artifacts ./BenchmarkDotNet.Artifacts
+            --artifacts "$GITHUB_WORKSPACE/BenchmarkDotNet.Artifacts"
         shell: bash
 
       - name: Merge benchmark JSON reports
         run: |
           shopt -s nullglob
-          files=(BenchmarkDotNet.Artifacts/results/*-report.json)
+          files=()
+          while IFS= read -r -d '' f; do
+            files+=("$f")
+          done < <(find "$GITHUB_WORKSPACE/BenchmarkDotNet.Artifacts" -name '*-report.json' ! -name 'merged-report.json' -print0 2>/dev/null)
           if [ ${#files[@]} -eq 0 ]; then
-            echo "::error::No benchmark JSON output found. BenchmarkDotNet may have failed silently."
+            echo "::error::No benchmark JSON output found."
+            echo "Artifacts directory contents:"
+            find "$GITHUB_WORKSPACE/BenchmarkDotNet.Artifacts" -type f 2>/dev/null || echo "(empty or missing)"
             exit 1
           fi
+          mkdir -p "$GITHUB_WORKSPACE/BenchmarkDotNet.Artifacts/results"
           jq -s '{"Title":"Kck Benchmarks","Benchmarks":[.[].Benchmarks[]]}' \
             "${files[@]}" \
-            > BenchmarkDotNet.Artifacts/results/merged-report.json
+            > "$GITHUB_WORKSPACE/BenchmarkDotNet.Artifacts/results/merged-report.json"
         shell: bash
 
       - name: Store benchmark results / detect regression
         uses: benchmark-action/github-action-benchmark@v1
         with:
           tool: benchmarkdotnet
-          output-file-path: BenchmarkDotNet.Artifacts/results/merged-report.json
+          output-file-path: ${{ github.workspace }}/BenchmarkDotNet.Artifacts/results/merged-report.json
           github-token: ${{ secrets.GITHUB_TOKEN }}
           # Persist results to the gh-pages branch so successive runs can compare.
           auto-push: true

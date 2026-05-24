@@ -57,7 +57,7 @@ public sealed class TotpMfaProvider : IMfaProvider
             return Task.FromResult(false);
 
         // Cache used code — TTL = (VerificationWindow + 1) * StepSeconds
-        var ttl = TimeSpan.FromSeconds((_options.VerificationWindow + 1) * _options.StepSeconds);
+        var ttl = TimeSpan.FromSeconds((double)(_options.VerificationWindow + 1) * _options.StepSeconds);
         _replayCache.Set(replayKey, true, ttl);
 
         return Task.FromResult(true);

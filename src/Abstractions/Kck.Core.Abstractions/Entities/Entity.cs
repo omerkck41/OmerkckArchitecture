@@ -23,7 +23,7 @@ public abstract class Entity<TId> : IEntity<TId>
     protected Entity(TId id) { _id = id; }
 
     /// <inheritdoc/>
-    public virtual TId Id { get => _id; set => _id = value; }
+    public TId Id { get => _id; set => _id = value; }
 
     /// <summary>Read-only collection of uncommitted domain events raised by this entity.</summary>
     public IReadOnlyCollection<IDomainEvent> DomainEvents => _domainEvents.AsReadOnly();
