@@ -16,7 +16,7 @@ internal static class SoftDeleteHelper
         var navigations = context.Entry(entity).Navigations
             .Where(n => n.CurrentValue is not null);
 
-        foreach (var navigation in navigations)
+        foreach (var navigation in navigations) // NOSONAR S3267 - side-effect body; LINQ Select() would obscure intent
         {
             if (navigation.CurrentValue is IEnumerable<object> collection)
             {

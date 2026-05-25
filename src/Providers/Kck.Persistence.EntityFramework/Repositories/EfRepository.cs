@@ -235,20 +235,6 @@ public class EfRepository<T, TId>(
     }
 
     /// <inheritdoc />
-    public Task<T> RevertSoftDeleteAsync(T entity, CancellationToken cancellationToken = default)
-    {
-        if (entity is ISoftDeletable softDeletable)
-        {
-            softDeletable.IsDeleted = false;
-            softDeletable.DeletedBy = null;
-            softDeletable.DeletedDate = null;
-            Context.Entry(entity).State = EntityState.Modified;
-        }
-
-        return Task.FromResult(entity);
-    }
-
-    /// <inheritdoc />
     public async Task<T> DeleteAsync(
         Expression<Func<T, bool>> predicate,
         bool permanent = false,
@@ -276,18 +262,6 @@ public class EfRepository<T, TId>(
             throw new InvalidOperationException($"Entity with id '{id}' not found for deletion.");
 
         return await DeleteAsync(entity, permanent, cancellationToken);
-    }
-
-    /// <inheritdoc />
-    public async Task<T> RevertSoftDeleteAsync(TId id, CancellationToken cancellationToken = default)
-    {
-        var entity = await Query(withDeleted: true, enableTracking: true)
-            .FirstOrDefaultAsync(e => e.Id!.Equals(id), cancellationToken);
-
-        if (entity is null)
-            throw new InvalidOperationException($"Entity with id '{id}' not found for soft-delete revert.");
-
-        return await RevertSoftDeleteAsync(entity, cancellationToken);
     }
 
     /// <inheritdoc />
@@ -328,6 +302,32 @@ public class EfRepository<T, TId>(
         }
 
         return Task.CompletedTask;
+    }
+
+    /// <inheritdoc />
+    public Task<T> RevertSoftDeleteAsync(T entity, CancellationToken cancellationToken = default)
+    {
+        if (entity is ISoftDeletable softDeletable)
+        {
+            softDeletable.IsDeleted = false;
+            softDeletable.DeletedBy = null;
+            softDeletable.DeletedDate = null;
+            Context.Entry(entity).State = EntityState.Modified;
+        }
+
+        return Task.FromResult(entity);
+    }
+
+    /// <inheritdoc />
+    public async Task<T> RevertSoftDeleteAsync(TId id, CancellationToken cancellationToken = default)
+    {
+        var entity = await Query(withDeleted: true, enableTracking: true)
+            .FirstOrDefaultAsync(e => e.Id!.Equals(id), cancellationToken);
+
+        if (entity is null)
+            throw new InvalidOperationException($"Entity with id '{id}' not found for soft-delete revert.");
+
+        return await RevertSoftDeleteAsync(entity, cancellationToken);
     }
 
     private static IQueryable<T> ApplyIncludes(IQueryable<T> query, Expression<Func<T, object>>[]? includes)

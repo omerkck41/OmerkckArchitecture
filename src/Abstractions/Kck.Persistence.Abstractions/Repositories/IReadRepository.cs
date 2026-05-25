@@ -11,7 +11,7 @@ namespace Kck.Persistence.Abstractions.Repositories;
 public interface IReadRepository<T, TId> : IQuery<T> where T : Entity<TId>
 {
     /// <summary>Retrieves a single entity matching the predicate.</summary>
-    [Obsolete("KCK0100: Use ReadRepositoryExtensions.GetAsync with QueryOptions instead.", DiagnosticId = "KCK0100")]
+    [Obsolete("KCK0100: Use ReadRepositoryExtensions.GetAsync with QueryOptions instead.", DiagnosticId = "KCK0100")] // NOSONAR S1133 - retained for backwards compatibility
     Task<T?> GetAsync(Expression<Func<T, bool>> predicate,
                       Expression<Func<T, object>>[]? includes = null,
                       bool withDeleted = false,
@@ -19,7 +19,7 @@ public interface IReadRepository<T, TId> : IQuery<T> where T : Entity<TId>
                       CancellationToken cancellationToken = default);
 
     /// <summary>Returns a paginated list of entities.</summary>
-    [Obsolete("KCK0100: Use ReadRepositoryExtensions.GetListAsync with QueryOptions instead.", DiagnosticId = "KCK0100")]
+    [Obsolete("KCK0100: Use ReadRepositoryExtensions.GetListAsync with QueryOptions instead.", DiagnosticId = "KCK0100")] // NOSONAR S1133 - retained for backwards compatibility
     [SuppressMessage("Design", "CA1005:Avoid excessive parameters on generic types", Justification = "Deprecated API retained for backwards compatibility — replaced by QueryOptions overloads.")]
     Task<IPaginate<T>> GetListAsync(Expression<Func<T, bool>>? predicate = null, // NOSONAR S107 - deprecated API retained for backwards compatibility
                                     Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null,
@@ -30,7 +30,7 @@ public interface IReadRepository<T, TId> : IQuery<T> where T : Entity<TId>
                                     CancellationToken cancellationToken = default);
 
     /// <summary>Returns a paginated list filtered by a <see cref="Dynamic.DynamicQuery"/>.</summary>
-    [Obsolete("KCK0100: Use ReadRepositoryExtensions.GetListByDynamicAsync with QueryOptions instead.", DiagnosticId = "KCK0100")]
+    [Obsolete("KCK0100: Use ReadRepositoryExtensions.GetListByDynamicAsync with QueryOptions instead.", DiagnosticId = "KCK0100")] // NOSONAR S1133 - retained for backwards compatibility
     [SuppressMessage("Design", "CA1005:Avoid excessive parameters on generic types", Justification = "Deprecated API retained for backwards compatibility — replaced by QueryOptions overloads.")]
     Task<IPaginate<T>> GetListByDynamicAsync(Dynamic.DynamicQuery dynamic, // NOSONAR S107 - deprecated API retained for backwards compatibility
                                              Expression<Func<T, bool>>? predicate = null,
@@ -41,21 +41,21 @@ public interface IReadRepository<T, TId> : IQuery<T> where T : Entity<TId>
                                              CancellationToken cancellationToken = default);
 
     /// <summary>Returns <c>true</c> if any entity matches the predicate.</summary>
-    [Obsolete("KCK0100: Use ReadRepositoryExtensions.AnyAsync with QueryOptions instead.", DiagnosticId = "KCK0100")]
+    [Obsolete("KCK0100: Use ReadRepositoryExtensions.AnyAsync with QueryOptions instead.", DiagnosticId = "KCK0100")] // NOSONAR S1133 - retained for backwards compatibility
     Task<bool> AnyAsync(Expression<Func<T, bool>>? predicate = null,
                         bool withDeleted = false,
                         bool enableTracking = false,
                         CancellationToken cancellationToken = default);
 
     /// <summary>Retrieves a single entity by its primary key.</summary>
-    [Obsolete("KCK0100: Use ReadRepositoryExtensions.GetByIdAsync with QueryOptions instead.", DiagnosticId = "KCK0100")]
+    [Obsolete("KCK0100: Use ReadRepositoryExtensions.GetByIdAsync with QueryOptions instead.", DiagnosticId = "KCK0100")] // NOSONAR S1133 - retained for backwards compatibility
     Task<T?> GetByIdAsync(TId id,
                           bool withDeleted = false,
                           bool enableTracking = false,
                           CancellationToken cancellationToken = default);
 
     /// <summary>Returns the count of entities matching the predicate.</summary>
-    [Obsolete("KCK0100: Use ReadRepositoryExtensions.CountAsync with QueryOptions instead.", DiagnosticId = "KCK0100")]
+    [Obsolete("KCK0100: Use ReadRepositoryExtensions.CountAsync with QueryOptions instead.", DiagnosticId = "KCK0100")] // NOSONAR S1133 - retained for backwards compatibility
     Task<int> CountAsync(Expression<Func<T, bool>>? predicate = null,
                          bool withDeleted = false,
                          bool enableTracking = false,

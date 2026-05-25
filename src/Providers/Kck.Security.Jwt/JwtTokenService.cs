@@ -146,7 +146,7 @@ public sealed partial class JwtTokenService : ITokenService, IDisposable
     /// Do NOT use for authorization decisions — use <see cref="ValidateTokenAsync"/> instead.
     /// Intended for debug/logging purposes only.
     /// </summary>
-    [Obsolete(
+    [Obsolete( // NOSONAR S1133 - retained for backwards compatibility; removed when callers migrate to ValidateTokenAsync
         "Use ValidateTokenAsync. GetClaimsFromToken does NOT verify signature — unsafe for authorization. For debug/logging only.",
         DiagnosticId = "KCK0001",
         UrlFormat = "https://github.com/omerkck41/OmerkckArchitecture/blob/main/docs/policies/deprecation.md#{0}")]

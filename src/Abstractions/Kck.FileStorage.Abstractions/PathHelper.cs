@@ -22,14 +22,14 @@ public static class PathHelper
     /// </summary>
     public static bool IsValidPath(string path) =>
         !string.IsNullOrWhiteSpace(path)
-        && !path.Split('/', '\\').Any(s => DangerousSegments.Contains(s))
+        && !path.Split(['/', '\\']).Any(s => DangerousSegments.Contains(s))
         && path.IndexOfAny(Path.GetInvalidPathChars()) < 0;
 
     /// <summary>
     /// Removes path traversal segments (e.g., "..", "~") and returns a sanitized forward-slash path.
     /// </summary>
     public static string Sanitize(string path) =>
-        string.Join("/", path.Split('/', '\\').Where(s => !DangerousSegments.Contains(s)));
+        string.Join("/", path.Split(['/', '\\']).Where(s => !DangerousSegments.Contains(s)));
 
     /// <summary>
     /// Returns the file extension without the leading dot, or an empty string if none exists.

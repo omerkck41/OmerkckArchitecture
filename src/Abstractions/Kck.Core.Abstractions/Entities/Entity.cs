@@ -13,17 +13,16 @@ namespace Kck.Core.Abstractions.Entities;
 public abstract class Entity<TId> : IEntity<TId>
 {
     private readonly List<IDomainEvent> _domainEvents = [];
-    private TId _id;
 
     /// <summary>Initialises a new entity with a default (unset) identifier.</summary>
-    protected Entity() { _id = default!; }
+    protected Entity() { }
 
     /// <summary>Initialises a new entity with the specified identifier.</summary>
     /// <param name="id">The primary key value.</param>
-    protected Entity(TId id) { _id = id; }
+    protected Entity(TId id) { Id = id; }
 
     /// <inheritdoc/>
-    public TId Id { get => _id; set => _id = value; }
+    public TId Id { get; set; } = default!;
 
     /// <summary>Read-only collection of uncommitted domain events raised by this entity.</summary>
     public IReadOnlyCollection<IDomainEvent> DomainEvents => _domainEvents.AsReadOnly();
