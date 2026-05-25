@@ -12,13 +12,13 @@ public interface ICookieManager
     /// Appends a cookie with <paramref name="key"/> and <paramref name="value"/> to
     /// <paramref name="response"/>, using <paramref name="options"/> or the secure defaults.
     /// </summary>
-    void Set(HttpResponse response, string key, string value, CookieOptions? options = null); // NOSONAR S1700 - cookie API convention; VB.NET callers can use fully-qualified name
+    void Set(HttpResponse response, string key, string value, CookieOptions? options = null); // NOSONAR S1700,CA1716 - cookie API convention; VB.NET callers can use fully-qualified name
 
     /// <summary>
     /// Returns the value of the cookie identified by <paramref name="key"/>, or
     /// <see langword="null"/> when the cookie is absent.
     /// </summary>
-    string? Get(HttpRequest request, string key); // NOSONAR S1700 - cookie API convention
+    string? Get(HttpRequest request, string key); // NOSONAR S1700,CA1716 - cookie API convention
 
     /// <summary>
     /// Deletes the cookie identified by <paramref name="key"/> from <paramref name="response"/>.

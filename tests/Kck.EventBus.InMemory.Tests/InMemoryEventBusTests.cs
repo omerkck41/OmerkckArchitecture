@@ -55,7 +55,7 @@ public sealed class InMemoryEventBusTests
     }
 
     [Fact]
-    public void Subscribe_DuplicateHandler_DoesNotAddTwice()
+    public async Task Subscribe_DuplicateHandler_DoesNotAddTwice()
     {
         _services.AddTransient<IEventHandler<TestEvent>, TestEventSubscriber>();
         var sp = _services.BuildServiceProvider();
@@ -64,7 +64,8 @@ public sealed class InMemoryEventBusTests
         sut.Subscribe<TestEvent, TestEventSubscriber>();
         sut.Subscribe<TestEvent, TestEventSubscriber>();
 
-        // No exception and subsequent publish should invoke handler once
+        var act = () => sut.PublishAsync(new TestEvent { Message = "once" });
+        await act.Should().NotThrowAsync();
     }
 
     [Fact]

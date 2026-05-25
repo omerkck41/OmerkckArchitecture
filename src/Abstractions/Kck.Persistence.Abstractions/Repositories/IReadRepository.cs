@@ -21,7 +21,7 @@ public interface IReadRepository<T, TId> : IQuery<T> where T : Entity<TId>
     /// <summary>Returns a paginated list of entities.</summary>
     [Obsolete("KCK0100: Use ReadRepositoryExtensions.GetListAsync with QueryOptions instead.", DiagnosticId = "KCK0100")]
     [SuppressMessage("Design", "CA1005:Avoid excessive parameters on generic types", Justification = "Deprecated API retained for backwards compatibility — replaced by QueryOptions overloads.")]
-    Task<IPaginate<T>> GetListAsync(Expression<Func<T, bool>>? predicate = null,
+    Task<IPaginate<T>> GetListAsync(Expression<Func<T, bool>>? predicate = null, // NOSONAR S107 - deprecated API retained for backwards compatibility
                                     Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null,
                                     Expression<Func<T, object>>[]? includes = null,
                                     int index = 0, int size = 10,
@@ -32,7 +32,7 @@ public interface IReadRepository<T, TId> : IQuery<T> where T : Entity<TId>
     /// <summary>Returns a paginated list filtered by a <see cref="Dynamic.DynamicQuery"/>.</summary>
     [Obsolete("KCK0100: Use ReadRepositoryExtensions.GetListByDynamicAsync with QueryOptions instead.", DiagnosticId = "KCK0100")]
     [SuppressMessage("Design", "CA1005:Avoid excessive parameters on generic types", Justification = "Deprecated API retained for backwards compatibility — replaced by QueryOptions overloads.")]
-    Task<IPaginate<T>> GetListByDynamicAsync(Dynamic.DynamicQuery dynamic,
+    Task<IPaginate<T>> GetListByDynamicAsync(Dynamic.DynamicQuery dynamic, // NOSONAR S107 - deprecated API retained for backwards compatibility
                                              Expression<Func<T, bool>>? predicate = null,
                                              Expression<Func<T, object>>[]? includes = null,
                                              int index = 0, int size = 10,

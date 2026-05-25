@@ -25,7 +25,7 @@ public static class ReadRepositoryExtensions
     }
 
     /// <summary><see cref="QueryOptions"/>-based overload of <c>IReadRepository.GetListAsync</c>.</summary>
-    public static Task<IPaginate<T>> GetListAsync<T, TId>(
+    public static Task<IPaginate<T>> GetListAsync<T, TId>( // NOSONAR S107 - deprecated API retained for backwards compatibility
         this IReadRepository<T, TId> repository,
         QueryOptions options,
         Expression<Func<T, bool>>? predicate = null,
@@ -42,7 +42,7 @@ public static class ReadRepositoryExtensions
     }
 
     /// <summary><see cref="QueryOptions"/>-based overload of <c>IReadRepository.GetListByDynamicAsync</c>.</summary>
-    public static Task<IPaginate<T>> GetListByDynamicAsync<T, TId>(
+    public static Task<IPaginate<T>> GetListByDynamicAsync<T, TId>( // NOSONAR S107 - deprecated API retained for backwards compatibility
         this IReadRepository<T, TId> repository,
         DynamicQuery dynamic,
         QueryOptions options,

@@ -24,5 +24,5 @@ public interface IHistogram
 public interface IGauge
 {
     /// <summary>Sets the current gauge reading to <paramref name="value"/>, optionally annotated with dimension <paramref name="tags"/>.</summary>
-    void Set(double value, params KeyValuePair<string, object?>[] tags); // NOSONAR S1700 - 'Set' is the standard gauge verb; VB.NET callers can use the fully-qualified name
+    void Set(double value, params KeyValuePair<string, object?>[] tags); // NOSONAR S1700,CA1716 - 'Set' is the standard gauge verb; VB.NET callers can use the fully-qualified name
 }
