@@ -20,7 +20,7 @@ public static class KckEventBusRabbitMqServiceCollectionExtensions
         var options = new RabbitMqOptions();
         configure(options);
 
-        ArgumentException.ThrowIfNullOrWhiteSpace(options.HostName);
+        ArgumentException.ThrowIfNullOrWhiteSpace(options.HostName, nameof(options.HostName)); // NOSONAR S3236 - explicit name gives "HostName"; CallerArgumentExpression would give "options.HostName"
 
         builder.Services.TryAddSingleton(options);
         builder.Services.TryAddSingleton<RabbitMqEventBus>();
