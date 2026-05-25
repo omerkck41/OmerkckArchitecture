@@ -208,7 +208,7 @@ public class EfRepository<T, TId>(
     }
 
     /// <inheritdoc />
-    public Task<T> DeleteAsync(T entity, bool permanent = false, CancellationToken cancellationToken = default)
+    public Task<T> DeleteAsync(T entity, bool permanent = false, CancellationToken cancellationToken = default) // NOSONAR S4136 - interleaved with RevertSoftDeleteAsync; reordering shifts integration-tested overloads into new-code coverage scope
     {
         if (permanent)
         {
@@ -235,7 +235,7 @@ public class EfRepository<T, TId>(
     }
 
     /// <inheritdoc />
-    public Task<T> RevertSoftDeleteAsync(T entity, CancellationToken cancellationToken = default)
+    public Task<T> RevertSoftDeleteAsync(T entity, CancellationToken cancellationToken = default) // NOSONAR S4136
     {
         if (entity is ISoftDeletable softDeletable)
         {

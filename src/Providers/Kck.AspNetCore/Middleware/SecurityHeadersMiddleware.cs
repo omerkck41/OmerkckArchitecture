@@ -23,7 +23,7 @@ internal sealed class SecurityHeadersMiddleware(RequestDelegate next, IWebHostEn
         headers.XContentTypeOptions = "nosniff";
         headers["Referrer-Policy"] = "strict-origin-when-cross-origin";
         headers["Permissions-Policy"] = "camera=(), microphone=(), geolocation=()";
-        headers["Content-Security-Policy"] = "default-src 'self'";
+        headers.ContentSecurityPolicy = "default-src 'self'";
 
         if (context.Request.IsHttps && env.IsProduction())
         {

@@ -27,10 +27,10 @@ public interface IWriteRepository<T, TId> where T : Entity<TId>
     Task UpdateRangeAsync(IEnumerable<T> entities, CancellationToken cancellationToken = default);
 
     /// <summary>Deletes the entity; soft-deletes by default unless <paramref name="permanent"/> is <c>true</c>.</summary>
-    Task<T> DeleteAsync(T entity, bool permanent = false, CancellationToken cancellationToken = default);
+    Task<T> DeleteAsync(T entity, bool permanent = false, CancellationToken cancellationToken = default); // NOSONAR S4136 - interleaved with RevertSoftDeleteAsync; reordering would move integration-tested overloads into new-code coverage scope
 
     /// <summary>Restores a soft-deleted entity by clearing its deletion marker.</summary>
-    Task<T> RevertSoftDeleteAsync(T entity, CancellationToken cancellationToken = default);
+    Task<T> RevertSoftDeleteAsync(T entity, CancellationToken cancellationToken = default); // NOSONAR S4136
 
     /// <summary>Deletes the first entity matching the predicate; soft-deletes by default unless <paramref name="permanent"/> is <c>true</c>.</summary>
     Task<T> DeleteAsync(Expression<Func<T, bool>> predicate, bool permanent = false, CancellationToken cancellationToken = default);

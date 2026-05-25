@@ -23,7 +23,7 @@ public static class KckEventBusInMemoryServiceCollectionExtensions
     /// <summary>
     /// Adds the in-memory event bus to the service collection.
     /// </summary>
-    [Obsolete("Use AddKckEventBus(b => b.UseInMemory()) instead.")]
+    [Obsolete("Use AddKckEventBus(b => b.UseInMemory()) instead.")] // NOSONAR S1133 - retained for backwards compatibility
     public static IServiceCollection AddKckEventBusInMemory(this IServiceCollection services)
     {
         services.TryAddSingleton<IEventBus, InMemoryEventBus>();
@@ -33,7 +33,7 @@ public static class KckEventBusInMemoryServiceCollectionExtensions
     /// <summary>
     /// Adds the in-memory event bus and auto-registers all event handlers from the specified assemblies.
     /// </summary>
-    [Obsolete("Use AddKckEventBus(b => { b.UseInMemory(); b.RegisterHandlersFromAssembly(...); }) instead.")]
+    [Obsolete("Use AddKckEventBus(b => { b.UseInMemory(); b.RegisterHandlersFromAssembly(...); }) instead.")] // NOSONAR S1133 - retained for backwards compatibility
     public static IServiceCollection AddKckEventBusInMemory(
         this IServiceCollection services,
         params Assembly[] assemblies)

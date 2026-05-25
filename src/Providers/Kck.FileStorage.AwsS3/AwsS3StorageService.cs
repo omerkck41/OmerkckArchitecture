@@ -70,7 +70,7 @@ public sealed class AwsS3StorageService : IFileStorageService, IDisposable
     /// <inheritdoc/>
     public async Task<IReadOnlyList<FileMetadata>> ListAsync(string directoryPath, CancellationToken ct = default)
     {
-        var prefix = ApplyPrefix(directoryPath.TrimEnd('/') + "/");
+        var prefix = ApplyPrefix(directoryPath.TrimEnd('/') + "/"); // NOSONAR S1075 - S3 key delimiter is always '/', not platform-dependent
         var request = new ListObjectsV2Request { BucketName = _bucket, Prefix = prefix };
         var results = new List<FileMetadata>();
 

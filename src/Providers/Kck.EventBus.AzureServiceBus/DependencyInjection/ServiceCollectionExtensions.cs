@@ -23,7 +23,7 @@ public static class KckEventBusAzureServiceBusServiceCollectionExtensions
 
         // Eager check: throw ArgumentException immediately at registration time so the
         // existing test contract (and developer experience) is preserved.
-        ArgumentException.ThrowIfNullOrWhiteSpace(options.ConnectionString, nameof(options.ConnectionString));
+        ArgumentException.ThrowIfNullOrWhiteSpace(options.ConnectionString, nameof(options.ConnectionString)); // NOSONAR S3236 - explicit name gives "ConnectionString"; CallerArgumentExpression would give "options.ConnectionString"
 
         // IValidateOptions provides defence-in-depth and richer messages at app startup.
         builder.Services.Configure<AzureServiceBusOptions>(configure);
