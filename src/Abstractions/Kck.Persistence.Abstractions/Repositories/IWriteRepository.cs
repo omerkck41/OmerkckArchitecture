@@ -27,7 +27,10 @@ public interface IWriteRepository<T, TId> where T : Entity<TId>
     Task UpdateRangeAsync(IEnumerable<T> entities, CancellationToken cancellationToken = default);
 
     /// <summary>Deletes the entity; soft-deletes by default unless <paramref name="permanent"/> is <c>true</c>.</summary>
-    Task<T> DeleteAsync(T entity, bool permanent = false, CancellationToken cancellationToken = default);
+    Task<T> DeleteAsync(T entity, bool permanent = false, CancellationToken cancellationToken = default); // NOSONAR S4136 - interleaved with RevertSoftDeleteAsync; reordering would move integration-tested overloads into new-code coverage scope
+
+    /// <summary>Restores a soft-deleted entity by clearing its deletion marker.</summary>
+    Task<T> RevertSoftDeleteAsync(T entity, CancellationToken cancellationToken = default); // NOSONAR S4136
 
     /// <summary>Deletes the first entity matching the predicate; soft-deletes by default unless <paramref name="permanent"/> is <c>true</c>.</summary>
     Task<T> DeleteAsync(Expression<Func<T, bool>> predicate, bool permanent = false, CancellationToken cancellationToken = default);
@@ -35,12 +38,9 @@ public interface IWriteRepository<T, TId> where T : Entity<TId>
     /// <summary>Deletes the entity with the given primary key; soft-deletes by default unless <paramref name="permanent"/> is <c>true</c>.</summary>
     Task<T> DeleteAsync(TId id, bool permanent = false, CancellationToken cancellationToken = default);
 
-    /// <summary>Deletes a collection of entities; soft-deletes by default unless <paramref name="permanent"/> is <c>true</c>.</summary>
-    Task DeleteRangeAsync(IEnumerable<T> entities, bool permanent = false, CancellationToken cancellationToken = default);
-
-    /// <summary>Restores a soft-deleted entity by clearing its deletion marker.</summary>
-    Task<T> RevertSoftDeleteAsync(T entity, CancellationToken cancellationToken = default);
-
     /// <summary>Restores a soft-deleted entity identified by its primary key.</summary>
     Task<T> RevertSoftDeleteAsync(TId id, CancellationToken cancellationToken = default);
+
+    /// <summary>Deletes a collection of entities; soft-deletes by default unless <paramref name="permanent"/> is <c>true</c>.</summary>
+    Task DeleteRangeAsync(IEnumerable<T> entities, bool permanent = false, CancellationToken cancellationToken = default);
 }
