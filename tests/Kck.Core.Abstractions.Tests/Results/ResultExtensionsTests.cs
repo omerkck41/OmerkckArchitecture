@@ -112,6 +112,48 @@ public sealed class ResultExtensionsTests
         ensured.Error.Should().Be(TestError, "original error should propagate, not the ensure error");
     }
 
+    // --- Null guards ---
+
+    [Fact]
+    public void Map_NullMapper_ThrowsArgumentNullException()
+    {
+        var result = Result<int>.Success(5);
+        var act = () => result.Map<int, string>(null!);
+        act.Should().Throw<ArgumentNullException>();
+    }
+
+    [Fact]
+    public void Bind_NullBinder_ThrowsArgumentNullException()
+    {
+        var result = Result<int>.Success(5);
+        var act = () => result.Bind<int, string>(null!);
+        act.Should().Throw<ArgumentNullException>();
+    }
+
+    [Fact]
+    public void Tap_NullAction_ThrowsArgumentNullException()
+    {
+        var result = Result<int>.Success(5);
+        var act = () => result.Tap(null!);
+        act.Should().Throw<ArgumentNullException>();
+    }
+
+    [Fact]
+    public void Ensure_NullPredicate_ThrowsArgumentNullException()
+    {
+        var result = Result<int>.Success(5);
+        var act = () => result.Ensure(null!, TestError);
+        act.Should().Throw<ArgumentNullException>();
+    }
+
+    [Fact]
+    public void Ensure_NullError_ThrowsArgumentNullException()
+    {
+        var result = Result<int>.Success(5);
+        var act = () => result.Ensure(x => x > 0, null!);
+        act.Should().Throw<ArgumentNullException>();
+    }
+
     // --- Pipeline ---
 
     [Fact]

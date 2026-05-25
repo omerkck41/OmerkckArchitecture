@@ -83,6 +83,26 @@ public sealed class PaginateTests
     }
 
     [Fact]
+    public void Create_ZeroSize_ReturnsZeroPages()
+    {
+        var result = Paginate<int>.Create([], totalCount: 100, index: 0, size: 0);
+
+        result.Pages.Should().Be(0);
+    }
+
+    [Fact]
+    public void Create_NonZeroFrom_HasNextAndIsLastPageReflectOffset()
+    {
+        // from=2, index=2 → effectively first page; pages=4 → still has next and is not last
+        var result = Paginate<int>.Create(Items(5), totalCount: 20, index: 2, size: 5, from: 2);
+
+        result.IsFirstPage.Should().BeTrue();
+        result.HasPrevious.Should().BeFalse();
+        result.HasNext.Should().BeTrue();
+        result.IsLastPage.Should().BeFalse();
+    }
+
+    [Fact]
     public void Create_ItemsArePreserved()
     {
         var items = Items(3);
