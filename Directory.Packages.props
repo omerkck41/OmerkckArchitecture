@@ -56,11 +56,11 @@
     <PackageVersion Include="coverlet.collector" Version="6.0.2" />
     <PackageVersion Include="BenchmarkDotNet" Version="0.15.8" />
     <!-- LS-FAZ-4: Testcontainers for integration tests (gercek container ile gercek DB/broker testi) -->
-    <PackageVersion Include="Testcontainers.PostgreSql" Version="4.11.0" />
+    <PackageVersion Include="Testcontainers.PostgreSql" Version="4.12.0" />
     <!-- LS-FAZ-4.5: Testcontainers expansion — Redis, RabbitMQ, Elasticsearch -->
-    <PackageVersion Include="Testcontainers.Redis" Version="4.11.0" />
-    <PackageVersion Include="Testcontainers.RabbitMq" Version="4.11.0" />
-    <PackageVersion Include="Testcontainers.Elasticsearch" Version="4.11.0" />
+    <PackageVersion Include="Testcontainers.Redis" Version="4.12.0" />
+    <PackageVersion Include="Testcontainers.RabbitMq" Version="4.12.0" />
+    <PackageVersion Include="Testcontainers.Elasticsearch" Version="4.12.0" />
     <!-- Faz-B3: Property-based testing -->
     <PackageVersion Include="CsCheck" Version="4.0.0" />
   </ItemGroup>
