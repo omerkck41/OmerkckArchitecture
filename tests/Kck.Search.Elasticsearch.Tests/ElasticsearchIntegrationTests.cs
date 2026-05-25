@@ -63,7 +63,8 @@ public sealed class ElasticsearchIntegrationTests : IAsyncLifetime, IDisposable
 
     public void Dispose()
     {
-        ((IDisposable?)_clientSettings)?.Dispose();
+        if (_clientSettings is not null)
+            ((IDisposable)_clientSettings).Dispose();
     }
 
     public async Task DisposeAsync()
