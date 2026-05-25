@@ -33,7 +33,7 @@
   </ItemGroup>
   <ItemGroup Label="Search">
     <!-- Client 9.x sends compatible-with=9 header; integration test container must be ES 9.x too. -->
-    <PackageVersion Include="Elastic.Clients.Elasticsearch" Version="9.4.0" />
+    <PackageVersion Include="Elastic.Clients.Elasticsearch" Version="9.4.1" />
     <PackageVersion Include="Elastic.Transport" Version="0.5.9" />
   </ItemGroup>
   <ItemGroup Label="Event Bus">
