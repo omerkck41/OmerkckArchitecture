@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1779750881480,
+  "lastUpdate": 1779752903326,
   "repoUrl": "https://github.com/omerkck41/OmerkckArchitecture",
   "entries": {
     "Benchmark": [
@@ -1846,6 +1846,174 @@ window.BENCHMARK_DATA = {
             "value": 787.6655876159668,
             "unit": "ns",
             "range": "± 6.989282580704805"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "106805727+omerkck41@users.noreply.github.com",
+            "name": "Ömer KÜÇÜK",
+            "username": "omerkck41"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "0a9d48607646f0ee9f724c2643fd34efcd52a105",
+          "message": "test(mutation): kill 9 survived Stryker mutants — 76.60% → 95.74% (#102)\n\n## Summary\n\n- Stryker mutation score: **76.60% → 95.74%** (high threshold ≥80% now\nexceeded)\n- 9 survived mutants eliminated across `Paginate.cs` and\n`ResultExtensions.cs`\n\n### Root causes fixed\n\n**`Paginate.cs` (4 mutations)**\n| Line | Mutation | Fix |\n|------|----------|-----|\n| 68 | `size > 0` → `true` / `size >= 0` | Added\n`Create_ZeroSize_ReturnsZeroPages` (size=0 → Pages=0) |\n| 79 | `index - from` → `index + from` in HasNext | Added\n`from=2/index=2` case asserting HasNext=true |\n| 81 | `index - from` → `index + from` in IsLastPage | Same test\nasserting IsLastPage=false |\n\n**`ResultExtensions.cs` (5 mutations)**\nAll 5 `ArgumentNullException.ThrowIfNull` calls had statement mutations\n(replaced with `;`) that survived because no null inputs were ever\npassed. Added one null-guard test per method:\n- `Map_NullMapper_ThrowsArgumentNullException`\n- `Bind_NullBinder_ThrowsArgumentNullException`\n- `Tap_NullAction_ThrowsArgumentNullException`\n- `Ensure_NullPredicate_ThrowsArgumentNullException`\n- `Ensure_NullError_ThrowsArgumentNullException`\n\n## Test plan\n- [x] `dotnet test tests/Kck.Core.Abstractions.Tests` — 65/65 passed\n(was 58)\n- [x] `dotnet stryker` — 95.74% (was 76.60%)\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-authored-by: Claude Sonnet 4.6 <noreply@anthropic.com>",
+          "timestamp": "2026-05-26T02:42:23+03:00",
+          "tree_id": "c55769dc6a9a2b1ef5b2b9395f154c0a66706994",
+          "url": "https://github.com/omerkck41/OmerkckArchitecture/commit/0a9d48607646f0ee9f724c2643fd34efcd52a105"
+        },
+        "date": 1779752902707,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Success_Factory",
+            "value": 7.0402863730986915,
+            "unit": "ns",
+            "range": "± 0.12189741243768769"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Failure_Factory",
+            "value": 7.357592630386352,
+            "unit": "ns",
+            "range": "± 0.19417272751541237"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Success",
+            "value": 1.5089810703481947,
+            "unit": "ns",
+            "range": "± 0.005770735150612179"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Failure",
+            "value": 1.106851310034593,
+            "unit": "ns",
+            "range": "± 0.018672926299510798"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Serialize_Reflection",
+            "value": 481.91876646188587,
+            "unit": "ns",
+            "range": "± 2.7279413771134187"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Deserialize_Reflection",
+            "value": 841.9221125920614,
+            "unit": "ns",
+            "range": "± 2.6074978597844924"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Success_Factory",
+            "value": 7.0402863730986915,
+            "unit": "ns",
+            "range": "± 0.12189741243768769"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Failure_Factory",
+            "value": 7.357592630386352,
+            "unit": "ns",
+            "range": "± 0.19417272751541237"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Success",
+            "value": 1.5089810703481947,
+            "unit": "ns",
+            "range": "± 0.005770735150612179"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Failure",
+            "value": 1.106851310034593,
+            "unit": "ns",
+            "range": "± 0.018672926299510798"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 0)",
+            "value": 11.089449081155989,
+            "unit": "ns",
+            "range": "± 0.3188809635960203"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 5)",
+            "value": 11.207186601559322,
+            "unit": "ns",
+            "range": "± 0.2644693939523313"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 0)",
+            "value": 10.903464946307635,
+            "unit": "ns",
+            "range": "± 0.3357697289130015"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 5)",
+            "value": 11.883538355429968,
+            "unit": "ns",
+            "range": "± 0.23974219086537363"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 0)",
+            "value": 11.80285450390407,
+            "unit": "ns",
+            "range": "± 0.19268888643070567"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 5)",
+            "value": 15.500485358635585,
+            "unit": "ns",
+            "range": "± 0.2182205716257834"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 0)",
+            "value": 11.089449081155989,
+            "unit": "ns",
+            "range": "± 0.3188809635960203"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 5)",
+            "value": 11.207186601559322,
+            "unit": "ns",
+            "range": "± 0.2644693939523313"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 0)",
+            "value": 10.903464946307635,
+            "unit": "ns",
+            "range": "± 0.3357697289130015"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 5)",
+            "value": 11.883538355429968,
+            "unit": "ns",
+            "range": "± 0.23974219086537363"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 0)",
+            "value": 11.80285450390407,
+            "unit": "ns",
+            "range": "± 0.19268888643070567"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 5)",
+            "value": 15.500485358635585,
+            "unit": "ns",
+            "range": "± 0.2182205716257834"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Serialize_Reflection",
+            "value": 481.91876646188587,
+            "unit": "ns",
+            "range": "± 2.7279413771134187"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Deserialize_Reflection",
+            "value": 841.9221125920614,
+            "unit": "ns",
+            "range": "± 2.6074978597844924"
           }
         ]
       }
