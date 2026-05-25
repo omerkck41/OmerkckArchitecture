@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1779739571710,
+  "lastUpdate": 1779740088349,
   "repoUrl": "https://github.com/omerkck41/OmerkckArchitecture",
   "entries": {
     "Benchmark": [
@@ -838,6 +838,174 @@ window.BENCHMARK_DATA = {
             "value": 719.7809429168701,
             "unit": "ns",
             "range": "± 3.994171061060732"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "106805727+omerkck41@users.noreply.github.com",
+            "name": "Ömer KÜÇÜK",
+            "username": "omerkck41"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "5a3ccc2de56d3fcfef7e3aad82386172448588a6",
+          "message": "fix(ci): upgrade fetch-metadata to v3, tolerate approval failure (#98)\n\n## Summary\n\n- `dependabot/fetch-metadata@v2` → `@v3`: Node.js 20 → 24 uyumluluğu\n(deprecation warning giderildi, June 2 deadline)\n- `continue-on-error: true` approval adımına eklendi: `GITHUB_TOKEN` PR\napprove edemediğinde workflow artık FAILURE yerine SUCCESS döner\n\n## Root Cause\n\nPR #96 (`testcontainers` minor bump) auto-merge job'ı `failed to create\nreview: GraphQL: GitHub Actions is not permitted to approve pull\nrequests` hatasıyla düşüyordu. `require_code_owner_reviews: true` branch\nprotection kuralı approval gerektiriyor, ancak GitHub Actions kendi\nPR'ını approve edemiyor.\n\n## Test plan\n\n- [ ] `dependabot-auto-merge` workflow'u artık approval adımı başarısız\nolsa bile SUCCESS döner\n- [ ] `fetch-metadata@v3` Node.js 24 ile çalışır\n- [ ] Patch/minor Dependabot PR'larında auto-merge etkinleştirilir\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-authored-by: Claude Sonnet 4.6 <noreply@anthropic.com>",
+          "timestamp": "2026-05-25T23:07:59+03:00",
+          "tree_id": "2c492a2cb83bb69c673f72c63f1c6727f7b19dc4",
+          "url": "https://github.com/omerkck41/OmerkckArchitecture/commit/5a3ccc2de56d3fcfef7e3aad82386172448588a6"
+        },
+        "date": 1779740087922,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Success_Factory",
+            "value": 5.602053350458543,
+            "unit": "ns",
+            "range": "± 0.03400726292803792"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Failure_Factory",
+            "value": 7.637333159645398,
+            "unit": "ns",
+            "range": "± 0.11860269993786843"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Success",
+            "value": 1.6364389014031206,
+            "unit": "ns",
+            "range": "± 0.005546393702232064"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Failure",
+            "value": 0.6780036842184407,
+            "unit": "ns",
+            "range": "± 0.00452578705295474"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Serialize_Reflection",
+            "value": 462.7044857910701,
+            "unit": "ns",
+            "range": "± 3.476853044212949"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Deserialize_Reflection",
+            "value": 766.7855336849506,
+            "unit": "ns",
+            "range": "± 3.6123763895450787"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Success_Factory",
+            "value": 5.602053350458543,
+            "unit": "ns",
+            "range": "± 0.03400726292803792"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Failure_Factory",
+            "value": 7.637333159645398,
+            "unit": "ns",
+            "range": "± 0.11860269993786843"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Success",
+            "value": 1.6364389014031206,
+            "unit": "ns",
+            "range": "± 0.005546393702232064"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Failure",
+            "value": 0.6780036842184407,
+            "unit": "ns",
+            "range": "± 0.00452578705295474"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 0)",
+            "value": 9.746667918104391,
+            "unit": "ns",
+            "range": "± 0.10598276051683524"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 5)",
+            "value": 9.762876759283245,
+            "unit": "ns",
+            "range": "± 0.22161239674791722"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 0)",
+            "value": 9.78895947150886,
+            "unit": "ns",
+            "range": "± 0.24580981969071464"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 5)",
+            "value": 9.560477757683167,
+            "unit": "ns",
+            "range": "± 0.08221825945535939"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 0)",
+            "value": 9.662124073505401,
+            "unit": "ns",
+            "range": "± 0.21207216497770112"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 5)",
+            "value": 9.92866807480653,
+            "unit": "ns",
+            "range": "± 0.15694972813558558"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 0)",
+            "value": 9.746667918104391,
+            "unit": "ns",
+            "range": "± 0.10598276051683524"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 5)",
+            "value": 9.762876759283245,
+            "unit": "ns",
+            "range": "± 0.22161239674791722"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 0)",
+            "value": 9.78895947150886,
+            "unit": "ns",
+            "range": "± 0.24580981969071464"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 5)",
+            "value": 9.560477757683167,
+            "unit": "ns",
+            "range": "± 0.08221825945535939"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 0)",
+            "value": 9.662124073505401,
+            "unit": "ns",
+            "range": "± 0.21207216497770112"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 5)",
+            "value": 9.92866807480653,
+            "unit": "ns",
+            "range": "± 0.15694972813558558"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Serialize_Reflection",
+            "value": 462.7044857910701,
+            "unit": "ns",
+            "range": "± 3.476853044212949"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Deserialize_Reflection",
+            "value": 766.7855336849506,
+            "unit": "ns",
+            "range": "± 3.6123763895450787"
           }
         ]
       }
