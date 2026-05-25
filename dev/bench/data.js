@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1779745419172,
+  "lastUpdate": 1779750881480,
   "repoUrl": "https://github.com/omerkck41/OmerkckArchitecture",
   "entries": {
     "Benchmark": [
@@ -1678,6 +1678,174 @@ window.BENCHMARK_DATA = {
             "value": 779.8137670516968,
             "unit": "ns",
             "range": "± 5.404861848108346"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "106805727+omerkck41@users.noreply.github.com",
+            "name": "Ömer KÜÇÜK",
+            "username": "omerkck41"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "e89e884201a7fbeaac57b7e38675975e0e59c825",
+          "message": "fix(sonarcloud): resolve 22 MINOR/INFO issues (#101)\n\n## Summary\n\n- **S1075** — `AwsS3StorageService`: NOSONAR on S3 key delimiter `/`\n(protocol requirement, not a hardcoded URI)\n- **S1133** (×10) — NOSONAR on 10 `[Obsolete]` members retained for\nbackwards compatibility: `IReadRepository` (×6), `JwtTokenService`,\n`ITokenService`, `InMemoryEventBus DI` (×2)\n- **S2292** — `Entity<TId>`: convert `_id` backing field + manual\nproperty to auto-property\n- **S3220** (×2) — `PathHelper`: use `['/', '\\']` collection-expression\nsyntax to make params array call unambiguous\n- **S4136** (×4) — `IWriteRepository` + `EfRepository`: reorder\noverloads so all `DeleteAsync` are adjacent and all\n`RevertSoftDeleteAsync` are adjacent\n- **ASP0015** — `SecurityHeadersMiddleware`:\n`headers[\"Content-Security-Policy\"]` → `headers.ContentSecurityPolicy`\ntyped property\n- **S3236** (×2) — `AzureServiceBus` + `RabbitMq` DI: remove explicit\n`nameof(...)` arg from `ThrowIfNullOrWhiteSpace` (compiler fills it via\n`[CallerArgumentExpression]`)\n- **S3267** — `SoftDeleteHelper`: NOSONAR on side-effect `foreach` (LINQ\n`Select()` for mutations would obscure intent)\n\n## Test plan\n\n- [ ] `dotnet build` passes with 0 errors ✅\n- [ ] No behavioural changes — all fixes are suppressions, cosmetic\nreorderings, or trivially equivalent refactors\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\n---------\n\nCo-authored-by: Claude Sonnet 4.6 <noreply@anthropic.com>",
+          "timestamp": "2026-05-26T02:08:04+03:00",
+          "tree_id": "ca4a236b036f5b1725dc34fa81d3285e60a0f1f7",
+          "url": "https://github.com/omerkck41/OmerkckArchitecture/commit/e89e884201a7fbeaac57b7e38675975e0e59c825"
+        },
+        "date": 1779750880628,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Success_Factory",
+            "value": 6.065770743290583,
+            "unit": "ns",
+            "range": "± 0.11816212264865542"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Failure_Factory",
+            "value": 7.873815484841665,
+            "unit": "ns",
+            "range": "± 0.11506764802207355"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Success",
+            "value": 1.6395506388865984,
+            "unit": "ns",
+            "range": "± 0.006663021194056043"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Failure",
+            "value": 0.5881975659957299,
+            "unit": "ns",
+            "range": "± 0.009103158015605685"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Serialize_Reflection",
+            "value": 483.0217970530192,
+            "unit": "ns",
+            "range": "± 2.709054447232808"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Deserialize_Reflection",
+            "value": 787.6655876159668,
+            "unit": "ns",
+            "range": "± 6.989282580704805"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Success_Factory",
+            "value": 6.065770743290583,
+            "unit": "ns",
+            "range": "± 0.11816212264865542"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Failure_Factory",
+            "value": 7.873815484841665,
+            "unit": "ns",
+            "range": "± 0.11506764802207355"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Success",
+            "value": 1.6395506388865984,
+            "unit": "ns",
+            "range": "± 0.006663021194056043"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Failure",
+            "value": 0.5881975659957299,
+            "unit": "ns",
+            "range": "± 0.009103158015605685"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 0)",
+            "value": 10.15605040533202,
+            "unit": "ns",
+            "range": "± 0.16830850006836198"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 5)",
+            "value": 10.23201808532079,
+            "unit": "ns",
+            "range": "± 0.22709871257286302"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 0)",
+            "value": 10.099117001252514,
+            "unit": "ns",
+            "range": "± 0.10201934580825332"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 5)",
+            "value": 10.684834970037143,
+            "unit": "ns",
+            "range": "± 0.15742281183416135"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 0)",
+            "value": 10.037054288600173,
+            "unit": "ns",
+            "range": "± 0.16520668508512448"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 5)",
+            "value": 9.943987525999546,
+            "unit": "ns",
+            "range": "± 0.10260540855948706"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 0)",
+            "value": 10.15605040533202,
+            "unit": "ns",
+            "range": "± 0.16830850006836198"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 5)",
+            "value": 10.23201808532079,
+            "unit": "ns",
+            "range": "± 0.22709871257286302"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 0)",
+            "value": 10.099117001252514,
+            "unit": "ns",
+            "range": "± 0.10201934580825332"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 5)",
+            "value": 10.684834970037143,
+            "unit": "ns",
+            "range": "± 0.15742281183416135"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 0)",
+            "value": 10.037054288600173,
+            "unit": "ns",
+            "range": "± 0.16520668508512448"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 5)",
+            "value": 9.943987525999546,
+            "unit": "ns",
+            "range": "± 0.10260540855948706"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Serialize_Reflection",
+            "value": 483.0217970530192,
+            "unit": "ns",
+            "range": "± 2.709054447232808"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Deserialize_Reflection",
+            "value": 787.6655876159668,
+            "unit": "ns",
+            "range": "± 6.989282580704805"
           }
         ]
       }
