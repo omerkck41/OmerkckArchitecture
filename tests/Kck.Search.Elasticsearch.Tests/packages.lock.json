@@ -202,15 +202,15 @@
       "kck.search.elasticsearch": {
         "type": "Project",
         "dependencies": {
-          "Elastic.Clients.Elasticsearch": "[9.4.0, )",
+          "Elastic.Clients.Elasticsearch": "[9.4.1, )",
           "Kck.Search.Abstractions": "[1.0.0, )"
         }
       },
       "Elastic.Clients.Elasticsearch": {
         "type": "CentralTransitive",
-        "requested": "[9.4.0, )",
-        "resolved": "9.4.0",
-        "contentHash": "jDLn9WcFSMKR8t/3dFQPjTPxK5HD/YU61EyhpZIObFCaj0sj5XIYh27IqlE7wzcFYMLbH8MdT+2pjfJsz6kKGQ==",
+        "requested": "[9.4.1, )",
+        "resolved": "9.4.1",
+        "contentHash": "hVL24mXhm4zZUKh4Kos1owBINe1vmuN3JMIBsdXzNAa54NnmaAQtAOhqQCRaIpXpiiQHYo4LccnQu/B1vVfY8A==",
         "dependencies": {
           "Elastic.Esql": "0.11.0",
           "Elastic.Transport": "0.17.1"
