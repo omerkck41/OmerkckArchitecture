@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1779743932793,
+  "lastUpdate": 1779745419172,
   "repoUrl": "https://github.com/omerkck41/OmerkckArchitecture",
   "entries": {
     "Benchmark": [
@@ -1510,6 +1510,174 @@ window.BENCHMARK_DATA = {
             "value": 704.6183833394732,
             "unit": "ns",
             "range": "± 2.0093171969663133"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "106805727+omerkck41@users.noreply.github.com",
+            "name": "Ömer KÜÇÜK",
+            "username": "omerkck41"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "c9f6df7beb640456f5a7cd46cbfa009833eb11a2",
+          "message": "fix(sonarcloud): resolve 11 open BLOCKER/MAJOR issues (#100)\n\n## Summary\n\n| Rule | Severity | Count | Fix |\n|---|---|---|---|\n| `S2699` No assertion in test | BLOCKER | 1 | Made async + added\n`NotThrowAsync` assertion |\n| `S107` Too many parameters | MAJOR | 4 | `// NOSONAR S107` on\ndeprecated backwards-compat APIs |\n| `S2326` Unused type parameter | MAJOR | 1 | `// NOSONAR S2326` — `T`\nis a DI discriminator by design |\n| `CA1716` Keyword conflict | MAJOR | 5 | Extended existing `// NOSONAR\nS1700` to also cover `CA1716` |\n\n## Details\n\n- **S2699**\n`InMemoryEventBusTests.Subscribe_DuplicateHandler_DoesNotAddTwice` — was\nvoid with no assertion; now async with `await\nact.Should().NotThrowAsync()`\n- **S107** `IReadRepository` / `ReadRepositoryExtensions` `GetListAsync`\n+ `GetListByDynamic` — deprecated APIs kept for backwards compatibility,\nparameter count cannot change\n- **S2326** `IFilterPropertyWhitelist<T>` — `T` appears in XML docs but\nnot in member signatures; intentional DI discriminator pattern\n(`IFilterPropertyWhitelist<Product>` vs\n`IFilterPropertyWhitelist<Order>`)\n- **CA1716** `Set`/`Get` on `ICookieManager`, `ISessionManager`,\n`IGauge` — standard domain verbs; VB.NET callers can use fully-qualified\nnames\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-authored-by: Claude Sonnet 4.6 <noreply@anthropic.com>",
+          "timestamp": "2026-05-26T00:36:41+03:00",
+          "tree_id": "66f089546e86791aca4a5bc39dd9d0756af1eeb7",
+          "url": "https://github.com/omerkck41/OmerkckArchitecture/commit/c9f6df7beb640456f5a7cd46cbfa009833eb11a2"
+        },
+        "date": 1779745418627,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Success_Factory",
+            "value": 5.984584033489227,
+            "unit": "ns",
+            "range": "± 0.09905356825469686"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Failure_Factory",
+            "value": 8.073489542802175,
+            "unit": "ns",
+            "range": "± 0.1259559994464653"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Success",
+            "value": 1.6383068992623262,
+            "unit": "ns",
+            "range": "± 0.0030462769201172776"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Failure",
+            "value": 0.5807511955499649,
+            "unit": "ns",
+            "range": "± 0.00392194576528674"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Serialize_Reflection",
+            "value": 456.46107333047047,
+            "unit": "ns",
+            "range": "± 2.8812554921813773"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Deserialize_Reflection",
+            "value": 779.8137670516968,
+            "unit": "ns",
+            "range": "± 5.404861848108346"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Success_Factory",
+            "value": 5.984584033489227,
+            "unit": "ns",
+            "range": "± 0.09905356825469686"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Failure_Factory",
+            "value": 8.073489542802175,
+            "unit": "ns",
+            "range": "± 0.1259559994464653"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Success",
+            "value": 1.6383068992623262,
+            "unit": "ns",
+            "range": "± 0.0030462769201172776"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Failure",
+            "value": 0.5807511955499649,
+            "unit": "ns",
+            "range": "± 0.00392194576528674"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 0)",
+            "value": 10.80631032132584,
+            "unit": "ns",
+            "range": "± 0.3345589470851898"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 5)",
+            "value": 10.814598672588666,
+            "unit": "ns",
+            "range": "± 0.20947107058654896"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 0)",
+            "value": 11.478079333475657,
+            "unit": "ns",
+            "range": "± 0.47684059089961417"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 5)",
+            "value": 10.495391523838043,
+            "unit": "ns",
+            "range": "± 0.16682622890913662"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 0)",
+            "value": 10.42440182289907,
+            "unit": "ns",
+            "range": "± 0.12927858289907496"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 5)",
+            "value": 10.145206543115469,
+            "unit": "ns",
+            "range": "± 0.10761503943095052"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 0)",
+            "value": 10.80631032132584,
+            "unit": "ns",
+            "range": "± 0.3345589470851898"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 5)",
+            "value": 10.814598672588666,
+            "unit": "ns",
+            "range": "± 0.20947107058654896"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 0)",
+            "value": 11.478079333475657,
+            "unit": "ns",
+            "range": "± 0.47684059089961417"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 5)",
+            "value": 10.495391523838043,
+            "unit": "ns",
+            "range": "± 0.16682622890913662"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 0)",
+            "value": 10.42440182289907,
+            "unit": "ns",
+            "range": "± 0.12927858289907496"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 5)",
+            "value": 10.145206543115469,
+            "unit": "ns",
+            "range": "± 0.10761503943095052"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Serialize_Reflection",
+            "value": 456.46107333047047,
+            "unit": "ns",
+            "range": "± 2.8812554921813773"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Deserialize_Reflection",
+            "value": 779.8137670516968,
+            "unit": "ns",
+            "range": "± 5.404861848108346"
           }
         ]
       }
