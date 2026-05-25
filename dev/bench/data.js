@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1779741608985,
+  "lastUpdate": 1779743932793,
   "repoUrl": "https://github.com/omerkck41/OmerkckArchitecture",
   "entries": {
     "Benchmark": [
@@ -1342,6 +1342,174 @@ window.BENCHMARK_DATA = {
             "value": 808.0983128229777,
             "unit": "ns",
             "range": "± 5.093639210940195"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "106805727+omerkck41@users.noreply.github.com",
+            "name": "Ömer KÜÇÜK",
+            "username": "omerkck41"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "41a2d84de5dc4100060619e94b0310ecd6be8a7c",
+          "message": "fix(codeql): resolve 3 open code scanning alerts (#99)\n\n## Summary\n\n- **#75 `cs/missed-using-statement`** `JwtTokenService.cs:163` —\n`succeeded` flag replaced with `rsa = null` ownership-transfer pattern.\n`RsaSecurityKey` takes ownership of the `RSA` instance on the happy\npath; `finally` only disposes on failure. `using` cannot be used here\nbecause the lifetime extends beyond the method.\n- **#74 `cs/local-not-disposed`** `ElasticsearchIntegrationTests.cs:58`\n— `((IDisposable?)x)?.Dispose()` changed to `if (x is IDisposable d)\nd.Dispose()`. CodeQL tracks the `is`-pattern as a recognised disposal\ncall; the nullable-cast pattern was not.\n- **#51 `cs/useless-cast-to-self`**\n`ConfigurationSecretsManagerTests.cs:12` — Redundant `(string?)` cast\nremoved; explicit generic type parameters `<(string,string), string,\nstring?>` passed to `ToDictionary` instead.\n\n## Test plan\n\n- [ ] Build passes (0 errors)\n- [ ] CodeQL scan clears all 3 alerts on next run\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\n---------\n\nCo-authored-by: Claude Sonnet 4.6 <noreply@anthropic.com>",
+          "timestamp": "2026-05-26T00:10:47+03:00",
+          "tree_id": "55b7b6898d8d8994ebc79af6b399358cff427cdd",
+          "url": "https://github.com/omerkck41/OmerkckArchitecture/commit/41a2d84de5dc4100060619e94b0310ecd6be8a7c"
+        },
+        "date": 1779743932497,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Success_Factory",
+            "value": 7.037697954103351,
+            "unit": "ns",
+            "range": "± 0.4026074715481392"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Failure_Factory",
+            "value": 8.934837990999222,
+            "unit": "ns",
+            "range": "± 0.21445377900351237"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Success",
+            "value": 1.1974855861626565,
+            "unit": "ns",
+            "range": "± 0.18014235275447127"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Failure",
+            "value": 0.6619001882416862,
+            "unit": "ns",
+            "range": "± 0.0032842351298936526"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Serialize_Reflection",
+            "value": 395.30489257665783,
+            "unit": "ns",
+            "range": "± 0.9610454722484718"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Deserialize_Reflection",
+            "value": 704.6183833394732,
+            "unit": "ns",
+            "range": "± 2.0093171969663133"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Success_Factory",
+            "value": 7.037697954103351,
+            "unit": "ns",
+            "range": "± 0.4026074715481392"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Failure_Factory",
+            "value": 8.934837990999222,
+            "unit": "ns",
+            "range": "± 0.21445377900351237"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Success",
+            "value": 1.1974855861626565,
+            "unit": "ns",
+            "range": "± 0.18014235275447127"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Failure",
+            "value": 0.6619001882416862,
+            "unit": "ns",
+            "range": "± 0.0032842351298936526"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 0)",
+            "value": 11.021381616592407,
+            "unit": "ns",
+            "range": "± 0.022093420038220554"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 5)",
+            "value": 10.248248507236612,
+            "unit": "ns",
+            "range": "± 0.39406032074841374"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 0)",
+            "value": 9.704832086196312,
+            "unit": "ns",
+            "range": "± 0.0386453204453277"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 5)",
+            "value": 9.989413575402327,
+            "unit": "ns",
+            "range": "± 0.09337332509690321"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 0)",
+            "value": 10.077385627664626,
+            "unit": "ns",
+            "range": "± 0.24471539123341665"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 5)",
+            "value": 9.9246988962094,
+            "unit": "ns",
+            "range": "± 0.04407717768996744"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 0)",
+            "value": 11.021381616592407,
+            "unit": "ns",
+            "range": "± 0.022093420038220554"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 5)",
+            "value": 10.248248507236612,
+            "unit": "ns",
+            "range": "± 0.39406032074841374"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 0)",
+            "value": 9.704832086196312,
+            "unit": "ns",
+            "range": "± 0.0386453204453277"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 5)",
+            "value": 9.989413575402327,
+            "unit": "ns",
+            "range": "± 0.09337332509690321"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 0)",
+            "value": 10.077385627664626,
+            "unit": "ns",
+            "range": "± 0.24471539123341665"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 5)",
+            "value": 9.9246988962094,
+            "unit": "ns",
+            "range": "± 0.04407717768996744"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Serialize_Reflection",
+            "value": 395.30489257665783,
+            "unit": "ns",
+            "range": "± 0.9610454722484718"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Deserialize_Reflection",
+            "value": 704.6183833394732,
+            "unit": "ns",
+            "range": "± 2.0093171969663133"
           }
         ]
       }
