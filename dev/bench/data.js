@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1780086694646,
+  "lastUpdate": 1780095942119,
   "repoUrl": "https://github.com/omerkck41/OmerkckArchitecture",
   "entries": {
     "Benchmark": [
@@ -2686,6 +2686,174 @@ window.BENCHMARK_DATA = {
             "value": 0.09971374731797439,
             "unit": "ns",
             "range": "± 0.005445957961121988"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "106805727+omerkck41@users.noreply.github.com",
+            "name": "Ömer KÜÇÜK",
+            "username": "omerkck41"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "f8827e51605a90db63f74e1803a4cfbee63d0646",
+          "message": "build(deps): replace commercial FluentAssertions v8 with AwesomeAssertions 9.4.0 (#107)\n\n## Özet\nFluentAssertions v8 (Ocak 2025) Xceed ticari lisansına geçti\n($130/geliştirici/yıl, ticari kullanımda zorunlu) — projenin \"ücretsiz\naraç\" kuralıyla çelişiyor. Tüm test projeleri **AwesomeAssertions\n9.4.0**'a (Apache 2.0, topluluk fork'u, birebir aynı assertion API)\ntaşındı.\n\nBu değişiklik `/currency-check` protokolü (Anayasa #1–#6) ile\ndoğrulandı.\n\n## Değişiklikler\n- **`Directory.Packages.props`**: FluentAssertions 8.3.0 →\nAwesomeAssertions 9.4.0\n- **39 test `.csproj`**: `PackageReference Include=\"FluentAssertions\"` →\n`AwesomeAssertions`\n- **94 test `.cs`**: `using FluentAssertions;` → `using\nAwesomeAssertions;` (v9 namespace'i yeniden adlandırdı; assertion API ve\ntest mantığı değişmedi)\n- **packages.lock.json** test projelerinde yeniden üretildi\n- **Karar artefaktı**:\n`decisions/2026-05-29-fluentassertions-license.md`\n\n## Alternatif değerlendirme (currency-check)\n| Aday | Lisans | Drop-in | Karar |\n|---|---|---|---|\n| **AwesomeAssertions 9.4.0** | Apache 2.0 (kalıcı) | ✅ aynı API |\n**SEÇİLDİ** |\n| Shouldly 4.3.0 | free | ❌ farklı API (`.ShouldBe()`) | ele |\n| FA v7'ye pin | Apache 2.0 (donmuş) | ✅ | ele (teknik borç) |\n\n## Doğrulama\n- Build: **0 hata**\n- Tüm assertion testleri **geçti**\n- Tek başarısızlık: Docker gerektiren Testcontainers entegrasyon\ntestleri (Persistence EF, Redis) — lokalde Docker kapalı olduğu için; bu\ndeğişiklikle **ilgisiz**, CI'da Docker mevcut\n\n## Not\n- v9 namespace rename'i nedeniyle ilk \"zero-code-change\" varsayımı\ndüzeltildi (artefaktta post-mortem, Doktrin #7).\n- `xunit 2.9.3` (deprecated/Legacy → xunit.v3) ayrı/daha büyük bir\nmigration olarak **ertelendi**.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-authored-by: Claude Opus 4.8 <noreply@anthropic.com>",
+          "timestamp": "2026-05-30T01:58:25+03:00",
+          "tree_id": "a654597dc3b9a0dc39221b89aa63e8a8f4f3a3c7",
+          "url": "https://github.com/omerkck41/OmerkckArchitecture/commit/f8827e51605a90db63f74e1803a4cfbee63d0646"
+        },
+        "date": 1780095941770,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 0)",
+            "value": 10.018386072346143,
+            "unit": "ns",
+            "range": "± 0.09046182350936324"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 5)",
+            "value": 9.907864084201199,
+            "unit": "ns",
+            "range": "± 0.17835988862025298"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 0)",
+            "value": 10.32831098722375,
+            "unit": "ns",
+            "range": "± 0.3406915483394398"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 5)",
+            "value": 10.754594592750072,
+            "unit": "ns",
+            "range": "± 0.31237527377839"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 0)",
+            "value": 10.978664043274792,
+            "unit": "ns",
+            "range": "± 0.34773347022932305"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 5)",
+            "value": 10.316444062417553,
+            "unit": "ns",
+            "range": "± 0.4054680030250694"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Serialize_Reflection",
+            "value": 466.82695066928864,
+            "unit": "ns",
+            "range": "± 8.687868239400425"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Deserialize_Reflection",
+            "value": 782.6515290578207,
+            "unit": "ns",
+            "range": "± 10.56037786116533"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Serialize_Reflection",
+            "value": 466.82695066928864,
+            "unit": "ns",
+            "range": "± 8.687868239400425"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Deserialize_Reflection",
+            "value": 782.6515290578207,
+            "unit": "ns",
+            "range": "± 10.56037786116533"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Success_Factory",
+            "value": 6.462916008631388,
+            "unit": "ns",
+            "range": "± 0.18189611615284199"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Failure_Factory",
+            "value": 8.236726060509682,
+            "unit": "ns",
+            "range": "± 0.14707006083428403"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Success",
+            "value": 1.6386957346246793,
+            "unit": "ns",
+            "range": "± 0.004280589219732356"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Failure",
+            "value": 0.6766207590699196,
+            "unit": "ns",
+            "range": "± 0.004024964730230141"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 0)",
+            "value": 10.018386072346143,
+            "unit": "ns",
+            "range": "± 0.09046182350936324"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 5)",
+            "value": 9.907864084201199,
+            "unit": "ns",
+            "range": "± 0.17835988862025298"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 0)",
+            "value": 10.32831098722375,
+            "unit": "ns",
+            "range": "± 0.3406915483394398"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 5)",
+            "value": 10.754594592750072,
+            "unit": "ns",
+            "range": "± 0.31237527377839"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 0)",
+            "value": 10.978664043274792,
+            "unit": "ns",
+            "range": "± 0.34773347022932305"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 5)",
+            "value": 10.316444062417553,
+            "unit": "ns",
+            "range": "± 0.4054680030250694"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Success_Factory",
+            "value": 6.462916008631388,
+            "unit": "ns",
+            "range": "± 0.18189611615284199"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Failure_Factory",
+            "value": 8.236726060509682,
+            "unit": "ns",
+            "range": "± 0.14707006083428403"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Success",
+            "value": 1.6386957346246793,
+            "unit": "ns",
+            "range": "± 0.004280589219732356"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Failure",
+            "value": 0.6766207590699196,
+            "unit": "ns",
+            "range": "± 0.004024964730230141"
           }
         ]
       }
