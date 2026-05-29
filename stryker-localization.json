@@ -1,0 +1,23 @@
+{
+  "stryker-config": {
+    "project-info": {
+      "name": "Kck Modular Architecture",
+      "module": "Localization"
+    },
+    "mutation-level": "Standard",
+    "thresholds": {
+      "high": 80,
+      "low": 70,
+      "break": 60
+    },
+    "project": "src/Providers/Kck.Localization/Kck.Localization.csproj",
+    "test-projects": [
+      "tests/Kck.Localization.Tests/Kck.Localization.Tests.csproj"
+    ],
+    "reporters": ["html", "progress", "cleartext"],
+    "since": {
+      "enabled": false
+    },
+    "ignore-mutations": ["string", "logical"]
+  }
+}

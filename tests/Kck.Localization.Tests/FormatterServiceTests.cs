@@ -88,4 +88,28 @@ public sealed class FormatterServiceTests
         var result = _sut.FormatNumber(0m, "en-US");
         result.Should().Be("0.00");
     }
+
+    [Fact]
+    public void FormatNumber_CustomFormat_OverridesDefaultN2()
+    {
+        // "N0" must win over the "N2" default — distinct, exact output so the
+        // null-coalescing fallback cannot be dropped without failing.
+        var result = _sut.FormatNumber(1234.4m, "en-US", "N0");
+        result.Should().Be("1,234");
+    }
+
+    [Fact]
+    public void FormatNumber_InvalidCulture_FallsBackToInvariant()
+    {
+        // "a b c" throws CultureNotFoundException -> must be caught and use InvariantCulture.
+        var result = _sut.FormatNumber(1234.5m, "a b c");
+        result.Should().Be("1,234.50");
+    }
+
+    [Fact]
+    public void FormatCurrency_InvalidCulture_FallsBackToInvariant()
+    {
+        var act = () => _sut.FormatCurrency(100m, "a b c");
+        act.Should().NotThrow();
+    }
 }

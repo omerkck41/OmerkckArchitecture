@@ -49,6 +49,7 @@ public sealed class DefaultPluralizerTests
     [InlineData(4, "few")]
     [InlineData(5, "many")]
     [InlineData(12, "many")]
+    [InlineData(14, "many")] // upper boundary of the 12..14 "many" exception (kills <=14 -> <14)
     [InlineData(22, "few")]
     [InlineData(25, "many")]
     public void GetPluralCategory_Polish_ReturnsCorrectCategory(int count, string expected)
