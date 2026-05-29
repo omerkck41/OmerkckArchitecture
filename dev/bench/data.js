@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1780084473585,
+  "lastUpdate": 1780086694646,
   "repoUrl": "https://github.com/omerkck41/OmerkckArchitecture",
   "entries": {
     "Benchmark": [
@@ -2518,6 +2518,174 @@ window.BENCHMARK_DATA = {
             "value": 0.6612096801400185,
             "unit": "ns",
             "range": "± 0.0027531681756293343"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "106805727+omerkck41@users.noreply.github.com",
+            "name": "Ömer KÜÇÜK",
+            "username": "omerkck41"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "2ccdcbb013dbc86d243fd08a26f10ec1fb120ef8",
+          "message": "test(mutation): add Stryker mutation testing for Pipeline.Mediator module (#106)\n\n## Özet\n`Kck.Pipeline.Mediator` modülü için Stryker mutasyon testi eklendi. En\nzayıf kapsamaya sahipti (%28.81, break eşiği 60'ın çok altında) — 5\nbehavior'dan ikisi (Transaction, Logging) tamamen, Caching kısmen test\nedilmemişti.\n\n## Değişiklikler\n- **`stryker-pipeline.json`** — yeni config; `ignore-methods:\n[\"ConfigureAwait\"]` ile öldürülemez `ConfigureAwait(false)` eşdeğer\nmutantları denominator'dan çıkarıldı (test bağlamında\nSynchronizationContext yok)\n- **`TransactionBehaviorTests.cs`** — begin/save/commit başarı yolu +\nrollback/rethrow hata yolu; UoW çağrı sırası ve log assertion'ları\n- **`LoggingBehaviorTests.cs`** — hızlı (Handled) vs yavaş >500ms\n(LongRunning) yolları\n- **`CachingBehaviorMutationTests.cs`** — hit/set loglama +\nsliding-expiration null-coalescing (mesaj değeri vs 5dk default)\ncapturing cache ile\n- **`PipelineBuilderTests.cs`** — 5 Use* behavior'ın doğru open-generic\nIPipelineBehavior kaydı; AddKckMediatorPipeline null-guard ve chaining\n- **`CapturingLogger.cs`** — paylaşılan test helper\n- **`mutation.yml`** — `pipeline` modülü CI matrix'ine eklendi\n\n## Sonuç\nMutation score: **%28.81 -> %95.00** (break eşiğinin çok altından high\neşiğinin üstüne). NoCoverage 29 -> 0. Test suite: 26/26 geçti (önceden\n13).\n\n## Kalan 2 survivor — eşdeğer mutant\n| Konum | Neden |\n|---|---|\n| `LoggingBehavior:28` `sw.Stop()` kaldırma | Elapsed okuması\netkilenmiyor (Stop sadece dondurur) |\n| `LoggingBehavior:30` `>= 500` sınırı | Tam 500ms deterministik olarak\nyakalanamaz |\n\nNot: `ignore-methods: [\"ConfigureAwait\"]` diğer modül config'lerine de\nuygulanabilir (orada görece daha az logic/async oranı olduğu için skoru\nzaten >80'di) — kapsam disiplini için bu PR'da yalnızca pipeline'a\neklendi.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-authored-by: Claude Opus 4.8 <noreply@anthropic.com>",
+          "timestamp": "2026-05-29T23:23:33+03:00",
+          "tree_id": "cd0568edb5a93e9775f3008ec7f7817549b2a737",
+          "url": "https://github.com/omerkck41/OmerkckArchitecture/commit/2ccdcbb013dbc86d243fd08a26f10ec1fb120ef8"
+        },
+        "date": 1780086694261,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 0)",
+            "value": 10.151450030008952,
+            "unit": "ns",
+            "range": "± 0.09038524205145887"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 5)",
+            "value": 9.866285343964895,
+            "unit": "ns",
+            "range": "± 0.15931769799883055"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 0)",
+            "value": 9.501496880673445,
+            "unit": "ns",
+            "range": "± 0.05048299721211377"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 5)",
+            "value": 10.329371369590884,
+            "unit": "ns",
+            "range": "± 0.2898272952215353"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 0)",
+            "value": 10.03054211338361,
+            "unit": "ns",
+            "range": "± 0.15990886754996128"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 5)",
+            "value": 10.485780842105548,
+            "unit": "ns",
+            "range": "± 0.16102970554603674"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Serialize_Reflection",
+            "value": 401.00289473166833,
+            "unit": "ns",
+            "range": "± 2.492074809214646"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Deserialize_Reflection",
+            "value": 727.3682648585393,
+            "unit": "ns",
+            "range": "± 2.0285712080687714"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Serialize_Reflection",
+            "value": 401.00289473166833,
+            "unit": "ns",
+            "range": "± 2.492074809214646"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Deserialize_Reflection",
+            "value": 727.3682648585393,
+            "unit": "ns",
+            "range": "± 2.0285712080687714"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Success_Factory",
+            "value": 6.093264148785518,
+            "unit": "ns",
+            "range": "± 0.07782612071318011"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Failure_Factory",
+            "value": 8.05069835989603,
+            "unit": "ns",
+            "range": "± 0.5051932131184974"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Success",
+            "value": 1.2997262493468995,
+            "unit": "ns",
+            "range": "± 0.1715260829933788"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Failure",
+            "value": 0.09971374731797439,
+            "unit": "ns",
+            "range": "± 0.005445957961121988"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 0)",
+            "value": 10.151450030008952,
+            "unit": "ns",
+            "range": "± 0.09038524205145887"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 5)",
+            "value": 9.866285343964895,
+            "unit": "ns",
+            "range": "± 0.15931769799883055"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 0)",
+            "value": 9.501496880673445,
+            "unit": "ns",
+            "range": "± 0.05048299721211377"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 5)",
+            "value": 10.329371369590884,
+            "unit": "ns",
+            "range": "± 0.2898272952215353"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 0)",
+            "value": 10.03054211338361,
+            "unit": "ns",
+            "range": "± 0.15990886754996128"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 5)",
+            "value": 10.485780842105548,
+            "unit": "ns",
+            "range": "± 0.16102970554603674"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Success_Factory",
+            "value": 6.093264148785518,
+            "unit": "ns",
+            "range": "± 0.07782612071318011"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Failure_Factory",
+            "value": 8.05069835989603,
+            "unit": "ns",
+            "range": "± 0.5051932131184974"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Success",
+            "value": 1.2997262493468995,
+            "unit": "ns",
+            "range": "± 0.1715260829933788"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Failure",
+            "value": 0.09971374731797439,
+            "unit": "ns",
+            "range": "± 0.005445957961121988"
           }
         ]
       }
