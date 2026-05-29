@@ -1,4 +1,4 @@
-using FluentAssertions;
+using AwesomeAssertions;
 using Kck.Security.Abstractions.Token;
 using Kck.Testing;
 using Microsoft.Extensions.Logging.Abstractions;

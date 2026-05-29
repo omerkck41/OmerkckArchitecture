@@ -1,4 +1,4 @@
-using FluentAssertions;
+using AwesomeAssertions;
 using Kck.BackgroundJobs.Abstractions;
 using Kck.BackgroundJobs.Hangfire;
 using Microsoft.Extensions.DependencyInjection;

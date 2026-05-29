@@ -1,4 +1,4 @@
-using FluentAssertions;
+using AwesomeAssertions;
 using Kck.Messaging.AmazonSes.DependencyInjection;
 using Xunit;
 

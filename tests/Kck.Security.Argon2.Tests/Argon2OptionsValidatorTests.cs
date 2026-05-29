@@ -1,4 +1,4 @@
-using FluentAssertions;
+using AwesomeAssertions;
 using Kck.Security.Argon2.DependencyInjection;
 using Xunit;
 

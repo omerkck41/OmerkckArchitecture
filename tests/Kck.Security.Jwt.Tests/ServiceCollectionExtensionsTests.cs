@@ -1,5 +1,5 @@
 using System.Security.Cryptography;
-using FluentAssertions;
+using AwesomeAssertions;
 using Kck.Security.Abstractions.Token;
 using Kck.Security.Jwt;
 using Kck.Security.Jwt.DependencyInjection;

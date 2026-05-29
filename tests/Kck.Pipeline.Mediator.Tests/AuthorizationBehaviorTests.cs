@@ -1,4 +1,4 @@
-using FluentAssertions;
+using AwesomeAssertions;
 using Kck.Authorization.Abstractions;
 using Kck.Pipeline.Abstractions;
 using Kck.Exceptions;

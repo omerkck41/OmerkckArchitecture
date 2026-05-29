@@ -1,6 +1,6 @@
 using System.Text;
 using System.Text.Json;
-using FluentAssertions;
+using AwesomeAssertions;
 using Kck.Caching.Abstractions;
 using Kck.Caching.Hybrid;
 using Kck.Testing;

@@ -1,4 +1,4 @@
-using FluentAssertions;
+using AwesomeAssertions;
 using Kck.EventBus.Abstractions;
 using Kck.EventBus.AzureServiceBus;
 using Microsoft.Extensions.DependencyInjection;

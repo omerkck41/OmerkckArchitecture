@@ -1,4 +1,4 @@
-using FluentAssertions;
+using AwesomeAssertions;
 using Kck.Security.Abstractions.Mfa;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;

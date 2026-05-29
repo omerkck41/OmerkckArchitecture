@@ -1,4 +1,4 @@
-using FluentAssertions;
+using AwesomeAssertions;
 using Kck.Persistence.Abstractions.Dynamic;
 using Kck.Persistence.EntityFramework.Repositories;
 using Microsoft.EntityFrameworkCore;

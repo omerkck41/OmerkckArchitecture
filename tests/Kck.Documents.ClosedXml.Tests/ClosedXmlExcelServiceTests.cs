@@ -1,4 +1,4 @@
-using FluentAssertions;
+using AwesomeAssertions;
 using Kck.Documents.Abstractions;
 using Kck.Documents.ClosedXml;
 using Xunit;

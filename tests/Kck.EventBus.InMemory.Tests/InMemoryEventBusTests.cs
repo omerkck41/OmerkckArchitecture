@@ -1,4 +1,4 @@
-using FluentAssertions;
+using AwesomeAssertions;
 using Kck.EventBus.Abstractions;
 using Kck.EventBus.InMemory;
 using Microsoft.Extensions.DependencyInjection;

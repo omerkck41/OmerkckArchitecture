@@ -1,6 +1,6 @@
 using System.Net;
 using System.Text.Json;
-using FluentAssertions;
+using AwesomeAssertions;
 using Kck.Http.Resilience;
 using Microsoft.Extensions.Logging.Abstractions;
 using Xunit;

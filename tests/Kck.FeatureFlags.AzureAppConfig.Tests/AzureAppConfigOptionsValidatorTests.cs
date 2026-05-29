@@ -1,4 +1,4 @@
-using FluentAssertions;
+using AwesomeAssertions;
 using Kck.FeatureFlags.AzureAppConfig;
 using Kck.FeatureFlags.AzureAppConfig.DependencyInjection;
 using Xunit;

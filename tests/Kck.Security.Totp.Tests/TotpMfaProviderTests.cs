@@ -1,4 +1,4 @@
-using FluentAssertions;
+using AwesomeAssertions;
 using Kck.Security.Totp;
 using Kck.Testing;
 using Microsoft.Extensions.Caching.Memory;

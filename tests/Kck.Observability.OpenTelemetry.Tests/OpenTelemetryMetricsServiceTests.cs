@@ -1,4 +1,4 @@
-using FluentAssertions;
+using AwesomeAssertions;
 using Kck.Observability.OpenTelemetry.Metrics;
 using Xunit;
 

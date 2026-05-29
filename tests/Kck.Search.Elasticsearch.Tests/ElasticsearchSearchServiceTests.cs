@@ -1,4 +1,4 @@
-using FluentAssertions;
+using AwesomeAssertions;
 using Kck.Search.Abstractions;
 using Kck.Search.Elasticsearch;
 using Microsoft.Extensions.DependencyInjection;

@@ -1,5 +1,5 @@
 using System.Globalization;
-using FluentAssertions;
+using AwesomeAssertions;
 using Kck.Core.Abstractions.Results;
 using Xunit;
 

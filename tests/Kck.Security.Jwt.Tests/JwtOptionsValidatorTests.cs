@@ -1,4 +1,4 @@
-using FluentAssertions;
+using AwesomeAssertions;
 using Kck.Security.Jwt.DependencyInjection;
 using Xunit;
 

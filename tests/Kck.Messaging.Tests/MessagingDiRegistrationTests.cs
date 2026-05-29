@@ -1,4 +1,4 @@
-using FluentAssertions;
+using AwesomeAssertions;
 using Kck.Messaging.Abstractions;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;

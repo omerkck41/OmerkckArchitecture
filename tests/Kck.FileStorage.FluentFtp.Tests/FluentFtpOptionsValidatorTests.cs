@@ -1,4 +1,4 @@
-using FluentAssertions;
+using AwesomeAssertions;
 using Kck.FileStorage.FluentFtp.DependencyInjection;
 using Xunit;
 

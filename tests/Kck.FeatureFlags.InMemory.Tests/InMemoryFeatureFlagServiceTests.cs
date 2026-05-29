@@ -1,4 +1,4 @@
-using FluentAssertions;
+using AwesomeAssertions;
 using Kck.FeatureFlags.Abstractions;
 using Kck.FeatureFlags.InMemory;
 using Kck.Testing;
