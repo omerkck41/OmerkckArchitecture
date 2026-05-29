@@ -1,0 +1,23 @@
+{
+  "stryker-config": {
+    "project-info": {
+      "name": "Kck Modular Architecture",
+      "module": "Security (JWT)"
+    },
+    "mutation-level": "Standard",
+    "thresholds": {
+      "high": 80,
+      "low": 70,
+      "break": 60
+    },
+    "project": "src/Providers/Kck.Security.Jwt/Kck.Security.Jwt.csproj",
+    "test-projects": [
+      "tests/Kck.Security.Jwt.Tests/Kck.Security.Jwt.Tests.csproj"
+    ],
+    "reporters": ["html", "progress", "cleartext"],
+    "since": {
+      "enabled": false
+    },
+    "ignore-mutations": ["string", "logical"]
+  }
+}
