@@ -5,6 +5,7 @@ using Kck.Security.Abstractions.Token;
 using Kck.Testing;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.IdentityModel.JsonWebTokens;
 using NSubstitute;
 using Xunit;
 
@@ -93,12 +94,10 @@ public sealed class JwtTokenServiceMutationTests : IDisposable
             CustomClaims = new Dictionary<string, string> { ["tenant"] = "acme" }
         });
 
-#pragma warning disable KCK0001 // decoding without validation is intentional in this assertion
-        var claims = sut.GetClaimsFromToken(token.AccessToken);
-#pragma warning restore KCK0001
+        var jwt = new JsonWebToken(token.AccessToken);
 
-        claims.Values.Should().Contain(v => v.Contains("Test User"), "the Name claim must be emitted");
-        claims.Should().ContainKey("tenant").WhoseValue.Should().Be("acme");
+        jwt.Claims.Should().Contain(c => c.Value == "Test User", "the Name claim must be emitted");
+        jwt.Claims.Should().Contain(c => c.Type == "tenant" && c.Value == "acme");
     }
 
     // --- Validation parameters --------------------------------------------
@@ -244,7 +243,7 @@ public sealed class JwtTokenServiceMutationTests : IDisposable
         var opts = Options();
         opts.KeySource = RsaKeySource.File;
         opts.RsaKeyBase64 = null;
-        opts.RsaKeyPath = Path.Combine(Path.GetTempPath(), $"missing-{Guid.NewGuid():N}.pem");
+        opts.RsaKeyPath = Path.Join(Path.GetTempPath(), $"missing-{Guid.NewGuid():N}.pem");
         var sut = new JwtTokenService(new StaticOptionsMonitor<JwtOptions>(opts), NullLogger<JwtTokenService>.Instance);
         _created.Add(sut);
 
