@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1780081578916,
+  "lastUpdate": 1780084473585,
   "repoUrl": "https://github.com/omerkck41/OmerkckArchitecture",
   "entries": {
     "Benchmark": [
@@ -2350,6 +2350,174 @@ window.BENCHMARK_DATA = {
             "value": 0.5147255951395402,
             "unit": "ns",
             "range": "± 0.0018687781191442203"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "106805727+omerkck41@users.noreply.github.com",
+            "name": "Ömer KÜÇÜK",
+            "username": "omerkck41"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "b09e69ed81e3625d2da03097e36092a0462132f6",
+          "message": "test(mutation): add Stryker mutation testing for Security.Jwt module (#105)\n\n## Özet\n`Kck.Security.Jwt` modülü için Stryker mutasyon testi eklendi. Bu modül\nen zayıf kapsamaya sahipti (%50.88, break eşiği 60'ın altında) —\nözellikle token doğrulama ve RSA key yükleme yolları test edilmemişti\n(güvenlik-kritik).\n\n## Değişiklikler\n- **`stryker-jwt.json`** — yeni config (module: \"Security (JWT)\")\n- **`JwtTokenServiceMutationTests.cs`** — claim üretimi\n(rol/name/custom), yanlış issuer/audience/imza-key reddi, hata-sonucu\nmesajları, imza-key yükleme hatasıyla exception catch yolu, File\nkey-source PEM import (çapraz doğrulamalı), key-load hata yönetimi, log\nassertion'ları\n- **`ServiceCollectionExtensionsTests.cs`** — DI registration testleri\n- **`JwtOptionsValidatorTests.cs`** — RefreshTokenTtlDays sınır vakaları\n(0 fail, 1 pass)\n- **`mutation.yml`** — `jwt` modülü CI matrix'ine eklendi\n\n## Sonuç\nMutation score: **%50.88 -> %94.74** (break eşiğinin altından high\neşiğinin üstüne). NoCoverage 17 -> 0, Survived 11 -> 3. Test suite:\n32/32 geçti (önceden 13).\n\n## Kalan 3 survivor — eşdeğer / host-only mutant\n| Konum | Neden |\n|---|---|\n| `ServiceCollectionExtensions:18` `ValidateOnStart()` | Yalnızca host\nbaşlangıcında çalışır; saf DI testinde tetiklenemez |\n| `JwtTokenService:97` `ValidateIssuerSigningKey` | İmza zaten\nIssuerSigningKey'e karşı doğrulanıyor -> true/false farkı gözlemlenemez\n|\n| `JwtTokenService:198` `rsa.Dispose()` (catch) | Kaynak temizliği;\ngözlemlenebilir davranış değişikliği yok |\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\n---------\n\nCo-authored-by: Claude Opus 4.8 <noreply@anthropic.com>",
+          "timestamp": "2026-05-29T22:47:18+03:00",
+          "tree_id": "60a7d49b40c906f06d00c2428edc7c45cebcf119",
+          "url": "https://github.com/omerkck41/OmerkckArchitecture/commit/b09e69ed81e3625d2da03097e36092a0462132f6"
+        },
+        "date": 1780084473201,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 0)",
+            "value": 10.139469081163407,
+            "unit": "ns",
+            "range": "± 0.16205673871891996"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 5)",
+            "value": 10.047248630722363,
+            "unit": "ns",
+            "range": "± 0.18663358349971287"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 0)",
+            "value": 10.223083766301473,
+            "unit": "ns",
+            "range": "± 0.21946317136742272"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 5)",
+            "value": 9.923413493235905,
+            "unit": "ns",
+            "range": "± 0.14363815659546977"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 0)",
+            "value": 9.57560814122359,
+            "unit": "ns",
+            "range": "± 0.12612866253142938"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 5)",
+            "value": 10.191739018474307,
+            "unit": "ns",
+            "range": "± 0.22443302979777585"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Serialize_Reflection",
+            "value": 393.8074289652017,
+            "unit": "ns",
+            "range": "± 0.48862431271750906"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Deserialize_Reflection",
+            "value": 715.5526440484183,
+            "unit": "ns",
+            "range": "± 2.458361933581984"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Serialize_Reflection",
+            "value": 393.8074289652017,
+            "unit": "ns",
+            "range": "± 0.48862431271750906"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Deserialize_Reflection",
+            "value": 715.5526440484183,
+            "unit": "ns",
+            "range": "± 2.458361933581984"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Success_Factory",
+            "value": 6.222135220136908,
+            "unit": "ns",
+            "range": "± 0.316481499138205"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Failure_Factory",
+            "value": 7.925534961124261,
+            "unit": "ns",
+            "range": "± 0.20928366909545001"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Success",
+            "value": 1.3047296028998163,
+            "unit": "ns",
+            "range": "± 0.17526660638751002"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Failure",
+            "value": 0.6612096801400185,
+            "unit": "ns",
+            "range": "± 0.0027531681756293343"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 0)",
+            "value": 10.139469081163407,
+            "unit": "ns",
+            "range": "± 0.16205673871891996"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 5)",
+            "value": 10.047248630722363,
+            "unit": "ns",
+            "range": "± 0.18663358349971287"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 0)",
+            "value": 10.223083766301473,
+            "unit": "ns",
+            "range": "± 0.21946317136742272"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 5)",
+            "value": 9.923413493235905,
+            "unit": "ns",
+            "range": "± 0.14363815659546977"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 0)",
+            "value": 9.57560814122359,
+            "unit": "ns",
+            "range": "± 0.12612866253142938"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 5)",
+            "value": 10.191739018474307,
+            "unit": "ns",
+            "range": "± 0.22443302979777585"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Success_Factory",
+            "value": 6.222135220136908,
+            "unit": "ns",
+            "range": "± 0.316481499138205"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Failure_Factory",
+            "value": 7.925534961124261,
+            "unit": "ns",
+            "range": "± 0.20928366909545001"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Success",
+            "value": 1.3047296028998163,
+            "unit": "ns",
+            "range": "± 0.17526660638751002"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Failure",
+            "value": 0.6612096801400185,
+            "unit": "ns",
+            "range": "± 0.0027531681756293343"
           }
         ]
       }
