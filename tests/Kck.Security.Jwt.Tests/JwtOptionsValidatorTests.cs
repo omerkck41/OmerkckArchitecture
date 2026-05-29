@@ -71,6 +71,23 @@ public sealed class JwtOptionsValidatorTests
         result.FailureMessage.Should().Contain("RsaKeyPath");
     }
 
+    [Fact]
+    public void Validate_ZeroRefreshTokenTtl_ReturnsFail()
+    {
+        var opts = Valid(); opts.RefreshTokenTtlDays = 0;
+        var result = _sut.Validate(null, opts);
+        result.Succeeded.Should().BeFalse();
+        result.FailureMessage.Should().Contain("RefreshTokenTtlDays");
+    }
+
+    [Fact]
+    public void Validate_RefreshTokenTtlOfOneDay_ReturnsSuccess()
+    {
+        // Lower boundary: 1 is the minimum valid value (< 1 fails, so 1 must pass).
+        var opts = Valid(); opts.RefreshTokenTtlDays = 1;
+        _sut.Validate(null, opts).Succeeded.Should().BeTrue();
+    }
+
     private static JwtOptions Valid(
         RsaKeySource KeySource = RsaKeySource.Configuration,
         string? RsaKeyBase64 = "dGVzdA==",
