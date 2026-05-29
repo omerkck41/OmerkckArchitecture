@@ -1,0 +1,24 @@
+{
+  "stryker-config": {
+    "project-info": {
+      "name": "Kck Modular Architecture",
+      "module": "Pipeline (Mediator)"
+    },
+    "mutation-level": "Standard",
+    "thresholds": {
+      "high": 80,
+      "low": 70,
+      "break": 60
+    },
+    "project": "src/Providers/Kck.Pipeline.Mediator/Kck.Pipeline.Mediator.csproj",
+    "test-projects": [
+      "tests/Kck.Pipeline.Mediator.Tests/Kck.Pipeline.Mediator.Tests.csproj"
+    ],
+    "reporters": ["html", "progress", "cleartext"],
+    "since": {
+      "enabled": false
+    },
+    "ignore-mutations": ["string", "logical"],
+    "ignore-methods": ["ConfigureAwait"]
+  }
+}
