@@ -48,7 +48,9 @@ public sealed class KckOpenTelemetryBuilder(IServiceCollection services)
                     .AddSource("Microsoft.EntityFrameworkCore")
                     .AddAspNetCoreInstrumentation()
                     .AddHttpClientInstrumentation()
-                    .AddEntityFrameworkCoreInstrumentation(o => o.SetDbStatementForText = true);
+                    // 1.13+ removed SetDbStatementForText; db.query.text is now always
+                    // captured and sanitized (literals replaced with '?') per the new semconv.
+                    .AddEntityFrameworkCoreInstrumentation();
 
                 if (_otlpEndpoint is not null)
                     tracing.AddOtlpExporter(o => o.Endpoint = new Uri(_otlpEndpoint));
