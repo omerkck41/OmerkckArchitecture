@@ -1,5 +1,5 @@
 using System.Text.Json;
-using FluentAssertions;
+using AwesomeAssertions;
 using Kck.Exceptions;
 using Kck.Exceptions.AspNetCore.Handlers;
 using Kck.Exceptions.AspNetCore.Middleware;

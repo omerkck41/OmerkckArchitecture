@@ -1,4 +1,4 @@
-using FluentAssertions;
+using AwesomeAssertions;
 using Kck.Security.Abstractions.Secrets;
 using Kck.Security.Secrets.UserSecrets;
 using Microsoft.Extensions.Configuration;

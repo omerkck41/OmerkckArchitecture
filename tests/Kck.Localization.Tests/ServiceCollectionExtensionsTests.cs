@@ -1,4 +1,4 @@
-using FluentAssertions;
+using AwesomeAssertions;
 using Kck.Localization;
 using Kck.Localization.Abstractions;
 using Microsoft.Extensions.DependencyInjection;

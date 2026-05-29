@@ -1,4 +1,4 @@
-using FluentAssertions;
+using AwesomeAssertions;
 using Kck.Localization.Abstractions;
 using Kck.Localization.Json;
 using Kck.Testing;

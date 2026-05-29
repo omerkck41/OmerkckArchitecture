@@ -1,4 +1,4 @@
-using FluentAssertions;
+using AwesomeAssertions;
 using Kck.Security.TokenBlacklist.Redis;
 using Kck.Testing;
 using Testcontainers.Redis;

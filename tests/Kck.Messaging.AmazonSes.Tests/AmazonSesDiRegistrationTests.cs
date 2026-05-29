@@ -1,4 +1,4 @@
-using FluentAssertions;
+using AwesomeAssertions;
 using Kck.Messaging.Abstractions;
 using Kck.Messaging.AmazonSes;
 using Microsoft.Extensions.DependencyInjection;

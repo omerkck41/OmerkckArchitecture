@@ -1,4 +1,4 @@
-using FluentAssertions;
+using AwesomeAssertions;
 using Kck.Observability.Abstractions;
 using Kck.Observability.OpenTelemetry.Health;
 using Microsoft.Extensions.Diagnostics.HealthChecks;

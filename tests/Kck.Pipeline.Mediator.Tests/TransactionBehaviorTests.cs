@@ -1,4 +1,4 @@
-using FluentAssertions;
+using AwesomeAssertions;
 using Kck.Persistence.Abstractions.UnitOfWork;
 using Kck.Pipeline.Abstractions;
 using Kck.Pipeline.Mediator.Behaviors;

@@ -1,4 +1,4 @@
-using FluentAssertions;
+using AwesomeAssertions;
 using Kck.Security.Abstractions.Secrets;
 using Kck.Security.Secrets.AzureKeyVault;
 using Microsoft.Extensions.DependencyInjection;

@@ -1,4 +1,4 @@
-using FluentAssertions;
+using AwesomeAssertions;
 using Kck.Messaging.Abstractions;
 using Kck.Messaging.SendGrid;
 using Microsoft.Extensions.DependencyInjection;

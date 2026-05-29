@@ -1,4 +1,4 @@
-using FluentAssertions;
+using AwesomeAssertions;
 using Kck.EventBus.AzureServiceBus.DependencyInjection;
 using Xunit;
 

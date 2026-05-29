@@ -1,5 +1,5 @@
 using CsCheck;
-using FluentAssertions;
+using AwesomeAssertions;
 using Kck.Core.Abstractions.Paging;
 using Xunit;
 

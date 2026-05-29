@@ -1,4 +1,4 @@
-using FluentAssertions;
+using AwesomeAssertions;
 using Kck.AspNetCore.Sanitization;
 using Xunit;
 

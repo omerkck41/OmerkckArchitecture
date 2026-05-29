@@ -1,4 +1,4 @@
-using FluentAssertions;
+using AwesomeAssertions;
 using Kck.Security.TokenBlacklist.Redis.DependencyInjection;
 using Xunit;
 

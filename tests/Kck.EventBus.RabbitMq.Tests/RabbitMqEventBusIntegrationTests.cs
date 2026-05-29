@@ -1,4 +1,4 @@
-using FluentAssertions;
+using AwesomeAssertions;
 using Kck.EventBus.Abstractions;
 using Kck.EventBus.RabbitMq;
 using Microsoft.Extensions.DependencyInjection;

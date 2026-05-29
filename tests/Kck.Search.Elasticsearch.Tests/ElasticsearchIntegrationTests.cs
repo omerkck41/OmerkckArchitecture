@@ -1,5 +1,5 @@
 using Elastic.Clients.Elasticsearch;
-using FluentAssertions;
+using AwesomeAssertions;
 using Kck.Search.Elasticsearch;
 using Kck.Testing;
 using Microsoft.Extensions.Logging.Abstractions;

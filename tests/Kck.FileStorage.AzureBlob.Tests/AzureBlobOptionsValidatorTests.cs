@@ -1,4 +1,4 @@
-using FluentAssertions;
+using AwesomeAssertions;
 using Kck.FileStorage.AzureBlob;
 using Kck.FileStorage.AzureBlob.DependencyInjection;
 using Xunit;

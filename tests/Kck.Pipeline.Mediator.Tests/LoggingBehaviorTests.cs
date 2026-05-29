@@ -1,4 +1,4 @@
-using FluentAssertions;
+using AwesomeAssertions;
 using Kck.Pipeline.Abstractions;
 using Kck.Pipeline.Mediator.Behaviors;
 using Mediator;
