@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
     inputs:
       module:
-        description: 'Module to test (core | caching | security | all)'
+        description: 'Module to test (core | caching | security | totp | all)'
         required: false
         default: 'all'
 
@@ -33,6 +33,8 @@ jobs:
             config: stryker-caching.json
           - module: security
             config: stryker-security.json
+          - module: totp
+            config: stryker-totp.json
 
     steps:
       - name: Checkout

@@ -1,0 +1,23 @@
+{
+  "stryker-config": {
+    "project-info": {
+      "name": "Kck Modular Architecture",
+      "module": "Security (TOTP)"
+    },
+    "mutation-level": "Standard",
+    "thresholds": {
+      "high": 80,
+      "low": 70,
+      "break": 60
+    },
+    "project": "src/Providers/Kck.Security.Totp/Kck.Security.Totp.csproj",
+    "test-projects": [
+      "tests/Kck.Security.Totp.Tests/Kck.Security.Totp.Tests.csproj"
+    ],
+    "reporters": ["html", "progress", "cleartext"],
+    "since": {
+      "enabled": false
+    },
+    "ignore-mutations": ["string", "logical"]
+  }
+}
