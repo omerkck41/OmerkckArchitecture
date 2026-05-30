@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
     inputs:
       module:
-        description: 'Module to test (core | caching | security | totp | localization | jwt | pipeline | all)'
+        description: 'Module to test (core | caching | security | totp | localization | jwt | pipeline | persistence | all)'
         required: false
         default: 'all'
 
@@ -41,6 +41,8 @@ jobs:
             config: stryker-jwt.json
           - module: pipeline
             config: stryker-pipeline.json
+          - module: persistence
+            config: stryker-persistence.json
 
     steps:
       - name: Checkout
