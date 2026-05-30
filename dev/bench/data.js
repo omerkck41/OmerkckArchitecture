@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1780104860449,
+  "lastUpdate": 1780168163263,
   "repoUrl": "https://github.com/omerkck41/OmerkckArchitecture",
   "entries": {
     "Benchmark": [
@@ -3526,6 +3526,174 @@ window.BENCHMARK_DATA = {
             "value": 0.5822651418192046,
             "unit": "ns",
             "range": "± 0.003869006592758199"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "106805727+omerkck41@users.noreply.github.com",
+            "name": "Ömer KÜÇÜK",
+            "username": "omerkck41"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "359bc6a095e4109b139f05a797e09de9fc069a9a",
+          "message": "test(persistence): raise EF mutation score 13.49% -> 80.95% (#112)\n\n## Özet\n`Kck.Persistence.EntityFramework` mutation kapsamasını **%13.49 →\n%80.95** seviyesine çıkarır (break %60 ✓, high %80 ✓). En büyük\nkapsamasız moduldü.\n\n## Yapılanlar\n- **+92 unit test** (17 → 109), hepsi yeşil:\n- `Security/DynamicFilterWhitelistGuardTests` — recursion / sort / null\ndalları + non-whitelisted alan reddi\n- `Configuration/RegistrationTests` — builder + DI +\n`DefaultEfRepositoryFactory`\n- `HealthChecks/EfCoreHealthCheckTests` — name/tag default +\nHealthy/Unhealthy\n- `Interceptors/{Audit,DomainEventDispatch}…` — sync/async, soft-delete\ndönüşümü, sync warn log\n- `UnitOfWork/EfUnitOfWorkTests` — gerçek transaction\n(begin/commit/rollback/dispose/cache)\n- `Repositories/{EfRepositoryMutation,HelperAndFilter}Tests` — tracking,\ndetached state, not-found guard'ları, range delete, cascade soft-delete,\nglobal filter, paging\n- **SQLite in-memory test provider** eklendi\n(`Microsoft.EntityFrameworkCore.Sqlite` 10.0.8) — transaction,\nquery-filter ve detached-entity yollarını EF InMemory kaldıramadığı\niçin.\n- `stryker-persistence.json` **haftalık mutation CI matrix'ine** eklendi\n(artık break üstünde, CI'ı kırmaz).\n\n## Kalan survivor'lar (~%19)\nÇoğunluğu **eşdeğer mutant**: navigasyonsuz entity için cascade çağrısı,\ntracked entity için redundant `EnsureAttached`, `as IList<T> ??\nToList()` (gözlemlenemez), `_disposed` bayrağı, fall-through\n`return`'ler. Ayrıca `BulkUpdateAsync` (SQLite boxed-object `@value`\ntype mapping desteklemiyor — PostgreSQL Testcontainers entegrasyon\nsuite'i kapsar).\n\n## Not — takip edilebilecek bulgu\n`BulkOperationHelper.BulkUpdateAsync`, `SetProperty(property, _ =>\nvalue!)` ile boxed `object` değer kullandığından SQLite'da `@value`\nparametresine type mapping atayamıyor. Provider taşınabilirliği için\nkırılgan; ayrı bir issue/ADR değerlendirilebilir.\n\n## Doğrulama\n- `dotnet test --filter Category!=Integration` → 109/109 ✓\n- `dotnet stryker -f stryker-persistence.json` → **80.95%** ✓\n- `dotnet restore --locked-mode` (solution-wide) → temiz ✓\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\n\nRelated: #113\n\n---------\n\nCo-authored-by: Claude Opus 4.8 <noreply@anthropic.com>",
+          "timestamp": "2026-05-30T22:02:17+03:00",
+          "tree_id": "28ccc71c62bd4a6c05cb5c6ef2ebfdf8e9ffa5cf",
+          "url": "https://github.com/omerkck41/OmerkckArchitecture/commit/359bc6a095e4109b139f05a797e09de9fc069a9a"
+        },
+        "date": 1780168162937,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 0)",
+            "value": 9.785291495422522,
+            "unit": "ns",
+            "range": "± 0.11865650524595324"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 5)",
+            "value": 10.143874407878943,
+            "unit": "ns",
+            "range": "± 0.16030765371232086"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 0)",
+            "value": 9.652435054572729,
+            "unit": "ns",
+            "range": "± 0.11839709050081537"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 5)",
+            "value": 9.679632140199343,
+            "unit": "ns",
+            "range": "± 0.10919624622385074"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 0)",
+            "value": 9.305705378452936,
+            "unit": "ns",
+            "range": "± 0.11952573621950859"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 5)",
+            "value": 9.680989671912458,
+            "unit": "ns",
+            "range": "± 0.27567128048417916"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Serialize_Reflection",
+            "value": 395.52998198781694,
+            "unit": "ns",
+            "range": "± 3.923997119723031"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Deserialize_Reflection",
+            "value": 708.9188318252563,
+            "unit": "ns",
+            "range": "± 3.7745807868030057"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Serialize_Reflection",
+            "value": 395.52998198781694,
+            "unit": "ns",
+            "range": "± 3.923997119723031"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Deserialize_Reflection",
+            "value": 708.9188318252563,
+            "unit": "ns",
+            "range": "± 3.7745807868030057"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Success_Factory",
+            "value": 5.802300640443961,
+            "unit": "ns",
+            "range": "± 0.17732457346701447"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Failure_Factory",
+            "value": 8.729360010226568,
+            "unit": "ns",
+            "range": "± 0.10575992416672401"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Success",
+            "value": 0.7269852224024053,
+            "unit": "ns",
+            "range": "± 0.17885926374296024"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Failure",
+            "value": 0.31553717656061053,
+            "unit": "ns",
+            "range": "± 0.004851665254132148"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 0)",
+            "value": 9.785291495422522,
+            "unit": "ns",
+            "range": "± 0.11865650524595324"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 5)",
+            "value": 10.143874407878943,
+            "unit": "ns",
+            "range": "± 0.16030765371232086"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 0)",
+            "value": 9.652435054572729,
+            "unit": "ns",
+            "range": "± 0.11839709050081537"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 5)",
+            "value": 9.679632140199343,
+            "unit": "ns",
+            "range": "± 0.10919624622385074"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 0)",
+            "value": 9.305705378452936,
+            "unit": "ns",
+            "range": "± 0.11952573621950859"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 5)",
+            "value": 9.680989671912458,
+            "unit": "ns",
+            "range": "± 0.27567128048417916"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Success_Factory",
+            "value": 5.802300640443961,
+            "unit": "ns",
+            "range": "± 0.17732457346701447"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Failure_Factory",
+            "value": 8.729360010226568,
+            "unit": "ns",
+            "range": "± 0.10575992416672401"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Success",
+            "value": 0.7269852224024053,
+            "unit": "ns",
+            "range": "± 0.17885926374296024"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Failure",
+            "value": 0.31553717656061053,
+            "unit": "ns",
+            "range": "± 0.004851665254132148"
           }
         ]
       }
