@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1780095942119,
+  "lastUpdate": 1780099369390,
   "repoUrl": "https://github.com/omerkck41/OmerkckArchitecture",
   "entries": {
     "Benchmark": [
@@ -2854,6 +2854,174 @@ window.BENCHMARK_DATA = {
             "value": 0.6766207590699196,
             "unit": "ns",
             "range": "± 0.004024964730230141"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "106805727+omerkck41@users.noreply.github.com",
+            "name": "Ömer KÜÇÜK",
+            "username": "omerkck41"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "c06b5f8932e7d8a0a101fa70f14308145b5f495c",
+          "message": "build(deps): bump OpenTelemetry EF instrumentation to 1.15.1-beta.1 (#108)\n\n## Özet\nSağlık/güncellik taramasında\n`OpenTelemetry.Instrumentation.EntityFrameworkCore` `--outdated`\nçıktısında \"Kaynaklarda bulunamadı\" göründü. Araştırmada paketin\n**tasarım gereği stable sürümü olmadığı** (deneysel semantic conventions\n→ kalıcı beta) doğrulandı; \"eksik paket\" değil. Ancak sürümümüz\n(`1.12.0-beta.2`) OTel stack'in geri kalanından (`1.15.x`) 3 beta geride\nkalıyordu.\n\n## Değişiklik\n- `Directory.Packages.props`: `1.12.0-beta.2` → `1.15.1-beta.1`\n(2026-04-21) — stack hizalama\n\n## Breaking change (ele alındı)\n1.13+ `EntityFrameworkInstrumentationOptions.SetDbStatementForText`\nözelliğini **kaldırdı** — `db.query.text` artık her zaman yakalanıyor ve\n**sanitize ediliyor** (literal'ler `?` ile). `KckOpenTelemetryBuilder`:\n```diff\n- .AddEntityFrameworkCoreInstrumentation(o => o.SetDbStatementForText = true);\n+ .AddEntityFrameworkCoreInstrumentation();\n```\nHer-zaman-sanitize davranışı `rules/observability.md` (hassas\n`db.statement` sanitize) ile daha uyumlu.\n\n## Doğrulama\n- Build **0 hata**; Observability testleri **10/10** geçti\n- Karar artefaktı:\n`decisions/2026-05-30-otel-ef-instrumentation-bump.md`\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\n---------\n\nCo-authored-by: Claude Opus 4.8 <noreply@anthropic.com>",
+          "timestamp": "2026-05-30T02:56:00+03:00",
+          "tree_id": "09b30f0b432d22d6bfd23354c73a4074f13efa8c",
+          "url": "https://github.com/omerkck41/OmerkckArchitecture/commit/c06b5f8932e7d8a0a101fa70f14308145b5f495c"
+        },
+        "date": 1780099368496,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 0)",
+            "value": 8.127353216089853,
+            "unit": "ns",
+            "range": "± 0.38303929976311013"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 5)",
+            "value": 8.13613155608376,
+            "unit": "ns",
+            "range": "± 0.11514209782188752"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 0)",
+            "value": 7.5634020606676735,
+            "unit": "ns",
+            "range": "± 0.12683094550103585"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 5)",
+            "value": 7.406453670064608,
+            "unit": "ns",
+            "range": "± 0.06323945361984583"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 0)",
+            "value": 7.632999972082102,
+            "unit": "ns",
+            "range": "± 0.017861746634903176"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 5)",
+            "value": 7.513796145362513,
+            "unit": "ns",
+            "range": "± 0.13839582839798226"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Serialize_Reflection",
+            "value": 298.90124320983887,
+            "unit": "ns",
+            "range": "± 0.43481884679472854"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Deserialize_Reflection",
+            "value": 555.2093426631047,
+            "unit": "ns",
+            "range": "± 0.5434132578217994"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Serialize_Reflection",
+            "value": 298.90124320983887,
+            "unit": "ns",
+            "range": "± 0.43481884679472854"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Deserialize_Reflection",
+            "value": 555.2093426631047,
+            "unit": "ns",
+            "range": "± 0.5434132578217994"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Success_Factory",
+            "value": 4.606752247363329,
+            "unit": "ns",
+            "range": "± 0.17025351598980162"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Failure_Factory",
+            "value": 6.064026150320258,
+            "unit": "ns",
+            "range": "± 0.06183420996305575"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Success",
+            "value": 0.7198164542516072,
+            "unit": "ns",
+            "range": "± 0.13542515694779042"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Failure",
+            "value": 0.7873284650536684,
+            "unit": "ns",
+            "range": "± 0.002301972234338232"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 0)",
+            "value": 8.127353216089853,
+            "unit": "ns",
+            "range": "± 0.38303929976311013"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 5)",
+            "value": 8.13613155608376,
+            "unit": "ns",
+            "range": "± 0.11514209782188752"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 0)",
+            "value": 7.5634020606676735,
+            "unit": "ns",
+            "range": "± 0.12683094550103585"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 5)",
+            "value": 7.406453670064608,
+            "unit": "ns",
+            "range": "± 0.06323945361984583"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 0)",
+            "value": 7.632999972082102,
+            "unit": "ns",
+            "range": "± 0.017861746634903176"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 5)",
+            "value": 7.513796145362513,
+            "unit": "ns",
+            "range": "± 0.13839582839798226"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Success_Factory",
+            "value": 4.606752247363329,
+            "unit": "ns",
+            "range": "± 0.17025351598980162"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Failure_Factory",
+            "value": 6.064026150320258,
+            "unit": "ns",
+            "range": "± 0.06183420996305575"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Success",
+            "value": 0.7198164542516072,
+            "unit": "ns",
+            "range": "± 0.13542515694779042"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Failure",
+            "value": 0.7873284650536684,
+            "unit": "ns",
+            "range": "± 0.002301972234338232"
           }
         ]
       }
