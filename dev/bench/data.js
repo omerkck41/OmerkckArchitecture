@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1780099369390,
+  "lastUpdate": 1780101694193,
   "repoUrl": "https://github.com/omerkck41/OmerkckArchitecture",
   "entries": {
     "Benchmark": [
@@ -3022,6 +3022,174 @@ window.BENCHMARK_DATA = {
             "value": 0.7873284650536684,
             "unit": "ns",
             "range": "± 0.002301972234338232"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "106805727+omerkck41@users.noreply.github.com",
+            "name": "Ömer KÜÇÜK",
+            "username": "omerkck41"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "0a3341701600c4c00246324a80ad31ead53fd080",
+          "message": "build(deps): bump Redis, MailKit and AWS SDK to latest minor/patch (#109)\n\n## Özet\nSağlık/güncellik taramasının düşük-riskli minor/patch bump grubu. Hepsi\nNuGet feed'inden doğrulandı (2026-05-30), semver-güvenli, breaking\nchange yok.\n\n| Paket | Eski | Yeni | Tür |\n|---|---|---|---|\n| StackExchange.Redis | 2.12.14 | 2.13.17 | minor |\n| MailKit | 4.16.0 | 4.17.0 | minor (MimeKit transitive izler) |\n| AWSSDK.SimpleEmailV2 | 4.0.12.13 | 4.0.14 | patch |\n| AWSSDK.Core | 4.0.7.1 | 4.0.7.4 | patch (AWS SDK ile hizalama) |\n\n## Bilinçli olarak hariç tutulan\n**Microsoft.IdentityModel.JsonWebTokens** 8.17.0'da bırakıldı —\n`Microsoft.AspNetCore.Authentication.JwtBearer 10.0.5`'in transitive\nçektiği sürümle eşleşmesi için kasıtlı pinli (diamond-conflict guard;\n`Directory.Packages.props` yorumu / LS-FAZ-2 Bölüm 2.3). 8.18'e bump\nçakışma yaratırdı.\n\n## Doğrulama (push öncesi, CI-eşdeğeri)\n- **solution-wide** `dotnet restore` + `dotnet restore --locked-mode` →\n**0 hata** (13 lock dosyası tutarlı)\n- Build (Release): **0 hata**\n- MailKit **15/15**, AmazonSes **11/11** testleri geçti\n- Redis testleri Docker gerektirir → CI'da doğrulanır\n\n> Not: Önceki PR'daki NU1004 dersini uyguladım — sürüm değişiminde\nsolution-wide restore + locked-mode lokal doğrulaması yapıldı.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-authored-by: Claude Opus 4.8 <noreply@anthropic.com>",
+          "timestamp": "2026-05-30T03:34:03+03:00",
+          "tree_id": "cdb3986074aa46523dcc9b3f51af8f4aefd9af40",
+          "url": "https://github.com/omerkck41/OmerkckArchitecture/commit/0a3341701600c4c00246324a80ad31ead53fd080"
+        },
+        "date": 1780101693803,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 0)",
+            "value": 10.136432519058387,
+            "unit": "ns",
+            "range": "± 0.08668789560136854"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 5)",
+            "value": 9.690948041776815,
+            "unit": "ns",
+            "range": "± 0.2754127849637499"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 0)",
+            "value": 11.241048114640373,
+            "unit": "ns",
+            "range": "± 0.04429294772161723"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 5)",
+            "value": 10.923365518450737,
+            "unit": "ns",
+            "range": "± 0.049275827618785795"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 0)",
+            "value": 11.039166097839674,
+            "unit": "ns",
+            "range": "± 0.14544022593173145"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 5)",
+            "value": 9.672375284135342,
+            "unit": "ns",
+            "range": "± 0.022091836342401104"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Serialize_Reflection",
+            "value": 399.62028755460466,
+            "unit": "ns",
+            "range": "± 0.5391653316384241"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Deserialize_Reflection",
+            "value": 735.7018334706625,
+            "unit": "ns",
+            "range": "± 3.5041727612503943"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Serialize_Reflection",
+            "value": 399.62028755460466,
+            "unit": "ns",
+            "range": "± 0.5391653316384241"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Deserialize_Reflection",
+            "value": 735.7018334706625,
+            "unit": "ns",
+            "range": "± 3.5041727612503943"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Success_Factory",
+            "value": 5.93268758803606,
+            "unit": "ns",
+            "range": "± 0.19101688310190165"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Failure_Factory",
+            "value": 8.087114492058754,
+            "unit": "ns",
+            "range": "± 0.14273792757722784"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Success",
+            "value": 1.2416177640887016,
+            "unit": "ns",
+            "range": "± 0.17685070958353669"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Failure",
+            "value": 0.6623668063145417,
+            "unit": "ns",
+            "range": "± 0.002282144709963941"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 0)",
+            "value": 10.136432519058387,
+            "unit": "ns",
+            "range": "± 0.08668789560136854"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 5)",
+            "value": 9.690948041776815,
+            "unit": "ns",
+            "range": "± 0.2754127849637499"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 0)",
+            "value": 11.241048114640373,
+            "unit": "ns",
+            "range": "± 0.04429294772161723"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 5)",
+            "value": 10.923365518450737,
+            "unit": "ns",
+            "range": "± 0.049275827618785795"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 0)",
+            "value": 11.039166097839674,
+            "unit": "ns",
+            "range": "± 0.14544022593173145"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 5)",
+            "value": 9.672375284135342,
+            "unit": "ns",
+            "range": "± 0.022091836342401104"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Success_Factory",
+            "value": 5.93268758803606,
+            "unit": "ns",
+            "range": "± 0.19101688310190165"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Failure_Factory",
+            "value": 8.087114492058754,
+            "unit": "ns",
+            "range": "± 0.14273792757722784"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Success",
+            "value": 1.2416177640887016,
+            "unit": "ns",
+            "range": "± 0.17685070958353669"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Failure",
+            "value": 0.6623668063145417,
+            "unit": "ns",
+            "range": "± 0.002282144709963941"
           }
         ]
       }
