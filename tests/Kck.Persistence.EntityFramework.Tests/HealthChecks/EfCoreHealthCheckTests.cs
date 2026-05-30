@@ -57,25 +57,19 @@ public class EfCoreHealthCheckTests
     [Fact]
     public async Task CheckHealth_WhenDatabaseReachable_ReportsHealthy()
     {
-        var connection = new SqliteConnection("DataSource=:memory:");
+        using var connection = new SqliteConnection("DataSource=:memory:");
         connection.Open();
-        try
-        {
-            var services = new ServiceCollection();
-            services.AddLogging();
-            services.AddDbContext<TestDbContext>(o => o.UseSqlite(connection));
-            services.AddHealthChecks().AddKckEfCoreCheck<TestDbContext>();
-            var sp = services.BuildServiceProvider();
 
-            var report = await sp.GetRequiredService<HealthCheckService>().CheckHealthAsync();
+        var services = new ServiceCollection();
+        services.AddLogging();
+        services.AddDbContext<TestDbContext>(o => o.UseSqlite(connection));
+        services.AddHealthChecks().AddKckEfCoreCheck<TestDbContext>();
+        var sp = services.BuildServiceProvider();
 
-            report.Status.Should().Be(HealthStatus.Healthy);
-            report.Entries["testdbcontext"].Description.Should().Contain("reachable");
-        }
-        finally
-        {
-            connection.Dispose();
-        }
+        var report = await sp.GetRequiredService<HealthCheckService>().CheckHealthAsync();
+
+        report.Status.Should().Be(HealthStatus.Healthy);
+        report.Entries["testdbcontext"].Description.Should().Contain("reachable");
     }
 
     [Fact]
