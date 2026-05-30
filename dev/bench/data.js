@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1780102800509,
+  "lastUpdate": 1780104860449,
   "repoUrl": "https://github.com/omerkck41/OmerkckArchitecture",
   "entries": {
     "Benchmark": [
@@ -3358,6 +3358,174 @@ window.BENCHMARK_DATA = {
             "value": 0.4381260889417985,
             "unit": "ns",
             "range": "± 0.16825297989855115"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "106805727+omerkck41@users.noreply.github.com",
+            "name": "Ömer KÜÇÜK",
+            "username": "omerkck41"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "c610d00d3120fff5d7e9b2c30698a7bd87909b23",
+          "message": "docs(adr): defer xunit v3 migration — blocked by Stryker.NET incompatibility (#111)\n\n## Özet\nxunit v3 migration **değerlendirildi ve ertelendi (NO-GO)**. Karar,\npremortem + tek-proje pilot ile kanıta dayandırıldı; bu PR sadece karar\nartefaktını ekler (kod değişikliği yok).\n\n## Pilot bulguları (Core.Abstractions.Tests, VSTest-uyumlu mod)\n- ✅ `xunit.v3` 3.2.2 + `OutputType=Exe` + runner 3.1.5 → build + 65 test\n- ✅ coverage collection (coverlet/cobertura) çalıştı — VSTest EXE'yi\nkeşfetti\n- ✅ CsCheck v3 ile çalıştı\n- ✅ Kaynak breaking change YOK (repo'da 0 `Xunit.Abstractions`, 0 `async\nvoid`)\n- ❌ **Stryker.NET 4.14.2 + xunit.v3 → mutation skoru %0** (58 mutant, 0\nkilled; \"Crashing...\")\n\n## Blocker\nStryker.NET 4.x, xunit.v3 testlerini mutant başına koşamıyor — bilinen\naçık sorun\n([#3117](https://github.com/stryker-mutator/stryker-net/issues/3117),\n[#3094](https://github.com/stryker-mutator/stryker-net/issues/3094)).\nKök neden xunit.v3'ün Microsoft Testing Platform mimarisi; sürüm bump'ı\nçözmez.\n\n## Gerekçe\nRepodaki **7 mutation config** (bu döngüde %80–95'e çıkarıldı) kritik\nkalite altyapısı. v3 geçişi hepsini %0'a düşürür + mutation CI'ı\nçökertir. xunit v2.9.3 hâlâ güvenlik fix'i alıyor. **Yeniden\ndeğerlendirme:** Stryker MTP/v3 desteği gelince.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-authored-by: Claude Opus 4.8 <noreply@anthropic.com>",
+          "timestamp": "2026-05-30T04:27:42+03:00",
+          "tree_id": "e97140376fe8e00e395593d40ad7379470d75d75",
+          "url": "https://github.com/omerkck41/OmerkckArchitecture/commit/c610d00d3120fff5d7e9b2c30698a7bd87909b23"
+        },
+        "date": 1780104860132,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 0)",
+            "value": 9.91517257805054,
+            "unit": "ns",
+            "range": "± 0.08403364691833637"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 5)",
+            "value": 9.716107617815336,
+            "unit": "ns",
+            "range": "± 0.07514076838042039"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 0)",
+            "value": 9.747436241461681,
+            "unit": "ns",
+            "range": "± 0.05434419205952313"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 5)",
+            "value": 9.904722971717517,
+            "unit": "ns",
+            "range": "± 0.10771028321877718"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 0)",
+            "value": 9.823429396748542,
+            "unit": "ns",
+            "range": "± 0.06154947826684014"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 5)",
+            "value": 11.511322349309921,
+            "unit": "ns",
+            "range": "± 0.09534208953192835"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Serialize_Reflection",
+            "value": 462.89649403889973,
+            "unit": "ns",
+            "range": "± 3.924259117956213"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Deserialize_Reflection",
+            "value": 766.0349203745524,
+            "unit": "ns",
+            "range": "± 2.5882982963775447"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Serialize_Reflection",
+            "value": 462.89649403889973,
+            "unit": "ns",
+            "range": "± 3.924259117956213"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Deserialize_Reflection",
+            "value": 766.0349203745524,
+            "unit": "ns",
+            "range": "± 2.5882982963775447"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Success_Factory",
+            "value": 5.8984786208186835,
+            "unit": "ns",
+            "range": "± 0.04758350882202171"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Failure_Factory",
+            "value": 7.851520754835185,
+            "unit": "ns",
+            "range": "± 0.18474107830655817"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Success",
+            "value": 1.6420126526306074,
+            "unit": "ns",
+            "range": "± 0.0046401484924123906"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Failure",
+            "value": 0.5822651418192046,
+            "unit": "ns",
+            "range": "± 0.003869006592758199"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 0)",
+            "value": 9.91517257805054,
+            "unit": "ns",
+            "range": "± 0.08403364691833637"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 5)",
+            "value": 9.716107617815336,
+            "unit": "ns",
+            "range": "± 0.07514076838042039"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 0)",
+            "value": 9.747436241461681,
+            "unit": "ns",
+            "range": "± 0.05434419205952313"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 5)",
+            "value": 9.904722971717517,
+            "unit": "ns",
+            "range": "± 0.10771028321877718"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 0)",
+            "value": 9.823429396748542,
+            "unit": "ns",
+            "range": "± 0.06154947826684014"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 5)",
+            "value": 11.511322349309921,
+            "unit": "ns",
+            "range": "± 0.09534208953192835"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Success_Factory",
+            "value": 5.8984786208186835,
+            "unit": "ns",
+            "range": "± 0.04758350882202171"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Failure_Factory",
+            "value": 7.851520754835185,
+            "unit": "ns",
+            "range": "± 0.18474107830655817"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Success",
+            "value": 1.6420126526306074,
+            "unit": "ns",
+            "range": "± 0.0046401484924123906"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Failure",
+            "value": 0.5822651418192046,
+            "unit": "ns",
+            "range": "± 0.003869006592758199"
           }
         ]
       }
