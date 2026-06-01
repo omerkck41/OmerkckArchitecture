@@ -14,7 +14,7 @@
     <PackageVersion Include="Microsoft.Extensions.Http.Resilience" Version="10.6.0" />
     <PackageVersion Include="Microsoft.Extensions.Resilience" Version="10.6.0" />
     <!-- LS-FAZ-4: PostgreSQL provider for Testcontainers integration tests (Kck.Persistence.EntityFramework.Tests) -->
-    <PackageVersion Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.1" />
+    <PackageVersion Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.2" />
   </ItemGroup>
   <ItemGroup Label="Microsoft — System">
     <PackageVersion Include="System.Drawing.Common" Version="10.0.5" />
