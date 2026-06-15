@@ -8,11 +8,11 @@
     <!-- Mutation testing: SQLite in-memory exercises transaction/relational paths InMemory provider cannot (EfUnitOfWork, ExecuteUpdate, query filters) -->
     <PackageVersion Include="Microsoft.EntityFrameworkCore.Sqlite" Version="10.0.8" />
     <PackageVersion Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.5" />
-    <PackageVersion Include="Microsoft.Extensions.Caching.Hybrid" Version="10.6.0" />
-    <PackageVersion Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="10.0.8" />
-    <PackageVersion Include="Microsoft.Extensions.Diagnostics.HealthChecks" Version="10.0.8" />
-    <PackageVersion Include="Microsoft.Extensions.Http.Resilience" Version="10.6.0" />
-    <PackageVersion Include="Microsoft.Extensions.Resilience" Version="10.6.0" />
+    <PackageVersion Include="Microsoft.Extensions.Caching.Hybrid" Version="10.7.0" />
+    <PackageVersion Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="10.0.9" />
+    <PackageVersion Include="Microsoft.Extensions.Diagnostics.HealthChecks" Version="10.0.9" />
+    <PackageVersion Include="Microsoft.Extensions.Http.Resilience" Version="10.7.0" />
+    <PackageVersion Include="Microsoft.Extensions.Resilience" Version="10.7.0" />
     <!-- LS-FAZ-4: PostgreSQL provider for Testcontainers integration tests (Kck.Persistence.EntityFramework.Tests) -->
     <PackageVersion Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.1" />
   </ItemGroup>
@@ -43,11 +43,11 @@
     <PackageVersion Include="Azure.Messaging.ServiceBus" Version="7.20.1" />
   </ItemGroup>
   <ItemGroup Label="DI &amp; Hosting">
-    <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.8" />
-    <PackageVersion Include="Microsoft.Extensions.Options" Version="10.0.8" />
-    <PackageVersion Include="Microsoft.Extensions.Hosting.Abstractions" Version="10.0.8" />
-    <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.8" />
-    <PackageVersion Include="Microsoft.Extensions.ServiceDiscovery" Version="10.6.0" />
+    <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.9" />
+    <PackageVersion Include="Microsoft.Extensions.Options" Version="10.0.9" />
+    <PackageVersion Include="Microsoft.Extensions.Hosting.Abstractions" Version="10.0.9" />
+    <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.9" />
+    <PackageVersion Include="Microsoft.Extensions.ServiceDiscovery" Version="10.7.0" />
   </ItemGroup>
   <ItemGroup Label="Testing">
     <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.6.0" />
