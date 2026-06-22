@@ -24,11 +24,11 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           ref: ${{ github.event.inputs.tag || github.ref }}
           fetch-depth: 0   # MinVer requires full tag history
-          fetch-tags: true # MinVer needs tags; actions/checkout@v6 defaults to false
+          fetch-tags: true # MinVer needs tags; actions/checkout@v7 defaults to false
 
       - name: Resolve version
         id: version
