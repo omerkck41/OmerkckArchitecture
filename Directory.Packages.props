@@ -72,7 +72,7 @@
     <PackageVersion Include="AWSSDK.SimpleEmailV2" Version="4.0.14" />
   </ItemGroup>
   <ItemGroup Label="Background Jobs">
-    <PackageVersion Include="Hangfire" Version="1.8.23" />
+    <PackageVersion Include="Hangfire" Version="1.8.24" />
     <PackageVersion Include="Hangfire.InMemory" Version="1.0.0" />
     <PackageVersion Include="Quartz" Version="3.18.1" />
     <PackageVersion Include="Quartz.Extensions.DependencyInjection" Version="3.18.1" />
