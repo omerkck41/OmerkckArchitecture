@@ -16,9 +16,9 @@
       },
       "Microsoft.Extensions.Caching.StackExchangeRedis": {
         "type": "Direct",
-        "requested": "[10.0.8, )",
-        "resolved": "10.0.8",
-        "contentHash": "fle9ns3q2kk63vt/wHFtLw1U9kiEbM42vTk2Sar8VBjiGJFkXAgm0QEKFx15YMHkJIPRVdknWaovpvgGEgn10g==",
+        "requested": "[10.0.11, )",
+        "resolved": "10.0.11",
+        "contentHash": "0SCQuU1m+BcLMjyh6q1X9j0hongN9EZx9KhgDyPgHxVa5RJ5xuHBkvcgnX95KSa5bQlkYupeQFu8IAI3NgPIUQ==",
         "dependencies": {
           "StackExchange.Redis": "2.7.27"
         }
@@ -265,7 +265,7 @@
         "type": "Project",
         "dependencies": {
           "Kck.Caching.Abstractions": "[1.0.0, )",
-          "Microsoft.Extensions.Caching.StackExchangeRedis": "[10.0.8, )",
+          "Microsoft.Extensions.Caching.StackExchangeRedis": "[10.0.11, )",
           "StackExchange.Redis": "[2.13.17, )"
         }
       },
