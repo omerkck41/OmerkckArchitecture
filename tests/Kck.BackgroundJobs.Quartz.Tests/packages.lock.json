@@ -52,9 +52,9 @@
       },
       "Quartz": {
         "type": "Direct",
-        "requested": "[3.18.1, )",
-        "resolved": "3.18.1",
-        "contentHash": "q/n/gKLcApDlTk90BRNvj6P8HKR+vbtZEQxo5BAbeEoN5e/8/aqRuG6yH7tVg02CeAXAD40boS74s9hVnh4XDw=="
+        "requested": "[3.22.5, )",
+        "resolved": "3.22.5",
+        "contentHash": "ZWEPSRUcZVdvh7JhTOmAxRJXyxbCtYHtyyKbq6Za/TH+UQr3Q5AkPhKnZAejHQNxaFUEx4qAWo77cTm0z8ko5Q=="
       },
       "xunit": {
         "type": "Direct",
@@ -162,9 +162,9 @@
         "type": "Project",
         "dependencies": {
           "Kck.BackgroundJobs.Abstractions": "[1.0.0, )",
-          "Quartz": "[3.18.1, )",
-          "Quartz.Extensions.DependencyInjection": "[3.18.1, )",
-          "Quartz.Extensions.Hosting": "[3.18.1, )"
+          "Quartz": "[3.22.5, )",
+          "Quartz.Extensions.DependencyInjection": "[3.22.5, )",
+          "Quartz.Extensions.Hosting": "[3.22.5, )"
         }
       },
       "Newtonsoft.Json": {
@@ -175,20 +175,20 @@
       },
       "Quartz.Extensions.DependencyInjection": {
         "type": "CentralTransitive",
-        "requested": "[3.18.1, )",
-        "resolved": "3.18.1",
-        "contentHash": "ct+sIqr7n961jvo695GnqHjB+dhK6b/Y9LSXxK6n9EJ6JzMXpwcusd5u2lCqVqqNHaiGBLXp37E75hpPXHQkzA==",
+        "requested": "[3.22.5, )",
+        "resolved": "3.22.5",
+        "contentHash": "vUJsPDkNBRmGsQac6GPgRBPY68Ho+vveG3kg7b2nihxkVGC2VZQX+6mCyI0leQnhKzx48e6FfffXPv+0zDP+mw==",
         "dependencies": {
-          "Quartz": "3.18.1"
+          "Quartz": "3.22.5"
         }
       },
       "Quartz.Extensions.Hosting": {
         "type": "CentralTransitive",
-        "requested": "[3.18.1, )",
-        "resolved": "3.18.1",
-        "contentHash": "kZ7ufndI5vygLpI0kCeukVKlzpRFtGjfoU3BoWZ6u6QKoRF2Z3KV1dSpv+VpMqRekz3SrObfN0iLZKWldoZLZw==",
+        "requested": "[3.22.5, )",
+        "resolved": "3.22.5",
+        "contentHash": "2P3aKTwwS91h+LnSM4OeuoGgv/D1sHZ3Sq7//nMpmLjxH3HWy1zwDiQ78apKR+9nS6RY6tLXgwiIjONuZ61fkQ==",
         "dependencies": {
-          "Quartz.Extensions.DependencyInjection": "3.18.1"
+          "Quartz.Extensions.DependencyInjection": "3.22.5"
         }
       }
     }
