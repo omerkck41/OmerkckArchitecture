@@ -85,3 +85,24 @@ CodeQL `Analyze (csharp)`, `Build & Test` ubuntu + windows; strict; force push k
 ## İlgili
 
 - `decisions/2026-10-14-claude-process-profile.md` (TIER 3)
+
+---
+
+## Güncelleme — 2026-10-15: NuGet Trusted Publishing
+
+nuget.org otomatik yayında uzun ömürlü API anahtarlarını önermiyor; GitHub Actions için Trusted Publishing destekleniyor.
+
+**Karar:** Yayın job'u `NuGet/login` (v1.2.0, SHA'ya sabit) ile GitHub OIDC token'ını push'tan hemen önce **1 saat geçerli,
+tek kullanımlık** bir API anahtarına çevirir. Kalıcı `NUGET_API_KEY` secret'ı kullanılmaz.
+
+- nuget.org politikası (owner `omerkck`): Repository Owner `omerkck41` (#106805727) · Repository `OmerkckArchitecture`
+  (#1219365314) · Workflow `nuget-publish.yml` · Environment `nuget` · Scope: push new packages and versions · Glob `Kck.*`.
+  Unlist/relist yetkisi verilmedi.
+- Job izinleri: `contents: read`, `id-token: write`. Onay kapısı (required reviewer) değişmedi: anahtar ancak onaylanan
+  job'da alınabilir, çünkü politika `nuget` ortamına bağlı.
+- `user` girdisi nuget.org profil adıdır (`omerkck`), GitHub kullanıcı adı değil.
+- **İlk başarılı yayından sonra:** `nuget` ortamındaki `NUGET_API_KEY` secret'ı silinir ve nuget.org'daki eski API anahtarı
+  iptal edilir.
+
+Kaynak: https://learn.microsoft.com/en-us/nuget/nuget-org/trusted-publishing (erişim 2026-10-15) ·
+https://github.com/NuGet/login (v1.2.0, `8d196754b4036150537f80ac539e15c2f1028841`)

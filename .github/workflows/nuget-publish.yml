@@ -23,9 +23,13 @@ jobs:
   publish:
     name: Pack & Push to NuGet
     runs-on: ubuntu-latest
-    # Protected environment: the job waits for maintainer approval and only then can read the
-    # environment-scoped NUGET_API_KEY. nuget.org cannot delete packages — see ADR-0027.
+    # Protected environment: the job waits for maintainer approval. nuget.org's Trusted Publishing
+    # policy is bound to this repo, this workflow file and this environment, so only an approved run
+    # can obtain a publish key. nuget.org cannot delete packages — see ADR-0027.
     environment: nuget
+    permissions:
+      contents: read
+      id-token: write   # GitHub OIDC token for NuGet Trusted Publishing (short-lived key exchange)
 
     steps:
       # Validate the tag before anything else; the raw input reaches the shell only through an env var
@@ -101,6 +105,15 @@ jobs:
           path: ./artifacts/*.nupkg
           retention-days: 30
 
+      # Trusted Publishing: exchange the OIDC token for a single-use API key valid for 1 hour,
+      # immediately before the push. No long-lived key is stored anywhere.
+      - name: NuGet login (OIDC -> temporary API key)
+        id: nuget-login
+        if: startsWith(github.ref, 'refs/tags/v') || github.event_name == 'workflow_dispatch'
+        uses: NuGet/login@8d196754b4036150537f80ac539e15c2f1028841 # v1.2.0
+        with:
+          user: omerkck   # nuget.org profile name (package owner), not the GitHub handle
+
       - name: Push to NuGet
         if: startsWith(github.ref, 'refs/tags/v') || github.event_name == 'workflow_dispatch'
         run: |
@@ -109,4 +122,4 @@ jobs:
             --source https://api.nuget.org/v3/index.json \
             --skip-duplicate
         env:
-          NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+          NUGET_API_KEY: ${{ steps.nuget-login.outputs.NUGET_API_KEY }}
