@@ -2,12 +2,10 @@
 
 SixLabors.ImageSharp-backed `IImageProcessor` for server-side image resizing, format conversion, and quality adjustment.
 
-> **Security notice (2026-10-14):** this version depends on SixLabors.ImageSharp 3.1.12, which is affected by
-> GHSA-j3p4-wp97-rph4, GHSA-j9gm-c75j-xc9q, GHSA-jjfr-hcj7-qf5w (high) and GHSA-gwg2-r3hj-4w44,
-> GHSA-wmxv-xphr-5c9g (moderate); the fix is ImageSharp 4.1.2+ and an upgrade of this package is in progress.
-> This provider never uses histogram equalization or the TIFF encoder; until the upgrade, reject untrusted TIFF
-> input and images with embedded ICC profiles before calling it. Do not force ImageSharp 4 under this version —
-> it is compiled against 3.x.
+> **Dependency:** SixLabors.ImageSharp 4.x (fixes GHSA-j3p4-wp97-rph4, GHSA-j9gm-c75j-xc9q, GHSA-jjfr-hcj7-qf5w,
+> GHSA-gwg2-r3hj-4w44 and GHSA-wmxv-xphr-5c9g present in 3.x). ImageSharp is licensed under the
+> [Six Labors Split License](https://github.com/SixLabors/ImageSharp/blob/main/LICENSE); if your application also
+> references ImageSharp directly, check whether your use requires a Six Labors license.
 
 ## Installation
 
