@@ -98,8 +98,10 @@ tek kullanımlık** bir API anahtarına çevirir. Kalıcı `NUGET_API_KEY` secre
 - nuget.org politikası (owner `omerkck`): Repository Owner `omerkck41` (#106805727) · Repository `OmerkckArchitecture`
   (#1219365314) · Workflow `nuget-publish.yml` · Environment `nuget` · Scope: push new packages and versions · Glob `Kck.*`.
   Unlist/relist yetkisi verilmedi.
-- Job izinleri: `contents: read`, `id-token: write`. Onay kapısı (required reviewer) değişmedi: anahtar ancak onaylanan
-  job'da alınabilir, çünkü politika `nuget` ortamına bağlı.
+- İki job (güvenlik incelemesi 2026-10-15: OIDC izni repo kodu çalıştıran adımlara açık olmamalı):
+  `build` (doğrulama, derleme, test, paket, SBOM; yalnız `contents: read`, ortam yok, onay beklemez) →
+  `publish` (`needs: build`; yalnız `id-token: write`, `nuget` ortamı + required reviewer; repo kodu çalıştırmaz:
+  paket indir, .NET kur, OIDC girişi, push). Onaylayan, derleme ve testlerin geçtiğini gördükten sonra onaylar.
 - `user` girdisi nuget.org profil adıdır (`omerkck`), GitHub kullanıcı adı değil.
 - **İlk başarılı yayından sonra:** `nuget` ortamındaki `NUGET_API_KEY` secret'ı silinir ve nuget.org'daki eski API anahtarı
   iptal edilir.
