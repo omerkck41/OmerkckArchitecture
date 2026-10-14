@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1792007817106,
+  "lastUpdate": 1792015716987,
   "repoUrl": "https://github.com/omerkck41/OmerkckArchitecture",
   "entries": {
     "Benchmark": [
@@ -4366,6 +4366,102 @@ window.BENCHMARK_DATA = {
             "value": 11.513718961653383,
             "unit": "ns",
             "range": "± 0.5511670316604338"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "106805727+omerkck41@users.noreply.github.com",
+            "name": "Ömer KÜÇÜK",
+            "username": "omerkck41"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "58aa876ba7b51234a58ab5169df8d51f30c3b2e7",
+          "message": "ci(benchmark): make regression alerts informational, dedupe reports (#143)\n\n## Summary\nThe `benchmark` workflow has been red on every main push since May.\nDiagnosis: measurement noise, not a regression.\n\n- Benchmarked code (`Result.cs`, `Paginate.cs`) is unchanged since #69,\nbefore the whole benchmark history.\n- `ubuntu-latest` runs on different CPUs (AMD EPYC 9V45 / AVX-512 vs\nEPYC 7763 / AVX2). At f443a7b all 12 benchmarks \"regressed\" 1.6x-3.4x at\nonce.\n- Replaying gh-pages history (25 comparisons): 110% -> 17 red runs, 150%\n-> 8, even 300% -> 4.\n- The job runs post-merge, so failing it never blocked anything.\n\n## Changes\n- `fail-on-alert: false`, `alert-threshold: '150%'` — commit comment +\njob summary + gh-pages chart remain.\n- Merge step reads only `*-report-full-compressed.json` (format\nrecommended by the action's BenchmarkDotNet example). Previously both\nthe brief and full JSON were merged, so every benchmark was stored\ntwice.\n- Decision record: `decisions/2026-10-14-benchmark-regression-gate.md`\n(alternatives: higher threshold, more iterations, paid runners —\nrejected; same-runner A/B on PRs — deferred).\n\n## Test plan\n- [x] Workflow YAML parses\n- [ ] `benchmark` run green after merge to main (workflow only triggers\non `push: main` / `workflow_dispatch`)\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-authored-by: Claude Opus 5.5 <noreply@anthropic.com>",
+          "timestamp": "2026-10-15T01:01:38+03:00",
+          "tree_id": "e56ea3fb22643283e5311ec5681f6ad60527374e",
+          "url": "https://github.com/omerkck41/OmerkckArchitecture/commit/58aa876ba7b51234a58ab5169df8d51f30c3b2e7"
+        },
+        "date": 1792015716212,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Success_Factory",
+            "value": 5.660527956398094,
+            "unit": "ns",
+            "range": "± 0.2750848809068953"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Failure_Factory",
+            "value": 7.697325607140859,
+            "unit": "ns",
+            "range": "± 0.17932837183744968"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Success",
+            "value": 1.0148319127754524,
+            "unit": "ns",
+            "range": "± 0.16530339798061613"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Failure",
+            "value": 0.4745886417726676,
+            "unit": "ns",
+            "range": "± 0.04562741141972155"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Serialize_Reflection",
+            "value": 364.7924154145377,
+            "unit": "ns",
+            "range": "± 5.200996371386596"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Deserialize_Reflection",
+            "value": 650.8094680786132,
+            "unit": "ns",
+            "range": "± 8.459346480999283"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 0)",
+            "value": 9.040344510423509,
+            "unit": "ns",
+            "range": "± 0.2626846004320764"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 5)",
+            "value": 9.46489370082106,
+            "unit": "ns",
+            "range": "± 0.14745001087326867"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 0)",
+            "value": 8.985733824116844,
+            "unit": "ns",
+            "range": "± 0.2827950627342844"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 5)",
+            "value": 9.138076498040132,
+            "unit": "ns",
+            "range": "± 0.21280664964746007"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 0)",
+            "value": 10.233771263062954,
+            "unit": "ns",
+            "range": "± 0.17720609704474305"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 5)",
+            "value": 10.042303320239572,
+            "unit": "ns",
+            "range": "± 0.25453981233158324"
           }
         ]
       }
