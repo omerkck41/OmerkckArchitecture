@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1792018605368,
+  "lastUpdate": 1792019750477,
   "repoUrl": "https://github.com/omerkck41/OmerkckArchitecture",
   "entries": {
     "Benchmark": [
@@ -4654,6 +4654,102 @@ window.BENCHMARK_DATA = {
             "value": 12.143517847855886,
             "unit": "ns",
             "range": "± 0.09980383592575344"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "106805727+omerkck41@users.noreply.github.com",
+            "name": "Ömer KÜÇÜK",
+            "username": "omerkck41"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "3360b68ec662e18bd5824768e5768a1beb71a15c",
+          "message": "security(ci): fix zizmor findings (bot conditions, injection, credentials, permissions) (#146)\n\nsecurity(ci): fix zizmor findings (bot conditions, injection, credentials, permissions)\n\nzizmor 1.30.1: 19 findings -> 1 informational (use-trusted-publishing,\ndeferred to a separate ADR).\n\n- bot-conditions: Dependabot jobs check\n  github.event.pull_request.user.login instead of the spoofable\n  github.actor.\n- template-injection (nuget-publish): the tag input reaches the shell only\n  via an env var, is validated against ^v<semver>(-pre)?$ before checkout,\n  never echoed, and flows as $VERSION; the API key is read from the env.\n- artipacked: persist-credentials: false on every checkout except\n  dependabot-lockfile, which pushes regenerated lock files (explicit true).\n  benchmark pushes through its own github-token; docs deploys via\n  deploy-pages.\n- permissions: benchmark and dependabot-auto-merge have no workflow-level\n  permissions; each job declares only what it uses.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>",
+          "timestamp": "2026-10-15T02:07:24+03:00",
+          "tree_id": "573794ade0634ed97dd83871d36e485015e6f3a2",
+          "url": "https://github.com/omerkck41/OmerkckArchitecture/commit/3360b68ec662e18bd5824768e5768a1beb71a15c"
+        },
+        "date": 1792019749965,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Success_Factory",
+            "value": 6.773132257439472,
+            "unit": "ns",
+            "range": "± 0.27225142313613465"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Failure_Factory",
+            "value": 11.298251159023494,
+            "unit": "ns",
+            "range": "± 0.840052981396369"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Success",
+            "value": 1.6369267538189889,
+            "unit": "ns",
+            "range": "± 0.0031969103544613312"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Failure",
+            "value": 0.5809156309281077,
+            "unit": "ns",
+            "range": "± 0.0028829701477380352"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Serialize_Reflection",
+            "value": 462.50970772334506,
+            "unit": "ns",
+            "range": "± 2.6754005908731693"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Deserialize_Reflection",
+            "value": 833.5189517339071,
+            "unit": "ns",
+            "range": "± 4.934220096768734"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 0)",
+            "value": 12.034155638380485,
+            "unit": "ns",
+            "range": "± 0.36104203864736495"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 5)",
+            "value": 11.653456337749958,
+            "unit": "ns",
+            "range": "± 0.28911839906931197"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 0)",
+            "value": 11.632012088100115,
+            "unit": "ns",
+            "range": "± 0.2521828861187324"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 5)",
+            "value": 10.979088741044203,
+            "unit": "ns",
+            "range": "± 0.47683625123032347"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 0)",
+            "value": 13.519741597175598,
+            "unit": "ns",
+            "range": "± 0.43474601535119656"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 5)",
+            "value": 11.25235235487873,
+            "unit": "ns",
+            "range": "± 0.34411399046091945"
           }
         ]
       }
