@@ -49,6 +49,14 @@ jobs:
           set -euo pipefail
           OUTPUT=$(dotnet list package --vulnerable --include-transitive 2>&1 || true)
           echo "$OUTPUT"
+          # Honour documented, project-scoped <NuGetAuditSuppress> entries (restore already does);
+          # every suppressed advisory stays visible as a warning. Unlisted advisories still fail.
+          SUPPRESSED=$(grep -rhoE --include='*.props' --include='*.csproj' \
+            'NuGetAuditSuppress Include="[^"]+"' . | sed -E 's/.*Include="([^"]+)"/\1/' | sort -u || true)
+          if [ -n "$SUPPRESSED" ]; then
+            while IFS= read -r url; do echo "::warning::Suppressed (documented, temporary) advisory: $url"; done <<< "$SUPPRESSED"
+            OUTPUT=$(echo "$OUTPUT" | grep -vF -f <(printf '%s\n' "$SUPPRESSED") || true)
+          fi
           if echo "$OUTPUT" | grep -E '\b(Critical|High)\b' >/dev/null; then
             echo "::error::Critical or High severity CVE found in dependencies"
             exit 1

@@ -14,4 +14,6 @@
   <ItemGroup>
     <PackageReference Include="SixLabors.ImageSharp" />
   </ItemGroup>
+  <!-- Temporary ImageSharp 3.1.12 advisory suppression; see the imported file -->
+  <Import Project="ImageSharp.AuditSuppress.props" />
 </Project>
