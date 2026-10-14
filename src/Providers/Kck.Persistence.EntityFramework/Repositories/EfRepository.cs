@@ -191,6 +191,7 @@ public class EfRepository<T, TId>(
     /// </para>
     /// </summary>
     /// <inheritdoc />
+    /// <exception cref="ArgumentException">A value does not match its property's CLR type exactly.</exception>
     public async Task BulkUpdateAsync(
         Expression<Func<T, bool>> predicate,
         (Expression<Func<T, object>> Property, object? Value)[] updates,
