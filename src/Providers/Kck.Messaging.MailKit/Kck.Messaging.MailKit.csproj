@@ -13,5 +13,7 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="MailKit" />
+    <!-- Security floor for MimeKit's transitive dependency; flows to consumers via the package nuspec. -->
+    <PackageReference Include="System.Security.Cryptography.Pkcs" />
   </ItemGroup>
 </Project>
