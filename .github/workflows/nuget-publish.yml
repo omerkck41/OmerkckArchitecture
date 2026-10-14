@@ -21,6 +21,9 @@ jobs:
   publish:
     name: Pack & Push to NuGet
     runs-on: ubuntu-latest
+    # Protected environment: the job waits for maintainer approval and only then can read the
+    # environment-scoped NUGET_API_KEY. nuget.org cannot delete packages — see ADR-0027.
+    environment: nuget
 
     steps:
       - name: Checkout
