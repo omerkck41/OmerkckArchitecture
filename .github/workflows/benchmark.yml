@@ -9,10 +9,8 @@ concurrency:
   group: benchmark
   cancel-in-progress: false  # gh-pages history must not be interrupted mid-write
 
-permissions:
-  # Required by benchmark-action to push results to gh-pages and write PR comments.
-  contents: write
-  deployments: write
+# No workflow-level token permissions; the single job below declares exactly what it needs.
+permissions: {}
 
 env:
   # ImageSharp 4 validates a Six Labors license at Release build time; see decisions/2026-10-14-sdk-10.0.402-imagesharp-4.md
@@ -24,10 +22,16 @@ jobs:
   benchmark:
     name: Performance Regression
     runs-on: ubuntu-latest
+    permissions:
+      # Required by benchmark-action to push results to gh-pages and write PR comments.
+      contents: write
+      deployments: write
 
     steps:
       - name: Checkout
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
+        with:
+          persist-credentials: false
 
       - name: Setup .NET
         uses: actions/setup-dotnet@26b0ec14cb23fa6904739307f278c14f94c95bf1 # v5.4.0
