@@ -49,10 +49,21 @@ jobs:
           set -euo pipefail
           OUTPUT=$(dotnet list package --vulnerable --include-transitive 2>&1 || true)
           echo "$OUTPUT"
-          # Honour documented, project-scoped <NuGetAuditSuppress> entries (restore already does);
-          # every suppressed advisory stays visible as a warning. Unlisted advisories still fail.
-          SUPPRESSED=$(grep -rhoE --include='*.props' --include='*.csproj' \
-            'NuGetAuditSuppress Include="[^"]+"' . | sed -E 's/.*Include="([^"]+)"/\1/' | sort -u || true)
+          # Honour documented, project-scoped <NuGetAuditSuppress> entries (restore already enforces them).
+          # Only dedicated *.AuditSuppress.props files count, parsed as XML (comments ignored) so this
+          # gate cannot diverge from MSBuild. Each suppression stays visible; anything else still fails.
+          SUPPRESSED=$(git ls-files '*.AuditSuppress.props' | python3 -I -c '
+          import sys, xml.etree.ElementTree as ET
+          urls = set()
+          for path in filter(None, sys.stdin.read().split("\n")):
+              text = open(path, encoding="utf-8").read()
+              if "<!DOCTYPE" in text.upper() or "<!ENTITY" in text.upper():
+                  sys.exit(f"{path}: DOCTYPE/ENTITY not allowed in audit suppression files")
+              for item in ET.fromstring(text).iter("NuGetAuditSuppress"):
+                  url = (item.get("Include") or "").strip()
+                  if url.startswith("https://github.com/advisories/GHSA-"):
+                      urls.add(url)
+          print("\n".join(sorted(urls)))' | tr -d '\r')
           if [ -n "$SUPPRESSED" ]; then
             while IFS= read -r url; do echo "::warning::Suppressed (documented, temporary) advisory: $url"; done <<< "$SUPPRESSED"
             OUTPUT=$(echo "$OUTPUT" | grep -vF -f <(printf '%s\n' "$SUPPRESSED") || true)
