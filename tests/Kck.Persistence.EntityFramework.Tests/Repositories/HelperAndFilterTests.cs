@@ -46,10 +46,6 @@ public class HelperAndFilterTests
         single.IsDeleted.Should().BeTrue();
     }
 
-    // Note: BulkOperationHelper.BulkUpdateAsync (ExecuteUpdate with a boxed object value)
-    // is exercised by the PostgreSQL Testcontainers integration suite — SQLite cannot assign
-    // a type mapping to the untyped '@value' parameter, so it is intentionally not covered here.
-
     // --- ModelBuilderExtensions: global soft-delete query filter ---
 
     [Fact]
