@@ -12,8 +12,6 @@
     <PackageReference Include="NSubstitute" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" />
-    <!-- Security floor for EF Sqlite's native SQLite (GHSA-2m69-gcr7-jv3q); see Directory.Packages.props -->
-    <PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3" />
     <!-- LS-FAZ-4: Testcontainers PoC — gercek PostgreSQL container ile integration testleri -->
     <PackageReference Include="Testcontainers.PostgreSql" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" />
