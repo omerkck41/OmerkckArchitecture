@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1792003284788,
+  "lastUpdate": 1792007817106,
   "repoUrl": "https://github.com/omerkck41/OmerkckArchitecture",
   "entries": {
     "Benchmark": [
@@ -4198,6 +4198,174 @@ window.BENCHMARK_DATA = {
             "value": 10.2916907998068,
             "unit": "ns",
             "range": "± 0.1851595635058826"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "106805727+omerkck41@users.noreply.github.com",
+            "name": "Ömer KÜÇÜK",
+            "username": "omerkck41"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "73bc1146c788494e99e50adf673ede3508203f35",
+          "message": "chore(deps): update grouped dependencies (replaces stale Dependabot PRs) (#142)\n\n## Summary\n\nGrouped same-major NuGet updates (versions checked on nuget.org,\n2026-10-14). Replaces the stale Dependabot PRs\nlisted below, which were opened before the 2026-10 security sweep (#140)\nand target older versions.\n\n## Changed packages (`Directory.Packages.props`)\n\n| Group | Package | From | To |\n|---|---|---|---|\n| EF Core | Microsoft.EntityFrameworkCore / .InMemory / .Sqlite | 10.0.8\n| 10.0.13 |\n| EF Core | Npgsql.EntityFrameworkCore.PostgreSQL | 10.0.1 | 10.0.3 |\n| Microsoft.Extensions | Caching.StackExchangeRedis,\nDiagnostics.HealthChecks, DependencyInjection.Abstractions, Options,\nHosting.Abstractions, Logging.Abstractions | 10.0.8 | 10.0.13 |\n| Microsoft.Extensions | Caching.Hybrid, Resilience, Http.Resilience,\nServiceDiscovery | 10.6.0 | 10.11.0 |\n| Microsoft.Extensions | Configuration.UserSecrets | 10.0.5 | 10.0.13 |\n| Background jobs | Hangfire | 1.8.23 | 1.8.25 |\n| Background jobs | Quartz, Quartz.Extensions.DependencyInjection,\nQuartz.Extensions.Hosting | 3.18.1 | 3.22.5 |\n| Azure | Azure.Messaging.ServiceBus | 7.20.1 | 7.21.0 |\n| Azure | Azure.Data.AppConfiguration | 1.9.0 | 1.11.1 |\n| Azure | Azure.Storage.Blobs | 12.28.0 | 12.30.1 |\n| Azure | Azure.Security.KeyVault.Secrets | 4.11.0 | 4.11.2 |\n\nRemoved: the test-only `SQLitePCLRaw.bundle_e_sqlite3` 2.1.14 floor (and\nits reference in\n`Kck.Persistence.EntityFramework.Tests.csproj`). EF Core Sqlite 10.0.13\npulls SQLitePCLRaw 2.1.13 itself, which is\npatched for GHSA-2m69-gcr7-jv3q.\n\nOut of scope: Quartz 4.x (major), OpenTelemetry (#137), GitHub Actions\nmajors (#119, #127).\n\nLock files regenerated solution-wide (`dotnet restore --force-evaluate`,\nthen `--locked-mode`).\n\n## Supersedes (close after merge)\n\n- #133 chore(deps): Bump the quartz group with 3 updates\n- #134 chore(deps): Bump the microsoft-extensions group with 10 updates\n- #135 chore(deps): Bump the entityframework group with 4 updates\n- #138 chore(deps): Bump the azure group with 3 updates\n\n(#131 hangfire was already closed; Hangfire 1.8.25 is included here.)\n\n## Verification (local, from the commit)\n\n- NuGet audit clean; `dotnet restore --locked-mode` passes\n- `dotnet build -c Release`: 0 errors\n- `dotnet test -c Release`: 39/39 test projects, 680 passed, 0 failed\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-authored-by: Claude Opus 5.5 <noreply@anthropic.com>",
+          "timestamp": "2026-10-14T22:48:27+03:00",
+          "tree_id": "2cdc848d68433b5d5db381018c1dd57916527a49",
+          "url": "https://github.com/omerkck41/OmerkckArchitecture/commit/73bc1146c788494e99e50adf673ede3508203f35"
+        },
+        "date": 1792007816541,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Success_Factory",
+            "value": 6.469662334989099,
+            "unit": "ns",
+            "range": "± 0.17337043034164903"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Failure_Factory",
+            "value": 11.366800716850493,
+            "unit": "ns",
+            "range": "± 0.8084969552799457"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Success",
+            "value": 1.6301054789551668,
+            "unit": "ns",
+            "range": "± 0.0029534159352752024"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Failure",
+            "value": 0.5853146399770465,
+            "unit": "ns",
+            "range": "± 0.003315018281517086"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Success_Factory",
+            "value": 6.469662334989099,
+            "unit": "ns",
+            "range": "± 0.17337043034164903"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Failure_Factory",
+            "value": 11.366800716850493,
+            "unit": "ns",
+            "range": "± 0.8084969552799457"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Success",
+            "value": 1.6301054789551668,
+            "unit": "ns",
+            "range": "± 0.0029534159352752024"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Failure",
+            "value": 0.5853146399770465,
+            "unit": "ns",
+            "range": "± 0.003315018281517086"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Serialize_Reflection",
+            "value": 490.51301043374195,
+            "unit": "ns",
+            "range": "± 4.934307633202752"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Deserialize_Reflection",
+            "value": 847.9299933569772,
+            "unit": "ns",
+            "range": "± 2.2805897403118043"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Serialize_Reflection",
+            "value": 490.51301043374195,
+            "unit": "ns",
+            "range": "± 4.934307633202752"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Deserialize_Reflection",
+            "value": 847.9299933569772,
+            "unit": "ns",
+            "range": "± 2.2805897403118043"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 0)",
+            "value": 11.433259334634332,
+            "unit": "ns",
+            "range": "± 0.2847022655635914"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 5)",
+            "value": 10.873110167243901,
+            "unit": "ns",
+            "range": "± 0.28981366826681093"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 0)",
+            "value": 10.98542302966118,
+            "unit": "ns",
+            "range": "± 0.3687808628728211"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 5)",
+            "value": 11.036497688293457,
+            "unit": "ns",
+            "range": "± 0.4638371475591007"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 0)",
+            "value": 11.367356280711563,
+            "unit": "ns",
+            "range": "± 0.34890636265671066"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 5)",
+            "value": 11.513718961653383,
+            "unit": "ns",
+            "range": "± 0.5511670316604338"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 0)",
+            "value": 11.433259334634332,
+            "unit": "ns",
+            "range": "± 0.2847022655635914"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 5)",
+            "value": 10.873110167243901,
+            "unit": "ns",
+            "range": "± 0.28981366826681093"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 0)",
+            "value": 10.98542302966118,
+            "unit": "ns",
+            "range": "± 0.3687808628728211"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 5)",
+            "value": 11.036497688293457,
+            "unit": "ns",
+            "range": "± 0.4638371475591007"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 0)",
+            "value": 11.367356280711563,
+            "unit": "ns",
+            "range": "± 0.34890636265671066"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 5)",
+            "value": 11.513718961653383,
+            "unit": "ns",
+            "range": "± 0.5511670316604338"
           }
         ]
       }
