@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1792015716987,
+  "lastUpdate": 1792016832149,
   "repoUrl": "https://github.com/omerkck41/OmerkckArchitecture",
   "entries": {
     "Benchmark": [
@@ -4462,6 +4462,102 @@ window.BENCHMARK_DATA = {
             "value": 10.042303320239572,
             "unit": "ns",
             "range": "± 0.25453981233158324"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "106805727+omerkck41@users.noreply.github.com",
+            "name": "Ömer KÜÇÜK",
+            "username": "omerkck41"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "dffae45ea834842343a0705b84b7e642b89f4257",
+          "message": "fix(persistence): type BulkUpdateAsync setters for provider portability (#144)\n\n## Summary\n`BulkOperationHelper.BulkUpdateAsync` passed `object`-typed\n`SetProperty` calls to `ExecuteUpdateAsync`. Providers with no type\nmapping for `System.Object` (SQLite) failed with `Expression '@value' in\nthe SQL tree does not have a type mapping assigned` — reproduced on EF\nCore 10.0.13 for both `int` and `string` columns.\n\nEach update now unwraps the boxed `Convert(e.Prop, object)` lambda and\ncalls the typed `UpdateSettersBuilder<T>.SetProperty<TProperty>` via\nreflection (the dynamic-setter pattern from the [EF Core 10 release\nnotes](https://learn.microsoft.com/en-us/ef/core/what-is-new/ef-core-10.0/whatsnew)).\nValues are sent as typed parameters (`SET \"Value\" = @p`).\n\n**Public API unchanged** (`IWriteRepository.BulkUpdateAsync` signature\nintact) — no ADR needed.\n\n### Behaviour change\nValues must match the property CLR type exactly. A mismatch (e.g. `99L`\nfor an `int` column) or `null` for a non-nullable value type throws\n`ArgumentException` **before** any SQL runs, so no partial update.\n\n### Alternatives considered\n- **Typed generic public API** — breaking change to `IWriteRepository`,\nneeds an EF-free setter abstraction in Abstractions; disproportionate\nfor this bug.\n- **Typed constant inside `Convert`** — works, but inlines literals\n(`CAST(99 AS INTEGER)`) → per-value SQL text and plan-cache churn.\n- **Docs only** — leaves SQLite broken and the method untestable without\nPostgres.\n\n## Tests\n- New `BulkUpdateTests` (SQLite in-memory): value type, multiple\nproperties, null → nullable, wrong type (rows unchanged), null →\nnon-nullable. RED 5/5 before the fix, GREEN after.\n- `Kck.Persistence.EntityFramework.Tests` Release: 116/116.\n- Stryker (`stryker-persistence.json`): 80.95% → **82.09%**;\n`BulkOperationHelper` 8/9 killed (survivor: `Single`→`SingleOrDefault`,\nequivalent).\n- Not run locally: full-solution Release build (ImageSharp 4 licence\nfile absent in the worktree; CI uses the secret).\n\nFixes #113\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-authored-by: Claude Opus 5.5 <noreply@anthropic.com>",
+          "timestamp": "2026-10-14T22:20:32Z",
+          "tree_id": "00e1d08a474f60e5c5d0e6056b8e492757177c03",
+          "url": "https://github.com/omerkck41/OmerkckArchitecture/commit/dffae45ea834842343a0705b84b7e642b89f4257"
+        },
+        "date": 1792016831289,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Success_Factory",
+            "value": 6.171889091531436,
+            "unit": "ns",
+            "range": "± 0.061215566807182174"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Failure_Factory",
+            "value": 8.807987760504087,
+            "unit": "ns",
+            "range": "± 0.1362654144337476"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Success",
+            "value": 1.639981316526731,
+            "unit": "ns",
+            "range": "± 0.009596508242512899"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Failure",
+            "value": 0.5839680896273681,
+            "unit": "ns",
+            "range": "± 0.0016233587266588708"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Serialize_Reflection",
+            "value": 465.74748137791954,
+            "unit": "ns",
+            "range": "± 4.014323859345954"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Deserialize_Reflection",
+            "value": 801.3593625386555,
+            "unit": "ns",
+            "range": "± 2.636915147298171"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 0)",
+            "value": 10.564589336514473,
+            "unit": "ns",
+            "range": "± 0.07782657295715406"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 5)",
+            "value": 10.08529561261336,
+            "unit": "ns",
+            "range": "± 0.11432575111910673"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 0)",
+            "value": 10.309979783800932,
+            "unit": "ns",
+            "range": "± 0.07463490267182234"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 5)",
+            "value": 10.055617789427439,
+            "unit": "ns",
+            "range": "± 0.09340294242673652"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 0)",
+            "value": 10.24668529033661,
+            "unit": "ns",
+            "range": "± 0.06495982657601217"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 5)",
+            "value": 10.104663982987404,
+            "unit": "ns",
+            "range": "± 0.07360105503242784"
           }
         ]
       }
