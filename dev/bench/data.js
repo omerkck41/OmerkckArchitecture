@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1792019750477,
+  "lastUpdate": 1792020148669,
   "repoUrl": "https://github.com/omerkck41/OmerkckArchitecture",
   "entries": {
     "Benchmark": [
@@ -4750,6 +4750,102 @@ window.BENCHMARK_DATA = {
             "value": 11.25235235487873,
             "unit": "ns",
             "range": "± 0.34411399046091945"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "106805727+omerkck41@users.noreply.github.com",
+            "name": "Ömer KÜÇÜK",
+            "username": "omerkck41"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "e2955976231c98110d76094ec95dbe028640d00a",
+          "message": "ci(actions): bump checkout v7.0.1, setup-dotnet v6.0.0, setup-java v6.1.0 (pinned) (#147)\n\nReplaces #119 and #127. Release notes reviewed; SHAs verified against release tags.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>",
+          "timestamp": "2026-10-15T02:15:47+03:00",
+          "tree_id": "09fce764c8c52df5563cb630d2de179ddc102a74",
+          "url": "https://github.com/omerkck41/OmerkckArchitecture/commit/e2955976231c98110d76094ec95dbe028640d00a"
+        },
+        "date": 1792020147971,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Success_Factory",
+            "value": 3.6044863084597245,
+            "unit": "ns",
+            "range": "± 0.08787009057698611"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Failure_Factory",
+            "value": 4.543575842465673,
+            "unit": "ns",
+            "range": "± 0.08712220508418818"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Success",
+            "value": 0.47725561757882434,
+            "unit": "ns",
+            "range": "± 0.016371735476996545"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Failure",
+            "value": 0.2505786550732759,
+            "unit": "ns",
+            "range": "± 0.017215706561074254"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Serialize_Reflection",
+            "value": 243.50347274541855,
+            "unit": "ns",
+            "range": "± 1.0036102294237308"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Deserialize_Reflection",
+            "value": 415.67742988467216,
+            "unit": "ns",
+            "range": "± 8.088806544200565"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 0)",
+            "value": 5.268095700868538,
+            "unit": "ns",
+            "range": "± 0.09944787212593865"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 5)",
+            "value": 5.42689127315368,
+            "unit": "ns",
+            "range": "± 0.12422210623511538"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 0)",
+            "value": 5.445689529180527,
+            "unit": "ns",
+            "range": "± 0.09162389044175842"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 5)",
+            "value": 5.639681125991046,
+            "unit": "ns",
+            "range": "± 0.15080737256007484"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 0)",
+            "value": 5.4152656508528665,
+            "unit": "ns",
+            "range": "± 0.18020240265711523"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 5)",
+            "value": 5.503245426341891,
+            "unit": "ns",
+            "range": "± 0.1464750252088643"
           }
         ]
       }
