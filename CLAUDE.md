@@ -11,8 +11,12 @@ Human contribution rules live in [CONTRIBUTING.md](CONTRIBUTING.md); this file a
 
 ## Project conventions
 
-- SDK is pinned by `global.json` (`10.0.203`, `rollForward: disable`); warnings are errors.
+- SDK is pinned by `global.json` (`10.0.402`, `rollForward: disable`) and every workflow pins the same version —
+  change them together; lock files contain the SDK-coupled `Microsoft.NET.ILLink.Tasks`. Warnings are errors.
 - Central package management: package versions live only in `Directory.Packages.props`.
+- NuGet audit is on and vulnerabilities fail restore. A temporary exception is allowed only through a documented,
+  time-boxed `*.AuditSuppress.props` imported by the affected projects (CI prints every suppression); see
+  `decisions/2026-10-14-sdk-10.0.402-imagesharp-4.md`.
 - Lock files are committed (`RestorePackagesWithLockFile`) and CI restores with `--locked-mode`. After any version
   change run a solution-wide `dotnet restore --force-evaluate`, then `dotnet restore --locked-mode`; restoring a
   single project is not enough (centrally pinned transitive packages change other lock files too).
