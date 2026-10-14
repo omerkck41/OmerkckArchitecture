@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1792016832149,
+  "lastUpdate": 1792018605368,
   "repoUrl": "https://github.com/omerkck41/OmerkckArchitecture",
   "entries": {
     "Benchmark": [
@@ -4558,6 +4558,102 @@ window.BENCHMARK_DATA = {
             "value": 10.104663982987404,
             "unit": "ns",
             "range": "± 0.07360105503242784"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "106805727+omerkck41@users.noreply.github.com",
+            "name": "Ömer KÜÇÜK",
+            "username": "omerkck41"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "b4fed20844c2f4aad811634bc23a56daa0b449a9",
+          "message": "security(ci): pin all GitHub Actions to full commit SHAs (#145)\n\n32 uses: lines in 11 workflows pinned to owner/repo@<sha> # vX.Y.Z; each SHA verified against its release tag (latest of its major). zizmor unpinned-uses 32 -> 0. Record: decisions/2026-10-14-github-actions-sha-pinning.md\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>",
+          "timestamp": "2026-10-15T01:49:10+03:00",
+          "tree_id": "ecaa91b1c19b6798c30d287e9b05a4d2b027fa94",
+          "url": "https://github.com/omerkck41/OmerkckArchitecture/commit/b4fed20844c2f4aad811634bc23a56daa0b449a9"
+        },
+        "date": 1792018604711,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Success_Factory",
+            "value": 7.462098620335261,
+            "unit": "ns",
+            "range": "± 0.11701685433952491"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Failure_Factory",
+            "value": 11.355632548681413,
+            "unit": "ns",
+            "range": "± 1.0113347209658559"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Success",
+            "value": 1.6408415700380619,
+            "unit": "ns",
+            "range": "± 0.008828382443017641"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Failure",
+            "value": 0.5856415417331916,
+            "unit": "ns",
+            "range": "± 0.005235111046645264"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Serialize_Reflection",
+            "value": 502.7914215496608,
+            "unit": "ns",
+            "range": "± 2.684292688381234"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Deserialize_Reflection",
+            "value": 766.0125188191731,
+            "unit": "ns",
+            "range": "± 2.5557803167426454"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 0)",
+            "value": 10.317797189785374,
+            "unit": "ns",
+            "range": "± 0.2757715989993018"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 5)",
+            "value": 10.503422579169273,
+            "unit": "ns",
+            "range": "± 0.25408204054661876"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 0)",
+            "value": 10.850562026395517,
+            "unit": "ns",
+            "range": "± 0.2855255095522728"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 5)",
+            "value": 12.320972188313801,
+            "unit": "ns",
+            "range": "± 0.16499819509560246"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 0)",
+            "value": 11.884868828455607,
+            "unit": "ns",
+            "range": "± 0.15863966574680569"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 5)",
+            "value": 12.143517847855886,
+            "unit": "ns",
+            "range": "± 0.09980383592575344"
           }
         ]
       }
