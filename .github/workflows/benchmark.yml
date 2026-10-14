@@ -15,6 +15,8 @@ permissions:
   deployments: write
 
 env:
+  # ImageSharp 4 validates a Six Labors license at Release build time; see decisions/2026-10-14-sdk-10.0.402-imagesharp-4.md
+  SixLaborsLicenseKey: ${{ secrets.SIXLABORS_LICENSE_KEY }}
   DOTNET_NOLOGO: true
   DOTNET_CLI_TELEMETRY_OPTOUT: true
 

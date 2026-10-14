@@ -132,3 +132,6 @@ mutation-report/
 ## MinVer does not read tags from shallow clones; allow override by developer
 minver.props
 template-artifacts/
+
+# Six Labors (ImageSharp 4) license key — never commit; CI uses the SIXLABORS_LICENSE_KEY secret
+sixlabors.lic
