@@ -121,7 +121,7 @@
     <PackageVersion Include="MinVer" Version="7.0.0" />
   </ItemGroup>
   <ItemGroup Label="Source Link">
-    <PackageVersion Include="Microsoft.SourceLink.GitHub" Version="10.0.300" />
+    <PackageVersion Include="Microsoft.SourceLink.GitHub" Version="10.0.402" />
   </ItemGroup>
   <ItemGroup Label="Analyzers">
     <PackageVersion Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="10.0.0-preview.25155.1" />
