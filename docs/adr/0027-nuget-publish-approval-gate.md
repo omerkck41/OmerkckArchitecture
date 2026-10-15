@@ -85,3 +85,31 @@ CodeQL `Analyze (csharp)`, `Build & Test` ubuntu + windows; strict; force push k
 ## İlgili
 
 - `decisions/2026-10-14-claude-process-profile.md` (TIER 3)
+
+---
+
+## Güncelleme — 2026-10-15: NuGet Trusted Publishing
+
+nuget.org otomatik yayında uzun ömürlü API anahtarlarını önermiyor; GitHub Actions için Trusted Publishing destekleniyor.
+
+**Karar:** Yayın job'u `NuGet/login` (v1.2.0, SHA'ya sabit) ile GitHub OIDC token'ını push'tan hemen önce **1 saat geçerli,
+tek kullanımlık** bir API anahtarına çevirir. Kalıcı `NUGET_API_KEY` secret'ı kullanılmaz.
+
+- nuget.org politikası (owner `omerkck`): Repository Owner `omerkck41` (#106805727) · Repository `OmerkckArchitecture`
+  (#1219365314) · Workflow `nuget-publish.yml` · Environment `nuget` · Scope: push new packages and versions · Glob `Kck.*`.
+  Unlist/relist yetkisi verilmedi.
+- İki job (güvenlik incelemesi 2026-10-15: OIDC izni repo kodu çalıştıran adımlara açık olmamalı):
+  `build` (doğrulama, derleme, test, paket, SBOM; yalnız `contents: read`, ortam yok, onay beklemez) →
+  `publish` (`needs: build`; yalnız `id-token: write`, `nuget` ortamı + required reviewer; repo kodu çalıştırmaz:
+  paket indir, .NET kur, OIDC girişi, push). Onaylayan, derleme ve testlerin geçtiğini gördükten sonra onaylar.
+- `user` girdisi nuget.org profil adıdır (`omerkck`), GitHub kullanıcı adı değil.
+- **Yalnız en yeni sürüm listede (bakımcı isteği, 2026-10-15):** publish job'u başarılı push'tan sonra, yayınlanan
+  paketlerin yeni sürümden **daha düşük** bütün kararlı sürümlerini listeden kaldırır (`dotnet nuget delete` = nuget.org'da
+  unlist; silinmez, tam sürümle restore edilir, tekrar listelenebilir). Ön sürüm yayını hiçbir şey kaldırmaz. Politikaya
+  "Unlist or relist package versions" kapsamı bu yüzden eklendi. Kuru prova (gerçek nuget.org verisi): 3.5.0 için
+  59 pakette 344 sürüm; 3.5.0'a dokunulmaz.
+- **İlk başarılı yayından sonra:** `nuget` ortamındaki `NUGET_API_KEY` secret'ı silinir ve nuget.org'daki eski API anahtarı
+  iptal edilir.
+
+Kaynak: https://learn.microsoft.com/en-us/nuget/nuget-org/trusted-publishing (erişim 2026-10-15) ·
+https://github.com/NuGet/login (v1.2.0, `8d196754b4036150537f80ac539e15c2f1028841`)
