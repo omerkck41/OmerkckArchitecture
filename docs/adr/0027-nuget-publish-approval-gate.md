@@ -103,6 +103,11 @@ tek kullanımlık** bir API anahtarına çevirir. Kalıcı `NUGET_API_KEY` secre
   `publish` (`needs: build`; yalnız `id-token: write`, `nuget` ortamı + required reviewer; repo kodu çalıştırmaz:
   paket indir, .NET kur, OIDC girişi, push). Onaylayan, derleme ve testlerin geçtiğini gördükten sonra onaylar.
 - `user` girdisi nuget.org profil adıdır (`omerkck`), GitHub kullanıcı adı değil.
+- **Yalnız en yeni sürüm listede (bakımcı isteği, 2026-10-15):** publish job'u başarılı push'tan sonra, yayınlanan
+  paketlerin yeni sürümden **daha düşük** bütün kararlı sürümlerini listeden kaldırır (`dotnet nuget delete` = nuget.org'da
+  unlist; silinmez, tam sürümle restore edilir, tekrar listelenebilir). Ön sürüm yayını hiçbir şey kaldırmaz. Politikaya
+  "Unlist or relist package versions" kapsamı bu yüzden eklendi. Kuru prova (gerçek nuget.org verisi): 3.5.0 için
+  59 pakette 344 sürüm; 3.5.0'a dokunulmaz.
 - **İlk başarılı yayından sonra:** `nuget` ortamındaki `NUGET_API_KEY` secret'ı silinir ve nuget.org'daki eski API anahtarı
   iptal edilir.
 

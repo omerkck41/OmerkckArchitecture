@@ -25,6 +25,8 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
+    outputs:
+      version: ${{ steps.version.outputs.version }}
     env:
       # ImageSharp 4 validates a Six Labors license at Release build time; see decisions/2026-10-14-sdk-10.0.402-imagesharp-4.md
       SixLaborsLicenseKey: ${{ secrets.SIXLABORS_LICENSE_KEY }}
@@ -33,6 +35,7 @@ jobs:
       # Validate the tag before anything else; the raw input reaches the shell only through an env var
       # and is never echoed (zizmor template-injection).
       - name: Resolve version
+        id: version
         env:
           TAG_INPUT: ${{ github.event.inputs.tag || github.ref_name }}
         shell: bash
@@ -42,6 +45,7 @@ jobs:
             exit 1
           fi
           echo "VERSION=${TAG_INPUT#v}" >> "$GITHUB_ENV"
+          echo "version=${TAG_INPUT#v}" >> "$GITHUB_OUTPUT"
 
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -145,3 +149,77 @@ jobs:
             --skip-duplicate
         env:
           NUGET_API_KEY: ${{ steps.nuget-login.outputs.NUGET_API_KEY }}
+
+      # Keep only the newest stable version listed on nuget.org. Runs only after a successful push.
+      # Unlisting hides a version from search; it is not deleted, still restores by exact version and can
+      # be relisted. Only versions LOWER than the one just published are touched; pre-releases unlist nothing.
+      # Inline (not a repo script) so this privileged job still runs no repository code.
+      - name: Unlist older versions
+        env:
+          NUGET_API_KEY: ${{ steps.nuget-login.outputs.NUGET_API_KEY }}
+          VERSION: ${{ needs.build.outputs.version }}
+        shell: python
+        run: |
+          import glob, gzip, json, os, re, subprocess, sys, time, urllib.error, urllib.request, zipfile
+
+          version = os.environ["VERSION"]
+          if "-" in version:
+              print(f"{version} is a pre-release: nothing is unlisted.")
+              sys.exit(0)
+
+          def key(v):
+              return tuple(int(x) for x in v.split("+")[0].split("-")[0].split("."))
+
+          def get_json(url):
+              with urllib.request.urlopen(url, timeout=60) as r:
+                  raw = r.read()
+              return json.loads(gzip.decompress(raw) if raw[:2] == b"\x1f\x8b" else raw)
+
+          ids = set()
+          for path in glob.glob("artifacts/*.nupkg"):
+              with zipfile.ZipFile(path) as z:
+                  nuspec = next(n for n in z.namelist() if n.endswith(".nuspec") and "/" not in n)
+                  meta = z.read(nuspec).decode("utf-8")
+              pid = re.search(r"<id>([^<]+)</id>", meta).group(1)
+              pver = re.search(r"<version>([^<]+)</version>", meta).group(1)
+              if pver != version:
+                  sys.exit(f"{path}: package version {pver} does not match {version}; refusing to unlist anything")
+              ids.add(pid)
+          if not ids:
+              sys.exit("no packages found in ./artifacts")
+
+          failures, done = [], 0
+          for pid in sorted(ids):
+              url = f"https://api.nuget.org/v3/registration5-gz-semver2/{pid.lower()}/index.json"
+              try:
+                  index = get_json(url)
+              except urllib.error.HTTPError as e:
+                  if e.code == 404:
+                      print(f"{pid}: no earlier versions on nuget.org")
+                      continue
+                  raise
+              entries = []
+              for page in index["items"]:
+                  entries += page["items"] if "items" in page else get_json(page["@id"])["items"]
+              old = [e["catalogEntry"]["version"] for e in entries
+                     if e["catalogEntry"].get("listed", True)
+                     and "-" not in e["catalogEntry"]["version"].split("+")[0]
+                     and key(e["catalogEntry"]["version"]) < key(version)]
+              for v in old:
+                  for attempt in range(3):
+                      r = subprocess.run(["dotnet", "nuget", "delete", pid, v, "--non-interactive",
+                                          "--api-key", os.environ["NUGET_API_KEY"],
+                                          "--source", "https://api.nuget.org/v3/index.json"],
+                                         capture_output=True, text=True)
+                      if r.returncode == 0:
+                          done += 1
+                          print(f"unlisted {pid} {v}")
+                          break
+                      time.sleep(5 * (attempt + 1))
+                  else:
+                      failures.append(f"{pid} {v}")
+                      print(f"::warning::could not unlist {pid} {v}")
+                  time.sleep(0.3)
+          print(f"unlisted {done} version(s) across {len(ids)} package(s)")
+          if failures:
+              sys.exit(f"{len(failures)} version(s) could not be unlisted: {', '.join(failures[:10])}")
