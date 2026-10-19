@@ -155,16 +155,16 @@
       "kck.filestorage.awss3": {
         "type": "Project",
         "dependencies": {
-          "AWSSDK.Core": "[4.0.7.4, )",
+          "AWSSDK.Core": "[4.0.102.11, )",
           "AWSSDK.S3": "[4.0.13, )",
           "Kck.FileStorage.Abstractions": "[1.0.0, )"
         }
       },
       "AWSSDK.Core": {
         "type": "CentralTransitive",
-        "requested": "[4.0.7.4, )",
-        "resolved": "4.0.7.4",
-        "contentHash": "qNlzH2ygJ6JG8uefpvws782PnJlkVEwqRD5vz4fR8wFfwWU3ttyAjiwEOPEYcxl84mhQdYGI9gR+kroGFI2+wA=="
+        "requested": "[4.0.102.11, )",
+        "resolved": "4.0.102.11",
+        "contentHash": "K9PP9/qHQ7pqSB0lYwStJrpXQ8P1xc7Fbn3CyPg8EX78p4+yz8dhIiwiRc3aVbVrUZxmPAPRvmZm+ey1euIXGg=="
       },
       "AWSSDK.S3": {
         "type": "CentralTransitive",
