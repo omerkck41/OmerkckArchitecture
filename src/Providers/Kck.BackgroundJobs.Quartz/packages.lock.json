@@ -21,26 +21,26 @@
       },
       "Quartz": {
         "type": "Direct",
-        "requested": "[3.22.5, )",
-        "resolved": "3.22.5",
-        "contentHash": "ZWEPSRUcZVdvh7JhTOmAxRJXyxbCtYHtyyKbq6Za/TH+UQr3Q5AkPhKnZAejHQNxaFUEx4qAWo77cTm0z8ko5Q=="
+        "requested": "[4.5.1, )",
+        "resolved": "4.5.1",
+        "contentHash": "vexFR5Z/Sbu0um75NOhjhinOEB4Acb/HAK6Q90EpGV44/YBxfchatXWoKJDOtYu8UtodBm6rs5GVtfM7TfUmsg=="
       },
       "Quartz.Extensions.DependencyInjection": {
         "type": "Direct",
-        "requested": "[3.22.5, )",
-        "resolved": "3.22.5",
-        "contentHash": "vUJsPDkNBRmGsQac6GPgRBPY68Ho+vveG3kg7b2nihxkVGC2VZQX+6mCyI0leQnhKzx48e6FfffXPv+0zDP+mw==",
+        "requested": "[4.5.1, )",
+        "resolved": "4.5.1",
+        "contentHash": "dZGzONyKa8wzUAcNPLfkZUgoS5jNETvtpYYynoFJVlO9Iey3caDXZFbnByQSK2j1r14G9KIfanUmDaUeWuq/yQ==",
         "dependencies": {
-          "Quartz": "3.22.5"
+          "Quartz": "4.5.1"
         }
       },
       "Quartz.Extensions.Hosting": {
         "type": "Direct",
-        "requested": "[3.22.5, )",
-        "resolved": "3.22.5",
-        "contentHash": "2P3aKTwwS91h+LnSM4OeuoGgv/D1sHZ3Sq7//nMpmLjxH3HWy1zwDiQ78apKR+9nS6RY6tLXgwiIjONuZ61fkQ==",
+        "requested": "[4.5.1, )",
+        "resolved": "4.5.1",
+        "contentHash": "A5werfxoXtoOtJPoafogL5WOPVZ3YEGVrIf+JlEJAGfS77xrMlxc0FyFlS3hQEB9mfobXiOJIHpl9ox89ruS2g==",
         "dependencies": {
-          "Quartz.Extensions.DependencyInjection": "3.22.5"
+          "Quartz": "4.5.1"
         }
       },
       "Microsoft.Build.Tasks.Git": {

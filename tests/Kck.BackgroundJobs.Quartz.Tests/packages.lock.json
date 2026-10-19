@@ -52,9 +52,9 @@
       },
       "Quartz": {
         "type": "Direct",
-        "requested": "[3.22.5, )",
-        "resolved": "3.22.5",
-        "contentHash": "ZWEPSRUcZVdvh7JhTOmAxRJXyxbCtYHtyyKbq6Za/TH+UQr3Q5AkPhKnZAejHQNxaFUEx4qAWo77cTm0z8ko5Q=="
+        "requested": "[4.5.1, )",
+        "resolved": "4.5.1",
+        "contentHash": "vexFR5Z/Sbu0um75NOhjhinOEB4Acb/HAK6Q90EpGV44/YBxfchatXWoKJDOtYu8UtodBm6rs5GVtfM7TfUmsg=="
       },
       "xunit": {
         "type": "Direct",
@@ -162,7 +162,7 @@
         "type": "Project",
         "dependencies": {
           "Kck.BackgroundJobs.Abstractions": "[1.0.0, )",
-          "Quartz": "[3.22.5, )",
+          "Quartz": "[4.5.1, )",
           "Quartz.Extensions.DependencyInjection": "[3.22.5, )",
           "Quartz.Extensions.Hosting": "[3.22.5, )"
         }
