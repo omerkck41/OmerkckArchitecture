@@ -207,6 +207,37 @@ class LicenseGateTests(unittest.TestCase):
         with self.assertRaises(license_gate.GateError):
             license_gate.collect_packages(self.fx.repo)
 
+    def test_policy_outside_root_is_rejected(self) -> None:
+        self.fx.add("Good.Lib", "1.0.0", expression("MIT"))
+        self.fx.write_lock()
+        outside = self.fx.repo.parent / "policy.json"
+        outside.write_text(json.dumps(BASE_POLICY), encoding="utf-8")
+        code = license_gate.main(["--root", str(self.fx.repo), "--policy", str(outside),
+                                  "--nuget-root", str(self.fx.nuget), "--today", "2026-10-26"])
+        self.assertEqual(code, 2)
+
+    def test_report_outside_root_is_rejected(self) -> None:
+        self.fx.add("Good.Lib", "1.0.0", expression("MIT"))
+        self.fx.write_lock()
+        policy = self.fx.repo / "policy.json"
+        policy.write_text(json.dumps(BASE_POLICY), encoding="utf-8")
+        code = license_gate.main(["--root", str(self.fx.repo), "--policy", str(policy),
+                                  "--nuget-root", str(self.fx.nuget), "--report", str(self.fx.repo.parent / "r.md")])
+        self.assertEqual(code, 2)
+
+    def test_main_passes_with_paths_inside_root(self) -> None:
+        self.fx.add("Good.Lib", "1.0.0", expression("MIT"))
+        self.fx.write_lock()
+        policy = self.fx.repo / "policy.json"
+        policy.write_text(json.dumps(BASE_POLICY), encoding="utf-8")
+        code = license_gate.main(["--root", str(self.fx.repo), "--policy", str(policy),
+                                  "--nuget-root", str(self.fx.nuget), "--report", str(self.fx.repo / "out" / "r.md")])
+        self.assertEqual(code, 0)
+        self.assertTrue((self.fx.repo / "out" / "r.md").is_file())
+
+    def test_clean_strips_line_breaks_that_could_inject_workflow_commands(self) -> None:
+        self.assertEqual(license_gate.clean("MIT\n::warning::forged\r\x1b"), "MIT ::warning::forged  ")
+
     def test_unused_reviewed_entries_are_reported(self) -> None:
         self.fx.add("Good.Lib", "1.0.0", expression("MIT"))
         self.fx.write_lock()
