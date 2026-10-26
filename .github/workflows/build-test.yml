@@ -141,11 +141,11 @@ jobs:
       - name: Enforce coverage threshold
         if: matrix.os == 'ubuntu-latest'
         env:
-          # Faz-B2 Kademe 1 — gercek olcum (2026-05-17): line %43.7, branch %38.7.
-          # Hedef %50/%45 icin ek testler gerekiyor (Kademe 2 oncesi).
-          # Yol haritasi: docs/policies/test-coverage.md
-          LINE_THRESHOLD: '43'
-          BRANCH_THRESHOLD: '38'
+          # Ratchet (2026-10-26): main measured line %56, branch %54.5 (run 38658902306, 2026-10-15).
+          # Threshold sits ~1.5 points below the measurement to absorb noise; raise it as coverage grows.
+          # Next target %65/%60 (docs/plans/2026-10-26-dis-inceleme-yol-haritasi.md H20); see docs/policies/test-coverage.md
+          LINE_THRESHOLD: '55'
+          BRANCH_THRESHOLD: '53'
         run: |
           LINE=$(awk '/Line coverage:/ {gsub("%",""); print $3; exit}' ./coverage-report/Summary.txt)
           BRANCH=$(awk '/Branch coverage:/ {gsub("%",""); print $3; exit}' ./coverage-report/Summary.txt)

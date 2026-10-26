@@ -53,7 +53,14 @@ v1.0.0 — API kaldirilabilir (major bump)
 
 | DiagnosticId | API                                              | Isaretlendi | Kaldirilacak |
 | ------------ | ------------------------------------------------ | ----------- | ------------ |
-| KCK0001      | `JwtTokenService.GetClaimsFromToken(string)`     | 0.x         | v1.0         |
+| KCK0001      | `ITokenService.GetClaimsFromToken(string)` + `JwtTokenService.GetClaimsFromToken(string)` — imzayi dogrulamaz | 0.x | v4.0 (v1.0 hedefi kacirildi) |
+| KCK0100      | `IReadRepository<T>`: `GetAsync`, `GetListAsync`, `GetListByDynamicAsync`, `AnyAsync`, `GetByIdAsync`, `CountAsync` (eski imzalar; `QueryOptions` uzantilarina gecin) | 2.x | v4.0 |
+| KCK0200      | `Kck.Pipeline.MediatR` paketi (`KckPipelineBuilder`, `AddKckPipeline`) — ADR-0021; MediatR 13+ ticari lisans | 2.x (2026-05-07) | v4.0 (paket kaldirilir) |
+| (yok)        | `Kck.EventBus.InMemory` eski kayit metotlari (`ServiceCollectionExtensions.cs:26,36`) — DiagnosticId'siz isaretlenmis | 2.x | v4.0 |
+
+> Not (2026-10-26): KCK0200 numara araligina gore Caching kategorisinde ama Pipeline icin kullanildi; kimligi degistirmek
+> tuketicilerin uyari bastirmalarini bozar, bu yuzden numara korunuyor. Core.Abstractions pipeline yonlendirme tipleri
+> (ADR-0026) bu politikaya aykiri olarak v3.2'de (minor) kaldirildi; bundan sonra kaldirma yalniz major surumde yapilir.
 
 ## Yeni Deprecation Eklerken
 

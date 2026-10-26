@@ -11,23 +11,25 @@ dotnet add package Kck.Documents.Abstractions
 ## Quick Start
 
 ```csharp
-// Program.cs — register a concrete provider
-builder.Services.AddKckClosedXmlDocuments();
-builder.Services.AddKckImageSharpProcessor();
+// Program.cs — register concrete providers
+builder.Services.AddKckDocumentsClosedXml();   // IExcelService + ICsvExporter
+builder.Services.AddKckDocumentsImageSharp();  // IImageProcessor
 
-// Generate an Excel file from a list
+// Generate Excel / CSV files from a list
 public class ReportHandler(IExcelService excel, ICsvExporter csv)
 {
     public async Task<byte[]> ExportOrdersExcelAsync(
         IReadOnlyList<OrderRow> rows, CancellationToken ct)
     {
-        return await excel.CreateFromDataAsync(rows, sheetName: "Orders", ct);
+        DocumentResult result = await excel.CreateFromDataAsync(rows, worksheetName: "Orders", ct: ct);
+        return result.Content; // also: result.ContentType, result.FileName ("Orders.xlsx")
     }
 
     public async Task<byte[]> ExportOrdersCsvAsync(
         IReadOnlyList<OrderRow> rows, CancellationToken ct)
     {
-        return await csv.ExportAsync(rows, ct);
+        DocumentResult result = await csv.ExportAsync(rows, fileName: "orders.csv", ct: ct);
+        return result.Content;
     }
 }
 
@@ -35,16 +37,22 @@ public class ReportHandler(IExcelService excel, ICsvExporter csv)
 public async Task<byte[]> ThumbnailAsync(
     Stream imageStream, IImageProcessor processor, CancellationToken ct)
 {
-    return await processor.ResizeAsync(imageStream, width: 200, height: 200, ct);
+    var options = new ImageProcessingOptions { Width = 200, Height = 200, OutputFormat = "webp" };
+    return await processor.ResizeAsync(imageStream, options, ct);
 }
 ```
 
-## Configuration
+## Options
 
-| Property | Description | Default |
+There is no configuration section; behaviour is set per call.
+
+| Setting | Where | Default |
 |---|---|---|
-| `Documents:Excel:DefaultSheetName` | Default worksheet name | `"Sheet1"` |
-| `Documents:Image:JpegQuality` | JPEG compression quality (1-100) | `85` |
+| Worksheet name | `CreateFromDataAsync(..., worksheetName)` | `"Sheet1"` |
+| CSV file name | `ExportAsync(..., fileName)` | `"export.csv"` |
+| Resize size / aspect ratio | `ImageProcessingOptions.Width`, `Height`, `MaintainAspectRatio` | aspect ratio kept |
+| Output format | `ImageProcessingOptions.OutputFormat` / `ConvertFormatAsync(..., targetFormat)` — ImageSharp provider: `png`, `gif`, `bmp`, `webp`, `jpeg` | `jpeg` |
+| Quality (JPEG / WebP) | `ImageProcessingOptions.Quality` | `80` |
 
 ## Resources
 

@@ -47,7 +47,8 @@ updates:
         patterns:
           - "xunit*"
           - "Microsoft.NET.Test.Sdk"
-          - "FluentAssertions"
+          - "AwesomeAssertions"
+          - "CsCheck"
           - "NSubstitute"
           - "coverlet*"
           - "BenchmarkDotNet"

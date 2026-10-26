@@ -5,6 +5,7 @@ on:
     branches: [main, develop]
   pull_request:
     branches: [main, develop]
+  # Scheduled run also catches exceptions that expire without any code change.
   schedule:
     - cron: '0 6 * * 1'  # Her Pazartesi 06:00 UTC
   workflow_dispatch:
@@ -36,35 +37,33 @@ jobs:
       - name: Restore
         run: dotnet restore --locked-mode
 
-      - name: Install nuget-license tool
-        run: dotnet tool install --global nuget-license
+      # Fail-closed gate over every packages.lock.json (decisions/2026-10-26-license-gate.md, docs/licensing.md).
+      # Unknown, unreviewed, changed-text or expired-exception licenses fail the job; so does any gate error.
+      - name: Test license gate
+        run: python3 -I -m unittest discover -s .github/scripts -p "test_*.py"
 
-      - name: Run license audit
-        shell: bash
+      - name: Run license gate
         run: |
-          set -uo pipefail
           mkdir -p artifacts
-          # Tum lisanslari listele (whitelist'siz — false positive avoid).
-          # Tool, stdout'a JSON yazar; non-zero exit code'lari (eksik metadata vb.)
-          # ignore et — copyleft kontrolu asagidaki grep ile yapilir.
-          nuget-license -i ./OmerkckArchitecture.sln -o JsonPretty \
-            > artifacts/licenses.json || true
-          echo "License report (head):"
-          head -100 artifacts/licenses.json
-          echo "..."
-          # GPL/AGPL/LGPL/SSPL/BUSL contamination kontrolu — sadece bunlar block.
-          # MIT-License, X11-License gibi kelime icinde "ML" gecen lisanslari yanlislikla
-          # yakalamamak icin word-boundary kullaniliyor.
-          if grep -E -i '"(licenseType|licenseUrl|License)"\s*:\s*"[^"]*\b(A?GPL|LGPL|SSPL|BUSL)\b[^"]*"' artifacts/licenses.json; then
-            echo "::error::Copyleft (GPL/AGPL/LGPL/SSPL/BUSL) license found"
-            exit 1
+          python3 -I .github/scripts/license_gate.py \
+            --root . \
+            --policy .github/license-policy.json \
+            --report artifacts/license-report.md
+        shell: bash
+
+      - name: Publish license report
+        if: always()
+        run: |
+          if [ -f artifacts/license-report.md ]; then
+            cat artifacts/license-report.md >> "$GITHUB_STEP_SUMMARY"
           fi
-          echo "OK: no copyleft contamination detected"
+        shell: bash
 
       - name: Upload license report
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: license-report
-          path: artifacts/licenses.json
+          path: artifacts/license-report.md
+          if-no-files-found: ignore
           retention-days: 90

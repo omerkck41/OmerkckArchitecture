@@ -10,6 +10,8 @@ Thanks for your interest. This project welcomes issues, PRs, and discussion.
 - `Kck.Documents.ImageSharp` uses ImageSharp 4, which validates a Six Labors license key in **Release** builds
   (`sixlabors.lic` in the repo root — git-ignored — or the `SixLaborsLicenseKey` property). Debug builds only warn.
   Without a key, build/test that project in Debug; CI builds Release with the maintainer's key.
+- **No dependency may require a paid license.** The `license-audit` workflow fails on unknown or non-permissive licenses;
+  see [docs/licensing.md](docs/licensing.md) for the policy and how to handle a failing gate.
 
 ## Branching
 
