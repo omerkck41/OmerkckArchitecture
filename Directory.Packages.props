@@ -17,7 +17,6 @@
     <PackageVersion Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.3" />
   </ItemGroup>
   <ItemGroup Label="Microsoft — System">
-    <PackageVersion Include="System.Drawing.Common" Version="10.0.5" />
     <PackageVersion Include="System.Text.Encodings.Web" Version="10.0.5" />
     <!-- Pinned: Microsoft.AspNetCore.Authentication.JwtBearer 10.0.5 transitively
          pulls Microsoft.IdentityModel.* 8.17. Locking this version prevents diamond
@@ -127,7 +126,6 @@
     <PackageVersion Include="Microsoft.SourceLink.GitHub" Version="10.0.402" />
   </ItemGroup>
   <ItemGroup Label="Analyzers">
-    <PackageVersion Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="10.0.0-preview.25155.1" />
     <PackageVersion Include="Microsoft.CodeAnalysis.PublicApiAnalyzers" Version="4.14.0" />
   </ItemGroup>
 </Project>

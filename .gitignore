@@ -135,3 +135,6 @@ template-artifacts/
 
 # Six Labors (ImageSharp 4) license key — never commit; CI uses the SIXLABORS_LICENSE_KEY secret
 sixlabors.lic
+
+## Python bytecode (CI helper scripts under .github/scripts)
+__pycache__/

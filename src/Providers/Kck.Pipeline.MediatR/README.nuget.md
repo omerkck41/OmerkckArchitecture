@@ -1,6 +1,12 @@
 # Kck.Pipeline.MediatR
 
-> **DEPRECATED** — Use `Kck.Pipeline.Mediator` instead. This package remains for backwards compatibility.
+> **DEPRECATED — removed in v4.0.0.** Use `Kck.Pipeline.Mediator` (MIT) instead. This package remains only for
+> backwards compatibility.
+>
+> **License warning:** this package depends on MediatR 14, which is licensed under the Reciprocal Public License 1.5
+> or a paid Lucky Penny Software commercial license, and logs a warning at runtime when no license key is configured.
+> Using `Kck.Pipeline.MediatR` means MediatR's terms apply to your application. See
+> [docs/licensing.md](https://github.com/omerkck41/OmerkckArchitecture/blob/main/docs/licensing.md).
 
 MediatR-backed CQRS pipeline with built-in validation, logging, and performance behaviors.
 

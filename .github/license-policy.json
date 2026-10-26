@@ -1,0 +1,101 @@
+{
+  "description": "License gate policy. Decision: decisions/2026-10-26-license-gate.md · Human guide: docs/licensing.md",
+  "allowed": [
+    "MIT",
+    "Apache-2.0",
+    "BSD-2-Clause",
+    "BSD-3-Clause",
+    "MS-PL",
+    "ISC",
+    "PostgreSQL",
+    "Zlib",
+    "Unlicense",
+    "0BSD"
+  ],
+  "reviewed": [
+    {
+      "id": "Mediator.Abstractions",
+      "kind": "file",
+      "license": "MIT",
+      "status": "allowed",
+      "sha256": ["9e784e4e25789e2b2a0a4fc307b473d4b27770fd970cd5f591a9bb4773eb04c8"]
+    },
+    {
+      "id": "Otp.NET",
+      "kind": "file",
+      "license": "MIT",
+      "status": "allowed",
+      "sha256": ["7105a6849d8df8d16efd54a1190bef83b7c42b81d393dd39957847e935c3994b"]
+    },
+    {
+      "id": "Apache.Arrow",
+      "kind": "file",
+      "license": "Apache-2.0",
+      "status": "allowed",
+      "sha256": ["471b017fee12a3636d4e5010d91b22f18a0a97fbf2662beef990362baa1b4cfa"]
+    },
+    {
+      "id": "Microsoft.DotNet.PlatformAbstractions",
+      "kind": "file",
+      "license": "MIT",
+      "status": "allowed",
+      "sha256": ["e2b344e8cfaef4e1bc97914cf1b18706555ef2a85ff286153490d481d87ce014"]
+    },
+    {
+      "id": "CommandLineParser",
+      "kind": "file",
+      "license": "MIT",
+      "status": "allowed",
+      "sha256": ["bde814c798387cdf5d85a24138dd56b0199ff786f9a487f80ff1b292f42baf81"]
+    },
+    {
+      "id": "starkbank-ecdsa",
+      "kind": "url",
+      "license": "MIT",
+      "status": "allowed",
+      "url": "https://opensource.org/licenses/MIT"
+    },
+    {
+      "id": "System.Security.Cryptography.ProtectedData",
+      "kind": "url",
+      "license": "MIT",
+      "status": "allowed",
+      "url": "https://github.com/dotnet/corefx/blob/master/LICENSE.TXT"
+    },
+    {
+      "id": "xunit.abstractions",
+      "kind": "url",
+      "license": "Apache-2.0",
+      "status": "allowed",
+      "url": "https://raw.githubusercontent.com/xunit/xunit/master/license.txt"
+    },
+    {
+      "id": "Hangfire*",
+      "kind": "file",
+      "license": "LGPL-3.0-or-later OR Hangfire commercial",
+      "status": "exception",
+      "reason": "Free under LGPL-3.0; consumed as an unmodified NuGet dependency (dynamic linking). Quartz provider is the permissive alternative.",
+      "sha256": [
+        "b887c399e6a9cba46af9500d167ad7232559def4915c2fcb5c2e0063e19daeec",
+        "6639396f174c1d91b05855edfc28ac28c44a3b07b2a85436964620c5614b21d1"
+      ]
+    },
+    {
+      "id": "SixLabors.ImageSharp",
+      "kind": "file",
+      "license": "Six Labors Split License 1.0",
+      "status": "exception",
+      "reason": "Apache-2.0 for this open-source project and for Kck consumers (transitive dependency clause); maintainer build key: Community license until 2028-01-12.",
+      "sha256": ["9144206b32fb82abcd4f543e212332513b5c792971ad12f1783dc19bf8b136a1"]
+    },
+    {
+      "id": "MediatR",
+      "kind": "file",
+      "license": "RPL-1.5 OR Lucky Penny commercial",
+      "status": "exception",
+      "reason": "Temporary: only the deprecated Kck.Pipeline.MediatR (KCK0200) uses it; package is removed in v4.0.0.",
+      "expires": "2027-01-31",
+      "sha256": ["34df298b519efe2f276f7fbcd7cf6187d1ce6f02e3c55eb04ae727503bbbcea7"]
+    }
+  ]
+}
