@@ -110,6 +110,18 @@ class LicenseGateTests(unittest.TestCase):
         code, _ = self.fx.run(BASE_POLICY)
         self.assertEqual(code, 1)
 
+    def test_malformed_expressions_are_not_auto_allowed(self) -> None:
+        allowed = {"MIT", "Apache-2.0"}
+        for expr in ("GPL-3.0-only MIT", "MIT OR", "OR MIT", "MIT OR OR Apache-2.0", "MIT or GPL-3.0-only", ""):
+            with self.subTest(expression=expr):
+                self.assertFalse(license_gate.expression_allowed(expr, allowed))
+
+    def test_well_formed_or_expressions_are_allowed(self) -> None:
+        allowed = {"MIT", "Apache-2.0"}
+        for expr in ("MIT", "(MIT)", "Apache-2.0 OR MPL-2.0", "(GPL-2.0-only OR MIT)"):
+            with self.subTest(expression=expr):
+                self.assertTrue(license_gate.expression_allowed(expr, allowed))
+
     def test_unreviewed_file_license_fails_and_reports_hash(self) -> None:
         self.fx.add("Paid.Lib", "14.1.0", file_license("LICENSE.md"), {"LICENSE.md": "Commercial terms"})
         self.fx.write_lock()

@@ -135,12 +135,19 @@ def read_license(pkg_dir: Path) -> LicenseInfo:
 
 
 def expression_allowed(expression: str, allowed: set[str]) -> bool:
-    """True for an allowed SPDX id, or an OR-only expression with at least one allowed alternative."""
+    """True for an allowed SPDX id, or a well-formed OR-only expression with at least one allowed alternative.
+
+    Tokens must strictly alternate id / OR / id (operators are case-sensitive, as in SPDX); anything else — AND, WITH,
+    adjacent ids, a dangling or doubled OR — is not auto-allowed and must be reviewed in the policy (fail-closed).
+    """
     tokens = expression.replace("(", " ").replace(")", " ").split()
-    keywords = {token.upper() for token in tokens}
-    if "AND" in keywords or "WITH" in keywords:
+    if len(tokens) % 2 == 0:
         return False
-    return any(token in allowed for token in tokens if token.upper() != "OR")
+    ids = tokens[0::2]
+    operators = tokens[1::2]
+    if any(op != "OR" for op in operators) or any(token.upper() in {"AND", "OR", "WITH"} for token in ids):
+        return False
+    return any(token in allowed for token in ids)
 
 
 def _entry_matches(entry: dict, pkg_id: str, info: LicenseInfo) -> bool:
