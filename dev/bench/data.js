@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1793048115683,
+  "lastUpdate": 1793050466205,
   "repoUrl": "https://github.com/omerkck41/OmerkckArchitecture",
   "entries": {
     "Benchmark": [
@@ -5230,6 +5230,102 @@ window.BENCHMARK_DATA = {
             "value": 13.376375842094422,
             "unit": "ns",
             "range": "± 0.18634197486873846"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "49699333+dependabot[bot]@users.noreply.github.com",
+            "name": "dependabot[bot]",
+            "username": "dependabot[bot]"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "5eacf4a9022fa9e9931fcf945e39c1eafab0692a",
+          "message": "chore(deps): Bump Microsoft.EntityFrameworkCore and 2 others (#168)\n\nPinned [Microsoft.EntityFrameworkCore](https://github.com/dotnet/dotnet)\nat 10.0.14.\n\n<details>\n<summary>Release notes</summary>\n\n_Sourced from [Microsoft.EntityFrameworkCore's\nreleases](https://github.com/dotnet/dotnet/releases)._\n\nNo release notes found for this version range.\n\nCommits viewable in [compare\nview](https://github.com/dotnet/dotnet/commits).\n</details>\n\nUpdated\n[Microsoft.EntityFrameworkCore.InMemory](https://github.com/dotnet/dotnet)\nfrom 10.0.13 to 10.0.14.\n\n<details>\n<summary>Release notes</summary>\n\n_Sourced from [Microsoft.EntityFrameworkCore.InMemory's\nreleases](https://github.com/dotnet/dotnet/releases)._\n\nNo release notes found for this version range.\n\nCommits viewable in [compare\nview](https://github.com/dotnet/dotnet/commits).\n</details>\n\nUpdated\n[Microsoft.EntityFrameworkCore.Sqlite](https://github.com/dotnet/dotnet)\nfrom 10.0.13 to 10.0.14.\n\n<details>\n<summary>Release notes</summary>\n\n_Sourced from [Microsoft.EntityFrameworkCore.Sqlite's\nreleases](https://github.com/dotnet/dotnet/releases)._\n\nNo release notes found for this version range.\n\nCommits viewable in [compare\nview](https://github.com/dotnet/dotnet/commits).\n</details>\n\nSigned-off-by: dependabot[bot] <support@github.com>\nCo-authored-by: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>",
+          "timestamp": "2026-10-27T00:27:46+03:00",
+          "tree_id": "e0297b6364af85144991da905cedb0093242e3c5",
+          "url": "https://github.com/omerkck41/OmerkckArchitecture/commit/5eacf4a9022fa9e9931fcf945e39c1eafab0692a"
+        },
+        "date": 1793050465743,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Success_Factory",
+            "value": 5.147086146085159,
+            "unit": "ns",
+            "range": "± 0.20714216347285935"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Failure_Factory",
+            "value": 7.013340070843697,
+            "unit": "ns",
+            "range": "± 0.21634022065496183"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Success",
+            "value": 0.8399366121739149,
+            "unit": "ns",
+            "range": "± 0.0088329033845069"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Failure",
+            "value": 0.519995927500228,
+            "unit": "ns",
+            "range": "± 0.0048911040176093405"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Serialize_Reflection",
+            "value": 315.94625990731373,
+            "unit": "ns",
+            "range": "± 0.6055950769396745"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Deserialize_Reflection",
+            "value": 577.337892595927,
+            "unit": "ns",
+            "range": "± 3.11767605330819"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 0)",
+            "value": 8.44349725716389,
+            "unit": "ns",
+            "range": "± 0.02701255654991451"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 5)",
+            "value": 8.248338179519543,
+            "unit": "ns",
+            "range": "± 0.0274735855412158"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 0)",
+            "value": 8.686712258628436,
+            "unit": "ns",
+            "range": "± 0.11750274446931852"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 5)",
+            "value": 8.757740025009427,
+            "unit": "ns",
+            "range": "± 0.06190105923869185"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 0)",
+            "value": 8.727454543113708,
+            "unit": "ns",
+            "range": "± 0.15050612896012522"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 5)",
+            "value": 8.66123183319966,
+            "unit": "ns",
+            "range": "± 0.11585219021540644"
           }
         ]
       }
