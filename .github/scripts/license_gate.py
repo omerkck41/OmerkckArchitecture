@@ -56,7 +56,8 @@ def text_sha256(text: str) -> str:
 
 def clean(value: object) -> str:
     """Replaces non-printable characters so third-party text cannot break log lines or inject workflow commands."""
-    return "".join(ch if ch.isprintable() else " " for ch in str(value))
+    text = str(value).replace("\n", " ").replace("\r", " ")
+    return "".join(ch if ch.isprintable() else " " for ch in text)
 
 
 def _lock_files(repo_root: Path) -> list[Path]:
