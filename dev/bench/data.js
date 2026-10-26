@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1793036785682,
+  "lastUpdate": 1793048115683,
   "repoUrl": "https://github.com/omerkck41/OmerkckArchitecture",
   "entries": {
     "Benchmark": [
@@ -5134,6 +5134,102 @@ window.BENCHMARK_DATA = {
             "value": 12.825285057226816,
             "unit": "ns",
             "range": "± 0.1533940500057783"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "106805727+omerkck41@users.noreply.github.com",
+            "name": "Ömer KÜÇÜK",
+            "username": "omerkck41"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "856c84f402316bddb8847ced7093935dc982e523",
+          "message": "ci(coverage): branch threshold 51 for coverlet 10 measurement (#172)\n\nPrerequisite for #154 (coverlet.collector 6 -> 10).\n\n| | coverlet 6 (main) | coverlet 10 (#154) |\n|---|---|---|\n| Line | 56% | 56% |\n| Branch | 54.5% | 52.3% |\n\nSame code, different branch counting -> the 53% gate fails on a tool\nchange, not a test regression. Branch threshold follows the ratchet rule\n(~1.5 points below the measurement): **51**. Line threshold stays 55.\nMerge this before #154.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-authored-by: Claude Opus 5.5 <noreply@anthropic.com>",
+          "timestamp": "2026-10-26T23:48:03+03:00",
+          "tree_id": "01849d45e79152555b1773dba8027972c17cf51c",
+          "url": "https://github.com/omerkck41/OmerkckArchitecture/commit/856c84f402316bddb8847ced7093935dc982e523"
+        },
+        "date": 1793048115021,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Success_Factory",
+            "value": 6.504911472400029,
+            "unit": "ns",
+            "range": "± 0.08915870255001923"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Failure_Factory",
+            "value": 9.55888244509697,
+            "unit": "ns",
+            "range": "± 0.22200055389469098"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Success",
+            "value": 1.6358931672114592,
+            "unit": "ns",
+            "range": "± 0.007561618500626475"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Failure",
+            "value": 0.2748482728806826,
+            "unit": "ns",
+            "range": "± 0.003505072579967182"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Serialize_Reflection",
+            "value": 468.817018362192,
+            "unit": "ns",
+            "range": "± 1.7624241171585084"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Deserialize_Reflection",
+            "value": 794.505000931876,
+            "unit": "ns",
+            "range": "± 5.114172564601969"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 0)",
+            "value": 10.072299381451947,
+            "unit": "ns",
+            "range": "± 0.08547430152490679"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 5)",
+            "value": 10.208847365776698,
+            "unit": "ns",
+            "range": "± 0.20613692190844524"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 0)",
+            "value": 10.081477663914363,
+            "unit": "ns",
+            "range": "± 0.13192116904031698"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 5)",
+            "value": 10.090983968514662,
+            "unit": "ns",
+            "range": "± 0.0639250805101028"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 0)",
+            "value": 12.560250137249628,
+            "unit": "ns",
+            "range": "± 0.0959009735403373"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 5)",
+            "value": 13.376375842094422,
+            "unit": "ns",
+            "range": "± 0.18634197486873846"
           }
         ]
       }
