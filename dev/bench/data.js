@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1793033972887,
+  "lastUpdate": 1793036785682,
   "repoUrl": "https://github.com/omerkck41/OmerkckArchitecture",
   "entries": {
     "Benchmark": [
@@ -5038,6 +5038,102 @@ window.BENCHMARK_DATA = {
             "value": 11.465319571395716,
             "unit": "ns",
             "range": "± 0.18123434778276765"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "106805727+omerkck41@users.noreply.github.com",
+            "name": "Ömer KÜÇÜK",
+            "username": "omerkck41"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "19b7d05c7cd344ea056561e8b92fe73ac9fac8ef",
+          "message": "fix(ci): run required checks after Dependabot lock file pushes (#169)\n\n## Why\n\n`dependabot-lockfile` regenerates `packages.lock.json` and pushes it to\nthe Dependabot branch with `GITHUB_TOKEN`.\nGitHub does not start `pull_request` runs for pushes made with\n`GITHUB_TOKEN` — they sit in **`action_required`**\n(e.g. ClosedXML branch, head `cca2c00`: build-test, codeql,\nlicense-audit, sonar all `action_required`). Result:\nevery Dependabot PR whose lock files changed (#153, #158, #159, #160)\nhad **no checks** on its head commit and could\nnever satisfy branch protection.\n\n## What\n\n- After it pushes, `dependabot-lockfile` dispatches `build-test.yml`,\n`codeql.yml` and `license-audit.yml` on the PR\nbranch (`gh workflow run --ref <head_ref>`). Per GitHub docs,\n`workflow_dispatch` and `repository_dispatch` \"always\n  create workflow runs\", so **no PAT / GitHub App secret** is needed.\n- `codeql.yml`: add a `workflow_dispatch` trigger. Job permission\n`actions: write` for the dispatch.\n- `head_ref` reaches the shell through an env var (no expression\ninterpolation in `run`).\n\n## Security note\n\nDispatched runs receive Actions secrets instead of Dependabot secrets.\n`SIXLABORS_LICENSE_KEY` is already defined in\nboth stores, so no new secret becomes reachable by dependency-update\nbuilds.\n\n## Verification\n\n- YAML parses; change is CI-only.\n- GitHub docs do not state whether dispatched runs satisfy required\nchecks on the PR head SHA. After merge this is\nverified on a real Dependabot PR (`@dependabot recreate` on #160) before\nrelying on it.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\n---------\n\nCo-authored-by: Claude Opus 5.5 <noreply@anthropic.com>",
+          "timestamp": "2026-10-26T20:40:08+03:00",
+          "tree_id": "818b76fb6bbfd763d51d400c70e1ca1b6b57de59",
+          "url": "https://github.com/omerkck41/OmerkckArchitecture/commit/19b7d05c7cd344ea056561e8b92fe73ac9fac8ef"
+        },
+        "date": 1793036784943,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Success_Factory",
+            "value": 7.649604165554047,
+            "unit": "ns",
+            "range": "± 0.04684003764719666"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Failure_Factory",
+            "value": 9.212676854005881,
+            "unit": "ns",
+            "range": "± 0.05286418845713103"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Success",
+            "value": 1.6134668673078219,
+            "unit": "ns",
+            "range": "± 0.06637154044075108"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Failure",
+            "value": 0.575343345957143,
+            "unit": "ns",
+            "range": "± 0.018748821701419175"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Serialize_Reflection",
+            "value": 405.6850063250615,
+            "unit": "ns",
+            "range": "± 0.9446868929696054"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Deserialize_Reflection",
+            "value": 734.6977419172015,
+            "unit": "ns",
+            "range": "± 2.315836941934119"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 0)",
+            "value": 11.614817093525614,
+            "unit": "ns",
+            "range": "± 0.09861774088702088"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 5)",
+            "value": 12.624170593420665,
+            "unit": "ns",
+            "range": "± 0.1304900930549523"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 0)",
+            "value": 11.726283715168636,
+            "unit": "ns",
+            "range": "± 0.09783810177111205"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 5)",
+            "value": 12.592416183153789,
+            "unit": "ns",
+            "range": "± 0.13493169262368176"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 0)",
+            "value": 12.765398238102595,
+            "unit": "ns",
+            "range": "± 0.06639000371918989"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 5)",
+            "value": 12.825285057226816,
+            "unit": "ns",
+            "range": "± 0.1533940500057783"
           }
         ]
       }
