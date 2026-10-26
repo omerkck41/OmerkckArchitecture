@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1793050466205,
+  "lastUpdate": 1793052279832,
   "repoUrl": "https://github.com/omerkck41/OmerkckArchitecture",
   "entries": {
     "Benchmark": [
@@ -5326,6 +5326,102 @@ window.BENCHMARK_DATA = {
             "value": 8.66123183319966,
             "unit": "ns",
             "range": "± 0.11585219021540644"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "49699333+dependabot[bot]@users.noreply.github.com",
+            "name": "dependabot[bot]",
+            "username": "dependabot[bot]"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "aee4d84c0e9e4873a505496d72fcb535a0101015",
+          "message": "chore(deps): Bump Microsoft.CodeAnalysis.PublicApiAnalyzers from 4.14.0 to 5.6.0 (#155)\n\nUpdated\n[Microsoft.CodeAnalysis.PublicApiAnalyzers](https://github.com/dotnet/roslyn)\nfrom 4.14.0 to 5.6.0.\n\n<details>\n<summary>Release notes</summary>\n\n_Sourced from [Microsoft.CodeAnalysis.PublicApiAnalyzers's\nreleases](https://github.com/dotnet/roslyn/releases)._\n\n## 5.0.4\n\n[Release](https://github.com/dotnet/core/releases/tag/v5.0.4)\n\n## 5.0.2\n\n[Release\nNotes](https://github.com/dotnet/core/blob/master/release-notes/5.0/5.0.2/5.0.2.md)\n[Install\nInstructions](https://github.com/dotnet/core/blob/master/release-notes/5.0/5.0.2/5.0.2-install-instructions.md)\n\n# Repos\n\n* [Core](https://github.com/dotnet/core/releases/tag/v5.0.2)\n\n## 5.0.1\n\n[Release\nNotes](https://github.com/dotnet/core/blob/master/release-notes/5.0/5.0.1/5.0.1.md)\n[Install\nInstructions](https://github.com/dotnet/core/blob/master/release-notes/5.0/5.0.1/5.0.1-install-instructions.md)\n\n# Repo\n\n* [Core](https://github.com/dotnet/core/releases/tag/v5.0.1)\n\nCommits viewable in [compare\nview](https://github.com/dotnet/roslyn/commits).\n</details>\n\nSigned-off-by: dependabot[bot] <support@github.com>\nCo-authored-by: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>",
+          "timestamp": "2026-10-27T00:57:28+03:00",
+          "tree_id": "a3f27d30635745df0c160b8e2aa5431cbeedd830",
+          "url": "https://github.com/omerkck41/OmerkckArchitecture/commit/aee4d84c0e9e4873a505496d72fcb535a0101015"
+        },
+        "date": 1793052278927,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Success_Factory",
+            "value": 7.43010327120622,
+            "unit": "ns",
+            "range": "± 0.09044989783787355"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Failure_Factory",
+            "value": 12.064739057822013,
+            "unit": "ns",
+            "range": "± 0.725722860898711"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Success",
+            "value": 1.634211876644538,
+            "unit": "ns",
+            "range": "± 0.0059886650783418415"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Failure",
+            "value": 0.5819037083004203,
+            "unit": "ns",
+            "range": "± 0.002734258418718073"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Serialize_Reflection",
+            "value": 456.7523194721767,
+            "unit": "ns",
+            "range": "± 3.0493923804841923"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Deserialize_Reflection",
+            "value": 776.7524291992188,
+            "unit": "ns",
+            "range": "± 5.97500264539623"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 0)",
+            "value": 9.905535638332367,
+            "unit": "ns",
+            "range": "± 0.22168664302485647"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 5)",
+            "value": 9.910272725423177,
+            "unit": "ns",
+            "range": "± 0.20630916721301654"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 0)",
+            "value": 10.066045153141022,
+            "unit": "ns",
+            "range": "± 0.16696954712653364"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 5)",
+            "value": 10.448958125896752,
+            "unit": "ns",
+            "range": "± 0.24994824546790737"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 0)",
+            "value": 10.705955591797828,
+            "unit": "ns",
+            "range": "± 0.13584522565386337"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 5)",
+            "value": 10.611010035233837,
+            "unit": "ns",
+            "range": "± 0.12081423940405099"
           }
         ]
       }
