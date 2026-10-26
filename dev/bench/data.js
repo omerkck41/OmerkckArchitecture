@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1792023702133,
+  "lastUpdate": 1793033972887,
   "repoUrl": "https://github.com/omerkck41/OmerkckArchitecture",
   "entries": {
     "Benchmark": [
@@ -4942,6 +4942,102 @@ window.BENCHMARK_DATA = {
             "value": 11.210864979454449,
             "unit": "ns",
             "range": "± 0.46711108863625417"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "106805727+omerkck41@users.noreply.github.com",
+            "name": "Ömer KÜÇÜK",
+            "username": "omerkck41"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "6489b6d1dbb9adbca31c4cf3d42b4c58c71aa04e",
+          "message": "security(ci): fail-closed license gate; no paid-license dependencies (#164)\n\n## Why\n\nProject rule: **no dependency may require a paid license.** The existing\n`license-audit` job could not enforce it:\n\n- it grepped `nuget-license` output for `GPL|LGPL|SSPL|BUSL` — packages\nthat ship their license as a **file** never matched;\n- tool errors were swallowed with `|| true` (fail-open) and the tool was\ninstalled unpinned.\n\nResult: the job reported \"OK: no copyleft contamination detected\" (run\n40324570972) while `Kck.Pipeline.MediatR`\nshipped **MediatR 14.1.0** (RPL-1.5 or paid Lucky Penny license), and\nHangfire (LGPL-3.0) and ImageSharp (Split\nLicense) were never reviewed.\n\n## What\n\n- **Fail-closed license gate** — `.github/scripts/license_gate.py` (+ 17\n`unittest` tests, stdlib only): reads every\n`packages.lock.json`, checks each nuspec license against\n`.github/license-policy.json`. File licenses are pinned by\nthe SHA-256 of their text, so a vendor relicensing a new version fails\nthe gate. Unknown / changed / expired-exception\n  licenses and any gate error fail the job.\n- **Policy** — permissive allowlist; documented exceptions: `Hangfire*`\n(LGPL-3.0), `SixLabors.ImageSharp` (Apache-2.0\nfor Kck consumers via the transitive-dependency clause); `MediatR`\ntemporary until **2027-01-31** — `Kck.Pipeline.MediatR`\n  is removed in v4.0.0.\n- `docs/licensing.md`, CONTRIBUTING rule, decision record\n`decisions/2026-10-26-license-gate.md`.\n- Coverage threshold **43/38 → 55/53** (main measured 56 / 54.5).\n- Removed unreferenced `PackageVersion` entries (NetAnalyzers preview,\nSystem.Drawing.Common); Dependabot testing\n  group now matches AwesomeAssertions.\n- Deprecation table lists every pending removal (KCK0001 was due in\nv1.0).\n- `Kck.Documents.Abstractions` README: Quick Start had 6 compile errors\n— rewritten against the real API.\nImageSharp package description no longer claims AVIF (GIF/BMP are\nsupported); MediatR package carries a license warning.\n\nNo runtime code changed.\n\n## Verification (local)\n\n| Check | Result |\n|---|---|\n| Gate unit tests | 17/17 pass (RED seen first) |\n| Gate on repo, real policy | PASS — 224 packages, 0 violations, 8\ndocumented exceptions |\n| Gate without policy entries | FAIL — names MediatR, ImageSharp,\nHangfire |\n| Mutation probes (drop MediatR entry, change hash, expiry passed, wrong\nNuGet root, missing policy) | all FAIL |\n| `dotnet restore --force-evaluate` / `--locked-mode` | lock files\nunchanged / pass |\n| `dotnet build -c Release` | 0 errors (5 known CA1716 warnings) |\n| README sample compiled in a scratch project | 0 errors (previous\nsample: 5 errors) |\n| actionlint / zizmor | not run locally (tools not installed) — CI\nchecks apply |\n\n## Follow-ups (not in this PR)\n\n- Gate does not cover `.config/dotnet-tools.json` tools yet (all\npermissive today).\n- `dotnet new` template pins `Kck.Bundle.WebApi` 3.0.0.\n\nRoadmap: F0 of the license / quality plan (v3.6 → v4.0 cleanup).\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\n---------\n\nCo-authored-by: Claude Opus 5.5 <noreply@anthropic.com>",
+          "timestamp": "2026-10-26T19:52:01+03:00",
+          "tree_id": "87b1d27be64873d4013542abf64aa013a7e24ce8",
+          "url": "https://github.com/omerkck41/OmerkckArchitecture/commit/6489b6d1dbb9adbca31c4cf3d42b4c58c71aa04e"
+        },
+        "date": 1793033971583,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Success_Factory",
+            "value": 6.697232168700014,
+            "unit": "ns",
+            "range": "± 0.0783519665187231"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Failure_Factory",
+            "value": 13.288111194372178,
+            "unit": "ns",
+            "range": "± 1.1989086603966157"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Success",
+            "value": 1.6407104457418125,
+            "unit": "ns",
+            "range": "± 0.0039385086047506075"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Failure",
+            "value": 0.5865904273731368,
+            "unit": "ns",
+            "range": "± 0.005674854518317917"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Serialize_Reflection",
+            "value": 487.3698136989887,
+            "unit": "ns",
+            "range": "± 2.642065044660497"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Deserialize_Reflection",
+            "value": 799.7131769816081,
+            "unit": "ns",
+            "range": "± 5.947475327489924"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 0)",
+            "value": 10.944368349654335,
+            "unit": "ns",
+            "range": "± 0.17538802848513776"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 5)",
+            "value": 11.629280901948611,
+            "unit": "ns",
+            "range": "± 0.18369732612429904"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 0)",
+            "value": 11.204306958119075,
+            "unit": "ns",
+            "range": "± 0.22054313180314006"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 5)",
+            "value": 10.783415228128433,
+            "unit": "ns",
+            "range": "± 0.20769467679818437"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 0)",
+            "value": 11.036250662058592,
+            "unit": "ns",
+            "range": "± 0.3144130391419601"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 5)",
+            "value": 11.465319571395716,
+            "unit": "ns",
+            "range": "± 0.18123434778276765"
           }
         ]
       }
