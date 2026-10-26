@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1793052279832,
+  "lastUpdate": 1793052788194,
   "repoUrl": "https://github.com/omerkck41/OmerkckArchitecture",
   "entries": {
     "Benchmark": [
@@ -5422,6 +5422,102 @@ window.BENCHMARK_DATA = {
             "value": 10.611010035233837,
             "unit": "ns",
             "range": "± 0.12081423940405099"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "106805727+omerkck41@users.noreply.github.com",
+            "name": "Ömer KÜÇÜK",
+            "username": "omerkck41"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "13c60c5804b829cf8ba5fc1b8df7f68cb5213ba6",
+          "message": "ci(actions): bump codeql-action init + analyze to v4.39.1 together (#165)\n\n## Why\n\nDependabot opened the codeql-action bump as two PRs: #162 (`init`) and\n#163 (`analyze`). Merged separately, CodeQL\nfails — run 40262728588: *\"Loaded a configuration file for version\n'4.38.3', but running version '4.39.1'. All steps\nin a workflow that use `github/codeql-action` must use the same\nversion\"*.\n\n## What\n\n- `codeql.yml`: `init` and `analyze` → v4.39.1\n(`9b3254085494b55a0f7c4c2b3d2d52cc712ce370`, verified against the\n  `v4.39.1` tag via the GitHub API).\n- `dependabot.yml`: `codeql-action` group for the github-actions\necosystem so future bumps arrive in one PR.\n\nSupersedes #162 and #163 (close them after this merges).\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-authored-by: Claude Opus 5.5 <noreply@anthropic.com>",
+          "timestamp": "2026-10-27T01:05:45+03:00",
+          "tree_id": "27ab4271cc444654d47ab004986a05ea71369e25",
+          "url": "https://github.com/omerkck41/OmerkckArchitecture/commit/13c60c5804b829cf8ba5fc1b8df7f68cb5213ba6"
+        },
+        "date": 1793052787449,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Success_Factory",
+            "value": 4.003278424342473,
+            "unit": "ns",
+            "range": "± 0.11252667669505274"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Failure_Factory",
+            "value": 5.168849542344871,
+            "unit": "ns",
+            "range": "± 0.15607779970419886"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Success",
+            "value": 0.5098448425531388,
+            "unit": "ns",
+            "range": "± 0.030034033906625172"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Failure",
+            "value": 0.2658907480251331,
+            "unit": "ns",
+            "range": "± 0.06756286441451058"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Serialize_Reflection",
+            "value": 260.4365055220468,
+            "unit": "ns",
+            "range": "± 2.7753170637629556"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Deserialize_Reflection",
+            "value": 486.8651698185847,
+            "unit": "ns",
+            "range": "± 5.077895020149904"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 0)",
+            "value": 6.909130792084493,
+            "unit": "ns",
+            "range": "± 0.1864202998791587"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 5)",
+            "value": 6.740250077098608,
+            "unit": "ns",
+            "range": "± 0.2764219182339659"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 0)",
+            "value": 6.597016218083876,
+            "unit": "ns",
+            "range": "± 0.24347063840190508"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 5)",
+            "value": 6.655114811224242,
+            "unit": "ns",
+            "range": "± 0.35013129065688886"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 0)",
+            "value": 6.207590944589453,
+            "unit": "ns",
+            "range": "± 0.3252303832335683"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 5)",
+            "value": 6.149017333257489,
+            "unit": "ns",
+            "range": "± 0.2888392159300867"
           }
         ]
       }
