@@ -69,5 +69,10 @@ updates:
     labels:
       - dependencies
       - github-actions
+    groups:
+      # init and analyze must run the same version; separate PRs fail CodeQL ("All steps ... same version").
+      codeql-action:
+        patterns:
+          - "github/codeql-action*"
     commit-message:
       prefix: "chore(ci)"
