@@ -56,6 +56,9 @@ jobs:
       # A push made with GITHUB_TOKEN does not start pull_request runs (they wait as "action_required"), so the new
       # head commit would never get its required checks. workflow_dispatch is the documented exception that always
       # creates a run: start the check workflows on the PR branch head explicitly. No extra secret is needed.
+      # SECURITY: dispatched runs get Actions secrets (not Dependabot secrets) while building dependency updates.
+      # Only dispatch workflows whose secrets also exist as Dependabot secrets (today: SIXLABORS_LICENSE_KEY only);
+      # adding an Actions-only secret to any workflow below would expose it to dependency-update builds.
       - name: Run checks on the updated head
         if: steps.commit.outputs.pushed == 'true'
         env:
