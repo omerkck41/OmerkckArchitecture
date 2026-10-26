@@ -163,8 +163,8 @@
         "dependencies": {
           "Kck.BackgroundJobs.Abstractions": "[1.0.0, )",
           "Quartz": "[4.6.1, )",
-          "Quartz.Extensions.DependencyInjection": "[3.22.5, )",
-          "Quartz.Extensions.Hosting": "[3.22.5, )"
+          "Quartz.Extensions.DependencyInjection": "[4.6.1, )",
+          "Quartz.Extensions.Hosting": "[4.6.1, )"
         }
       },
       "Newtonsoft.Json": {
@@ -175,20 +175,20 @@
       },
       "Quartz.Extensions.DependencyInjection": {
         "type": "CentralTransitive",
-        "requested": "[3.22.5, )",
-        "resolved": "3.22.5",
-        "contentHash": "vUJsPDkNBRmGsQac6GPgRBPY68Ho+vveG3kg7b2nihxkVGC2VZQX+6mCyI0leQnhKzx48e6FfffXPv+0zDP+mw==",
+        "requested": "[4.6.1, )",
+        "resolved": "4.6.1",
+        "contentHash": "bL9Fsj1B57EC3Ot8TwXa9Ly8ea2jaAWKgzln+QClU18tfyvTPU1mi/yMBYeJltFY5mryL4VWjE7HcuoIlfNq4Q==",
         "dependencies": {
-          "Quartz": "3.22.5"
+          "Quartz": "4.6.1"
         }
       },
       "Quartz.Extensions.Hosting": {
         "type": "CentralTransitive",
-        "requested": "[3.22.5, )",
-        "resolved": "3.22.5",
-        "contentHash": "2P3aKTwwS91h+LnSM4OeuoGgv/D1sHZ3Sq7//nMpmLjxH3HWy1zwDiQ78apKR+9nS6RY6tLXgwiIjONuZ61fkQ==",
+        "requested": "[4.6.1, )",
+        "resolved": "4.6.1",
+        "contentHash": "5xRAJcsjuLcNjxoeSu4DI9J0vRWlsSaxSLA0Up/bzsAU34JEFxJbEoSN1sBVENMUpJy92HkoUWjOZ1bbGjSTQw==",
         "dependencies": {
-          "Quartz.Extensions.DependencyInjection": "3.22.5"
+          "Quartz": "4.6.1"
         }
       }
     }
