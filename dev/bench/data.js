@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1793109033213,
+  "lastUpdate": 1793109902467,
   "repoUrl": "https://github.com/omerkck41/OmerkckArchitecture",
   "entries": {
     "Benchmark": [
@@ -5614,6 +5614,102 @@ window.BENCHMARK_DATA = {
             "value": 8.188802146485873,
             "unit": "ns",
             "range": "± 0.14192249310884322"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "106805727+omerkck41@users.noreply.github.com",
+            "name": "Ömer KÜÇÜK",
+            "username": "omerkck41"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "9bfe9ed5d4056b25c3b9c51a8813a7aed9eb0e22",
+          "message": "docs: track roadmap, plans and known issues in git (#174)\n\n## Summary\nDecision D6 of the 2026-10-26 roadmap: keep the project's working\ndocuments in git so they are not lost.\n\n- `docs/plans/2026-10-26-dis-inceleme-yol-haritasi.md` — roadmap F0–F3;\ndecisions D0–D6 recorded as approved (2026-10-27)\n- `docs/plans/2026-10-14-omerkck-v2-fixes.md` and\n`docs/archive/2026-10-15-omerkck-v2-fixes.md` — completed v2 fixes plan\nand checkpoint\n- `docs/memory/known-issues.md` — K1 Six Labors licence renewal\n(2027-10-14), K2 MediatR licence exception expiry (2027-01-31)\n- `docfx.json` — excludes `docs/plans`, `docs/archive`, `docs/memory` so\ninternal (Turkish) working notes are not published on the documentation\nsite\n\nNo code or package changes. Files were scanned for secrets before commit\n(none).\n\n## Test plan\n- [x] `docfx.json` parses as valid JSON\n- [ ] CI green (docs workflow builds the site without the excluded\nfolders)\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-authored-by: Claude Opus 5.5 <noreply@anthropic.com>",
+          "timestamp": "2026-10-27T16:59:03+03:00",
+          "tree_id": "811d048af8300964a7d430899a3da22ee674622d",
+          "url": "https://github.com/omerkck41/OmerkckArchitecture/commit/9bfe9ed5d4056b25c3b9c51a8813a7aed9eb0e22"
+        },
+        "date": 1793109901632,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Success_Factory",
+            "value": 7.371169749895731,
+            "unit": "ns",
+            "range": "± 0.09004634376628497"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Failure_Factory",
+            "value": 10.83068301660173,
+            "unit": "ns",
+            "range": "± 0.2815360126610268"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Success",
+            "value": 1.6405572603855814,
+            "unit": "ns",
+            "range": "± 0.004183045068058839"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Failure",
+            "value": 0.5913106615344683,
+            "unit": "ns",
+            "range": "± 0.006975475554379602"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Serialize_Reflection",
+            "value": 493.6807131767273,
+            "unit": "ns",
+            "range": "± 1.5809209061037346"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Deserialize_Reflection",
+            "value": 831.9061549050467,
+            "unit": "ns",
+            "range": "± 1.5467195037020713"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 0)",
+            "value": 14.649244207143784,
+            "unit": "ns",
+            "range": "± 0.21680737226889502"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 5)",
+            "value": 11.828547393282255,
+            "unit": "ns",
+            "range": "± 0.2232550582781262"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 0)",
+            "value": 12.2428808649381,
+            "unit": "ns",
+            "range": "± 0.1987916907442213"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 5)",
+            "value": 12.28936870296796,
+            "unit": "ns",
+            "range": "± 0.25158669147883156"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 0)",
+            "value": 11.972624754533172,
+            "unit": "ns",
+            "range": "± 0.2938194107718805"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 5)",
+            "value": 12.477676658829052,
+            "unit": "ns",
+            "range": "± 0.2583741763269381"
           }
         ]
       }
