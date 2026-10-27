@@ -1,5 +1,4 @@
 using System.Diagnostics;
-using System.Text.Json;
 using Kck.Caching.Abstractions;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Caching.Hybrid;
@@ -14,11 +13,15 @@ namespace Kck.Caching.Hybrid;
 /// other methods fall back to the distributed cache or Redis directly.
 /// </summary>
 [DebuggerDisplay("Prefix={_opts.KeyPrefix,nq}, Provider=HybridCache(L1+L2)")]
+// CS9113: distributedCache is no longer read (GetAsync goes through HybridCache). The parameter stays for binary
+// compatibility within 3.x; remove it in 4.0.
+#pragma warning disable CS9113
 public sealed class HybridCacheService(
     HybridCache hybridCache,
     IDistributedCache distributedCache,
     IConnectionMultiplexer redis,
     IOptionsMonitor<HybridCacheOptions> options) : CacheServiceBase
+#pragma warning restore CS9113
 {
     private readonly HybridCacheOptions _opts = options.CurrentValue;
 
@@ -28,15 +31,22 @@ public sealed class HybridCacheService(
         DefaultExpiration = options.CurrentValue.DefaultExpiration
     };
 
+    // Read-only lookup: HybridCache returns a stored value (L1, then L2) but never stores the factory result.
+    private static readonly HybridCacheEntryOptions ReadOnlyEntry = new()
+    {
+        Flags = HybridCacheEntryFlags.DisableLocalCacheWrite | HybridCacheEntryFlags.DisableDistributedCacheWrite
+    };
+
     /// <summary>
-    /// Retrieves an entry from the distributed cache (L2). L1 is not queried for
-    /// plain reads; use <c>GetOrSetAsync</c> to benefit from L1 caching.
+    /// Retrieves an entry through HybridCache (L1, then L2) without populating either level on a miss.
+    /// L2 entries are written by HybridCache in its own payload format, so they must be read through it too.
     /// </summary>
     public override async ValueTask<T?> GetAsync<T>(string key, CancellationToken ct = default)
         where T : default
     {
-        var data = await distributedCache.GetStringAsync(BuildKey(key), ct).ConfigureAwait(false);
-        return data is null ? default : JsonSerializer.Deserialize<T>(data);
+        return await hybridCache.GetOrCreateAsync<T?>(
+                BuildKey(key), static _ => ValueTask.FromResult<T?>(default), ReadOnlyEntry, cancellationToken: ct)
+            .ConfigureAwait(false);
     }
 
     /// <summary>

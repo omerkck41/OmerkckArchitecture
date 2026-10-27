@@ -1,5 +1,3 @@
-using System.Text;
-using System.Text.Json;
 using AwesomeAssertions;
 using Kck.Caching.Abstractions;
 using Kck.Caching.Hybrid;
@@ -30,28 +28,7 @@ public sealed class HybridCacheServiceTests
         _sut = new HybridCacheService(_hybridCache, _distributedCache, _redis, options);
     }
 
-    [Fact]
-    public async Task GetAsync_WhenKeyExists_ReturnsDeserializedValue()
-    {
-        var expected = new TestDto("hello", 42);
-        _distributedCache.GetAsync("test:mykey", Arg.Any<CancellationToken>())
-            .Returns(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(expected)));
-
-        var result = await _sut.GetAsync<TestDto>("mykey");
-
-        result.Should().BeEquivalentTo(expected);
-    }
-
-    [Fact]
-    public async Task GetAsync_WhenKeyMissing_ReturnsNull()
-    {
-        _distributedCache.GetAsync("test:missing", Arg.Any<CancellationToken>())
-            .Returns(default(byte[]?));
-
-        var result = await _sut.GetAsync<TestDto>("missing");
-
-        result.Should().BeNull();
-    }
+    // GetAsync is covered with the real HybridCache in HybridCacheRoundTripTests (a mock cannot reproduce its L2 format).
 
     [Fact]
     public async Task SetAsync_CallsHybridCacheSet()
