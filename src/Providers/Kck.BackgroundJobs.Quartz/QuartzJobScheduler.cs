@@ -24,7 +24,7 @@ public sealed class QuartzJobScheduler(ISchedulerFactory schedulerFactory) : IJo
         var trigger = TriggerBuilder.Create()
             .StartNow()
             .Build();
-        await scheduler.ScheduleJob(job, trigger, ct).ConfigureAwait(false);
+        await scheduler.ScheduleJob(job, trigger, cancellationToken: ct).ConfigureAwait(false);
     }
 
     /// <summary>
@@ -40,7 +40,7 @@ public sealed class QuartzJobScheduler(ISchedulerFactory schedulerFactory) : IJo
         var trigger = TriggerBuilder.Create()
             .StartAt(DateTimeOffset.UtcNow.Add(delay))
             .Build();
-        await scheduler.ScheduleJob(job, trigger, ct).ConfigureAwait(false);
+        await scheduler.ScheduleJob(job, trigger, cancellationToken: ct).ConfigureAwait(false);
     }
 
     /// <summary>
@@ -62,10 +62,10 @@ public sealed class QuartzJobScheduler(ISchedulerFactory schedulerFactory) : IJo
             .WithCronSchedule(cronExpression)
             .Build();
 
-        if (await scheduler.CheckExists(jobKey, ct).ConfigureAwait(false))
+        if (await scheduler.Exists(jobKey, ct).ConfigureAwait(false))
             await scheduler.DeleteJob(jobKey, ct).ConfigureAwait(false);
 
-        await scheduler.ScheduleJob(job, trigger, ct).ConfigureAwait(false);
+        await scheduler.ScheduleJob(job, trigger, cancellationToken: ct).ConfigureAwait(false);
     }
 
     /// <summary>

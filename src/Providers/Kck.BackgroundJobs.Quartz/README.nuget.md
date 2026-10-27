@@ -1,6 +1,6 @@
 # Kck.BackgroundJobs.Quartz
 
-Quartz.NET-backed `IJobScheduler` implementation for cron-scheduled and trigger-based background job processing.
+Quartz.NET-backed `IJobScheduler` implementation for fire-and-forget, delayed and cron-scheduled background jobs.
 
 ## Installation
 
@@ -12,31 +12,41 @@ dotnet add package Kck.BackgroundJobs.Quartz
 
 ```csharp
 // Program.cs
-builder.Services.AddKckQuartz(options =>
-{
-    options.UsePersistentStore = true;
-    options.ConnectionString = builder.Configuration.GetConnectionString("Quartz")!;
-});
+builder.Services.AddKckBackgroundJobsQuartz();   // in-memory store, hosted service waits for running jobs on shutdown
+builder.Services.AddKckJob<DailyReportJob>();     // jobs are resolved from DI in a new scope per execution
 
 // Define a job
-public class DailyReportJob(IReportService reports) : IJob
+public sealed class DailyReportJob(IReportService reports) : IBackgroundJob
 {
-    public async Task Execute(IJobExecutionContext context)
-        => await reports.GenerateDailyAsync(context.CancellationToken);
+    public Task ExecuteAsync(CancellationToken ct = default) => reports.GenerateDailyAsync(ct);
 }
 
-// Register and schedule
-builder.Services.AddKckQuartzJob<DailyReportJob>("0 0 8 * * ?"); // Every day at 08:00
+// Schedule it
+public sealed class ReportSetup(IJobScheduler scheduler)
+{
+    public Task StartAsync(CancellationToken ct) =>
+        scheduler.AddOrUpdateRecurringAsync<DailyReportJob>("daily-report", "0 0 8 * * ?", ct); // every day at 08:00
+}
 ```
+
+`IJobScheduler` also offers `EnqueueAsync<TJob>()` (run now), `ScheduleAsync<TJob>(delay)` and
+`RemoveRecurringAsync(jobId)`.
 
 ## Configuration
 
-| Property | Description | Default |
-|---|---|---|
-| `UsePersistentStore` | Persist job state to database | `false` |
-| `ConnectionString` | Database connection string (persistent mode) | `null` |
-| `ThreadCount` | Quartz thread pool size | `10` |
-| `MisfireThreshold` | Misfire threshold in milliseconds | `60000` |
+Pass a Quartz.NET 4 builder callback for anything beyond the defaults (persistent store, thread pool, misfire
+handling):
+
+```csharp
+builder.Services.AddKckBackgroundJobsQuartz(q =>
+{
+    q.UseDefaultThreadPool(tp => tp.MaxConcurrency = 10);
+});
+```
+
+See the [Quartz.NET 4 documentation](https://www.quartz-scheduler.net/documentation/quartz-4.x/) for the builder API.
+Quartz 4 changed some defaults (for example cron triggers without a time zone use `DefaultTimeZone`); check the
+Quartz migration guide when upgrading from Kck 3.x.
 
 ## Resources
 

@@ -9,7 +9,7 @@ public static class KckBackgroundJobsQuartzServiceCollectionExtensions
 {
     public static IServiceCollection AddKckBackgroundJobsQuartz(
         this IServiceCollection services,
-        Action<IServiceCollectionQuartzConfigurator>? configure = null)
+        Action<IQuartzBuilder>? configure = null)
     {
         services.AddQuartz(q =>
         {
