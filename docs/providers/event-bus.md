@@ -17,8 +17,9 @@ Event handler'lar DI'dan cozulur, transient scope per mesaj.
 Testing ve tek-process senaryolar icin. Asenkron queue, hata durumunda DLQ yok.
 
 ```csharp
-services.AddKckEventBusInMemory()
-    .AddKckEventHandler<OrderCreatedEvent, OrderCreatedHandler>();
+services.AddKckEventBus(b => b
+    .UseInMemory()
+    .RegisterHandlersFromAssembly(typeof(OrderCreatedHandler).Assembly));
 ```
 
 ## RabbitMQ

@@ -72,7 +72,7 @@ public sealed class EfRepositoryMutationTests : IDisposable
     {
         await Seed("Exists");
 
-        (await _sut.AnyAsync(e => e.Name == "Missing")).Should().BeFalse();
+        (await _sut.AnyAsync(predicate: e => e.Name == "Missing")).Should().BeFalse();
     }
 
     [Fact]
@@ -81,7 +81,7 @@ public sealed class EfRepositoryMutationTests : IDisposable
         await Seed("Keep", 5);
         await Seed("Skip", 1);
 
-        (await _sut.CountAsync(e => e.Value == 5)).Should().Be(1);
+        (await _sut.CountAsync(predicate: e => e.Value == 5)).Should().Be(1);
     }
 
     // --- AddRangeAsync over a lazy (non-IList) enumerable (L158) ---

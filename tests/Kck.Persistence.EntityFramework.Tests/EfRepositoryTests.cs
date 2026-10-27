@@ -100,7 +100,7 @@ public class EfRepositoryTests : IDisposable
         _context.TestEntities.Add(new TestEntity { Id = Guid.NewGuid(), Name = "Exists" });
         await _context.SaveChangesAsync();
 
-        var result = await _sut.AnyAsync(e => e.Name == "Exists");
+        var result = await _sut.AnyAsync(predicate: e => e.Name == "Exists");
 
         result.Should().BeTrue();
     }

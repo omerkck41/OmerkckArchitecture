@@ -58,27 +58,25 @@ public class EfRepository<T, TId>(
     /// <inheritdoc />
     public async Task<T?> GetAsync(
         Expression<Func<T, bool>> predicate,
+        QueryOptions? options = null,
         Expression<Func<T, object>>[]? includes = null,
-        bool withDeleted = false,
-        bool enableTracking = true,
         CancellationToken cancellationToken = default)
     {
-        IQueryable<T> query = Query(predicate, withDeleted: withDeleted, enableTracking: enableTracking);
+        IQueryable<T> query = Query(options ?? QueryOptions.Tracking, predicate);
         query = ApplyIncludes(query, includes);
         return await query.FirstOrDefaultAsync(cancellationToken);
     }
 
     /// <inheritdoc />
     public async Task<IPaginate<T>> GetListAsync(
+        QueryOptions? options = null,
         Expression<Func<T, bool>>? predicate = null,
         Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null,
         Expression<Func<T, object>>[]? includes = null,
         int index = 0, int size = 10,
-        bool withDeleted = false,
-        bool enableTracking = true,
         CancellationToken cancellationToken = default)
     {
-        IQueryable<T> query = Query(predicate, orderBy, withDeleted, enableTracking);
+        IQueryable<T> query = Query(options ?? QueryOptions.Tracking, predicate, orderBy);
         query = ApplyIncludes(query, includes);
         return await query.ToPaginateAsync(index, size, cancellationToken: cancellationToken);
     }
@@ -86,11 +84,10 @@ public class EfRepository<T, TId>(
     /// <inheritdoc />
     public async Task<IPaginate<T>> GetListByDynamicAsync(
         DynamicQuery dynamic,
+        QueryOptions? options = null,
         Expression<Func<T, bool>>? predicate = null,
         Expression<Func<T, object>>[]? includes = null,
         int index = 0, int size = 10,
-        bool withDeleted = false,
-        bool enableTracking = true,
         CancellationToken cancellationToken = default)
     {
         if (whitelist is null)
@@ -100,7 +97,7 @@ public class EfRepository<T, TId>(
 
         DynamicFilterWhitelistGuard.Validate(dynamic, whitelist);
 
-        IQueryable<T> query = Query(predicate, withDeleted: withDeleted, enableTracking: enableTracking);
+        IQueryable<T> query = Query(options ?? QueryOptions.Tracking, predicate);
         query = ApplyIncludes(query, includes);
         query = query.ToDynamic(dynamic);
         return await query.ToPaginateAsync(index, size, cancellationToken: cancellationToken);
@@ -108,12 +105,11 @@ public class EfRepository<T, TId>(
 
     /// <inheritdoc />
     public async Task<bool> AnyAsync(
+        QueryOptions? options = null,
         Expression<Func<T, bool>>? predicate = null,
-        bool withDeleted = false,
-        bool enableTracking = false,
         CancellationToken cancellationToken = default)
     {
-        IQueryable<T> query = Query(withDeleted: withDeleted, enableTracking: enableTracking);
+        IQueryable<T> query = Query(options ?? QueryOptions.None);
         return predicate is not null
             ? await query.AnyAsync(predicate, cancellationToken)
             : await query.AnyAsync(cancellationToken);
@@ -122,22 +118,20 @@ public class EfRepository<T, TId>(
     /// <inheritdoc />
     public async Task<T?> GetByIdAsync(
         TId id,
-        bool withDeleted = false,
-        bool enableTracking = false,
+        QueryOptions? options = null,
         CancellationToken cancellationToken = default)
     {
-        IQueryable<T> query = Query(withDeleted: withDeleted, enableTracking: enableTracking);
+        IQueryable<T> query = Query(options ?? QueryOptions.None);
         return await query.FirstOrDefaultAsync(e => e.Id!.Equals(id), cancellationToken);
     }
 
     /// <inheritdoc />
     public async Task<int> CountAsync(
+        QueryOptions? options = null,
         Expression<Func<T, bool>>? predicate = null,
-        bool withDeleted = false,
-        bool enableTracking = false,
         CancellationToken cancellationToken = default)
     {
-        IQueryable<T> query = Query(withDeleted: withDeleted, enableTracking: enableTracking);
+        IQueryable<T> query = Query(options ?? QueryOptions.None);
         return predicate is not null
             ? await query.CountAsync(predicate, cancellationToken)
             : await query.CountAsync(cancellationToken);

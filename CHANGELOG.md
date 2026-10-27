@@ -11,6 +11,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `Kck.Pipeline.MediatR` (KCK0200) — MediatR 13+ requires a commercial licence. Use `Kck.Pipeline.Mediator` (MIT):
   [docs/migrations/mediatR-to-mediator.md](docs/migrations/mediatR-to-mediator.md). The licence gate no longer has a
   MediatR exception (ADR-0028 K1).
+- `ITokenService.GetClaimsFromToken` / `JwtTokenService.GetClaimsFromToken` (KCK0001) — read claims without verifying
+  the signature. Use `ValidateTokenAsync` (ADR-0028 K2).
+- `Kck.EventBus.InMemory`: `AddKckEventBusInMemory()` and `AddKckEventBusInMemory(params Assembly[])`. Use
+  `AddKckEventBus(b => b.UseInMemory().RegisterHandlersFromAssembly(...))` (ADR-0028 K4).
+
+### Changed — BREAKING (4.0.0)
+- `IReadRepository<T, TId>` (KCK0100, ADR-0028 K3): the bool-flag read methods are gone; the `QueryOptions` methods
+  that were extension methods in 3.x are now interface members with the same parameter order, and
+  `ReadRepositoryExtensions` is removed. `options` is optional (`QueryOptions?`); when omitted, `GetAsync`,
+  `GetListAsync` and `GetListByDynamicAsync` track entities and `AnyAsync`, `GetByIdAsync`, `CountAsync` do not — the
+  same defaults as the 3.x bool overloads.
+  - `repo.GetAsync(predicate, options)`, `repo.GetByIdAsync(id)`, `repo.CountAsync()` compile unchanged.
+  - `repo.AnyAsync(predicate)`, `repo.CountAsync(predicate)`, `repo.GetListAsync(predicate)` (options come first):
+    use `predicate:` or pass `QueryOptions.None` first.
+  - Custom `IReadRepository` implementations must implement the new signatures.
+  - **Tracking when migrating bool flags:** the presets do not track. `GetAsync`/`GetListAsync`/`GetListByDynamicAsync`
+    with `withDeleted: true` (which tracked in 3.x) map to `new QueryOptions(IncludeDeleted: true, AsTracking: true)`,
+    not to `QueryOptions.WithDeleted` — otherwise a load-modify-`SaveChanges` flow silently stops saving.
+
+    | 3.x call | 4.0 equivalent |
+    |---|---|
+    | `GetAsync(p)` / `GetListAsync(...)` (tracking) | `GetAsync(p)` / `GetListAsync(...)` — unchanged |
+    | `GetAsync(p, withDeleted: true)` | `GetAsync(p, new QueryOptions(IncludeDeleted: true, AsTracking: true))` |
+    | `GetAsync(p, enableTracking: false)` | `GetAsync(p, QueryOptions.None)` |
+    | `GetByIdAsync(id, withDeleted: true)` | `GetByIdAsync(id, QueryOptions.WithDeleted)` |
+    | `AnyAsync(p)` / `CountAsync(p)` | `AnyAsync(predicate: p)` / `CountAsync(predicate: p)` |
+- Intentional binary breaks are listed per package in `CompatibilitySuppressions.xml` (package validation).
 
 ## [3.6.2] — 2026-10-27
 

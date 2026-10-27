@@ -53,10 +53,10 @@ v1.0.0 — API kaldirilabilir (major bump)
 
 | DiagnosticId | API                                              | Isaretlendi | Kaldirilacak |
 | ------------ | ------------------------------------------------ | ----------- | ------------ |
-| KCK0001      | `ITokenService.GetClaimsFromToken(string)` + `JwtTokenService.GetClaimsFromToken(string)` — imzayi dogrulamaz | 0.x | v4.0 (v1.0 hedefi kacirildi) |
-| KCK0100      | `IReadRepository<T>`: `GetAsync`, `GetListAsync`, `GetListByDynamicAsync`, `AnyAsync`, `GetByIdAsync`, `CountAsync` (eski imzalar; `QueryOptions` uzantilarina gecin) | 2.x | v4.0 |
+| KCK0001      | `ITokenService.GetClaimsFromToken(string)` + `JwtTokenService.GetClaimsFromToken(string)` — imzayi dogrulamaz | 0.x | **kaldirildi: v4.0** |
+| KCK0100      | `IReadRepository<T>`: `GetAsync`, `GetListAsync`, `GetListByDynamicAsync`, `AnyAsync`, `GetByIdAsync`, `CountAsync` (bool bayrakli eski imzalar) | 2.x | **kaldirildi: v4.0** (`QueryOptions` metotlari `IReadRepository` uyesi oldu) |
 | KCK0200      | `Kck.Pipeline.MediatR` paketi (`KckPipelineBuilder`, `AddKckPipeline`) — ADR-0021; MediatR 13+ ticari lisans | 2.x (2026-05-07) | **kaldirildi: v4.0** (paket artik yayinlanmiyor; 3.x nuget.org'da deprecated) |
-| (yok)        | `Kck.EventBus.InMemory` eski kayit metotlari (`ServiceCollectionExtensions.cs:26,36`) — DiagnosticId'siz isaretlenmis | 2.x | v4.0 |
+| (yok)        | `Kck.EventBus.InMemory` eski kayit metotlari (`AddKckEventBusInMemory` x2) — DiagnosticId'siz isaretlenmis | 2.x | **kaldirildi: v4.0** |
 
 > Not (2026-10-26): KCK0200 numara araligina gore Caching kategorisinde ama Pipeline icin kullanildi; kimligi degistirmek
 > tuketicilerin uyari bastirmalarini bozar, bu yuzden numara korunuyor. Core.Abstractions pipeline yonlendirme tipleri
