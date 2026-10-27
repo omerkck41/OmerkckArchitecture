@@ -9,6 +9,7 @@
     <PackageReference Include="xunit.runner.visualstudio" />
     <PackageReference Include="AwesomeAssertions" />
     <PackageReference Include="NSubstitute" />
+    <PackageReference Include="Testcontainers.Redis" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\Providers\Kck.Caching.Hybrid\Kck.Caching.Hybrid.csproj" />
