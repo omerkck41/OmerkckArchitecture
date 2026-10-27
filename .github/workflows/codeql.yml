@@ -2,9 +2,9 @@ name: codeql
 
 on:
   push:
-    branches: [main, develop]
+    branches: [main, develop, 'release/**']
   pull_request:
-    branches: [main]
+    branches: [main, 'release/**']
   schedule:
     - cron: '33 3 * * 1'  # Mondays 03:33 UTC
   # Dispatched by dependabot-lockfile after it pushes regenerated lock files (GITHUB_TOKEN pushes start no run).

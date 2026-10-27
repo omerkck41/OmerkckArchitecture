@@ -4,9 +4,9 @@
     "net10.0": {
       "FluentFTP": {
         "type": "Direct",
-        "requested": "[54.0.2, )",
-        "resolved": "54.0.2",
-        "contentHash": "wKkahwp5zx48jVal8tVn4xny4lN2fcznm8mdFRIkangipHoMJWIC4a0vb73n5NdyODeD+pmh0kfmlkNaYxtnSg=="
+        "requested": "[55.1.0, )",
+        "resolved": "55.1.0",
+        "contentHash": "RXA6WEaziJiSt/lrOxbpxfkOyTY1YaeQiCKzsVoQQxEwcoI0dtoTzGiqS47mrqq3zBuETMwaVjI7FLTCcJC80w=="
       },
       "Microsoft.SourceLink.GitHub": {
         "type": "Direct",
