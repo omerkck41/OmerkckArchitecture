@@ -1,6 +1,7 @@
 # Kck.Bundle.WorkerService
 
-Worker Service setup with background jobs, Serilog, and OpenTelemetry — registers the InMemory event bus and a mutually-exclusive background job scheduler (Hangfire or Quartz) in a single call.
+Worker Service setup in a single call: Serilog, OpenTelemetry, the InMemory event bus and the Quartz.NET background job
+scheduler.
 
 ## Installation
 
@@ -15,38 +16,34 @@ dotnet add package Kck.Bundle.WorkerService
 var builder = Host.CreateApplicationBuilder(args);
 
 builder.Services.AddKckWorkerServiceDefaults(builder.Configuration);
-
-// Register your background job implementations
-builder.Services.AddScoped<DailyReportJob>();
+builder.Services.AddKckJob<DailyReportJob>();   // jobs are resolved from DI in a new scope per execution
 
 var host = builder.Build();
-host.Run();
+await host.Services.GetRequiredService<IJobScheduler>()
+    .AddOrUpdateRecurringAsync<DailyReportJob>("daily-report", "0 0 8 * * ?"); // every day at 08:00
+await host.RunAsync();
 
 // Define a job
-public class DailyReportJob(IReportService reports, IEmailService email) : IJob
+public sealed class DailyReportJob(IReportService reports) : IBackgroundJob
 {
-    public async Task ExecuteAsync(JobContext context, CancellationToken ct)
-    {
-        var report = await reports.GenerateDailyAsync(ct);
-        await email.SendAsync(new EmailMessage
-        {
-            To      = [new EmailRecipient("ops@company.com")],
-            Subject = "Daily Report",
-            Body    = report.HtmlContent,
-            IsHtml  = true
-        }, ct);
-    }
+    public Task ExecuteAsync(CancellationToken ct = default) => reports.GenerateDailyAsync(ct);
 }
 ```
 
-## Configuration
+## Configuration (`Kck` section)
 
 | Property | Description | Default |
 |---|---|---|
-| `BackgroundJobs:Provider` | `Hangfire` or `Quartz` | `Hangfire` |
-| `BackgroundJobs:ConnectionString` | Storage connection string | In-memory |
-| `BackgroundJobs:WorkerCount` | Concurrent job worker count | `5` |
-| `Observability:Otlp:Endpoint` | OTLP exporter endpoint | `"http://localhost:4317"` |
+| `BackgroundJobs:Provider` | Background job scheduler. Only `Quartz` is bundled. | `Quartz` |
+| `Observability:Tracing` / `Metrics` | Enable tracing / metrics | `true` |
+| `Observability:OtlpEndpoint` | OTLP exporter endpoint | — |
+| `Observability:ServiceName` | Service name reported to OpenTelemetry | — |
+
+## Hangfire
+
+Since 4.0 the bundle does not include Hangfire (LGPL-3.0). Setting `BackgroundJobs:Provider` to `Hangfire` fails at
+startup with instructions instead of silently switching schedulers. To keep Hangfire, reference
+`Kck.BackgroundJobs.Hangfire` and register it yourself with `AddKckBackgroundJobsHangfire(...)`.
 
 ## Resources
 

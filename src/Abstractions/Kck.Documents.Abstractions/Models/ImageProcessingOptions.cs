@@ -14,7 +14,10 @@ public sealed class ImageProcessingOptions
     /// <summary>Gets a value indicating whether the original aspect ratio is preserved during resize.</summary>
     public bool MaintainAspectRatio { get; init; } = true;
 
-    /// <summary>Gets the desired output format (e.g. "jpeg", "png", "webp"), or <see langword="null"/> to keep the source format.</summary>
+    /// <summary>
+    /// Gets the desired output format (e.g. "jpeg", "png", "webp"), or <see langword="null"/> to keep the source format.
+    /// Providers that cannot encode the source format fall back to JPEG; an unsupported name is an error.
+    /// </summary>
     public string? OutputFormat { get; init; }
 
     /// <summary>Gets the compression quality level from 1 (lowest) to 100 (highest). Defaults to 80.</summary>

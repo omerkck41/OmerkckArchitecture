@@ -37,6 +37,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     | `GetAsync(p, enableTracking: false)` | `GetAsync(p, QueryOptions.None)` |
     | `GetByIdAsync(id, withDeleted: true)` | `GetByIdAsync(id, QueryOptions.WithDeleted)` |
     | `AnyAsync(p)` / `CountAsync(p)` | `AnyAsync(predicate: p)` / `CountAsync(predicate: p)` |
+- `Kck.Bundle.WorkerService` (ADR-0028 K5): Quartz is the bundled scheduler and the default; Hangfire (LGPL-3.0) is
+  no longer referenced and `HangfireWorkerCount` is removed. `"Kck:BackgroundJobs:Provider": "Hangfire"` (the 3.x
+  default) and unknown provider names now fail at startup with instructions instead of silently picking a scheduler.
+  To keep Hangfire, reference `Kck.BackgroundJobs.Hangfire` and call `AddKckBackgroundJobsHangfire(...)` yourself.
+- `Kck.Documents.ImageSharp` (ADR-0028 K6): an unsupported format name (e.g. `avif`) throws `NotSupportedException`
+  instead of silently producing JPEG; `jpg` is accepted as `jpeg`. An empty/`null` format now keeps the source format,
+  as `ImageProcessingOptions.OutputFormat` documents (3.x produced JPEG); sources Kck cannot encode (e.g. TIFF) still
+  become JPEG.
 - Intentional binary breaks are listed per package in `CompatibilitySuppressions.xml` (package validation).
 
 ## [3.6.2] — 2026-10-27

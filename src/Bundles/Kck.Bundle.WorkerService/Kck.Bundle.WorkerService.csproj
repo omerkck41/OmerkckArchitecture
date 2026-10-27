@@ -3,7 +3,7 @@
     <!-- Pinned to net10.0; depends on AspNetCore-referencing packages (LS-FAZ-7 §1.1) -->
     <TargetFrameworks>net10.0</TargetFrameworks>
     <Title>Kck Worker Service Bundle</Title>
-    <Description>Opinionated .NET Worker Service starter pack. Registers Serilog, OpenTelemetry, InMemory event bus, and a mutually-exclusive background job scheduler (Hangfire or Quartz) in a single call.</Description>
+    <Description>Opinionated .NET Worker Service starter pack. Registers Serilog, OpenTelemetry, InMemory event bus, and the Quartz background job scheduler in a single call.</Description>
     <PackageTags>dotnet;kck;worker-service;background-jobs;bundle;serilog;hangfire;quartz</PackageTags>
     <PackageReadmeFile>README.nuget.md</PackageReadmeFile>
   </PropertyGroup>
@@ -20,7 +20,6 @@
     <ProjectReference Include="../../Providers/Kck.Logging.Serilog/Kck.Logging.Serilog.csproj" />
     <ProjectReference Include="../../Providers/Kck.Observability.OpenTelemetry/Kck.Observability.OpenTelemetry.csproj" />
     <ProjectReference Include="../../Providers/Kck.EventBus.InMemory/Kck.EventBus.InMemory.csproj" />
-    <ProjectReference Include="../../Providers/Kck.BackgroundJobs.Hangfire/Kck.BackgroundJobs.Hangfire.csproj" />
     <ProjectReference Include="../../Providers/Kck.BackgroundJobs.Quartz/Kck.BackgroundJobs.Quartz.csproj" />
   </ItemGroup>
 </Project>
