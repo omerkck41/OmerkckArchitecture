@@ -26,4 +26,28 @@
     <None Include="README.md" Pack="true" PackagePath="\" />
     <None Include="README.nuget.md" Pack="true" PackagePath="\" />
   </ItemGroup>
+
+  <!--
+    The generated project must reference the Kck release this template ships with, not a hard-coded
+    version that goes stale (it once pinned an unlisted 3.0.0). Stamp the package version into the
+    template project file at pack time; fail if the placeholder is missing or survives.
+  -->
+  <Target Name="StampTemplatePackageVersion" BeforeTargets="_GetPackageFiles" DependsOnTargets="MinVer">
+    <PropertyGroup>
+      <_KckTemplateProject>content/Kck.WebApi/KckWebApiTemplate.csproj</_KckTemplateProject>
+      <_KckStampedProject>$(IntermediateOutputPath)template/KckWebApiTemplate.csproj</_KckStampedProject>
+      <_KckTemplateText>$([System.IO.File]::ReadAllText('$(MSBuildProjectDirectory)/$(_KckTemplateProject)'))</_KckTemplateText>
+    </PropertyGroup>
+    <Error Condition="!$(_KckTemplateText.Contains('KCK_PACKAGE_VERSION'))"
+           Text="$(_KckTemplateProject) must reference Kck packages with Version=&quot;KCK_PACKAGE_VERSION&quot;." />
+    <WriteLinesToFile File="$(_KckStampedProject)"
+                      Lines="$([MSBuild]::Escape($(_KckTemplateText.Replace('KCK_PACKAGE_VERSION', '$(PackageVersion)'))))"
+                      Overwrite="true" />
+    <Error Condition="$([System.IO.File]::ReadAllText('$(_KckStampedProject)').Contains('KCK_PACKAGE_VERSION'))"
+           Text="Template version stamping failed: placeholder left in $(_KckStampedProject)." />
+    <ItemGroup>
+      <Content Remove="@(Content)" Condition="'%(Filename)%(Extension)' == 'KckWebApiTemplate.csproj'" />
+      <Content Include="$(_KckStampedProject)" Pack="true" PackagePath="content/Kck.WebApi/KckWebApiTemplate.csproj" />
+    </ItemGroup>
+  </Target>
 </Project>

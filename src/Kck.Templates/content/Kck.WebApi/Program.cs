@@ -1,5 +1,7 @@
+//#if (IncludeSample)
 using KckWebApiTemplate.Features.WeatherForecast;
 
+//#endif
 var builder = WebApplication.CreateBuilder(args);
 
 // ── Kck WebAPI Defaults ──────────────────────────────────────────────────────
@@ -9,12 +11,14 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddKckWebApiDefaults(builder.Configuration);
 
 // ── API Documentation ────────────────────────────────────────────────────────
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+// OpenAPI document at /openapi/v1.json (Development). Add Swagger UI or Scalar if you want an interactive UI.
+builder.Services.AddOpenApi();
 builder.Services.AddControllers();
 
 // ── Your Application Services ────────────────────────────────────────────────
+//#if (IncludeSample)
 builder.Services.AddScoped<IWeatherForecastService, WeatherForecastService>();
+//#endif
 
 // ────────────────────────────────────────────────────────────────────────────
 
@@ -25,8 +29,7 @@ app.UseKckWebApiDefaults();  // exception handling + rate limiting + security he
 
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
+    app.MapOpenApi();
 }
 
 app.UseHttpsRedirection();

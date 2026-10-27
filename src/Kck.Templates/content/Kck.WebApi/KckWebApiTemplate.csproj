@@ -11,6 +11,9 @@
       Serilog, OpenTelemetry, rate limiting, CORS, security headers, exception handling.
       Replace individual providers (e.g. AddKckCachingRedis) as your needs grow.
     -->
-    <PackageReference Include="Kck.Bundle.WebApi" Version="3.0.0" />
+    <!-- The version placeholder is replaced with the Kck.Templates package version at pack time. -->
+    <PackageReference Include="Kck.Bundle.WebApi" Version="KCK_PACKAGE_VERSION" />
+    <!-- OpenAPI document generation; 10.0.* picks up the latest .NET 10 servicing patch. -->
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.*" />
   </ItemGroup>
 </Project>
