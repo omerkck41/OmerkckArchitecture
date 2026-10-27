@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1793119103219,
+  "lastUpdate": 1793120219303,
   "repoUrl": "https://github.com/omerkck41/OmerkckArchitecture",
   "entries": {
     "Benchmark": [
@@ -6286,6 +6286,102 @@ window.BENCHMARK_DATA = {
             "value": 11.136481259266535,
             "unit": "ns",
             "range": "± 0.13713088162106277"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "106805727+omerkck41@users.noreply.github.com",
+            "name": "Ömer KÜÇÜK",
+            "username": "omerkck41"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "6422927021bcdf6005afb7b8f301579d56206344",
+          "message": "docs(adr): ADR-0028 v4.0.0 scope and v4 plan (#181)\n\n## Summary\nv4 step PR 1 (roadmap H12): architecture decision and plan for the 4.0.0\nmajor, approved by the maintainer.\n\n- `docs/adr/0028-v4-scope.md` — ten decisions: remove\n`Kck.Pipeline.MediatR` + licence exception, KCK0001, KCK0100\n(QueryOptions methods move into `IReadRepository`; old bool-flag members\nand `ReadRepositoryExtensions` removed), legacy InMemory event bus\nregistration; WorkerService defaults to Quartz and fails fast on\n`\"Provider\": \"Hangfire\"`; ImageSharp rejects unknown formats; major\ndependencies only when their compatibility tests pass;\n`CompatibilitySuppressions.xml` for intentional breaks; `release/3.x`\nmaintenance branch; migration guide required before release.\n- `docs/plans/2026-10-27-v4-plan.md` — PR sequence, acceptance examples\nV1–V10, impact map, premortem, threat model.\n- ADR index row for 0028.\n\nNo code changes.\n\n## Test plan\n- [x] Referenced ADRs (0010, 0016, 0021, 0027) exist\n- [ ] CI green (docs only)\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-authored-by: Claude Opus 5.5 <noreply@anthropic.com>",
+          "timestamp": "2026-10-27T19:50:12+03:00",
+          "tree_id": "10fd60435b3a9df5f07b808ec784d25d4c47feb9",
+          "url": "https://github.com/omerkck41/OmerkckArchitecture/commit/6422927021bcdf6005afb7b8f301579d56206344"
+        },
+        "date": 1793120217976,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Success_Factory",
+            "value": 6.191003354696127,
+            "unit": "ns",
+            "range": "± 0.07812274479026483"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Failure_Factory",
+            "value": 8.905587460845709,
+            "unit": "ns",
+            "range": "± 0.27473800911409824"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Success",
+            "value": 1.6363200369690145,
+            "unit": "ns",
+            "range": "± 0.007227247952741277"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Failure",
+            "value": 0.5881983935832977,
+            "unit": "ns",
+            "range": "± 0.0066327392511975735"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Serialize_Reflection",
+            "value": 475.2424740791321,
+            "unit": "ns",
+            "range": "± 4.027359468822855"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Deserialize_Reflection",
+            "value": 787.6844073075515,
+            "unit": "ns",
+            "range": "± 2.3785018492128027"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 0)",
+            "value": 10.030887686212857,
+            "unit": "ns",
+            "range": "± 0.08609976442153007"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 5)",
+            "value": 12.48060701574598,
+            "unit": "ns",
+            "range": "± 0.07457250414737727"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 0)",
+            "value": 10.69207663834095,
+            "unit": "ns",
+            "range": "± 0.12192637992221111"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 5)",
+            "value": 10.051263206203778,
+            "unit": "ns",
+            "range": "± 0.08560165115146862"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 0)",
+            "value": 10.18184411128362,
+            "unit": "ns",
+            "range": "± 0.15397761431101642"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 5)",
+            "value": 10.704916803964547,
+            "unit": "ns",
+            "range": "± 0.08354920632198627"
           }
         ]
       }
