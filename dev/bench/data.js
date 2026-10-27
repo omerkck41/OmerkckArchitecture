@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1793126970007,
+  "lastUpdate": 1793127853194,
   "repoUrl": "https://github.com/omerkck41/OmerkckArchitecture",
   "entries": {
     "Benchmark": [
@@ -6958,6 +6958,102 @@ window.BENCHMARK_DATA = {
             "value": 7.998664757609367,
             "unit": "ns",
             "range": "± 0.026938359597812142"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "106805727+omerkck41@users.noreply.github.com",
+            "name": "Ömer KÜÇÜK",
+            "username": "omerkck41"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "434b1c264f60fc419ec0d4d75e5e057af3371e8e",
+          "message": "feat!: remove KCK0001, KCK0100 and legacy InMemory registration (#190)\n\n## Summary\nv4 plan PR 5 (ADR-0028 K2–K4): remove the APIs deprecated in 3.x.\n\n- **KCK0100 (D7a):** the six `QueryOptions` read methods become\n`IReadRepository<T,TId>` members (same parameter order as the 3.x\nextensions); bool-flag overloads and `ReadRepositoryExtensions` removed.\n`options` is `QueryOptions?`: when omitted, Get/GetList/GetListByDynamic\ntrack and Any/GetById/Count do not — exactly the 3.x defaults, so\n`GetAsync(p)` + `SaveChanges` keeps working.\n- **KCK0001:** `GetClaimsFromToken` (claims without signature\nvalidation) removed from `ITokenService` / `JwtTokenService`.\n- **InMemory:** both `AddKckEventBusInMemory` overloads + dead helper\nremoved; use `AddKckEventBus(b => b.UseInMemory())`.\n- Empty `Kck.Core.Abstractions/Pipeline/*.cs` placeholders removed.\n- `PublicAPI.Unshipped.txt` (15 `*REMOVED*`, 6 new),\n`CompatibilitySuppressions.xml` in 5 projects (23 entries, intentional\nbreaks only).\n- CHANGELOG with a 3.x → 4.0 mapping table (incl. the `withDeleted:\ntrue` → `new QueryOptions(IncludeDeleted: true, AsTracking: true)`\ntracking trap), deprecation table, `event-bus.md` and Persistence README\nsamples fixed to the real API.\n\n## Test plan\n- [x] RED first: new tests failed in all three projects\n(compile/removed-API asserts)\n- [x] GREEN: Persistence 121/121 (unit), Jwt 33/33, InMemory 7/7;\nsolution unit tests 0 failures\n- [x] Mutation probe: changing GetAsync's default to no-tracking fails\nthe defaults test\n- [x] Package validation only reports the suppressed intentional breaks;\nlicence gate PASS\n- [x] Independent adversarial review: no blockers; 1 medium + 3 low\nfindings fixed in this PR\n- [ ] CI green (incl. EF integration tests)\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-authored-by: Claude Opus 5.5 <noreply@anthropic.com>",
+          "timestamp": "2026-10-27T21:56:42+03:00",
+          "tree_id": "b1680c2a21fc85dde95ede87a993b74d7a175c3e",
+          "url": "https://github.com/omerkck41/OmerkckArchitecture/commit/434b1c264f60fc419ec0d4d75e5e057af3371e8e"
+        },
+        "date": 1793127852281,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Success_Factory",
+            "value": 6.707277460892995,
+            "unit": "ns",
+            "range": "± 0.10688445361229998"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Failure_Factory",
+            "value": 12.356560118794441,
+            "unit": "ns",
+            "range": "± 0.9767987153556721"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Success",
+            "value": 1.6356643688465868,
+            "unit": "ns",
+            "range": "± 0.006177408662937421"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Failure",
+            "value": 0.5859211976329486,
+            "unit": "ns",
+            "range": "± 0.0012544681446350335"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Serialize_Reflection",
+            "value": 476.83705128942216,
+            "unit": "ns",
+            "range": "± 1.1702706146501936"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Deserialize_Reflection",
+            "value": 797.0373069127401,
+            "unit": "ns",
+            "range": "± 4.086483385926313"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 0)",
+            "value": 11.26349598368009,
+            "unit": "ns",
+            "range": "± 0.1211525840964507"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 5)",
+            "value": 11.394667663744517,
+            "unit": "ns",
+            "range": "± 0.12892141086537834"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 0)",
+            "value": 11.271651063362757,
+            "unit": "ns",
+            "range": "± 0.1422026821708885"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 5)",
+            "value": 11.173384128014247,
+            "unit": "ns",
+            "range": "± 0.15153552415523155"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 0)",
+            "value": 11.05966527547155,
+            "unit": "ns",
+            "range": "± 0.08380284137212102"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 5)",
+            "value": 13.714331513643264,
+            "unit": "ns",
+            "range": "± 0.18378602739259456"
           }
         ]
       }
