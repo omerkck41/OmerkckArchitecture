@@ -16,7 +16,11 @@
   "build": {
     "content": [
       { "files": ["api/**.yml", "api/index.md"] },
-      { "files": ["docs/**/*.md"], "dest": "docs" },
+      {
+        "files": ["docs/**/*.md"],
+        "exclude": ["docs/plans/**", "docs/archive/**", "docs/memory/**"],
+        "dest": "docs"
+      },
       { "files": ["README.md", "CHANGELOG.md", "CONTRIBUTING.md"] },
       { "files": ["toc.yml"] }
     ],
