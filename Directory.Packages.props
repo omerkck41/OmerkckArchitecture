@@ -30,7 +30,7 @@
     <PackageVersion Include="FluentValidation" Version="12.1.1" />
   </ItemGroup>
   <ItemGroup Label="Caching &amp; Data">
-    <PackageVersion Include="StackExchange.Redis" Version="2.13.17" />
+    <PackageVersion Include="StackExchange.Redis" Version="3.4.20" />
   </ItemGroup>
   <ItemGroup Label="Search">
     <!-- Client 9.x sends compatible-with=9 header; integration test container must be ES 9.x too. -->
