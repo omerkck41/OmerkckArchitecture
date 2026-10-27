@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1793125822317,
+  "lastUpdate": 1793126970007,
   "repoUrl": "https://github.com/omerkck41/OmerkckArchitecture",
   "entries": {
     "Benchmark": [
@@ -6862,6 +6862,102 @@ window.BENCHMARK_DATA = {
             "value": 10.477822233851139,
             "unit": "ns",
             "range": "± 0.11463086638688409"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "106805727+omerkck41@users.noreply.github.com",
+            "name": "Ömer KÜÇÜK",
+            "username": "omerkck41"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "73e2cfee94ad2704b1b8db720cf9fd36d6ad01f6",
+          "message": "feat(pipeline)!: remove Kck.Pipeline.MediatR (#189)\n\n## Summary\nv4 plan PR 4 (ADR-0028 K1): remove `Kck.Pipeline.MediatR` (KCK0200) and\nthe temporary MediatR licence exception. MediatR 13+ requires a\ncommercial licence; removal was announced in 3.6.0 and the package is\ndeprecated on nuget.org.\n\n- Removed: `src/Providers/Kck.Pipeline.MediatR`,\n`tests/Kck.Pipeline.MediatR.Tests`, their solution entries, `MediatR` in\n`Directory.Packages.props`, `KCK0200` in `WarningsNotAsErrors`, the\nMediatR/Mediator duplication exclusion in `.sonarcloud.properties`.\n- `.github/license-policy.json`: MediatR exception deleted.\n- Docs: `docs/providers/pipeline.md` rewritten for\n`Kck.Pipeline.Mediator` (the old page showed a non-existent\n`AddKckPipelineMediatR`); FAQ pipeline example fixed\n(`AddKckPipeline().AddBehavior<>()` did not exist); bundle READMEs now\nsay \"Mediator pipeline\" (that is what `Kck.Bundle.WebApi` references);\nlicensing, deprecation table, known-issues K2 (closed), README,\nCHANGELOG.\n- Kept on purpose: ADRs, decision records and\n`docs/migrations/mediatR-to-mediator.md`.\n\n## Test plan\n- [x] Licence gate without the MediatR exception: 222 packages, 0\nviolations — PASS (it failed while the deleted package's lock file was\nstill on disk, proving the exception is gone)\n- [x] `restore --locked-mode`, Release build 0 errors, unit tests 0\nfailures (37 test assemblies), pack 58 packages with package validation\n- [ ] CI green\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-authored-by: Claude Opus 5.5 <noreply@anthropic.com>",
+          "timestamp": "2026-10-27T21:42:08+03:00",
+          "tree_id": "effe7103f4836fe21b7cbc9a0da08d1d8b42a40a",
+          "url": "https://github.com/omerkck41/OmerkckArchitecture/commit/73e2cfee94ad2704b1b8db720cf9fd36d6ad01f6"
+        },
+        "date": 1793126968962,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Success_Factory",
+            "value": 5.114380077543584,
+            "unit": "ns",
+            "range": "± 0.18170717749437124"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Failure_Factory",
+            "value": 6.867826311903841,
+            "unit": "ns",
+            "range": "± 0.18757297322506558"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Success",
+            "value": 0.8449656051498923,
+            "unit": "ns",
+            "range": "± 0.1349631754998051"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Failure",
+            "value": 0.5171878666927417,
+            "unit": "ns",
+            "range": "± 0.004156409791739551"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Serialize_Reflection",
+            "value": 299.00835241590227,
+            "unit": "ns",
+            "range": "± 1.321675555237581"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Deserialize_Reflection",
+            "value": 542.1725506048936,
+            "unit": "ns",
+            "range": "± 2.507126488467407"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 0)",
+            "value": 7.722263100055548,
+            "unit": "ns",
+            "range": "± 0.06676396821333272"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 5)",
+            "value": 8.422352480888367,
+            "unit": "ns",
+            "range": "± 0.3260146279313065"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 0)",
+            "value": 8.050545581181844,
+            "unit": "ns",
+            "range": "± 0.08514878326211554"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 5)",
+            "value": 7.8046705562334795,
+            "unit": "ns",
+            "range": "± 0.03861681942280538"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 0)",
+            "value": 8.126224519312382,
+            "unit": "ns",
+            "range": "± 0.12428529924373252"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 5)",
+            "value": 7.998664757609367,
+            "unit": "ns",
+            "range": "± 0.026938359597812142"
           }
         ]
       }
