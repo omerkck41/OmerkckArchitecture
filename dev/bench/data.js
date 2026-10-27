@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1793113769292,
+  "lastUpdate": 1793114218913,
   "repoUrl": "https://github.com/omerkck41/OmerkckArchitecture",
   "entries": {
     "Benchmark": [
@@ -5998,6 +5998,102 @@ window.BENCHMARK_DATA = {
             "value": 8.709868461626474,
             "unit": "ns",
             "range": "± 0.48544097047810425"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "106805727+omerkck41@users.noreply.github.com",
+            "name": "Ömer KÜÇÜK",
+            "username": "omerkck41"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "a035496f784fb45b7b5b9d657849e1fd6c2bb3b8",
+          "message": "feat(filestorage-s3): support S3-compatible endpoints (#178)\n\n## Summary\nRoadmap H6: `Kck.FileStorage.AwsS3` can target S3-compatible services.\n\nNew `AwsS3Options` (all optional; defaults keep today's Amazon S3\nbehaviour):\n\n| Option | Effect |\n|---|---|\n| `ServiceUrl` | Endpoint of an S3-compatible service (MinIO, Cloudflare\nR2, Wasabi). `Region` then only signs requests (`AuthenticationRegion`).\nMust be an absolute http(s) URL (validated at startup). |\n| `ForcePathStyle` | Path-style URLs `host/bucket/key` |\n| `ChecksumWhenRequired` | `RequestChecksumCalculation` /\n`ResponseChecksumValidation` = `WHEN_REQUIRED`, for services that reject\nthe AWS SDK v4 default CRC32 checksums |\n\n- Client configuration moved to `internal\nCreateClientConfig(AwsS3Options)`; new public members added to\n`PublicAPI.Unshipped.txt`.\n- README: `UploadAsync` sample fixed to the real `FileUploadRequest`\nAPI, non-existent `PublicReadAccess` option removed, new options and an\nS3-compatible example documented.\n- API source: aws/aws-sdk-net (context7, 2026-10-27) — `ServiceURL` +\n`ForcePathStyle` + `AuthenticationRegion`; `WHEN_REQUIRED` skips\nnon-required checksums.\n\n## Test plan\n- [x] RED (members missing) → GREEN: `Kck.FileStorage.AwsS3.Tests` 28/28\n(8 new: client config mapping, ServiceUrl validation)\n- [x] Mutation probe: removing `AuthenticationRegion` / response\nchecksum mapping fails 2 tests\n- [x] Behaviour against a local fake S3 endpoint: `PUT\n/demo-bucket/docs/...` (path-style), signed `us-east-1`; checksum header\nsent by default, none with `ChecksumWhenRequired = true`\n- [x] Solution Release build 0 errors; package validation vs 3.5.0\npasses; `dotnet restore --locked-mode` clean\n- [ ] Not run: real MinIO/R2 (no Docker locally)\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-authored-by: Claude Opus 5.5 <noreply@anthropic.com>",
+          "timestamp": "2026-10-27T18:07:47+03:00",
+          "tree_id": "2f91f166cb701c7e83d91141581ca1ad5e66a4e7",
+          "url": "https://github.com/omerkck41/OmerkckArchitecture/commit/a035496f784fb45b7b5b9d657849e1fd6c2bb3b8"
+        },
+        "date": 1793114217703,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Success_Factory",
+            "value": 5.8221724340144325,
+            "unit": "ns",
+            "range": "± 0.16888347340748158"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Failure_Factory",
+            "value": 6.859471036919525,
+            "unit": "ns",
+            "range": "± 0.08763153614528349"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Success",
+            "value": 0.6716696502019962,
+            "unit": "ns",
+            "range": "± 0.1281291117412256"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Failure",
+            "value": 0.7858197288587689,
+            "unit": "ns",
+            "range": "± 0.0008974085757643118"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Serialize_Reflection",
+            "value": 304.5523271220071,
+            "unit": "ns",
+            "range": "± 3.0127489063861037"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Deserialize_Reflection",
+            "value": 559.8192948341369,
+            "unit": "ns",
+            "range": "± 4.85909367567248"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 0)",
+            "value": 8.252397742654596,
+            "unit": "ns",
+            "range": "± 0.08968314712807923"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 5)",
+            "value": 8.21224985619386,
+            "unit": "ns",
+            "range": "± 0.06557703259599862"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 0)",
+            "value": 7.979582240680854,
+            "unit": "ns",
+            "range": "± 0.05118052666855309"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 5)",
+            "value": 7.894469647535256,
+            "unit": "ns",
+            "range": "± 0.10742729261670278"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 0)",
+            "value": 9.055096044459127,
+            "unit": "ns",
+            "range": "± 0.2847380049158348"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 5)",
+            "value": 8.03251130346741,
+            "unit": "ns",
+            "range": "± 0.04404527974861683"
           }
         ]
       }
