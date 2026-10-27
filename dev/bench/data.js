@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1793124428517,
+  "lastUpdate": 1793125255214,
   "repoUrl": "https://github.com/omerkck41/OmerkckArchitecture",
   "entries": {
     "Benchmark": [
@@ -6670,6 +6670,102 @@ window.BENCHMARK_DATA = {
             "value": 12.234617167711258,
             "unit": "ns",
             "range": "± 0.2582121632511022"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "106805727+omerkck41@users.noreply.github.com",
+            "name": "Ömer KÜÇÜK",
+            "username": "omerkck41"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "eb3c8fa40176c694e4c3128752ff8d6fa089b353",
+          "message": "fix(caching-hybrid): GetAsync reads values written by SetAsync (#186)\n\n## Summary\nBug fix in `Kck.Caching.Hybrid` (all released 3.x versions):\n**`GetAsync` threw `JsonException` for every value written with\n`SetAsync`.**\n\n- `SetAsync` writes through Microsoft HybridCache, which stores L2\nentries in its own payload format (header + key + value — 38 bytes for\n`\"shipped\"`). `GetAsync` read the L2 entry directly from\n`IDistributedCache` and parsed it as JSON → `'0x03' is an invalid start\nof a value`.\n- Fix: `GetAsync` reads through `HybridCache.GetOrCreateAsync` with\n`DisableLocalCacheWrite | DisableDistributedCacheWrite` — returns a\nstored value (L1, then L2), stores nothing on a miss.\n- The now-unused `IDistributedCache` constructor parameter stays for 3.x\nbinary compatibility (CS9113 suppressed with a note; remove in 4.0).\n- The two old `GetAsync` tests mocked L2 as plain JSON and encoded the\nbug; replaced by `HybridCacheRoundTripTests` against the real\nHybridCache (dictionary-backed L2, since HybridCache ignores\n`MemoryDistributedCache`).\n- CHANGELOG 3.6.2. Found while validating StackExchange.Redis 3 (v4 plan\nPR 3); independent of the Redis version.\n\n## Test plan\n- [x] RED: new round-trip tests fail with the exact `JsonException`\nbefore the fix\n- [x] GREEN: `Kck.Caching.Hybrid.Tests` 8/8 (set→get for DTO/string/int,\nread from another instance via L2, miss returns default and stores\nnothing)\n- [x] Solution: `restore --locked-mode`, Release build, unit tests 0\nfailures, package validation vs 3.6.0 clean (no API change)\n- [ ] CI green\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-authored-by: Claude Opus 5.5 <noreply@anthropic.com>",
+          "timestamp": "2026-10-27T21:12:56+03:00",
+          "tree_id": "5dc605ba0b88b9b4dc50d9c083683aa1330508b1",
+          "url": "https://github.com/omerkck41/OmerkckArchitecture/commit/eb3c8fa40176c694e4c3128752ff8d6fa089b353"
+        },
+        "date": 1793125253468,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Success_Factory",
+            "value": 3.716110262823732,
+            "unit": "ns",
+            "range": "± 0.12750928230311145"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Failure_Factory",
+            "value": 4.678546460202107,
+            "unit": "ns",
+            "range": "± 0.09548228805065892"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Success",
+            "value": 0.4687305883719371,
+            "unit": "ns",
+            "range": "± 0.028361955714678172"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Failure",
+            "value": 0.21773254578667028,
+            "unit": "ns",
+            "range": "± 0.01895574299348585"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Serialize_Reflection",
+            "value": 242.03410363197327,
+            "unit": "ns",
+            "range": "± 2.497007287833731"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Deserialize_Reflection",
+            "value": 474.70306126276654,
+            "unit": "ns",
+            "range": "± 11.31789002025423"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 0)",
+            "value": 5.976964722861323,
+            "unit": "ns",
+            "range": "± 0.34497394777300466"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 5)",
+            "value": 6.016571366041899,
+            "unit": "ns",
+            "range": "± 0.2905511327159327"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 0)",
+            "value": 6.358955255294421,
+            "unit": "ns",
+            "range": "± 0.4530902665369778"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 5)",
+            "value": 6.205354708184799,
+            "unit": "ns",
+            "range": "± 0.37153430259516335"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 0)",
+            "value": 5.556563256042344,
+            "unit": "ns",
+            "range": "± 0.13659250441763524"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 5)",
+            "value": 5.563913485076692,
+            "unit": "ns",
+            "range": "± 0.2950046455520383"
           }
         ]
       }
