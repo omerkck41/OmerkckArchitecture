@@ -34,13 +34,15 @@ app.UseHangfireDashboard("/jobs");
 ## Quartz
 
 ```csharp
-services.AddKckBackgroundJobsQuartz(q =>
-{
-    q.UseMicrosoftDependencyInjectionJobFactory();
-});
+services.AddKckBackgroundJobsQuartz();                         // varsayilanlar: in-memory store
+services.AddKckBackgroundJobsQuartz(q => q.UseDefaultThreadPool(tp => tp.MaxConcurrency = 10)); // Quartz.NET 4 IQuartzBuilder
 ```
 
-Quartz hosted service otomatik eklenir (`WaitForJobsToComplete = true`).
+Quartz hosted service otomatik eklenir (`WaitForJobsToComplete = true`); isler DI'dan cozulur. 4.0 itibariyla Quartz.NET
+4 kullanilir — Quartz 3'ten gecis notlari: [v3-to-v4](../migrations/v3-to-v4.md#7-quartznet-4).
+
+> `Kck.Bundle.WorkerService` 4.0'dan itibaren yalniz Quartz icerir; Hangfire (LGPL-3.0) icin
+> `Kck.BackgroundJobs.Hangfire` paketini ayrica ekleyin.
 
 ## Job Yazma
 

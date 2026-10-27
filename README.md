@@ -66,21 +66,20 @@ app.Run();
 ### Worker Service (background jobs, no HTTP)
 
 ```bash
-dotnet add package Kck.BackgroundJobs.Quartz
-dotnet add package Kck.Logging.Serilog
-dotnet add package Kck.Observability.OpenTelemetry
+dotnet add package Kck.Bundle.WorkerService
 ```
 
 ```csharp
 var builder = Host.CreateApplicationBuilder(args);
 
-builder.Services
-    .AddKckSerilog(builder.Configuration)
-    .AddKckOpenTelemetry()
-    .AddKckQuartz(opt => opt.UseInMemoryStore())
-    .AddKckJob<EmailDigestJob>(triggerCron: "0 0 9 * * ?");
+// Serilog + OpenTelemetry + InMemory event bus + Quartz.NET scheduler
+builder.Services.AddKckWorkerServiceDefaults(builder.Configuration);
+builder.Services.AddKckJob<EmailDigestJob>();
 
-await builder.Build().RunAsync();
+var host = builder.Build();
+await host.Services.GetRequiredService<IJobScheduler>()
+    .AddOrUpdateRecurringAsync<EmailDigestJob>("email-digest", "0 0 9 * * ?"); // every day at 09:00
+await host.RunAsync();
 ```
 
 > Tam ornek: [`samples/Kck.Sample.WorkerService`](samples/Kck.Sample.WorkerService)
