@@ -18,7 +18,7 @@ builder.Services.AddKckEntityFramework<AppDbContext>(builder.Configuration);
 public class GetOrderHandler(IReadRepository<Order, Guid> orders)
 {
     public async Task<Order?> HandleAsync(Guid orderId, CancellationToken ct)
-        => await orders.GetByIdAsync(orderId, ct);
+        => await orders.GetByIdAsync(orderId, cancellationToken: ct);
 }
 
 public class CreateOrderHandler(
@@ -33,14 +33,13 @@ public class CreateOrderHandler(
     }
 }
 
-// Dynamic query with QueryOptions
-var activeOrders = await orders.ListAsync(
-    new QueryOptions<Order>
-    {
-        Filter       = o => o.Status == OrderStatus.Active,
-        OrderBy      = q => q.OrderByDescending(o => o.CreatedAt),
-        AsTracking   = false
-    }, ct);
+// Filtered, ordered page; QueryOptions controls soft-deleted rows and change tracking
+var activeOrders = await orders.GetListAsync(
+    QueryOptions.None,
+    predicate: o => o.Status == OrderStatus.Active,
+    orderBy: q => q.OrderByDescending(o => o.CreatedAt),
+    size: 20,
+    cancellationToken: ct);
 ```
 
 ## Configuration

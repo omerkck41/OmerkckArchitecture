@@ -13,11 +13,4 @@ public interface ITokenService
 
     /// <summary>Validates a token and returns its claims.</summary>
     Task<TokenValidationResult> ValidateTokenAsync(string token, CancellationToken ct = default);
-
-    /// <summary>
-    /// Extracts claims from a token WITHOUT signature validation.
-    /// Do NOT use for authorization decisions — use <see cref="ValidateTokenAsync"/> instead.
-    /// </summary>
-    [Obsolete("Use ValidateTokenAsync. GetClaimsFromToken does NOT verify signature — unsafe for authorization. For debug/logging only.", DiagnosticId = "KCK0001")] // NOSONAR S1133 - retained for backwards compatibility
-    IReadOnlyDictionary<string, string> GetClaimsFromToken(string token);
 }
