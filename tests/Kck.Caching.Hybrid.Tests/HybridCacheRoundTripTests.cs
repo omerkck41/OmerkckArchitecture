@@ -52,7 +52,7 @@ public sealed class HybridCacheRoundTripTests
         var provider = services.BuildServiceProvider();
         var options = new StaticOptionsMonitor<HybridCacheOptions>(new HybridCacheOptions { KeyPrefix = "test:" });
         var sut = new HybridCacheService(
-            provider.GetRequiredService<HybridCache>(), l2, Substitute.For<IConnectionMultiplexer>(), options);
+            provider.GetRequiredService<HybridCache>(), Substitute.For<IConnectionMultiplexer>(), options);
         return (sut, provider);
     }
 

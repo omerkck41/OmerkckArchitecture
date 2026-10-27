@@ -1,6 +1,5 @@
 using System.Diagnostics;
 using Kck.Caching.Abstractions;
-using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Caching.Hybrid;
 using Microsoft.Extensions.Options;
 using StackExchange.Redis;
@@ -13,15 +12,10 @@ namespace Kck.Caching.Hybrid;
 /// other methods fall back to the distributed cache or Redis directly.
 /// </summary>
 [DebuggerDisplay("Prefix={_opts.KeyPrefix,nq}, Provider=HybridCache(L1+L2)")]
-// CS9113: distributedCache is no longer read (GetAsync goes through HybridCache). The parameter stays for binary
-// compatibility within 3.x; remove it in 4.0.
-#pragma warning disable CS9113
 public sealed class HybridCacheService(
     HybridCache hybridCache,
-    IDistributedCache distributedCache,
     IConnectionMultiplexer redis,
     IOptionsMonitor<HybridCacheOptions> options) : CacheServiceBase
-#pragma warning restore CS9113
 {
     private readonly HybridCacheOptions _opts = options.CurrentValue;
 

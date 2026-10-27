@@ -1,14 +1,15 @@
 # File Storage
 
-Dosya saklama ve transfer icin abstraction. Su an sadece FTP provider var;
-Azure Blob / S3 gelecekteki plan.
+Dosya saklama ve transfer icin abstraction: FTP, Azure Blob Storage ve Amazon S3 (ve S3 uyumlu servisler) provider'lari.
 
 ## Paketler
 
 | Paket | Hedef |
 |---|---|
 | `Kck.FileStorage.Abstractions` | `IFileStorageService`, `IFtpService`, `IFileConverter`, `IFileMetadataReader` |
-| `Kck.FileStorage.FluentFtp` | FluentFTP (SFTP/FTPS) |
+| `Kck.FileStorage.FluentFtp` | FluentFTP (FTP/FTPS) |
+| `Kck.FileStorage.AzureBlob` | Azure Blob Storage (`AddKckFileStorageAzureBlob`) |
+| `Kck.FileStorage.AwsS3` | Amazon S3 ve MinIO / Cloudflare R2 / Wasabi (`AddKckFileStorageAwsS3`; `ServiceUrl`, `ForcePathStyle`) |
 
 ## FluentFtp Setup
 

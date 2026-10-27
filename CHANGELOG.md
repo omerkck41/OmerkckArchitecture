@@ -45,7 +45,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   instead of silently producing JPEG; `jpg` is accepted as `jpeg`. An empty/`null` format now keeps the source format,
   as `ImageProcessingOptions.OutputFormat` documents (3.x produced JPEG); sources Kck cannot encode (e.g. TIFF) still
   become JPEG.
+- `Kck.Caching.Hybrid`: `HybridCacheService` no longer takes `IDistributedCache` (unused since the 3.6.2 `GetAsync`
+  fix). Registration through `AddKckCachingHybrid` is unchanged.
 - Intentional binary breaks are listed per package in `CompatibilitySuppressions.xml` (package validation).
+- Migration guide: [docs/migrations/v3-to-v4.md](docs/migrations/v3-to-v4.md).
 
 ## [3.6.2] — 2026-10-27
 

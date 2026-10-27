@@ -1,54 +1,52 @@
 # Kck.Persistence.Abstractions
 
-Repository and Unit-of-Work persistence abstractions following the Specification pattern — `IReadRepository<T,TId>`, `IWriteRepository<T,TId>`, dynamic filtering, and `IUnitOfWork`.
+Repository and Unit-of-Work persistence abstractions — `IReadRepository<T,TId>`, `IWriteRepository<T,TId>`,
+`QueryOptions`, dynamic filtering and `IUnitOfWork`. The Entity Framework implementation is
+`Kck.Persistence.EntityFramework`.
 
 ## Installation
 
 ```bash
 dotnet add package Kck.Persistence.Abstractions
+dotnet add package Kck.Persistence.EntityFramework
 ```
 
 ## Quick Start
 
 ```csharp
 // Program.cs — register the Entity Framework provider
-builder.Services.AddKckEntityFramework<AppDbContext>(builder.Configuration);
+builder.Services.AddKckPersistence(p => p
+    .UseEntityFramework<AppDbContext>(o => o
+        .UseSqlServer(builder.Configuration.GetConnectionString("Default"))
+        .AddInterceptors(new AuditInterceptor())));
 
-// Use repositories in handlers
-public class GetOrderHandler(IReadRepository<Order, Guid> orders)
+// Repositories come from the unit of work
+public sealed class OrderHandlers(IUnitOfWork uow)
 {
-    public async Task<Order?> HandleAsync(Guid orderId, CancellationToken ct)
-        => await orders.GetByIdAsync(orderId, cancellationToken: ct);
-}
+    public Task<Order?> GetAsync(Guid orderId, CancellationToken ct)
+        => uow.Repository<Order, Guid>().GetByIdAsync(orderId, cancellationToken: ct);
 
-public class CreateOrderHandler(
-    IWriteRepository<Order, Guid> orders, IUnitOfWork uow)
-{
-    public async Task<Order> HandleAsync(CreateOrderCommand cmd, CancellationToken ct)
+    public async Task<Order> CreateAsync(Order order, CancellationToken ct)
     {
-        var order = Order.Create(cmd.CustomerName, cmd.Total);
-        await orders.AddAsync(order, ct);
-        await uow.SaveChangesAsync(ct);
+        await uow.Repository<Order, Guid>().AddAsync(order, ct);
+        await uow.SaveChangesAsync(cancellationToken: ct);
         return order;
     }
-}
 
-// Filtered, ordered page; QueryOptions controls soft-deleted rows and change tracking
-var activeOrders = await orders.GetListAsync(
-    QueryOptions.None,
-    predicate: o => o.Status == OrderStatus.Active,
-    orderBy: q => q.OrderByDescending(o => o.CreatedAt),
-    size: 20,
-    cancellationToken: ct);
+    // Filtered, ordered page; QueryOptions controls soft-deleted rows and change tracking
+    public Task<IPaginate<Order>> ActiveAsync(CancellationToken ct)
+        => uow.Repository<Order, Guid>().GetListAsync(
+            QueryOptions.None,
+            predicate: o => o.Total > 0,
+            orderBy: q => q.OrderByDescending(o => o.CreatedDate),
+            size: 20,
+            cancellationToken: ct);
+}
 ```
 
-## Configuration
-
-| Property | Description | Default |
-|---|---|---|
-| `Persistence:ConnectionString` | Database connection string | — |
-| `Persistence:CommandTimeout` | EF command timeout (seconds) | `30` |
-| `Persistence:EnableSensitiveDataLogging` | Log parameter values | `false` |
+When `options` is omitted, `GetAsync` / `GetListAsync` / `GetListByDynamicAsync` track entities and `AnyAsync` /
+`GetByIdAsync` / `CountAsync` do not. `QueryOptions.WithDeleted` does not track; to load a soft-deleted row and save
+changes to it, pass `new QueryOptions(IncludeDeleted: true, AsTracking: true)`.
 
 ## Resources
 

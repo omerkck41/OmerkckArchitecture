@@ -26,7 +26,9 @@ Yeni rehber baslatmak icin: [`_template.md`](_template.md) kopyala.
 
 ## Mevcut Rehberler
 
-(Henuz major bump yapilmadi — 0.x serisinde.)
+- [v3-to-v4.md](v3-to-v4.md) — 3.x'ten 4.0'a (ADR-0028)
+- [mediatR-to-mediator.md](mediatR-to-mediator.md) — `Kck.Pipeline.MediatR` → `Kck.Pipeline.Mediator`
+- [entity-hierarchy-v3.md](entity-hierarchy-v3.md) — `Entity<TId>` → `FullEntity<TId>` (3.0)
 
 ## Otomatik Migration
 

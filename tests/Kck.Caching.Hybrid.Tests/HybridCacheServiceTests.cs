@@ -13,7 +13,6 @@ namespace Kck.Caching.Hybrid.Tests;
 public sealed class HybridCacheServiceTests
 {
     private readonly HybridCache _hybridCache = Substitute.For<HybridCache>();
-    private readonly IDistributedCache _distributedCache = Substitute.For<IDistributedCache>();
     private readonly IConnectionMultiplexer _redis = Substitute.For<IConnectionMultiplexer>();
     private readonly HybridCacheService _sut;
 
@@ -25,7 +24,7 @@ public sealed class HybridCacheServiceTests
             DefaultExpiration = TimeSpan.FromMinutes(5),
             DefaultLocalExpiration = TimeSpan.FromMinutes(1)
         });
-        _sut = new HybridCacheService(_hybridCache, _distributedCache, _redis, options);
+        _sut = new HybridCacheService(_hybridCache, _redis, options);
     }
 
     // GetAsync is covered with the real HybridCache in HybridCacheRoundTripTests (a mock cannot reproduce its L2 format).
