@@ -1,2 +1,1 @@
 #nullable enable
-*REMOVED*Kck.Security.Abstractions.Token.ITokenService.GetClaimsFromToken(string! token) -> System.Collections.Generic.IReadOnlyDictionary<string!, string!>!
