@@ -82,6 +82,12 @@ jobs:
       - name: Build
         run: dotnet build --configuration Release --no-restore
 
+      # Package validation (Directory.Build.props) runs on pack: fails on a breaking change against the last
+      # released version, so it is caught on the PR instead of at release time.
+      - name: Pack (package validation)
+        if: matrix.os == 'ubuntu-latest'
+        run: dotnet pack --configuration Release --no-build --output ./artifacts/validation
+
       - name: Test (unit)
         run: |
           dotnet test \
