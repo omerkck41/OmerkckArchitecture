@@ -75,10 +75,12 @@ public class AvatarService(IImageProcessor images)
 | Format | Encoder |
 |---|---|
 | `png` | PngEncoder |
-| `jpeg` / `jpg` / bilinmeyen | JpegEncoder (Quality) |
+| `jpeg` / `jpg` | JpegEncoder (Quality) |
 | `webp` | WebpEncoder (Quality) |
 | `gif` | GifEncoder |
 | `bmp` | BmpEncoder |
+| bos / `null` | kaynak gorselin formati; kaynak bu listede yoksa (orn. TIFF) JPEG |
+| diger her ad (orn. `avif`) | `NotSupportedException` (4.0 oncesi sessizce JPEG uretiyordu) |
 
 ## Notlar
 

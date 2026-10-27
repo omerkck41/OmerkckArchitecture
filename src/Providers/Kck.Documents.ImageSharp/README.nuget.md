@@ -26,20 +26,28 @@ public class ImageController(IImageProcessor images)
     public async Task<IActionResult> Thumbnail(IFormFile file, CancellationToken ct)
     {
         await using var input = file.OpenReadStream();
-        var result = await images.ResizeAsync(input, width: 200, height: 200, ct);
+        var result = await images.ResizeAsync(input, new ImageProcessingOptions
+        {
+            Width = 200,
+            Height = 200,
+            OutputFormat = "webp",
+            Quality = 85
+        }, ct);
         return File(result, "image/webp");
     }
 }
 ```
 
-## Configuration
+## Options (`ImageProcessingOptions`)
 
 | Property | Description | Default |
 |---|---|---|
-| `DefaultOutputFormat` | Output image format (`webp`, `jpeg`, `png`) | `"webp"` |
-| `DefaultQuality` | Output quality 1-100 | `85` |
-| `MaxImageWidth` | Maximum allowed input width in pixels | `8000` |
-| `MaxImageHeight` | Maximum allowed input height in pixels | `8000` |
+| `Width` / `Height` | Target size in pixels; `null` keeps the source dimension | `null` |
+| `MaintainAspectRatio` | Fit inside the box instead of stretching | `true` |
+| `OutputFormat` | `jpeg` (`jpg`), `png`, `webp`, `gif`, `bmp`; `null` keeps the source format (JPEG if the source format is not one of these) | `null` |
+| `Quality` | Encoder quality 1-100 (JPEG, WebP) | `80` |
+
+Any other `OutputFormat` / `ConvertFormatAsync` target (for example `avif`) throws `NotSupportedException`.
 
 ## Resources
 

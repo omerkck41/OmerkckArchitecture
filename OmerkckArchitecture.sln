@@ -219,6 +219,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kck.FileStorage.AwsS3.Tests
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kck.Templates", "src\Kck.Templates\Kck.Templates.csproj", "{98691E73-5D4D-4CF1-B0FD-805F7DF441A5}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kck.Bundle.WorkerService.Tests", "tests\Kck.Bundle.WorkerService.Tests\Kck.Bundle.WorkerService.Tests.csproj", "{91CE599F-C3FF-4D05-8644-0856AB693C08}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -1429,6 +1431,18 @@ Global
 		{98691E73-5D4D-4CF1-B0FD-805F7DF441A5}.Release|x64.Build.0 = Release|Any CPU
 		{98691E73-5D4D-4CF1-B0FD-805F7DF441A5}.Release|x86.ActiveCfg = Release|Any CPU
 		{98691E73-5D4D-4CF1-B0FD-805F7DF441A5}.Release|x86.Build.0 = Release|Any CPU
+		{91CE599F-C3FF-4D05-8644-0856AB693C08}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{91CE599F-C3FF-4D05-8644-0856AB693C08}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{91CE599F-C3FF-4D05-8644-0856AB693C08}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{91CE599F-C3FF-4D05-8644-0856AB693C08}.Debug|x64.Build.0 = Debug|Any CPU
+		{91CE599F-C3FF-4D05-8644-0856AB693C08}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{91CE599F-C3FF-4D05-8644-0856AB693C08}.Debug|x86.Build.0 = Debug|Any CPU
+		{91CE599F-C3FF-4D05-8644-0856AB693C08}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{91CE599F-C3FF-4D05-8644-0856AB693C08}.Release|Any CPU.Build.0 = Release|Any CPU
+		{91CE599F-C3FF-4D05-8644-0856AB693C08}.Release|x64.ActiveCfg = Release|Any CPU
+		{91CE599F-C3FF-4D05-8644-0856AB693C08}.Release|x64.Build.0 = Release|Any CPU
+		{91CE599F-C3FF-4D05-8644-0856AB693C08}.Release|x86.ActiveCfg = Release|Any CPU
+		{91CE599F-C3FF-4D05-8644-0856AB693C08}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -1537,6 +1551,7 @@ Global
 		{8114FB7D-9266-41BA-8881-123751BF29AF} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
 		{07620DF5-EE26-40B3-BE69-77731CEAA719} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
 		{98691E73-5D4D-4CF1-B0FD-805F7DF441A5} = {827E0CD3-B72D-47B6-A68D-7590B98EB39B}
+		{91CE599F-C3FF-4D05-8644-0856AB693C08} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {3105A270-AB10-4664-8568-4359D04C93CF}

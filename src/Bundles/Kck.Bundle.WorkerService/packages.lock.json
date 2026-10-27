@@ -19,38 +19,6 @@
         "resolved": "7.0.0",
         "contentHash": "2lMTCQl5bGP4iv0JNkockPnyllC6eHLz+CoK2ICvalvHod+exXSxueu9hq+zNkU7bZBJf8wMfeRC/Edn8AGmEg=="
       },
-      "Hangfire.AspNetCore": {
-        "type": "Transitive",
-        "resolved": "1.8.25",
-        "contentHash": "IqklPyZDacfrCM6I9vpoTd9n14AvP5tepgR/IfKTUlPzGihLzey9jpL7PTKguJ3CPAA12qz3WCDUfIJ9IsCLQw==",
-        "dependencies": {
-          "Hangfire.NetCore": "[1.8.25]"
-        }
-      },
-      "Hangfire.Core": {
-        "type": "Transitive",
-        "resolved": "1.8.25",
-        "contentHash": "BxzXlHwXNrGPHJ7YfAVfeiXC+BHd6uPoyyfV+9bCJVPPGs4z0EQCW1X44Og/IUFM81ENCqAFP1r2rOkQhm4ydA==",
-        "dependencies": {
-          "Newtonsoft.Json": "11.0.1"
-        }
-      },
-      "Hangfire.NetCore": {
-        "type": "Transitive",
-        "resolved": "1.8.25",
-        "contentHash": "ZfI7gwr7n70r635VS9aKsWSzOodY6U0bSIG0jDrqd5ODRLKvc+e5aXXGCnWHWzjvagvlwtUcRGG/lD0/3C7chA==",
-        "dependencies": {
-          "Hangfire.Core": "[1.8.25]"
-        }
-      },
-      "Hangfire.SqlServer": {
-        "type": "Transitive",
-        "resolved": "1.8.25",
-        "contentHash": "KuDVyRuixoEnvIpKJ+PCvIlxNoRyVNOQPmYD4H6k1J4ZE6C372aBKZ17MawwtWTL+Mpqa10TgOaIivI1xXj1Ug==",
-        "dependencies": {
-          "Hangfire.Core": "[1.8.25]"
-        }
-      },
       "Microsoft.Build.Tasks.Git": {
         "type": "Transitive",
         "resolved": "10.0.402",
@@ -148,15 +116,6 @@
       "kck.backgroundjobs.abstractions": {
         "type": "Project"
       },
-      "kck.backgroundjobs.hangfire": {
-        "type": "Project",
-        "dependencies": {
-          "Hangfire": "[1.8.25, )",
-          "Hangfire.InMemory": "[1.0.0, )",
-          "Kck.BackgroundJobs.Abstractions": "[1.0.0, )",
-          "Newtonsoft.Json": "[13.0.4, )"
-        }
-      },
       "kck.backgroundjobs.quartz": {
         "type": "Project",
         "dependencies": {
@@ -203,32 +162,6 @@
       },
       "kck.pipeline.abstractions": {
         "type": "Project"
-      },
-      "Hangfire": {
-        "type": "CentralTransitive",
-        "requested": "[1.8.25, )",
-        "resolved": "1.8.25",
-        "contentHash": "UDAblv7i4pKa3+/YyCHaItBNTBoPbjfkXyO/t+Xgo1Mxu66Z+WGsnHGnUQ0ObVI0Wc/AK3tfW1eYApufJ0290Q==",
-        "dependencies": {
-          "Hangfire.AspNetCore": "[1.8.25]",
-          "Hangfire.Core": "[1.8.25]",
-          "Hangfire.SqlServer": "[1.8.25]"
-        }
-      },
-      "Hangfire.InMemory": {
-        "type": "CentralTransitive",
-        "requested": "[1.0.0, )",
-        "resolved": "1.0.0",
-        "contentHash": "56H71lfcqn5sN/8Bjj9hOLGTG5HIERLRuMsRJTFpw0Tsq5ck5OUkNvtUw92s7bwD3PRKOo4PkDGqNs9KugaqoQ==",
-        "dependencies": {
-          "Hangfire.Core": "1.8.0"
-        }
-      },
-      "Newtonsoft.Json": {
-        "type": "CentralTransitive",
-        "requested": "[13.0.4, )",
-        "resolved": "13.0.4",
-        "contentHash": "pdgNNMai3zv51W5aq268sujXUyx7SNdE2bj1wZcWjAQrKMFZV260lbqYop1d2GM67JI1huLRwxo9ZqnfF/lC6A=="
       },
       "OpenTelemetry.Api": {
         "type": "CentralTransitive",

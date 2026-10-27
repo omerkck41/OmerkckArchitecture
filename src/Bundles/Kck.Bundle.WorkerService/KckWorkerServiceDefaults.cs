@@ -8,10 +8,11 @@ public sealed class KckWorkerServiceDefaults
 
 public sealed class BackgroundJobsDefaults
 {
-    /// <summary>Use "Hangfire" or "Quartz". Only one provider is supported at a time.</summary>
-    public string Provider { get; set; } = "Hangfire";
-
-    public int HangfireWorkerCount { get; set; } = 5;
+    /// <summary>
+    /// Background job provider. Only "Quartz" is bundled; to use Hangfire, reference Kck.BackgroundJobs.Hangfire and
+    /// call AddKckBackgroundJobsHangfire yourself instead of using this bundle's scheduler.
+    /// </summary>
+    public string Provider { get; set; } = "Quartz";
 }
 
 public sealed class ObservabilityDefaults
