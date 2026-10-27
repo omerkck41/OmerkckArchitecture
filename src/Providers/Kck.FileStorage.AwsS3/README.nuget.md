@@ -24,23 +24,46 @@ builder.Services.AddKckFileStorageAwsS3(options =>
 public class UploadController(IFileStorageService storage)
 {
     [HttpPost("upload")]
-    public async Task<string> Upload(IFormFile file, CancellationToken ct)
+    public async Task Upload(IFormFile file, CancellationToken ct)
     {
         await using var stream = file.OpenReadStream();
-        return await storage.UploadAsync(stream, file.FileName, file.ContentType, ct);
+        await storage.UploadAsync(new FileUploadRequest
+        {
+            Content = stream,
+            FileName = file.FileName,
+            DestinationPath = "uploads"
+        }, ct);
     }
 }
+```
+
+## S3-compatible services (MinIO, Cloudflare R2, Wasabi)
+
+```csharp
+builder.Services.AddKckFileStorageAwsS3(options =>
+{
+    options.Region = "us-east-1";                 // used to sign requests
+    options.BucketName = "my-bucket";
+    options.ServiceUrl = "http://localhost:9000"; // the service endpoint
+    options.ForcePathStyle = true;                // most self-hosted services need path-style URLs
+    options.ChecksumWhenRequired = true;          // if the service rejects AWS SDK v4 default checksums
+    options.AccessKey = Environment.GetEnvironmentVariable("S3_ACCESS_KEY")!;
+    options.SecretKey = Environment.GetEnvironmentVariable("S3_SECRET_KEY")!;
+});
 ```
 
 ## Configuration
 
 | Property | Description | Default |
 |---|---|---|
-| `Region` | AWS region code | required |
+| `Region` | AWS region code (with `ServiceUrl`: signing region only) | required |
 | `BucketName` | Target S3 bucket name | required |
-| `AccessKey` | AWS access key ID | required (or IAM role) |
-| `SecretKey` | AWS secret access key | required (or IAM role) |
-| `PublicReadAccess` | Make uploaded objects publicly readable | `false` |
+| `AccessKey` | AWS access key ID | `null` (IAM role / environment) |
+| `SecretKey` | AWS secret access key; set together with `AccessKey` | `null` (IAM role / environment) |
+| `KeyPrefix` | Prefix prepended to every object key (tenant isolation) | `null` |
+| `ServiceUrl` | Absolute http(s) endpoint of an S3-compatible service | `null` (Amazon S3) |
+| `ForcePathStyle` | Path-style URLs (`host/bucket/key`) instead of virtual-hosted | `false` |
+| `ChecksumWhenRequired` | Compute/validate checksums only when the operation requires them | `false` |
 
 ## Resources
 

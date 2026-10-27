@@ -33,6 +33,15 @@ public sealed class AwsS3OptionsValidator : IValidateOptions<AwsS3Options>
                     → IAM role kullanıyorsanız her ikisini de null bırakın
                 """);
 
+        if (!string.IsNullOrWhiteSpace(options.ServiceUrl)
+            && !(Uri.TryCreate(options.ServiceUrl, UriKind.Absolute, out var serviceUri)
+                 && (serviceUri.Scheme == Uri.UriSchemeHttp || serviceUri.Scheme == Uri.UriSchemeHttps)))
+            errors.Add(
+                """
+                  • ServiceUrl: mutlak bir http(s) adresi olmalı
+                    → Fix: opt.ServiceUrl = "http://localhost:9000"; (Amazon S3 için null bırakın)
+                """);
+
         if (errors.Count == 0)
             return ValidateOptionsResult.Success;
 

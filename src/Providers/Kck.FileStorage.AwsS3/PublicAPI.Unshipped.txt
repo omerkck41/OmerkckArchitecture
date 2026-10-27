@@ -1,4 +1,10 @@
 #nullable enable
+Kck.FileStorage.AwsS3.AwsS3Options.ChecksumWhenRequired.get -> bool
+Kck.FileStorage.AwsS3.AwsS3Options.ChecksumWhenRequired.set -> void
+Kck.FileStorage.AwsS3.AwsS3Options.ForcePathStyle.get -> bool
+Kck.FileStorage.AwsS3.AwsS3Options.ForcePathStyle.set -> void
+Kck.FileStorage.AwsS3.AwsS3Options.ServiceUrl.get -> string?
+Kck.FileStorage.AwsS3.AwsS3Options.ServiceUrl.set -> void
 Kck.FileStorage.AwsS3.AwsS3Options
 Kck.FileStorage.AwsS3.AwsS3Options.AccessKey.get -> string?
 Kck.FileStorage.AwsS3.AwsS3Options.AccessKey.set -> void
