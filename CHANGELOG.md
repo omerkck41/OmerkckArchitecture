@@ -7,6 +7,42 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.6.0] — 2026-10-27
+
+### Added
+- `Kck.FileStorage.AwsS3`: S3-compatible services (MinIO, Cloudflare R2, Wasabi). New `AwsS3Options.ServiceUrl`
+  (custom endpoint; `Region` then only signs requests, validated as an absolute http(s) URL at startup),
+  `ForcePathStyle` (path-style URLs) and `ChecksumWhenRequired` (compute/validate checksums only when the operation
+  requires them, for services that reject the AWS SDK v4 default checksums). Defaults keep the Amazon S3 behaviour.
+- Package validation: every package is checked against the last release (3.5.0) on `dotnet pack` and on every PR, so
+  an accidental binary breaking change fails the build.
+
+### Fixed
+- `Kck.Templates` (`dotnet new kck-webapi`): the generated project now compiles. It referenced the unlisted
+  `Kck.Bundle.WebApi` 3.0.0 (now always the same version as the template package), called Swagger APIs without a
+  Swagger package (now `Microsoft.AspNetCore.OpenApi`: `AddOpenApi()`, `MapOpenApi()` in Development, document at
+  `/openapi/v1.json`), and failed with `--IncludeSample false`.
+- `Kck.FileStorage.AwsS3` README: the upload sample now uses the real `FileUploadRequest` API; the non-existent
+  `PublicReadAccess` option is removed.
+
+### Changed
+- Dependencies: `Microsoft.EntityFrameworkCore` 10.0.14 (`Kck.Persistence.EntityFramework`),
+  `Elastic.Clients.Elasticsearch` 9.5.3 (`Kck.Search.Elasticsearch`).
+- Releases keep the newest version of each major listed on nuget.org; publishing 4.0.0 will not unlist the last 3.x.
+- Licence gate: CI fails on any dependency whose licence is not on the permissive allow-list, unless it is a documented
+  exception. No dependency requires a paid licence; see [docs/licensing.md](docs/licensing.md).
+
+### Deprecated — removal in 4.0.0
+4.0.0 (planned November–December 2026) removes the following; each already produces a compiler warning.
+See [docs/policies/deprecation.md](docs/policies/deprecation.md).
+- `Kck.Pipeline.MediatR` package (**KCK0200**) — MediatR 13+ requires a commercial licence. Move to
+  `Kck.Pipeline.Mediator` (MIT): [docs/migrations/mediatR-to-mediator.md](docs/migrations/mediatR-to-mediator.md).
+- `ITokenService.GetClaimsFromToken(string)` / `JwtTokenService.GetClaimsFromToken(string)` (**KCK0001**) — does not
+  validate the signature.
+- Old `IReadRepository<T>` overloads (**KCK0100**): `GetAsync`, `GetListAsync`, `GetListByDynamicAsync`, `AnyAsync`,
+  `GetByIdAsync`, `CountAsync` — use the `QueryOptions` overloads.
+- `Kck.EventBus.InMemory` legacy registration methods (marked `[Obsolete]`).
+
 ## [3.1.0] — 2026-05-17
 
 ### Added
