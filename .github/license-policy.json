@@ -87,15 +87,6 @@
       "status": "exception",
       "reason": "Apache-2.0 for this open-source project and for Kck consumers (transitive dependency clause); maintainer build key: Community license until 2028-01-12.",
       "sha256": ["9144206b32fb82abcd4f543e212332513b5c792971ad12f1783dc19bf8b136a1"]
-    },
-    {
-      "id": "MediatR",
-      "kind": "file",
-      "license": "RPL-1.5 OR Lucky Penny commercial",
-      "status": "exception",
-      "reason": "Temporary: only the deprecated Kck.Pipeline.MediatR (KCK0200) uses it; package is removed in v4.0.0.",
-      "expires": "2027-01-31",
-      "sha256": ["34df298b519efe2f276f7fbcd7cf6187d1ce6f02e3c55eb04ae727503bbbcea7"]
     }
   ]
 }

@@ -85,7 +85,7 @@ services.AddKckWebApi(opt => { /* ... */ });
 
 Bu bundle:
 
-- MediatR pipeline
+- Mediator pipeline
 - Exception handler
 - Serilog (JSON)
 - OpenTelemetry (ASP.NET + HttpClient + EF)

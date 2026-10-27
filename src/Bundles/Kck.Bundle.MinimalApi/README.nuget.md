@@ -1,6 +1,6 @@
 # Kck.Bundle.MinimalApi
 
-Lightweight Minimal API setup — slim variant of `Kck.Bundle.WebApi` providing Serilog, JWT auth, in-memory caching, exception handling, and health checks without MediatR pipeline or Argon2 overhead.
+Lightweight Minimal API setup — slim variant of `Kck.Bundle.WebApi` providing Serilog, JWT auth, in-memory caching, exception handling, and health checks without the Mediator pipeline or Argon2 overhead.
 
 ## Installation
 

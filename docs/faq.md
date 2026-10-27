@@ -20,8 +20,8 @@ builder.Services.AddKckInMemoryCache();  // ya da AddKckRedisCache(...)
 ### AddKck* çağrılarının sırası önemli mi?
 
 `AddKckCaching()` → `AddKckRedisCache()` gibi önce abstraction, sonra provider. Ancak
-MediatR/Mediator pipeline'ı davranış sırasına dikkat edin: `AddKckPipeline()` builder
-üzerinde `.AddBehavior<>()` çağrılarının sırasıyla çalışır.
+Mediator pipeline'ında davranış sırasına dikkat edin: `AddKckMediatorPipeline()` builder
+üzerindeki `.Use…Behavior()` çağrılarının sırasıyla çalışır.
 
 ---
 
@@ -117,23 +117,24 @@ Kritik iş süreçleri için Outbox pattern entegrasyonunu değerlendirin (bakı
 
 ---
 
-## Pipeline (MediatR / Mediator)
+## Pipeline (Mediator)
 
-### MediatR mı, Mediator mi?
+### MediatR desteği nerede?
 
-`Kck.Pipeline.MediatR` kullanımdan kaldırılmıştır (ADR-0021). Yeni projelerde
-`Kck.Pipeline.Mediator` (Mediator.Abstractions 3.x) kullanın. Migrasyon kılavuzu:
+`Kck.Pipeline.MediatR` 4.0.0'da kaldırıldı (ADR-0021, ADR-0028): MediatR 13+ ticari lisanslı. Pipeline için
+`Kck.Pipeline.Mediator` (Mediator, MIT) kullanın. Migrasyon kılavuzu:
 [docs/migrations/mediatR-to-mediator.md](migrations/mediatR-to-mediator.md).
 
 ### Behavior sırasını nasıl belirlerim?
 
-`AddKckPipeline()` sonrasında `.AddBehavior<>()` çağrılarının sırası pipeline sırasını belirler:
+`AddKckMediatorPipeline()` builder'ındaki `.Use…Behavior()` çağrılarının sırası pipeline sırasını belirler:
 
 ```csharp
-builder.AddKckPipeline()
-    .AddBehavior<LoggingBehavior>()      // ilk çalışır
-    .AddBehavior<ValidationBehavior>()   // ikinci
-    .AddBehavior<CachingBehavior>();     // üçüncü
+services.AddMediator();
+services.AddKckMediatorPipeline(p => p
+    .UseLoggingBehavior()       // ilk çalışır
+    .UseValidationBehavior()    // ikinci
+    .UseCachingBehavior());     // üçüncü
 ```
 
 ---

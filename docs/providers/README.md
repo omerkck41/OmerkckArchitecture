@@ -20,7 +20,7 @@ orneklerini acIklar. Her rehber kategoriye gore gruplandirilmistir.
 | Messaging | [messaging.md](messaging.md) | MailKit, SendGrid, AmazonSes |
 | Observability | [observability.md](observability.md) | OpenTelemetry |
 | Persistence | [persistence.md](persistence.md) | EntityFramework |
-| Pipeline | [pipeline.md](pipeline.md) | MediatR |
+| Pipeline | [pipeline.md](pipeline.md) | Mediator |
 | Search | [search.md](search.md) | Elasticsearch |
 | Security | [security.md](security.md) | Argon2, Jwt, Totp, TokenBlacklist, Secrets |
 | Web | [aspnetcore.md](aspnetcore.md) | AspNetCore |
