@@ -109,16 +109,40 @@ public sealed class AwsS3StorageService : IFileStorageService, IDisposable
 
     private static AmazonS3Client BuildClient(AwsS3Options opts)
     {
-        var region = RegionEndpoint.GetBySystemName(opts.Region);
+        var config = CreateClientConfig(opts);
 
         if (!string.IsNullOrWhiteSpace(opts.AccessKey) && !string.IsNullOrWhiteSpace(opts.SecretKey))
         {
             var credentials = new BasicAWSCredentials(opts.AccessKey, opts.SecretKey);
-            return new AmazonS3Client(credentials, region);
+            return new AmazonS3Client(credentials, config);
         }
 
         // Fall through to IAM role / env var credentials (DefaultInstanceProfileAWSCredentials etc.)
-        return new AmazonS3Client(region);
+        return new AmazonS3Client(config);
+    }
+
+    internal static AmazonS3Config CreateClientConfig(AwsS3Options opts)
+    {
+        var config = new AmazonS3Config { ForcePathStyle = opts.ForcePathStyle };
+
+        if (string.IsNullOrWhiteSpace(opts.ServiceUrl))
+        {
+            config.RegionEndpoint = RegionEndpoint.GetBySystemName(opts.Region);
+        }
+        else
+        {
+            // ServiceURL and RegionEndpoint are mutually exclusive; the region still signs requests (SigV4).
+            config.ServiceURL = opts.ServiceUrl;
+            config.AuthenticationRegion = opts.Region;
+        }
+
+        if (opts.ChecksumWhenRequired)
+        {
+            config.RequestChecksumCalculation = RequestChecksumCalculation.WHEN_REQUIRED;
+            config.ResponseChecksumValidation = ResponseChecksumValidation.WHEN_REQUIRED;
+        }
+
+        return config;
     }
 
     /// <inheritdoc/>

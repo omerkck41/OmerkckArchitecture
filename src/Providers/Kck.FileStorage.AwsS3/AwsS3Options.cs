@@ -28,4 +28,22 @@ public sealed class AwsS3Options
     /// Useful for multi-tenant isolation within a single bucket.
     /// </summary>
     public string? KeyPrefix { get; set; }
+
+    /// <summary>
+    /// Endpoint of an S3-compatible service (e.g. MinIO <c>http://localhost:9000</c>, Cloudflare R2, Wasabi).
+    /// Leave <see langword="null"/> for Amazon S3. When set, <see cref="Region"/> is used only to sign requests.
+    /// </summary>
+    public string? ServiceUrl { get; set; }
+
+    /// <summary>
+    /// Use path-style URLs (<c>https://host/bucket/key</c>) instead of virtual-hosted style
+    /// (<c>https://bucket.host/key</c>). Most self-hosted S3-compatible services (e.g. MinIO) need this.
+    /// </summary>
+    public bool ForcePathStyle { get; set; }
+
+    /// <summary>
+    /// Compute and validate checksums only when the operation requires them. AWS SDK v4 adds CRC32
+    /// checksums to every request by default, which some S3-compatible services reject; enable this for them.
+    /// </summary>
+    public bool ChecksumWhenRequired { get; set; }
 }
