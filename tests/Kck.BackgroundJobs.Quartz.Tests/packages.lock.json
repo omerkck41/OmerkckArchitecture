@@ -52,9 +52,9 @@
       },
       "Quartz": {
         "type": "Direct",
-        "requested": "[3.22.5, )",
-        "resolved": "3.22.5",
-        "contentHash": "ZWEPSRUcZVdvh7JhTOmAxRJXyxbCtYHtyyKbq6Za/TH+UQr3Q5AkPhKnZAejHQNxaFUEx4qAWo77cTm0z8ko5Q=="
+        "requested": "[4.6.2, )",
+        "resolved": "4.6.2",
+        "contentHash": "0CfUXKAA7Hs4hIa81AJNxg33gLJIrxD6mqjgAlPYQ4GLl4ErFtqJSE3T30xpEuh+4gYJqpv5boSMJQWR7UvJGA=="
       },
       "xunit": {
         "type": "Direct",
@@ -161,27 +161,7 @@
         "type": "Project",
         "dependencies": {
           "Kck.BackgroundJobs.Abstractions": "[1.0.0, )",
-          "Quartz": "[3.22.5, )",
-          "Quartz.Extensions.DependencyInjection": "[3.22.5, )",
-          "Quartz.Extensions.Hosting": "[3.22.5, )"
-        }
-      },
-      "Quartz.Extensions.DependencyInjection": {
-        "type": "CentralTransitive",
-        "requested": "[3.22.5, )",
-        "resolved": "3.22.5",
-        "contentHash": "vUJsPDkNBRmGsQac6GPgRBPY68Ho+vveG3kg7b2nihxkVGC2VZQX+6mCyI0leQnhKzx48e6FfffXPv+0zDP+mw==",
-        "dependencies": {
-          "Quartz": "3.22.5"
-        }
-      },
-      "Quartz.Extensions.Hosting": {
-        "type": "CentralTransitive",
-        "requested": "[3.22.5, )",
-        "resolved": "3.22.5",
-        "contentHash": "2P3aKTwwS91h+LnSM4OeuoGgv/D1sHZ3Sq7//nMpmLjxH3HWy1zwDiQ78apKR+9nS6RY6tLXgwiIjONuZ61fkQ==",
-        "dependencies": {
-          "Quartz.Extensions.DependencyInjection": "3.22.5"
+          "Quartz": "[4.6.2, )"
         }
       }
     }
