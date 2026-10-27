@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.6.2] — 2026-10-27
+
+### Fixed
+- `Kck.Caching.Hybrid`: `GetAsync` threw `JsonException` for every value written with `SetAsync`. HybridCache stores
+  L2 entries in its own payload format, but `GetAsync` read them straight from `IDistributedCache` as JSON. `GetAsync`
+  now reads through HybridCache (L1, then L2) and does not populate the cache on a miss. `GetOrSetAsync`,
+  `ExistsAsync`, `RemoveAsync` and `RemoveByPrefixAsync` were not affected.
+
 ## [3.6.1] — 2026-10-27
 
 ### Security
