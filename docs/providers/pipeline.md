@@ -1,103 +1,60 @@
-# Pipeline (MediatR)
+# Pipeline (Mediator)
 
-MediatR tabanli CQRS/request pipeline + cross-cutting concern behavior'lari.
+Source-generator tabanli [Mediator](https://github.com/martinothamar/Mediator) (MIT) uzerinde CQRS/request pipeline ve
+cross-cutting behavior'lar.
 
 ## Paketler
 
 | Paket | Hedef |
 |---|---|
-| `Kck.Pipeline.MediatR` | MediatR + logging / caching / validation / authorization behavior |
+| `Kck.Pipeline.Mediator` | Validation, logging, caching, authorization, transaction behavior'lari |
+| `Kck.Pipeline.Abstractions` | Request'lerin behavior'a katilmasini saglayan marker arayuzler |
+
+> `Kck.Pipeline.MediatR` 4.0.0'da kaldirildi (MediatR 13+ ticari lisans). Gecis:
+> [migrations/mediatR-to-mediator.md](../migrations/mediatR-to-mediator.md).
 
 ## Setup
 
 ```csharp
-services.AddKckPipelineMediatR(cfg =>
-{
-    cfg.RegisterServicesFromAssembly(typeof(Program).Assembly);
-    cfg.UseLogging = true;
-    cfg.UseValidation = true;
-    cfg.UseCaching = true;
-    cfg.UseAuthorization = true;
-});
+services.AddMediator(); // Mediator source generator'in dispatcher'i
+services.AddKckMediatorPipeline(p => p
+    .UseLoggingBehavior()
+    .UseAuthorizationBehavior()
+    .UseValidationBehavior()
+    .UseCachingBehavior()
+    .UseTransactionBehavior());
 ```
 
-## Davranis Sirasi
+Behavior'lar `Use…Behavior()` cagrilarinin sirasiyla calisir.
 
-Pipeline asagidaki sirayla calisir:
+## Marker arayuzler (`Kck.Pipeline.Abstractions`)
 
-1. `LoggingBehavior` — her request icin log satiri (request adi + duration)
-2. `AuthorizationBehavior` — `IAuthorizationService`'e soruyor
-3. `ValidationBehavior` — FluentValidation `IValidator<TRequest>` cagirir
-4. `CachingBehavior` — `ICacheable` marker arayuzu implement eden request'leri
-   cache'ler
-5. Handler calisir
+| Arayuz | Behavior | Uyeler |
+|---|---|---|
+| `ILoggableRequest` | Logging | yok (isaret) |
+| `ISecuredRequest` | Authorization | `string[] Roles` — biri yeterli; kullanici yoksa `UnauthorizedException`, rol yoksa `ForbiddenException` |
+| `ICachableRequest` | Caching | `CacheKey`, `BypassCache`, `CacheGroupKey`, `SlidingExpiration` |
+| `ITransactionalRequest` | Transaction | yok (isaret) |
 
-## Cacheable Request
+Validation behavior'i request icin kayitli tum FluentValidation `IValidator<TRequest>`'lari calistirir; hata varsa
+`Kck.Exceptions.ValidationException` firlatir (`Kck.Exceptions.AspNetCore` bunu 400 ProblemDetails'e cevirir).
+
+## Ornek
 
 ```csharp
-public record GetProductQuery(int Id)
-    : IRequest<Product>, ICacheable
+public sealed record GetProductQuery(int Id) : IQuery<Product>, ICachableRequest
 {
     public string CacheKey => $"product:{Id}";
-    public TimeSpan? CacheDuration => TimeSpan.FromMinutes(10);
+    public bool BypassCache => false;
+    public string? CacheGroupKey => "products";
+    public TimeSpan? SlidingExpiration => TimeSpan.FromMinutes(10);
 }
-```
 
-## Validation
-
-```csharp
-public class CreateOrderValidator : AbstractValidator<CreateOrderCommand>
+public sealed class GetProductHandler(IProductRepository repo) : IQueryHandler<GetProductQuery, Product>
 {
-    public CreateOrderValidator()
-    {
-        RuleFor(x => x.Amount).GreaterThan(0);
-        RuleFor(x => x.CustomerId).NotEmpty();
-    }
+    public async ValueTask<Product> Handle(GetProductQuery query, CancellationToken ct)
+        => await repo.FindAsync(query.Id, ct) ?? throw new NotFoundException($"Product {query.Id}");
 }
 ```
 
-Validation hatasi `ValidationException` firlatir — `Kck.Exceptions.AspNetCore`
-middleware otomatik 400 ProblemDetails'e cevirir.
-
-## Authorization
-
-```csharp
-public record DeleteProductCommand(int Id) : IRequest, IAuthorized
-{
-    public string RequiredPermission => "products.delete";
-}
-```
-
-`AuthorizationBehavior` `IPermissionChecker` uzerinden kontrol eder, `false`
-donerse `ForbiddenException` firlatir.
-
-## Handler
-
-```csharp
-public class GetProductHandler(IRepository<Product> repo)
-    : IRequestHandler<GetProductQuery, Product>
-{
-    public async Task<Product> Handle(GetProductQuery query, CancellationToken ct)
-    {
-        var product = await repo.FindAsync(query.Id, ct);
-        return product ?? throw new NotFoundException($"Product {query.Id}");
-    }
-}
-```
-
-## Dispatch
-
-```csharp
-public class ProductsController(IMediator mediator)
-{
-    [HttpGet("{id}")]
-    public Task<Product> Get(int id, CancellationToken ct)
-        => mediator.Send(new GetProductQuery(id), ct);
-}
-```
-
-## Behavior Kapatma
-
-Davranis'i tek request icin atlamak mumkun — `ICacheable` implement etmeyen
-request'ler otomatik cache dışı. Authorization icin de ayni — `IAuthorized`
-markersız request otomatik gecer.
+Marker arayuzu uygulamayan request ilgili behavior'i atlar.

@@ -10,8 +10,7 @@
     <NoWarn>$(NoWarn);1591</NoWarn>
     <!-- CA1716: breaking change (public interface/type renaming) — intentional suppression -->
     <!-- CA1000: public generic factory methods (Result<T>, Paginate<T>, ApiResponse<T>) — intentional design, suppressed at source -->
-    <!-- KCK0200: Kck.Pipeline.MediatR deprecated — warning-only, callers opt in to suppress -->
-    <WarningsNotAsErrors>$(WarningsNotAsErrors);CA1716;CA1000;KCK0200</WarningsNotAsErrors>
+    <WarningsNotAsErrors>$(WarningsNotAsErrors);CA1716;CA1000</WarningsNotAsErrors>
     <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
     <!-- Release tags are v1.2.3; without the prefix MinVer ignores them and non-release builds get 0.0.0
          (releases always pass MinVerVersionOverride, so they are unaffected). -->

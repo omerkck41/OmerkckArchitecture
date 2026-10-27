@@ -24,14 +24,13 @@ unreadable nuspec, a missing lock file or an expired exception fails the job.
 |---|---|---|---|
 | `Hangfire*` (used by `Kck.BackgroundJobs.Hangfire`) | LGPL-3.0-or-later or commercial | Free under LGPL-3.0; consumed unmodified as a NuGet dependency. `Kck.BackgroundJobs.Quartz` (Apache-2.0) is the permissive alternative. | - |
 | `SixLabors.ImageSharp` (used by `Kck.Documents.ImageSharp`) | Six Labors Split License 1.0 | Apache-2.0 applies to this open-source project and to anyone consuming ImageSharp **through** Kck ("Transitive Package Dependency" clause). The maintainer's Release build key is a free Community license (until 2028-01-12). | - |
-| `MediatR` (used only by the deprecated `Kck.Pipeline.MediatR`) | RPL-1.5 or Lucky Penny commercial | Temporary. MediatR 13+ is commercially licensed; `Kck.Pipeline.MediatR` is removed in v4.0.0. Use `Kck.Pipeline.Mediator` (MIT). | 2027-01-31 |
-
 ### Notes for consumers
 
 - If your application references **SixLabors.ImageSharp directly** (not only through `Kck.Documents.ImageSharp`), the
   Split License applies to your direct use; evaluate it for your organisation.
-- If you reference `Kck.Pipeline.MediatR`, MediatR's own license terms apply to your application. Migrate to
-  `Kck.Pipeline.Mediator` ([guide](migrations/mediatR-to-mediator.md)).
+- `Kck.Pipeline.MediatR` (MediatR 13+ is commercially licensed) was removed in 4.0.0. If you still reference its 3.x
+  version, MediatR's own license terms apply to your application; migrate to `Kck.Pipeline.Mediator` (MIT,
+  [guide](migrations/mediatR-to-mediator.md)).
 - Cloud providers (`AwsS3`, `AzureBlob`, `SendGrid`, `AmazonSes`, Azure Key Vault / App Configuration, Elasticsearch
   server) have permissively licensed client SDKs; any cost comes from the service you choose, not from a license.
 

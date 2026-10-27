@@ -9,7 +9,7 @@ public static class KckBundleMinimalApiServiceCollectionExtensions
     /// <summary>
     /// Registers the lightweight Kck Minimal API stack: Serilog, InMemory cache,
     /// JWT authentication, exception handling, and OpenTelemetry health checks.
-    /// MVC, FluentValidation auto-wire, and Pipeline.MediatR are intentionally excluded.
+    /// MVC, FluentValidation auto-wire, and the Mediator pipeline are intentionally excluded.
     /// </summary>
     /// <remarks>
     /// Configure via <c>appsettings.json</c>:

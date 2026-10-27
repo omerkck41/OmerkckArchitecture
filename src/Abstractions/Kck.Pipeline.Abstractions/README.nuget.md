@@ -37,7 +37,7 @@ public record GetAuditLogQuery(Guid EntityId)
 
 ## Configuration
 
-This is a marker-interfaces package — no configuration required. Pipeline behavior implementations are registered by `Kck.Pipeline.Mediator` or your MediatR pipeline setup.
+This is a marker-interfaces package — no configuration required. Pipeline behavior implementations are registered by `Kck.Pipeline.Mediator`.
 
 ## Resources
 

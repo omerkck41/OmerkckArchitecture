@@ -164,7 +164,7 @@ Kck, ABP'den **daha hafif**, FastEndpoints'ten **daha kapsamli**, Aspire'a **uyu
 | Messaging | `Kck.Messaging.MailKit`, `Kck.Messaging.SendGrid`, `Kck.Messaging.AmazonSes` |
 | Observability | `Kck.Observability.OpenTelemetry` |
 | Persistence | `Kck.Persistence.EntityFramework` |
-| Pipeline | `Kck.Pipeline.MediatR` *(deprecated, KCK0200)*, `Kck.Pipeline.Mediator` |
+| Pipeline | `Kck.Pipeline.Mediator` |
 | Search | `Kck.Search.Elasticsearch` |
 | Security | `Kck.Security.Argon2`, `Kck.Security.Jwt`, `Kck.Security.Totp`, `Kck.Security.TokenBlacklist.Redis`, `Kck.Security.Secrets.UserSecrets`, `Kck.Security.Secrets.AzureKeyVault` |
 | Web | `Kck.AspNetCore` |

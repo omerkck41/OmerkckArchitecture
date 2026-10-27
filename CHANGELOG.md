@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Removed — BREAKING (4.0.0)
+- `Kck.Pipeline.MediatR` (KCK0200) — MediatR 13+ requires a commercial licence. Use `Kck.Pipeline.Mediator` (MIT):
+  [docs/migrations/mediatR-to-mediator.md](docs/migrations/mediatR-to-mediator.md). The licence gate no longer has a
+  MediatR exception (ADR-0028 K1).
+
 ## [3.6.2] — 2026-10-27
 
 ### Fixed

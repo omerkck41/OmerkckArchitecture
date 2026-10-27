@@ -1,6 +1,6 @@
 # Kck.Bundle.WebApi
 
-One-line ASP.NET Core WebAPI setup — registers Serilog, JWT auth, Argon2 hashing, in-memory caching, MediatR pipeline, InMemory event bus, OpenTelemetry, rate limiting, security headers, CORS, and global exception handling in a single call.
+One-line ASP.NET Core WebAPI setup — registers Serilog, JWT auth, Argon2 hashing, in-memory caching, Mediator pipeline, InMemory event bus, OpenTelemetry, rate limiting, security headers, CORS, and global exception handling in a single call.
 
 ## Installation
 
@@ -25,7 +25,7 @@ app.MapControllers();
 app.Run();
 ```
 
-That is all the setup required. Add your controllers, MediatR handlers, and domain entities — the bundle wires everything else.
+That is all the setup required. Add your controllers, Mediator handlers, and domain entities — the bundle wires everything else.
 
 ## Configuration
 
