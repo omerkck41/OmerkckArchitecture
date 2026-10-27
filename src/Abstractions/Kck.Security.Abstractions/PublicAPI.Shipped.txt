@@ -49,7 +49,6 @@ Kck.Security.Abstractions.Token.ITokenBlacklistService.RevokeAsync(string! token
 Kck.Security.Abstractions.Token.ITokenService
 Kck.Security.Abstractions.Token.ITokenService.CreateAccessTokenAsync(Kck.Security.Abstractions.Token.TokenRequest! request, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<Kck.Security.Abstractions.Token.TokenResult!>!
 Kck.Security.Abstractions.Token.ITokenService.CreateRefreshTokenAsync(System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<string!>!
-Kck.Security.Abstractions.Token.ITokenService.GetClaimsFromToken(string! token) -> System.Collections.Generic.IReadOnlyDictionary<string!, string!>!
 Kck.Security.Abstractions.Token.ITokenService.ValidateTokenAsync(string! token, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<Kck.Security.Abstractions.Token.TokenValidationResult!>!
 Kck.Security.Abstractions.Token.TokenRequest
 Kck.Security.Abstractions.Token.TokenRequest.<Clone>$() -> Kck.Security.Abstractions.Token.TokenRequest!
