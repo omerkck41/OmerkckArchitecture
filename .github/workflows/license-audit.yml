@@ -2,9 +2,9 @@ name: license-audit
 
 on:
   push:
-    branches: [main, develop]
+    branches: [main, develop, 'release/**']
   pull_request:
-    branches: [main, develop]
+    branches: [main, develop, 'release/**']
   # Scheduled run also catches exceptions that expire without any code change.
   schedule:
     - cron: '0 6 * * 1'  # Her Pazartesi 06:00 UTC
