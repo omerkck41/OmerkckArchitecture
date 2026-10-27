@@ -150,10 +150,12 @@ jobs:
         env:
           NUGET_API_KEY: ${{ steps.nuget-login.outputs.NUGET_API_KEY }}
 
-      # Keep only the newest stable version listed on nuget.org. Runs only after a successful push.
-      # Unlisting hides a version from search; it is not deleted, still restores by exact version and can
-      # be relisted. Only versions LOWER than the one just published are touched; pre-releases unlist nothing.
-      # Inline (not a repo script) so this privileged job still runs no repository code.
+      # Keep only the newest stable version of each major listed on nuget.org. Runs only after a successful
+      # push. Unlisting hides a version from search; it is not deleted, still restores by exact version and
+      # can be relisted. Only LOWER stable versions of the SAME major are touched, so publishing 4.0.0 keeps
+      # the newest 3.x listed for consumers who cannot move yet; pre-releases unlist nothing.
+      # Inline (not a repo script) so this privileged job still runs no repository code. The functions above
+      # the "--- main ---" marker are pure and tested by .github/scripts/test_unlist_selection.py.
       - name: Unlist older versions
         env:
           NUGET_API_KEY: ${{ steps.nuget-login.outputs.NUGET_API_KEY }}
@@ -162,13 +164,23 @@ jobs:
         run: |
           import glob, gzip, json, os, re, subprocess, sys, time, urllib.error, urllib.request, zipfile
 
-          version = os.environ["VERSION"]
-          if "-" in version:
-              print(f"{version} is a pre-release: nothing is unlisted.")
-              sys.exit(0)
-
           def key(v):
               return tuple(int(x) for x in v.split("+")[0].split("-")[0].split("."))
+
+          def is_prerelease(v):
+              return "-" in v.split("+")[0]
+
+          def to_unlist(version, listed):
+              if is_prerelease(version):
+                  return []
+              return [v for v in listed
+                      if not is_prerelease(v) and key(v)[0] == key(version)[0] and key(v) < key(version)]
+
+          # --- main ---
+          version = os.environ["VERSION"]
+          if is_prerelease(version):
+              print(f"{version} is a pre-release: nothing is unlisted.")
+              sys.exit(0)
 
           def get_json(url):
               with urllib.request.urlopen(url, timeout=60) as r:
@@ -201,10 +213,8 @@ jobs:
               entries = []
               for page in index["items"]:
                   entries += page["items"] if "items" in page else get_json(page["@id"])["items"]
-              old = [e["catalogEntry"]["version"] for e in entries
-                     if e["catalogEntry"].get("listed", True)
-                     and "-" not in e["catalogEntry"]["version"].split("+")[0]
-                     and key(e["catalogEntry"]["version"]) < key(version)]
+              old = to_unlist(version, [e["catalogEntry"]["version"] for e in entries
+                                        if e["catalogEntry"].get("listed", True)])
               for v in old:
                   for attempt in range(3):
                       r = subprocess.run(["dotnet", "nuget", "delete", pid, v, "--non-interactive",
