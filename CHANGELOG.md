@@ -7,7 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Removed — BREAKING (4.0.0)
+## [4.0.0] — 2026-10-27
+
+Upgrade guide: [docs/migrations/v3-to-v4.md](docs/migrations/v3-to-v4.md) · Decision: [ADR-0028](docs/adr/0028-v4-scope.md).
+3.6.x stays listed on nuget.org and receives security fixes from `release/3.x`.
+
+### Removed — BREAKING
 - `Kck.Pipeline.MediatR` (KCK0200) — MediatR 13+ requires a commercial licence. Use `Kck.Pipeline.Mediator` (MIT):
   [docs/migrations/mediatR-to-mediator.md](docs/migrations/mediatR-to-mediator.md). The licence gate no longer has a
   MediatR exception (ADR-0028 K1).
@@ -16,7 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `Kck.EventBus.InMemory`: `AddKckEventBusInMemory()` and `AddKckEventBusInMemory(params Assembly[])`. Use
   `AddKckEventBus(b => b.UseInMemory().RegisterHandlersFromAssembly(...))` (ADR-0028 K4).
 
-### Changed — BREAKING (4.0.0)
+### Changed — BREAKING
 - `IReadRepository<T, TId>` (KCK0100, ADR-0028 K3): the bool-flag read methods are gone; the `QueryOptions` methods
   that were extension methods in 3.x are now interface members with the same parameter order, and
   `ReadRepositoryExtensions` is removed. `options` is optional (`QueryOptions?`); when omitted, `GetAsync`,
@@ -47,8 +52,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   become JPEG.
 - `Kck.Caching.Hybrid`: `HybridCacheService` no longer takes `IDistributedCache` (unused since the 3.6.2 `GetAsync`
   fix). Registration through `AddKckCachingHybrid` is unchanged.
+- `Kck.BackgroundJobs.Quartz`: Quartz.NET 3.22.5 → 4.6.2. `AddKckBackgroundJobsQuartz(Action<IQuartzBuilder>?)`
+  replaces `Action<IServiceCollectionQuartzConfigurator>?`; `Quartz.Extensions.DependencyInjection` / `.Hosting` are
+  no longer needed. Quartz 4 behaviour changes (time zone, misfire, cancelled runs): `decisions/2026-10-27-quartz-4.md`.
+- `Kck.Caching.Redis`, `Kck.Caching.Hybrid`, `Kck.Security.TokenBlacklist.Redis`: StackExchange.Redis 2.13 → 3.4.20.
+  RESP3 is the default protocol; admin commands need `AllowAdmin`.
 - Intentional binary breaks are listed per package in `CompatibilitySuppressions.xml` (package validation).
-- Migration guide: [docs/migrations/v3-to-v4.md](docs/migrations/v3-to-v4.md).
+
+### Changed
+- Dependencies: OpenTelemetry 1.15 → 1.20.1 (OTLP exporter no longer follows redirects; 64 MiB max request),
+  YamlDotNet 16.3 → 18.1 (default recursion limit 130), FluentFTP 54.0.2 → 55.1.0 (security, also in 3.6.1).
+- Documentation rewritten against the real API: persistence, background jobs, bundles, file storage, pipeline, package
+  READMEs; the samples in the migration guide compile against 4.0.
+
+### Fixed
+- Includes the 3.6.1 (FluentFTP security) and 3.6.2 (`Kck.Caching.Hybrid` `GetAsync`) fixes.
 
 ## [3.6.2] — 2026-10-27
 
