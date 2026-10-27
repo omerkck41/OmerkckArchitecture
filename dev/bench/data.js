@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1793120219303,
+  "lastUpdate": 1793121331535,
   "repoUrl": "https://github.com/omerkck41/OmerkckArchitecture",
   "entries": {
     "Benchmark": [
@@ -6382,6 +6382,102 @@ window.BENCHMARK_DATA = {
             "value": 10.704916803964547,
             "unit": "ns",
             "range": "± 0.08354920632198627"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "106805727+omerkck41@users.noreply.github.com",
+            "name": "Ömer KÜÇÜK",
+            "username": "omerkck41"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "b8ee085194db6753af5715a8fa9d86ff1699c9bc",
+          "message": "feat(backgroundjobs-quartz)!: upgrade to Quartz.NET 4.6 (#182)\n\n## Summary\nv4 plan PR 2 (ADR-0028 K7): `Kck.BackgroundJobs.Quartz` moves to\nQuartz.NET 4.6.2. Supersedes Dependabot #173.\n\n- Quartz 3.22.5 → 4.6.2; `Quartz.Extensions.DependencyInjection` /\n`.Hosting` removed (merged into `Quartz` in 4.x, migration guide: \"Still\nremove them\").\n- Adapter: `ValueTask Execute(IJobExecutionContext, CancellationToken)`;\n`ScheduleJob(job, trigger, ScheduleJobOptions, ct)`; `CheckExists` →\n`Exists`.\n- **Breaking (4.0):**\n`AddKckBackgroundJobsQuartz(Action<IQuartzBuilder>?)` replaces\n`Action<IServiceCollectionQuartzConfigurator>?` — the only entry in the\nnew `CompatibilitySuppressions.xml`.\n- README rewritten to the real API; package description fixed.\n- Currency check and Quartz 4 behaviour changes for the migration guide:\n`decisions/2026-10-27-quartz-4.md`.\n\n## Test plan\n- [x] RED after the bump: CS0246\n(`IServiceCollectionQuartzConfigurator`), CS0535 (`IJob.Execute`)\n- [x] `Kck.BackgroundJobs.Quartz.Tests` 8/8, including a new\nreal-scheduler test (job fires through DI); mutation probe (adapter not\ncalling the job) fails it\n- [x] Solution: `restore --locked-mode`, Release build 0 errors, unit\ntests 0 failures, package validation passes with the single documented\nCP0002, licence gate PASS (227 packages)\n- [x] README sample run as an app: 4 executions in 3.5 s (1 enqueue +\nper-second cron)\n- [ ] Not run: Quartz persistent (ADO) job store\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-authored-by: Claude Opus 5.5 <noreply@anthropic.com>",
+          "timestamp": "2026-10-27T20:07:09+03:00",
+          "tree_id": "7364b024aa542dffc560c496f7654011ca8c1809",
+          "url": "https://github.com/omerkck41/OmerkckArchitecture/commit/b8ee085194db6753af5715a8fa9d86ff1699c9bc"
+        },
+        "date": 1793121329811,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Success_Factory",
+            "value": 5.163824028482563,
+            "unit": "ns",
+            "range": "± 0.17487817889374563"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Failure_Factory",
+            "value": 6.396050460063494,
+            "unit": "ns",
+            "range": "± 0.13122361027576931"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Success",
+            "value": 0.7783406990979399,
+            "unit": "ns",
+            "range": "± 0.11884594061909458"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Failure",
+            "value": 0.7878000226337463,
+            "unit": "ns",
+            "range": "± 0.004184940972912783"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Serialize_Reflection",
+            "value": 307.7201016289847,
+            "unit": "ns",
+            "range": "± 3.212576113706388"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Deserialize_Reflection",
+            "value": 564.4248368399484,
+            "unit": "ns",
+            "range": "± 4.267158475889477"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 0)",
+            "value": 7.820618785917759,
+            "unit": "ns",
+            "range": "± 0.07073852609347084"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 5)",
+            "value": 8.522327877305171,
+            "unit": "ns",
+            "range": "± 0.3087950774793273"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 0)",
+            "value": 8.761519576112429,
+            "unit": "ns",
+            "range": "± 0.24093143777775802"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 5)",
+            "value": 8.21608163842133,
+            "unit": "ns",
+            "range": "± 0.05891752828126254"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 0)",
+            "value": 8.527153696005161,
+            "unit": "ns",
+            "range": "± 0.11247270528261"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 5)",
+            "value": 9.316081077307462,
+            "unit": "ns",
+            "range": "± 0.7849832745338686"
           }
         ]
       }
