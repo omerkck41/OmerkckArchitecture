@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1793110669591,
+  "lastUpdate": 1793111337471,
   "repoUrl": "https://github.com/omerkck41/OmerkckArchitecture",
   "entries": {
     "Benchmark": [
@@ -5806,6 +5806,102 @@ window.BENCHMARK_DATA = {
             "value": 11.15768210310489,
             "unit": "ns",
             "range": "± 0.4725761418395412"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "106805727+omerkck41@users.noreply.github.com",
+            "name": "Ömer KÜÇÜK",
+            "username": "omerkck41"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "324bf49061890d2f9372fc2d729ec1a20f3848ce",
+          "message": "build: validate packages against 3.5.0 on every PR (#176)\n\n## Summary\nRoadmap H7: catch accidental public API breaks before they ship.\n\n- **Package validation** (`Directory.Build.props`):\n`EnablePackageValidation` + `PackageValidationBaselineVersion` 3.5.0 for\n`src/` projects only (all 59 packages exist at 3.5.0 on nuget.org; test\nprojects never try to download a baseline). Intentional breaks in v4.0\ngo into a per-project `CompatibilitySuppressions.xml`; bump the baseline\nafter each release.\n- **`MinVerTagPrefix=v`**: release tags are `v1.2.3`, so MinVer ignored\nthem and every non-release build was `0.0.0-alpha`, which package\nvalidation rejects (CP0003 on all packages). Builds now version as\n`3.5.1-alpha.0.N`. Releases still pass `MinVerVersionOverride`, so\npublished versions are unchanged.\n- **build-test (ubuntu)**: new `Pack (package validation)` step, so a\nbreak fails the PR instead of the release tag.\n\nDocs:\nhttps://learn.microsoft.com/dotnet/fundamentals/apicompat/package-validation/baseline-version-validator\n(updated 2025-08-21).\n\n## Test plan\n- [x] Release build + pack, whole solution: 59 packages, 0 errors\nagainst 3.5.0\n- [x] RED probe: making `AddKckArgon2` internal fails pack with\n`CP0002`; reverted\n- [x] `dotnet restore --locked-mode` passes, no lock file changes\n- [x] Unit tests (Release): 0 failures\n- [ ] CI: Build & Test (ubuntu) runs the new pack step\n\nKnown local issue (CI not affected): on a Turkish-culture machine SDK\n10.0.402 lowercases package ids culture-sensitively\n(`kck.caching.ınmemory`) and pack fails with MSB4018 for 4 packages;\nworkaround `DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=1`.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-authored-by: Claude Opus 5.5 <noreply@anthropic.com>",
+          "timestamp": "2026-10-27T17:21:31+03:00",
+          "tree_id": "5e20ca2ac792f07704293764b68c3417cfdd5c19",
+          "url": "https://github.com/omerkck41/OmerkckArchitecture/commit/324bf49061890d2f9372fc2d729ec1a20f3848ce"
+        },
+        "date": 1793111336519,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Success_Factory",
+            "value": 5.931199199954668,
+            "unit": "ns",
+            "range": "± 0.033836327637748284"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Failure_Factory",
+            "value": 14.870815576016902,
+            "unit": "ns",
+            "range": "± 1.4696922543463042"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Success",
+            "value": 1.6447794964680305,
+            "unit": "ns",
+            "range": "± 0.0046129518324551895"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Failure",
+            "value": 0.6791540442832878,
+            "unit": "ns",
+            "range": "± 0.003314814181361483"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Serialize_Reflection",
+            "value": 475.11210950215656,
+            "unit": "ns",
+            "range": "± 2.6764307987723583"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Deserialize_Reflection",
+            "value": 779.91805006663,
+            "unit": "ns",
+            "range": "± 9.144944237854101"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 0)",
+            "value": 9.705716447035472,
+            "unit": "ns",
+            "range": "± 0.05155840970438144"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 5)",
+            "value": 9.586269554037314,
+            "unit": "ns",
+            "range": "± 0.04307594437750284"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 0)",
+            "value": 9.779899741212526,
+            "unit": "ns",
+            "range": "± 0.0821782298092661"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 5)",
+            "value": 9.692302175362904,
+            "unit": "ns",
+            "range": "± 0.09167363972654073"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 0)",
+            "value": 9.818742557366688,
+            "unit": "ns",
+            "range": "± 0.046898280947452936"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 5)",
+            "value": 9.90555579428162,
+            "unit": "ns",
+            "range": "± 0.09147979252472316"
           }
         ]
       }
