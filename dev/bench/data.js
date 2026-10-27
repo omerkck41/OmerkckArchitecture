@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1793121794826,
+  "lastUpdate": 1793124428517,
   "repoUrl": "https://github.com/omerkck41/OmerkckArchitecture",
   "entries": {
     "Benchmark": [
@@ -6574,6 +6574,102 @@ window.BENCHMARK_DATA = {
             "value": 5.553616815322155,
             "unit": "ns",
             "range": "± 0.2581636039572025"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "106805727+omerkck41@users.noreply.github.com",
+            "name": "Ömer KÜÇÜK",
+            "username": "omerkck41"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "7c740f2fa874ce2b3d79e978fe370890abe06fa5",
+          "message": "chore(deps): YamlDotNet 18.1 and OpenTelemetry 1.20.1 (#185)\n\n## Summary\nv4 plan PR 2 (small majors, ADR-0028 K7). Supersedes Dependabot #167.\n\n| Package | Before → After |\n|---|---|\n| YamlDotNet | 16.3.0 → 18.1.0 |\n| OpenTelemetry.Api, .Extensions.Hosting,\n.Exporter.OpenTelemetryProtocol | 1.15.3 → 1.20.1 |\n| OpenTelemetry.Instrumentation.AspNetCore / .Http | 1.15.2 / 1.15.1 →\n1.20.1 |\n| OpenTelemetry.Instrumentation.EntityFrameworkCore | 1.15.1-beta.1 →\n1.20.1-beta.1 |\n\n- No code change, no Kck API change (package validation clean, no\nsuppressions).\n- YamlDotNet 18's only breaking change (`ITypeInspector`) is not used by\nKck; new default recursion limit (130) hardens YAML parsing.\n- OpenTelemetry consumer-visible changes (OTLP exporter no longer\nfollows redirects, 64 MiB max request, attribute limits) are recorded\nfor the v3→v4 migration guide in\n`decisions/2026-10-27-yamldotnet-18-otel-1.20.md`.\n- Advisories checked: YamlDotNet none; all 8 OpenTelemetry advisories\naffect ≤ 1.15.2 only.\n\n## Test plan\n- [x] `Kck.Localization.Yaml.Tests` 13/13,\n`Kck.Observability.OpenTelemetry.Tests` 10/10\n- [x] Solution: `restore --locked-mode`, Release build 0 errors, unit\ntests 0 failures, pack/package validation clean, licence gate PASS\n- [ ] Not run: end-to-end export to a real OTLP collector\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-authored-by: Claude Opus 5.5 <noreply@anthropic.com>",
+          "timestamp": "2026-10-27T21:01:17+03:00",
+          "tree_id": "31f6bc912d11c2a3a709408607a0c23103a7e9dc",
+          "url": "https://github.com/omerkck41/OmerkckArchitecture/commit/7c740f2fa874ce2b3d79e978fe370890abe06fa5"
+        },
+        "date": 1793124426753,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Success_Factory",
+            "value": 6.483454236388207,
+            "unit": "ns",
+            "range": "± 0.12791942783523147"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Failure_Factory",
+            "value": 7.235588032220091,
+            "unit": "ns",
+            "range": "± 0.0905334340468948"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Success",
+            "value": 1.5456896568338077,
+            "unit": "ns",
+            "range": "± 0.009461491483088669"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Failure",
+            "value": 0.7076792865991592,
+            "unit": "ns",
+            "range": "± 0.028009888539570125"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Serialize_Reflection",
+            "value": 486.2249849955241,
+            "unit": "ns",
+            "range": "± 1.181323920723973"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Deserialize_Reflection",
+            "value": 844.5518529074533,
+            "unit": "ns",
+            "range": "± 1.5393497171225692"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 0)",
+            "value": 15.019780478874843,
+            "unit": "ns",
+            "range": "± 0.11496286017826403"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 5)",
+            "value": 11.968385124206543,
+            "unit": "ns",
+            "range": "± 0.09011286288819348"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 0)",
+            "value": 12.150605628887812,
+            "unit": "ns",
+            "range": "± 0.16398686711744734"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 5)",
+            "value": 11.752801038821538,
+            "unit": "ns",
+            "range": "± 0.20904036280213753"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 0)",
+            "value": 12.047007564703623,
+            "unit": "ns",
+            "range": "± 0.21202438329311915"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 5)",
+            "value": 12.234617167711258,
+            "unit": "ns",
+            "range": "± 0.2582121632511022"
           }
         ]
       }
