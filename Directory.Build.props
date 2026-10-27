@@ -13,6 +13,9 @@
     <!-- KCK0200: Kck.Pipeline.MediatR deprecated — warning-only, callers opt in to suppress -->
     <WarningsNotAsErrors>$(WarningsNotAsErrors);CA1716;CA1000;KCK0200</WarningsNotAsErrors>
     <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
+    <!-- Release tags are v1.2.3; without the prefix MinVer ignores them and non-release builds get 0.0.0
+         (releases always pass MinVerVersionOverride, so they are unaffected). -->
+    <MinVerTagPrefix>v</MinVerTagPrefix>
   </PropertyGroup>
 
   <!-- ImageSharp 4 license: the package only searches the project folder, so use a repo-root sixlabors.lic
@@ -69,6 +72,15 @@
 
     <!-- Default tags — extended per project -->
     <PackageTags>dotnet;dotnet10;kck;framework;modular;clean-architecture;ddd;net10</PackageTags>
+  </PropertyGroup>
+
+  <!-- Package validation: `dotnet pack` fails on a binary breaking change against the last released version
+       (CP0002 etc.). Only src/ projects are published, so tests/samples never try to download a baseline.
+       Intentional breaks (v4.0) go into a per-project CompatibilitySuppressions.xml; bump the baseline after
+       each release. See docs/plans/2026-10-26-dis-inceleme-yol-haritasi.md H7. -->
+  <PropertyGroup Condition="$([MSBuild]::MakeRelative('$(MSBuildThisFileDirectory)', '$(MSBuildProjectDirectory)').Replace('\', '/').StartsWith('src/'))">
+    <EnablePackageValidation>true</EnablePackageValidation>
+    <PackageValidationBaselineVersion>3.5.0</PackageValidationBaselineVersion>
   </PropertyGroup>
 
   <!-- Icon included in every publishable package -->
