@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1793109902467,
+  "lastUpdate": 1793110669591,
   "repoUrl": "https://github.com/omerkck41/OmerkckArchitecture",
   "entries": {
     "Benchmark": [
@@ -5710,6 +5710,102 @@ window.BENCHMARK_DATA = {
             "value": 12.477676658829052,
             "unit": "ns",
             "range": "± 0.2583741763269381"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "106805727+omerkck41@users.noreply.github.com",
+            "name": "Ömer KÜÇÜK",
+            "username": "omerkck41"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "81780fce51c351d98fdcf72d5f6248d20d02de06",
+          "message": "ci(release): keep newest version of previous major listed (#175)\n\n## Summary\nRoadmap H8 (must land before v4.0.0): the \"Unlist older versions\" step\nunlisted every lower stable version after a release. Publishing 4.0.0\nwould have hidden the newest 3.x from consumers who cannot upgrade yet.\n\nNow only lower **stable versions of the same major** are unlisted:\n\n| Publish | Listed before | Unlisted |\n|---|---|---|\n| 3.6.0 | 3.5.0 | 3.5.0 |\n| 4.0.0 | 3.6.0 | – |\n| 4.0.1 | 4.0.0, 3.6.0 | 4.0.0 |\n| 3.6.1 | 4.0.1, 3.6.0 | 3.6.0 |\n| 4.1.0-rc.1 | 4.0.1, 3.6.1 | – |\n\n- Selection moved into a pure inline function `to_unlist` above a `# ---\nmain ---` marker; the privileged publish job still runs no repository\ncode.\n- `.github/scripts/test_unlist_selection.py` (8 tests) executes that\nfunction straight from the workflow file; License Audit already runs all\n`.github/scripts/test_*.py`.\n\n## Test plan\n- [x] RED before the change (function missing), GREEN after: 31/31\nscript tests\n- [x] Mutation probe: removing the same-major condition fails 3 tests\n- [x] Workflow YAML parses; the full inline script compiles\n- [ ] CI: License Audit runs the new tests; actionlint/zizmor not run\nlocally\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-authored-by: Claude Opus 5.5 <noreply@anthropic.com>",
+          "timestamp": "2026-10-27T17:11:11+03:00",
+          "tree_id": "08d73b73b11c758e7364e63c072845d1a08ec767",
+          "url": "https://github.com/omerkck41/OmerkckArchitecture/commit/81780fce51c351d98fdcf72d5f6248d20d02de06"
+        },
+        "date": 1793110668560,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Success_Factory",
+            "value": 6.682926452503755,
+            "unit": "ns",
+            "range": "± 0.29370847745271117"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Failure_Factory",
+            "value": 7.760923997163773,
+            "unit": "ns",
+            "range": "± 0.31533889239333357"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Success",
+            "value": 1.3827716251835227,
+            "unit": "ns",
+            "range": "± 0.10626461765146995"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Failure",
+            "value": 0.35260788289209205,
+            "unit": "ns",
+            "range": "± 0.03754297896870975"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Serialize_Reflection",
+            "value": 379.2026532377516,
+            "unit": "ns",
+            "range": "± 2.715804553403429"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Deserialize_Reflection",
+            "value": 674.8902694066365,
+            "unit": "ns",
+            "range": "± 5.36531149451071"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 0)",
+            "value": 10.965151729005756,
+            "unit": "ns",
+            "range": "± 0.47184648836004417"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 5)",
+            "value": 11.82482129619235,
+            "unit": "ns",
+            "range": "± 0.3715671133657088"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 0)",
+            "value": 10.557825482704423,
+            "unit": "ns",
+            "range": "± 0.33075244850182095"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 5)",
+            "value": 11.906405889987946,
+            "unit": "ns",
+            "range": "± 0.21794536673702147"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 0)",
+            "value": 11.95262475418193,
+            "unit": "ns",
+            "range": "± 0.45496298943341934"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 5)",
+            "value": 11.15768210310489,
+            "unit": "ns",
+            "range": "± 0.4725761418395412"
           }
         ]
       }
