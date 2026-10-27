@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.6.1] — 2026-10-27
+
+### Security
+- `Kck.FileStorage.FluentFtp`: FluentFTP 54.0.2 → 55.1.0. FluentFTP below 55.1.0 is affected by a high-severity advisory
+  (FTP data exfiltration and spoofing through man-in-the-middle attacks, published 2026-10-18). No Kck API change;
+  update to 3.6.1.
+
 ## [3.6.0] — 2026-10-27
 
 ### Added
