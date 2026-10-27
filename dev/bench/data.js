@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1793128407954,
+  "lastUpdate": 1793128941131,
   "repoUrl": "https://github.com/omerkck41/OmerkckArchitecture",
   "entries": {
     "Benchmark": [
@@ -7150,6 +7150,102 @@ window.BENCHMARK_DATA = {
             "value": 5.154596803975957,
             "unit": "ns",
             "range": "± 0.05776829050637215"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "106805727+omerkck41@users.noreply.github.com",
+            "name": "Ömer KÜÇÜK",
+            "username": "omerkck41"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "ad0398a1595bc8b1958c4ec5f2670cd69d4d255c",
+          "message": "docs!: v3-to-v4 migration guide; docs match the real API (#192)\n\n## Summary\nv4 plan PR 7 (ADR-0028 K10): migration guide and a documentation pass\nagainst the real API.\n\n- **New** `docs/migrations/v3-to-v4.md` — summary table, before/after\ncode for every removal, KCK0100 mapping table (incl. the `withDeleted:\ntrue` → `new QueryOptions(IncludeDeleted: true, AsTracking: true)`\ntracking trap), WorkerService/Hangfire steps, ImageSharp format rules,\nQuartz 4 / StackExchange.Redis 3 / OpenTelemetry 1.20 behaviour notes,\nchecklist. Linked from `docs/migrations/README.md` and the CHANGELOG.\n- `docs/providers/persistence.md` + Persistence README rewritten: they\ndescribed `FindAsync`, `ListAsync`, `PaginateAsync`,\n`SoftDeleteInterceptor`, `AddKckEntityFramework`,\n`AddKckPersistenceEntityFramework` (none exist), injected repositories\nthat are not registered, and called `SaveChangesAsync(ct)` (does not\ncompile).\n- README WorkerService sample uses `Kck.Bundle.WorkerService`;\n`background-jobs.md` drops Quartz-3-only\n`UseMicrosoftDependencyInjectionJobFactory()`; `file-storage.md` lists\nAzure Blob and S3 (and FluentFTP is FTP/FTPS, not SFTP).\n- `Kck.Caching.Hybrid`: `HybridCacheService` drops the unused\n`IDistributedCache` constructor parameter (CP0002 suppressed).\n\n## Test plan\n- [x] V9: all 4.0 code from the guide, persistence.md, README and\ntouched package READMEs compiled against the sources (one doc bug found\nand fixed: `repo.Query(QueryOptions.None)` is not on the interface)\n- [x] `restore --locked-mode`, Release build, unit tests 0 failures,\npack/package validation, licence gate PASS\n- [ ] CI green\n\nKnown (not in this PR, tracked in tasks/todo.md):\n`AddAuditInterceptor()` registers but does not attach the interceptor.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-authored-by: Claude Opus 5.5 <noreply@anthropic.com>",
+          "timestamp": "2026-10-27T22:16:26+03:00",
+          "tree_id": "05567327013a8b2b551cccc33864ff9cd5356e3f",
+          "url": "https://github.com/omerkck41/OmerkckArchitecture/commit/ad0398a1595bc8b1958c4ec5f2670cd69d4d255c"
+        },
+        "date": 1793128940075,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Success_Factory",
+            "value": 3.3561625725456645,
+            "unit": "ns",
+            "range": "± 0.06297433271207807"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Failure_Factory",
+            "value": 4.497939567816885,
+            "unit": "ns",
+            "range": "± 0.1393313718269912"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Success",
+            "value": 0.5059240930355512,
+            "unit": "ns",
+            "range": "± 0.03459575747378836"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Failure",
+            "value": 0.20503737032413483,
+            "unit": "ns",
+            "range": "± 0.020202899076447692"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Serialize_Reflection",
+            "value": 252.961832009829,
+            "unit": "ns",
+            "range": "± 1.2906553459513221"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Deserialize_Reflection",
+            "value": 433.9515917301178,
+            "unit": "ns",
+            "range": "± 1.447384792506611"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 0)",
+            "value": 5.504039524921349,
+            "unit": "ns",
+            "range": "± 0.08355275028414258"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 5)",
+            "value": 5.960644227954058,
+            "unit": "ns",
+            "range": "± 0.038115787437199074"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 0)",
+            "value": 5.61437005084008,
+            "unit": "ns",
+            "range": "± 0.14807015323455117"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 5)",
+            "value": 5.7136334409316385,
+            "unit": "ns",
+            "range": "± 0.10230091933641497"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 0)",
+            "value": 5.590502899672304,
+            "unit": "ns",
+            "range": "± 0.1355699853044832"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 5)",
+            "value": 5.449295189231634,
+            "unit": "ns",
+            "range": "± 0.05734697601793344"
           }
         ]
       }
