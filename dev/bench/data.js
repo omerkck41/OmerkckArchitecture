@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1793127853194,
+  "lastUpdate": 1793128407954,
   "repoUrl": "https://github.com/omerkck41/OmerkckArchitecture",
   "entries": {
     "Benchmark": [
@@ -7054,6 +7054,102 @@ window.BENCHMARK_DATA = {
             "value": 13.714331513643264,
             "unit": "ns",
             "range": "± 0.18378602739259456"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "106805727+omerkck41@users.noreply.github.com",
+            "name": "Ömer KÜÇÜK",
+            "username": "omerkck41"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "4a5b40689f771319a0f73ea1538cfd5f68999003",
+          "message": "feat!: WorkerService bundles Quartz only; ImageSharp format rules (#191)\n\n## Summary\nv4 plan PR 6 (ADR-0028 K5–K6).\n\n**Kck.Bundle.WorkerService (D3 + D8a)**\n- Quartz is the only bundled scheduler and the default;\n`Kck.BackgroundJobs.Hangfire` reference and `HangfireWorkerCount`\nremoved (bundle lock file has no Hangfire).\n- `\"Kck:BackgroundJobs:Provider\": \"Hangfire\"` (3.x default) and unknown\nnames fail at startup with instructions — no silent scheduler switch.\n- New `tests/Kck.Bundle.WorkerService.Tests` (5 tests); README rewritten\n(it described non-existent `IJob`/`JobContext`).\n\n**Kck.Documents.ImageSharp**\n| Source | Format | Result |\n|---|---|---|\n| PNG | empty / `null` | PNG — keeps source format, as the\n`OutputFormat` XML contract says (3.x produced JPEG) |\n| TIFF (not encodable by Kck) | empty | JPEG |\n| any | `jpg` / `jpeg` | JPEG |\n| any | `avif`, other names | `NotSupportedException` listing supported\nformats (3.x silently produced JPEG) |\n\nREADME and `docs/providers/documents.md` updated (README described\nnon-existent `DefaultOutputFormat` etc.).\n\n## Test plan\n- [x] RED → GREEN: WorkerService 4 failing → 5/5; ImageSharp\nunknown-format and keep-source tests failing → 20/20\n- [x] Solution: `restore --locked-mode`, Release build, unit tests 0\nfailures, package validation (only the suppressed `HangfireWorkerCount`\nbreak), licence gate PASS\n- [ ] CI green\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-authored-by: Claude Opus 5.5 <noreply@anthropic.com>",
+          "timestamp": "2026-10-27T22:06:42+03:00",
+          "tree_id": "a545b56569b4e3d1d58f36297458dd4f4f10413d",
+          "url": "https://github.com/omerkck41/OmerkckArchitecture/commit/4a5b40689f771319a0f73ea1538cfd5f68999003"
+        },
+        "date": 1793128406493,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Success_Factory",
+            "value": 3.393971315984215,
+            "unit": "ns",
+            "range": "± 0.037582012883971054"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Failure_Factory",
+            "value": 4.420017785827318,
+            "unit": "ns",
+            "range": "± 0.07727347834740608"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Success",
+            "value": 0.47393269805858534,
+            "unit": "ns",
+            "range": "± 0.010219903807507912"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Failure",
+            "value": 0.43520583326999956,
+            "unit": "ns",
+            "range": "± 0.009540913535884687"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Serialize_Reflection",
+            "value": 258.84746485490064,
+            "unit": "ns",
+            "range": "± 0.7648116080735473"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Deserialize_Reflection",
+            "value": 385.2882261616843,
+            "unit": "ns",
+            "range": "± 1.7470695207931444"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 0)",
+            "value": 5.195477118094762,
+            "unit": "ns",
+            "range": "± 0.05868107758391416"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 5)",
+            "value": 5.253005026174443,
+            "unit": "ns",
+            "range": "± 0.07246418473107093"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 0)",
+            "value": 5.252489804157189,
+            "unit": "ns",
+            "range": "± 0.07708070327183847"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 5)",
+            "value": 5.2611250923230095,
+            "unit": "ns",
+            "range": "± 0.08763706264107257"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 0)",
+            "value": 5.228479614215238,
+            "unit": "ns",
+            "range": "± 0.0524467351449771"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 5)",
+            "value": 5.154596803975957,
+            "unit": "ns",
+            "range": "± 0.05776829050637215"
           }
         ]
       }
