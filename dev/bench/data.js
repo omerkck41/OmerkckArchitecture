@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1793125255214,
+  "lastUpdate": 1793125822317,
   "repoUrl": "https://github.com/omerkck41/OmerkckArchitecture",
   "entries": {
     "Benchmark": [
@@ -6766,6 +6766,102 @@ window.BENCHMARK_DATA = {
             "value": 5.563913485076692,
             "unit": "ns",
             "range": "± 0.2950046455520383"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "106805727+omerkck41@users.noreply.github.com",
+            "name": "Ömer KÜÇÜK",
+            "username": "omerkck41"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "0d0babd79ae2551edaa008a2d2cea448c673a752",
+          "message": "chore(deps)!: StackExchange.Redis 3.4.20 (#188)\n\n## Summary\nv4 plan PR 3 (ADR-0028 K7): StackExchange.Redis 2.13.17 → 3.4.20.\n**Merge only if the integration tests (V8) are green**; otherwise Plan B\n(stay on 2.x).\n\n- 3.0 has no API changes vs 2.13.17 (new IO core);\n`Microsoft.Extensions.Caching.StackExchangeRedis` 10.0.x allows\n`[2.7.27, )`.\n- New transitive dependency `RESPite` 3.4.20 (MIT).\n- New `HybridCacheIntegrationTests`: HybridCache → MECSER → SE.Redis 3\nagainst a real `redis:7-alpine` container (read from another instance\nvia L2, `RemoveByPrefixAsync`). Together with the existing Redis and\nTokenBlacklist integration tests this is acceptance example V8.\n- No Kck API change (package validation clean). Behaviour changes for\nconsumers (RESP3 default, `AllowAdmin` enforced for admin commands,\nseparate pub/sub connection under RESP3) are in\n`decisions/2026-10-27-stackexchange-redis-3.md` for the migration guide.\n\n## Test plan\n- [x] Local: `restore --locked-mode`, Release build 0 errors, unit tests\n0 failures, pack/package validation clean, licence gate PASS (227)\n- [ ] CI `Test (integration, ubuntu-only — Docker required)`: Redis,\nTokenBlacklist and Hybrid integration tests green\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-authored-by: Claude Opus 5.5 <noreply@anthropic.com>",
+          "timestamp": "2026-10-27T21:23:09+03:00",
+          "tree_id": "5b588133feecb0807885511f90d92fb991a4f183",
+          "url": "https://github.com/omerkck41/OmerkckArchitecture/commit/0d0babd79ae2551edaa008a2d2cea448c673a752"
+        },
+        "date": 1793125819868,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Success_Factory",
+            "value": 6.3590537468592325,
+            "unit": "ns",
+            "range": "± 0.16466613469871585"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Failure_Factory",
+            "value": 11.073632078038322,
+            "unit": "ns",
+            "range": "± 0.7073824963216728"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Success",
+            "value": 1.6391446903347968,
+            "unit": "ns",
+            "range": "± 0.004519873225320334"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Failure",
+            "value": 0.5825933997447674,
+            "unit": "ns",
+            "range": "± 0.002499774794760692"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Serialize_Reflection",
+            "value": 467.19772035734997,
+            "unit": "ns",
+            "range": "± 3.1715068584692547"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Deserialize_Reflection",
+            "value": 787.9791022618612,
+            "unit": "ns",
+            "range": "± 4.402239327920678"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 0)",
+            "value": 10.875957229733467,
+            "unit": "ns",
+            "range": "± 0.21660964734433671"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 5)",
+            "value": 10.415117448568344,
+            "unit": "ns",
+            "range": "± 0.09483940396523075"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 0)",
+            "value": 10.259272528546196,
+            "unit": "ns",
+            "range": "± 0.10606436275985119"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 5)",
+            "value": 10.112456139922141,
+            "unit": "ns",
+            "range": "± 0.12874675363856092"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 0)",
+            "value": 10.705406247692949,
+            "unit": "ns",
+            "range": "± 0.2841859306060528"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 5)",
+            "value": 10.477822233851139,
+            "unit": "ns",
+            "range": "± 0.11463086638688409"
           }
         ]
       }
