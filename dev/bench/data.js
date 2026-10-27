@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1793121331535,
+  "lastUpdate": 1793121794826,
   "repoUrl": "https://github.com/omerkck41/OmerkckArchitecture",
   "entries": {
     "Benchmark": [
@@ -6478,6 +6478,102 @@ window.BENCHMARK_DATA = {
             "value": 9.316081077307462,
             "unit": "ns",
             "range": "± 0.7849832745338686"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "106805727+omerkck41@users.noreply.github.com",
+            "name": "Ömer KÜÇÜK",
+            "username": "omerkck41"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "466ce8b4962c17e8b44e07b2ce34f161035f0030",
+          "message": "security(filestorage-ftp): FluentFTP 55.1.0; CI on release branches (#183)\n\n## Summary\nSecurity fix: FluentFTP below 55.1.0 is affected by a **high**-severity\nadvisory (FTP data exfiltration and spoofing through man-in-the-middle\nattacks, published 2026-10-18, patched in 55.1.0).\n`Kck.FileStorage.FluentFtp` 3.6.0 depends on 54.0.2. The NuGet audit in\nCI did not flag it yet.\n\n- FluentFTP 54.0.2 → 55.1.0 (no Kck API change; package validation\nagainst 3.6.0 passes).\n- `build-test`, `codeql`, `license-audit` also run for `release/**`, so\nthe 3.x maintenance branch gets CI.\n- CHANGELOG 3.6.1 section. The same fix goes to `release/3.x` in a\nseparate PR and ships as 3.6.1.\n\n## Test plan\n- [x] `Kck.FileStorage.FluentFtp.Tests` 21/21 with 55.1.0\n- [x] `pack` validation against 3.6.0 passes\n- [x] Workflow YAML parses\n- [ ] CI green\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-authored-by: Claude Opus 5.5 <noreply@anthropic.com>",
+          "timestamp": "2026-10-27T20:16:45+03:00",
+          "tree_id": "8a31cd5a51fa23b73d60097cada1aa37c439477c",
+          "url": "https://github.com/omerkck41/OmerkckArchitecture/commit/466ce8b4962c17e8b44e07b2ce34f161035f0030"
+        },
+        "date": 1793121793083,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Success_Factory",
+            "value": 3.888929754992326,
+            "unit": "ns",
+            "range": "± 0.1745762620790662"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Failure_Factory",
+            "value": 4.876693976422151,
+            "unit": "ns",
+            "range": "± 0.15502667996237496"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Success",
+            "value": 0.5125989750600778,
+            "unit": "ns",
+            "range": "± 0.027666947704737266"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Failure",
+            "value": 0.1833502770616458,
+            "unit": "ns",
+            "range": "± 0.01943521818745812"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Serialize_Reflection",
+            "value": 265.736562983195,
+            "unit": "ns",
+            "range": "± 2.98995498496087"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Deserialize_Reflection",
+            "value": 439.09027767181396,
+            "unit": "ns",
+            "range": "± 5.146106146672154"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 0)",
+            "value": 5.545188883940379,
+            "unit": "ns",
+            "range": "± 0.0929519537907519"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 5)",
+            "value": 5.441507793217897,
+            "unit": "ns",
+            "range": "± 0.16874808262917326"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 0)",
+            "value": 5.5999520754112915,
+            "unit": "ns",
+            "range": "± 0.15463634467469453"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 5)",
+            "value": 5.424669045954943,
+            "unit": "ns",
+            "range": "± 0.11323851264244592"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 0)",
+            "value": 5.5832167385981,
+            "unit": "ns",
+            "range": "± 0.22566174058864916"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 5)",
+            "value": 5.553616815322155,
+            "unit": "ns",
+            "range": "± 0.2581636039572025"
           }
         ]
       }
