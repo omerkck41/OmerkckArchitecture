@@ -3,7 +3,6 @@ using Kck.BackgroundJobs.Abstractions;
 using Kck.BackgroundJobs.Quartz;
 using NSubstitute;
 using Quartz;
-using Quartz.Impl.Matchers;
 using Xunit;
 
 namespace Kck.BackgroundJobs.Quartz.Tests;
@@ -33,6 +32,7 @@ public class QuartzJobSchedulerTests
         await scheduler.Received(1).ScheduleJob(
             Arg.Any<IJobDetail>(),
             Arg.Is<ITrigger>(t => t.StartTimeUtc <= DateTimeOffset.UtcNow.AddSeconds(1)),
+            Arg.Any<ScheduleJobOptions>(),
             Arg.Any<CancellationToken>());
     }
 
@@ -48,6 +48,7 @@ public class QuartzJobSchedulerTests
             Arg.Is<ITrigger>(t =>
                 t.StartTimeUtc >= DateTimeOffset.UtcNow.AddMinutes(4) &&
                 t.StartTimeUtc <= DateTimeOffset.UtcNow.AddMinutes(6)),
+            Arg.Any<ScheduleJobOptions>(),
             Arg.Any<CancellationToken>());
     }
 
@@ -55,7 +56,7 @@ public class QuartzJobSchedulerTests
     public async Task AddOrUpdateRecurringAsync_WhenJobNotExists_ShouldScheduleWithoutDelete()
     {
         var (sut, scheduler) = CreateSut();
-        scheduler.CheckExists(Arg.Any<JobKey>(), Arg.Any<CancellationToken>()).Returns(false);
+        scheduler.Exists(Arg.Any<JobKey>(), Arg.Any<CancellationToken>()).Returns(false);
 
         await sut.AddOrUpdateRecurringAsync<TestJob>("daily-cleanup", "0 0 * * * ?");
 
@@ -63,6 +64,7 @@ public class QuartzJobSchedulerTests
         await scheduler.Received(1).ScheduleJob(
             Arg.Is<IJobDetail>(j => j.Key.Name == "daily-cleanup"),
             Arg.Any<ITrigger>(),
+            Arg.Any<ScheduleJobOptions>(),
             Arg.Any<CancellationToken>());
     }
 
@@ -70,7 +72,7 @@ public class QuartzJobSchedulerTests
     public async Task AddOrUpdateRecurringAsync_WhenJobExists_ShouldDeleteBeforeReschedule()
     {
         var (sut, scheduler) = CreateSut();
-        scheduler.CheckExists(Arg.Any<JobKey>(), Arg.Any<CancellationToken>()).Returns(true);
+        scheduler.Exists(Arg.Any<JobKey>(), Arg.Any<CancellationToken>()).Returns(true);
 
         await sut.AddOrUpdateRecurringAsync<TestJob>("daily-cleanup", "0 0 * * * ?");
 
@@ -80,6 +82,7 @@ public class QuartzJobSchedulerTests
         await scheduler.Received(1).ScheduleJob(
             Arg.Any<IJobDetail>(),
             Arg.Any<ITrigger>(),
+            Arg.Any<ScheduleJobOptions>(),
             Arg.Any<CancellationToken>());
     }
 
