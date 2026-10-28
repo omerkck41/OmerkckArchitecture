@@ -7,8 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-Planned as 4.1.0: the fixes below change runtime behaviour for apps that call `AddAuditInterceptor()` or
-`AddDomainEventDispatch<TDispatcher>()`.
+## [4.1.0] — 2026-10-28
+
+The fixes below change runtime behaviour for apps that call `AddAuditInterceptor()` or
+`AddDomainEventDispatch<TDispatcher>()`; read "Changed — behaviour" before upgrading.
 
 ### Fixed
 - `Kck.Persistence.EntityFramework`: `AddAuditInterceptor()` and `AddDomainEventDispatch<TDispatcher>()` only
