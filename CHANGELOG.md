@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- `Kck.Persistence.EntityFramework` — `DomainEventDispatchInterceptor` never dispatched the domain events of entities
+  that were deleted (`DbContext.Remove` on an entity that is not soft-deletable, or a repository delete with
+  `permanent: true`): it collected events after the save, when EF had already detached deleted entities. Events are
+  now collected before the save (and again after it, for events raised during the save); if the save fails, is
+  canceled, hits a concurrency conflict or is rejected by a later interceptor, they go back on their entities.
+  Across entities, events now follow the change tracker's order before the save (added entities first); the order
+  of one entity's events is unchanged.
+
 ## [4.2.2] — 2026-10-28
 
 ### Fixed
