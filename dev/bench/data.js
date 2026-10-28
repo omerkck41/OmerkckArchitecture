@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1793202056081,
+  "lastUpdate": 1793202681346,
   "repoUrl": "https://github.com/omerkck41/OmerkckArchitecture",
   "entries": {
     "Benchmark": [
@@ -7534,6 +7534,102 @@ window.BENCHMARK_DATA = {
             "value": 11.311761834224065,
             "unit": "ns",
             "range": "± 0.21563136342994602"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "106805727+omerkck41@users.noreply.github.com",
+            "name": "Ömer KÜÇÜK",
+            "username": "omerkck41"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "658f4f7277fe1301bf2de50d914d5018014d38a9",
+          "message": "docs(changelog): 4.1.0 release notes (#196)\n\nMoves the persistence interceptor fixes from #195 under a dated\n\\[4.1.0]\\ heading ahead of the \\ 4.1.0\\ tag.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-authored-by: Claude Opus 5.5 <noreply@anthropic.com>",
+          "timestamp": "2026-10-28T18:43:30+03:00",
+          "tree_id": "76b6abd96501985eeca70d6e831d3d632bd7a7d7",
+          "url": "https://github.com/omerkck41/OmerkckArchitecture/commit/658f4f7277fe1301bf2de50d914d5018014d38a9"
+        },
+        "date": 1793202680535,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Success_Factory",
+            "value": 6.736943552181835,
+            "unit": "ns",
+            "range": "± 0.23618597568570757"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Failure_Factory",
+            "value": 10.925066971331836,
+            "unit": "ns",
+            "range": "± 1.0002285601720147"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Success",
+            "value": 1.6393517386168242,
+            "unit": "ns",
+            "range": "± 0.007381519476913799"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Failure",
+            "value": 0.5861607237408558,
+            "unit": "ns",
+            "range": "± 0.00965443608918083"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Serialize_Reflection",
+            "value": 480.0502544641495,
+            "unit": "ns",
+            "range": "± 1.2694005657088006"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Deserialize_Reflection",
+            "value": 819.2345804373423,
+            "unit": "ns",
+            "range": "± 0.7676996191400955"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 0)",
+            "value": 11.713507544000944,
+            "unit": "ns",
+            "range": "± 0.13241487412299247"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 5)",
+            "value": 15.760877988168172,
+            "unit": "ns",
+            "range": "± 0.08338918407833426"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 0)",
+            "value": 11.532266754124846,
+            "unit": "ns",
+            "range": "± 0.1861237023360389"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 5)",
+            "value": 11.219095299951732,
+            "unit": "ns",
+            "range": "± 0.2674967275720394"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 0)",
+            "value": 11.49566529077642,
+            "unit": "ns",
+            "range": "± 0.2601361864249137"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 5)",
+            "value": 11.96959822518485,
+            "unit": "ns",
+            "range": "± 0.2496658674136134"
           }
         ]
       }
