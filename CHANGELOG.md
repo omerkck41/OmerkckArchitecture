@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- `Kck.Persistence.EntityFramework` — a failed database commit left `EfUnitOfWork` holding the broken transaction.
+  `Kck.Pipeline.Mediator`'s `TransactionBehavior` never rolls back after `CommitAsync` (it must not after a commit
+  that succeeded), so every later `ITransactionalRequest` in the same scope reused that transaction and failed.
+
+### Changed — behaviour
+- `EfUnitOfWork.CommitAsync` now attempts a rollback and releases the transaction itself when the database commit
+  fails, then rethrows the commit error. Rule: once `CommitAsync` returns or throws, the transaction has ended. This
+  replaces the 4.2.1 note that a failed commit keeps the transaction for the caller.
+  - Migration: move `CommitAsync` out of a `try { … } catch { await RollbackAsync(); throw; }` block (see the
+    transaction example in `docs/providers/persistence.md`); otherwise the catch now throws "No active transaction"
+    and hides the commit error.
+  - When the commit outcome is unknown (connection lost or cancellation during the commit), the changes may already be
+    durable while the transaction's domain events are dropped.
+  - Custom `IUnitOfWork` implementations used with `TransactionBehavior` should follow the same rule.
+- `IUnitOfWork` documents the transaction lifecycle and the `InvalidOperationException` it throws.
+
 ## [4.2.1] — 2026-10-28
 
 ### Fixed
