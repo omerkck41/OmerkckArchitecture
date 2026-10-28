@@ -12,6 +12,10 @@ public interface IUnitOfWork : IAsyncDisposable
     /// <summary>
     /// Starts a new database transaction on the underlying connection.
     /// </summary>
+    /// <remarks>
+    /// Does nothing while a transaction is already active. A transaction ends with <see cref="CommitAsync"/>
+    /// (whether it succeeds or throws) or <see cref="RollbackAsync"/>; the next call then starts a new one.
+    /// </remarks>
     /// <param name="cancellationToken">Token to cancel the operation.</param>
     Task BeginTransactionAsync(CancellationToken cancellationToken = default);
 
@@ -29,13 +33,25 @@ public interface IUnitOfWork : IAsyncDisposable
     /// <summary>
     /// Commits the active transaction, making all changes durable.
     /// </summary>
+    /// <remarks>
+    /// When this method returns or throws, the transaction has ended: if the database commit fails, a rollback is
+    /// attempted and the transaction is released before the error is rethrown. Do not call <see cref="RollbackAsync"/>
+    /// after a failed commit. When the commit outcome is unknown (connection lost or cancellation during the commit),
+    /// the changes may already be durable. An exception can also come after a successful commit (for example from
+    /// domain event dispatch); the changes are then durable.
+    /// </remarks>
     /// <param name="cancellationToken">Token to cancel the operation.</param>
+    /// <exception cref="InvalidOperationException">
+    /// No transaction is active, or the provider reports the transaction unusable.
+    /// </exception>
     Task CommitAsync(CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Rolls back the active transaction, discarding all pending changes.
     /// </summary>
+    /// <remarks>The transaction is released even when the rollback itself throws.</remarks>
     /// <param name="cancellationToken">Token to cancel the operation.</param>
+    /// <exception cref="InvalidOperationException">No transaction is active.</exception>
     Task RollbackAsync(CancellationToken cancellationToken = default);
 
     /// <summary>
