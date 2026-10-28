@@ -74,6 +74,6 @@ public sealed class KckPersistenceBuilder(IServiceCollection services)
         if (existing is not null && existing.OfType<TInterceptor>().Any())
             return;
 
-        options.AddInterceptors(interceptor);
+        options.AddInterceptors((IInterceptor)interceptor);
     }
 }
