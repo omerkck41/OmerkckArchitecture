@@ -17,8 +17,8 @@ dotnet add package Kck.Persistence.EntityFramework
 // Program.cs — register the Entity Framework provider
 builder.Services.AddKckPersistence(p => p
     .UseEntityFramework<AppDbContext>(o => o
-        .UseSqlServer(builder.Configuration.GetConnectionString("Default"))
-        .AddInterceptors(new AuditInterceptor())));
+        .UseSqlServer(builder.Configuration.GetConnectionString("Default")))
+    .AddAuditInterceptor());   // CreatedDate / ModifiedDate / soft-delete fields
 
 // Repositories come from the unit of work
 public sealed class OrderHandlers(IUnitOfWork uow)

@@ -7,6 +7,7 @@ using Kck.Persistence.EntityFramework.Interceptors;
 using Kck.Persistence.EntityFramework.Repositories;
 using Kck.Persistence.EntityFramework.UnitOfWork;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
@@ -79,6 +80,168 @@ public class RegistrationTests
         services.Should().Contain(d =>
             d.ServiceType == typeof(DomainEventDispatchInterceptor)
             && d.Lifetime == ServiceLifetime.Scoped);
+    }
+
+    [Fact]
+    public async Task AddAuditInterceptor_WiresInterceptorIntoDbContext()
+    {
+        var services = new ServiceCollection();
+        services.AddKckPersistence(b => b
+            .UseEntityFramework<TestDbContext>(o => o.UseInMemoryDatabase(Guid.NewGuid().ToString()))
+            .AddAuditInterceptor());
+
+        await using var sp = services.BuildServiceProvider();
+        await using var scope = sp.CreateAsyncScope();
+        var ctx = scope.ServiceProvider.GetRequiredService<TestDbContext>();
+        var entity = new TestEntity { Id = Guid.NewGuid(), Name = "A", CreatedDate = default };
+        ctx.TestEntities.Add(entity);
+
+        await ctx.SaveChangesAsync();
+
+        entity.CreatedDate.Should().NotBe(default);
+    }
+
+    [Fact]
+    public async Task AddDomainEventDispatch_WiresInterceptorIntoDbContext()
+    {
+        var services = new ServiceCollection().AddLogging();
+        services.AddKckPersistence(b => b
+            .UseEntityFramework<TestDbContext>(o => o.UseInMemoryDatabase(Guid.NewGuid().ToString()))
+            .AddDomainEventDispatch<CapturingDispatcher>());
+
+        await using var sp = services.BuildServiceProvider();
+        await using var scope = sp.CreateAsyncScope();
+        var ctx = scope.ServiceProvider.GetRequiredService<TestDbContext>();
+        var entity = new TestEntity { Id = Guid.NewGuid(), Name = "A" };
+        entity.AddDomainEvent(new TestDomainEvent());
+        ctx.TestEntities.Add(entity);
+
+        await ctx.SaveChangesAsync();
+
+        var dispatcher = (CapturingDispatcher)scope.ServiceProvider.GetRequiredService<IDomainEventDispatcher>();
+        dispatcher.Received.Should().ContainSingle();
+    }
+
+    [Fact]
+    public async Task AddAuditInterceptor_AlreadyAddedManually_IsNotAddedTwice()
+    {
+        var services = new ServiceCollection();
+        services.AddKckPersistence(b => b
+            .UseEntityFramework<TestDbContext>(o => o
+                .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                .AddInterceptors(new AuditInterceptor()))
+            .AddAuditInterceptor());
+
+        await using var sp = services.BuildServiceProvider();
+        await using var scope = sp.CreateAsyncScope();
+        var options = scope.ServiceProvider.GetRequiredService<DbContextOptions<TestDbContext>>();
+
+        options.FindExtension<CoreOptionsExtension>()!.Interceptors
+            .Should().ContainSingle(i => i is AuditInterceptor);
+    }
+
+    [Fact]
+    public async Task UseEntityFramework_WithoutInterceptorRegistrations_AddsNoInterceptors()
+    {
+        var services = new ServiceCollection();
+        services.AddKckPersistence(b =>
+            b.UseEntityFramework<TestDbContext>(o => o.UseInMemoryDatabase(Guid.NewGuid().ToString())));
+
+        await using var sp = services.BuildServiceProvider();
+        await using var scope = sp.CreateAsyncScope();
+        var options = scope.ServiceProvider.GetRequiredService<DbContextOptions<TestDbContext>>();
+
+        (options.FindExtension<CoreOptionsExtension>()?.Interceptors ?? []).Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task AddAuditInterceptor_PermanentDelete_RemovesRow()
+    {
+        var services = new ServiceCollection();
+        services.AddKckPersistence(b => b
+            .UseEntityFramework<TestDbContext>(o => o.UseInMemoryDatabase(Guid.NewGuid().ToString()))
+            .AddAuditInterceptor());
+
+        await using var sp = services.BuildServiceProvider();
+        await using var scope = sp.CreateAsyncScope();
+        var uow = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
+        var ctx = scope.ServiceProvider.GetRequiredService<TestDbContext>();
+        var entity = new TestEntity { Id = Guid.NewGuid(), Name = "A" };
+        await uow.Repository<TestEntity, Guid>().AddAsync(entity);
+        await uow.SaveChangesAsync();
+
+        await uow.Repository<TestEntity, Guid>().DeleteAsync(entity.Id, permanent: true);
+        await uow.SaveChangesAsync();
+
+        (await ctx.TestEntities.IgnoreQueryFilters().AnyAsync(e => e.Id == entity.Id)).Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task AddAuditInterceptor_PermanentDeleteRange_RemovesRows()
+    {
+        var services = new ServiceCollection();
+        services.AddKckPersistence(b => b
+            .UseEntityFramework<TestDbContext>(o => o.UseInMemoryDatabase(Guid.NewGuid().ToString()))
+            .AddAuditInterceptor());
+
+        await using var sp = services.BuildServiceProvider();
+        await using var scope = sp.CreateAsyncScope();
+        var uow = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
+        var ctx = scope.ServiceProvider.GetRequiredService<TestDbContext>();
+        TestEntity[] entities = [new() { Id = Guid.NewGuid(), Name = "A" }, new() { Id = Guid.NewGuid(), Name = "B" }];
+        await uow.Repository<TestEntity, Guid>().AddRangeAsync(entities);
+        await uow.SaveChangesAsync();
+
+        await uow.Repository<TestEntity, Guid>().DeleteRangeAsync(entities, permanent: true);
+        await uow.SaveChangesAsync();
+
+        (await ctx.TestEntities.IgnoreQueryFilters().CountAsync()).Should().Be(0);
+    }
+
+    [Fact]
+    public async Task AddAuditInterceptor_AfterPermanentDeleteIsSaved_LaterRemoveOfSameInstanceIsSoft()
+    {
+        var services = new ServiceCollection();
+        services.AddKckPersistence(b => b
+            .UseEntityFramework<TestDbContext>(o => o.UseInMemoryDatabase(Guid.NewGuid().ToString()))
+            .AddAuditInterceptor());
+
+        await using var sp = services.BuildServiceProvider();
+        await using var scope = sp.CreateAsyncScope();
+        var uow = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
+        var ctx = scope.ServiceProvider.GetRequiredService<TestDbContext>();
+        var entity = new TestEntity { Id = Guid.NewGuid(), Name = "A" };
+        ctx.TestEntities.Add(entity);
+        await ctx.SaveChangesAsync();
+        await uow.Repository<TestEntity, Guid>().DeleteAsync(entity, permanent: true);
+        await ctx.SaveChangesAsync();
+
+        ctx.TestEntities.Add(entity);
+        await ctx.SaveChangesAsync();
+        ctx.TestEntities.Remove(entity);
+        await ctx.SaveChangesAsync();
+
+        entity.IsDeleted.Should().BeTrue();
+        (await ctx.TestEntities.IgnoreQueryFilters().AnyAsync(e => e.Id == entity.Id)).Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task AddAuditInterceptor_RegisteredBeforeUseEntityFramework_IsStillWired()
+    {
+        var services = new ServiceCollection();
+        services.AddKckPersistence(b => b
+            .AddAuditInterceptor()
+            .UseEntityFramework<TestDbContext>(o => o.UseInMemoryDatabase(Guid.NewGuid().ToString())));
+
+        await using var sp = services.BuildServiceProvider();
+        await using var scope = sp.CreateAsyncScope();
+        var ctx = scope.ServiceProvider.GetRequiredService<TestDbContext>();
+        var entity = new TestEntity { Id = Guid.NewGuid(), Name = "A", CreatedDate = default };
+        ctx.TestEntities.Add(entity);
+
+        await ctx.SaveChangesAsync();
+
+        entity.CreatedDate.Should().NotBe(default);
     }
 
     [Fact]
