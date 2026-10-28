@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1793206086322,
+  "lastUpdate": 1793207301734,
   "repoUrl": "https://github.com/omerkck41/OmerkckArchitecture",
   "entries": {
     "Benchmark": [
@@ -7726,6 +7726,102 @@ window.BENCHMARK_DATA = {
             "value": 5.679847303032875,
             "unit": "ns",
             "range": "± 0.09776369515112186"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "106805727+omerkck41@users.noreply.github.com",
+            "name": "Ömer KÜÇÜK",
+            "username": "omerkck41"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "42db3d7f88c19271c08bdf8ddc6903ce5d5517b2",
+          "message": "ci(nuget): add manual unlist mode to the publish workflow (#198)\n\n## Summary\nAdds a manual **unlist** mode to `nuget-publish.yml` so a released\nversion can be unlisted on nuget.org from\nActions, with the same protections as publishing. First use: unlist\n3.6.2 (maintainer decision; no 3.x stays listed).\n\n- `workflow_dispatch` gets a `mode` input (`publish` default, `unlist`).\nTag pushes and `mode: publish` behave as\n  before; with `mode: unlist` the build and publish jobs are skipped.\n- New `unlist` job: protected `nuget` environment (maintainer approval),\nTrusted Publishing OIDC key, no repository\ncode. Package ids come from the `nupkgs` artifact of the tag's\nsuccessful tag-push publish run whose commit matches\nthe tag (exactly one such run required) — not from nuget.org search,\nwhose index can lag. Each package's nuspec\n  version must equal the requested version.\n- Per package: listed → unlist; already unlisted → skip; version absent\nfrom the registration → failure. Any failure\n  fails the job. Version comparison is case-insensitive.\n- The decision logic (`decide`) sits above the `# --- main ---` marker\nand is unit-tested like the existing\n  selection.\n\n## Review\nAdversarial review (fresh agent): no critical findings. Fixed: F1\n(missing version counted as success), F2 (run\npicked by name only → commit match), F3 (untested logic), F5\n(description: run from main). Tracked: F4 error detail,\nF6 validation before approval, Q1 30-day artifact window, Q2 runs with a\nfailed unlist step.\n\n## Test plan\n- [x] `python -I -m unittest discover -s .github/scripts -p\n\"test_*.py\"`: 13 tests OK (5 new; RED seen before the\n      function existed)\n- [x] Both inline Python steps compile; YAML parses; jobs `build`,\n`publish`, `unlist`\n- [x] Run-lookup bash executed locally for v3.6.2: resolves 4437136 →\nrun 40717565057 (1 match); a non-matching\n      commit yields 0 → job would fail\n- [ ] CI (zizmor / actionlint not installed locally)\n- [ ] After merge: dispatch `tag: v3.6.2`, `mode: unlist` from main;\nmaintainer approves the `nuget` environment\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-authored-by: Claude Opus 5.5 <noreply@anthropic.com>",
+          "timestamp": "2026-10-28T20:01:12+03:00",
+          "tree_id": "dd68453fb69e9fb239a84ac95458487850fc3a5c",
+          "url": "https://github.com/omerkck41/OmerkckArchitecture/commit/42db3d7f88c19271c08bdf8ddc6903ce5d5517b2"
+        },
+        "date": 1793207299772,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Success_Factory",
+            "value": 6.2012052247921625,
+            "unit": "ns",
+            "range": "± 0.14406634156679768"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Failure_Factory",
+            "value": 10.22524072262976,
+            "unit": "ns",
+            "range": "± 0.501564924491751"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Success",
+            "value": 1.6876998362796647,
+            "unit": "ns",
+            "range": "± 0.00808703973380367"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Failure",
+            "value": 0.5842626344944749,
+            "unit": "ns",
+            "range": "± 0.0045286469250190985"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Serialize_Reflection",
+            "value": 480.38445161183677,
+            "unit": "ns",
+            "range": "± 3.288797662329979"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Deserialize_Reflection",
+            "value": 798.9469509124756,
+            "unit": "ns",
+            "range": "± 5.226842751144258"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 0)",
+            "value": 9.840988014141718,
+            "unit": "ns",
+            "range": "± 0.09536288447156681"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 5)",
+            "value": 9.880089125037193,
+            "unit": "ns",
+            "range": "± 0.1048404542993545"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 0)",
+            "value": 9.979619770095898,
+            "unit": "ns",
+            "range": "± 0.06176709213543645"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 5)",
+            "value": 10.154976345598698,
+            "unit": "ns",
+            "range": "± 0.0744798512423161"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 0)",
+            "value": 9.876381222690855,
+            "unit": "ns",
+            "range": "± 0.0973470127152324"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 5)",
+            "value": 9.946569888637615,
+            "unit": "ns",
+            "range": "± 0.18151881995370767"
           }
         ]
       }
