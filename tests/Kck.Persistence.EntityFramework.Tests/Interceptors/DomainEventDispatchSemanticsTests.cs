@@ -216,6 +216,29 @@ public sealed class DomainEventDispatchSemanticsTests : IAsyncLifetime
     }
 
     [Fact]
+    public async Task Commit_DispatcherThrows_NextUnitOfWorkTransactionStillParksEvents()
+    {
+        await _uow.BeginTransactionAsync();
+        AddWithEvent(out var failed);
+        await _uow.SaveChangesAsync();
+        _dispatcher.FailNext = true;
+        var commit = () => _uow.CommitAsync();
+        await commit.Should().ThrowAsync<InvalidOperationException>().WithMessage("handler failed");
+        var callsAfterFailure = _dispatcher.CallCount;
+
+        await _uow.BeginTransactionAsync();
+        AddWithEvent(out var next);
+        await _uow.SaveChangesAsync();
+
+        _ctx.Database.CurrentTransaction.Should().NotBeNull();
+        _dispatcher.CallCount.Should().Be(callsAfterFailure, "events saved in the new transaction wait for its commit");
+
+        await _uow.CommitAsync();
+
+        _dispatcher.Received.Should().Equal(failed, next);
+    }
+
+    [Fact]
     public async Task TransactionDisposedWithoutCommit_EventsAreNotDispatchedByALaterCommit()
     {
         await using (await _ctx.Database.BeginTransactionAsync())
