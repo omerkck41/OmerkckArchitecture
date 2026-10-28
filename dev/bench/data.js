@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1793211151582,
+  "lastUpdate": 1793211656737,
   "repoUrl": "https://github.com/omerkck41/OmerkckArchitecture",
   "entries": {
     "Benchmark": [
@@ -7918,6 +7918,102 @@ window.BENCHMARK_DATA = {
             "value": 12.25180801507589,
             "unit": "ns",
             "range": "± 0.5256651576309911"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "106805727+omerkck41@users.noreply.github.com",
+            "name": "Ömer KÜÇÜK",
+            "username": "omerkck41"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "8993e139e763d5e5049e180c3f64f3173f87cb24",
+          "message": "docs(changelog): 4.2.0 release notes (#200)\n\nMoves the domain event dispatch changes from #199 under a dated\n\\[4.2.0]\\ heading ahead of the \\ 4.2.0\\ tag.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-authored-by: Claude Opus 5.5 <noreply@anthropic.com>",
+          "timestamp": "2026-10-28T21:13:42+03:00",
+          "tree_id": "6c74a21f659f5e5560323fb05c3b672bfdf2e1b8",
+          "url": "https://github.com/omerkck41/OmerkckArchitecture/commit/8993e139e763d5e5049e180c3f64f3173f87cb24"
+        },
+        "date": 1793211655767,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Success_Factory",
+            "value": 6.249564504623413,
+            "unit": "ns",
+            "range": "± 0.06487923057360923"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Failure_Factory",
+            "value": 9.731836213621982,
+            "unit": "ns",
+            "range": "± 0.47283953505001497"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Success",
+            "value": 1.6452464232077966,
+            "unit": "ns",
+            "range": "± 0.007471577165490121"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Failure",
+            "value": 0.585944472024074,
+            "unit": "ns",
+            "range": "± 0.0027053460648153687"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Serialize_Reflection",
+            "value": 468.7193664550781,
+            "unit": "ns",
+            "range": "± 2.726201593740253"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Deserialize_Reflection",
+            "value": 789.7435415131705,
+            "unit": "ns",
+            "range": "± 3.716730512869658"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 0)",
+            "value": 9.919533751904964,
+            "unit": "ns",
+            "range": "± 0.04540250500820656"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 5)",
+            "value": 9.887736963232358,
+            "unit": "ns",
+            "range": "± 0.06468353268806311"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 0)",
+            "value": 9.861865040659904,
+            "unit": "ns",
+            "range": "± 0.061134310622597755"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 5)",
+            "value": 9.914708607963153,
+            "unit": "ns",
+            "range": "± 0.09822474363475714"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 0)",
+            "value": 9.960491556142058,
+            "unit": "ns",
+            "range": "± 0.07194102045397091"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 5)",
+            "value": 10.114014534155528,
+            "unit": "ns",
+            "range": "± 0.20720061744054605"
           }
         ]
       }
