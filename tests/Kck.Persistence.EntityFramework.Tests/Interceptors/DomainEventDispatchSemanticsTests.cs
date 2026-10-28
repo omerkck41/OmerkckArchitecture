@@ -161,6 +161,23 @@ public sealed class DomainEventDispatchSemanticsTests : IAsyncLifetime
     }
 
     [Fact]
+    public async Task CanceledSave_EventsStayOnTheEntityAndAreNotDispatched()
+    {
+        var entity = new TestEntity { Id = Guid.NewGuid(), Name = "A" };
+        var domainEvent = new TestDomainEvent();
+        entity.AddDomainEvent(domainEvent);
+        _ctx.TestEntities.Add(entity);
+        using var canceled = new CancellationTokenSource();
+        await canceled.CancelAsync();
+
+        var save = () => _ctx.SaveChangesAsync(canceled.Token);
+
+        await save.Should().ThrowAsync<OperationCanceledException>();
+        _dispatcher.CallCount.Should().Be(0);
+        entity.DomainEvents.Should().Equal(domainEvent);
+    }
+
+    [Fact]
     public async Task ConcurrencyFailure_EventsStayOnTheEntityAndAreNotDispatched()
     {
         var entity = new TestEntity { Id = Guid.NewGuid(), Name = "A" };
