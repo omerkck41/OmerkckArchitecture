@@ -73,7 +73,7 @@ public sealed class EfUnitOfWork(DbContext context, IEfRepositoryFactory reposit
         {
             await transaction.RollbackAsync(CancellationToken.None);
         }
-        catch (Exception) // NOSONAR S2486 - the commit error is rethrown by the caller; a failing rollback adds nothing to it
+        catch (Exception rollbackError) when (rollbackError is not OutOfMemoryException) // NOSONAR S2486 - the commit error is rethrown by the caller; a failing rollback adds nothing to it
         {
             // The commit error is the one the caller needs; a rollback that also fails changes nothing for it.
         }
