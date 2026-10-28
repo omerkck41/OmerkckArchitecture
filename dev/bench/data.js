@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1793220367819,
+  "lastUpdate": 1793220857947,
   "repoUrl": "https://github.com/omerkck41/OmerkckArchitecture",
   "entries": {
     "Benchmark": [
@@ -8398,6 +8398,102 @@ window.BENCHMARK_DATA = {
             "value": 8.079433163771263,
             "unit": "ns",
             "range": "± 0.05109047219768604"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "106805727+omerkck41@users.noreply.github.com",
+            "name": "Ömer KÜÇÜK",
+            "username": "omerkck41"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "bd440c992dd31cdd1c4df2c23af516860506aee8",
+          "message": "docs(changelog): 4.2.2 release notes (#206)\n\nMoves the failed-commit fix from #205 under a dated \\[4.2.2]\\ heading\nahead of the \\ 4.2.2\\ tag.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-authored-by: Claude Opus 5.5 <noreply@anthropic.com>",
+          "timestamp": "2026-10-28T23:47:59+03:00",
+          "tree_id": "04e7f1d4a44879a5133b8d3b89de8db643b3ef52",
+          "url": "https://github.com/omerkck41/OmerkckArchitecture/commit/bd440c992dd31cdd1c4df2c23af516860506aee8"
+        },
+        "date": 1793220856644,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Success_Factory",
+            "value": 5.040773201286793,
+            "unit": "ns",
+            "range": "± 0.20244112900129624"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Failure_Factory",
+            "value": 6.56400123052299,
+            "unit": "ns",
+            "range": "± 0.17861168244590844"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Success",
+            "value": 0.8286498025991023,
+            "unit": "ns",
+            "range": "± 0.06962594255030712"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Failure",
+            "value": 0.5138120738168558,
+            "unit": "ns",
+            "range": "± 0.0033089734829429354"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Serialize_Reflection",
+            "value": 324.4572327295939,
+            "unit": "ns",
+            "range": "± 5.028791354024405"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Deserialize_Reflection",
+            "value": 564.2642370223999,
+            "unit": "ns",
+            "range": "± 7.544922272247691"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 0)",
+            "value": 9.896324868229302,
+            "unit": "ns",
+            "range": "± 0.3083630420570118"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 5)",
+            "value": 7.92564572673291,
+            "unit": "ns",
+            "range": "± 0.21210319535409275"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 0)",
+            "value": 7.775977548743997,
+            "unit": "ns",
+            "range": "± 0.10941726794458985"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 5)",
+            "value": 8.047640607907223,
+            "unit": "ns",
+            "range": "± 0.05110153658226699"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 0)",
+            "value": 8.129850644086089,
+            "unit": "ns",
+            "range": "± 0.08231089034166264"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 5)",
+            "value": 8.168933045651231,
+            "unit": "ns",
+            "range": "± 0.05169993486625753"
           }
         ]
       }
