@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- `Kck.Persistence.EntityFramework` — `EfUnitOfWork` kept its transaction after `CommitAsync`, `RollbackAsync` and
+  `SaveChangesAsync(autoCommitTransaction: true)`, so a second `BeginTransactionAsync` on the same unit of work started
+  nothing: later saves ran outside a transaction, their domain events were dispatched at once, and `CommitAsync` failed
+  on the finished transaction. The transaction is now released after a successful commit and after every rollback
+  (a failed commit keeps it so the caller can roll back; `RollbackAsync` releases it even when the rollback itself
+  fails). `CommitAsync` / `RollbackAsync` called again after a commit or rollback now throw
+  `InvalidOperationException` ("No active transaction") instead of a provider error.
+
 ## [4.2.0] — 2026-10-28
 
 Changes when and how domain events are dispatched for apps that call `AddDomainEventDispatch<TDispatcher>()`; read

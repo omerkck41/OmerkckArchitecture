@@ -33,10 +33,7 @@ public sealed class EfUnitOfWork(DbContext context, IEfRepositoryFactory reposit
         var result = await context.SaveChangesAsync(cancellationToken);
 
         if (autoCommitTransaction && _transaction is not null)
-        {
-            await _transaction.CommitAsync(cancellationToken);
-            await DispatchCommittedEventsAsync(cancellationToken);
-        }
+            await CommitCurrentAsync(_transaction, cancellationToken);
 
         return result;
     }
@@ -47,8 +44,25 @@ public sealed class EfUnitOfWork(DbContext context, IEfRepositoryFactory reposit
         if (_transaction is null)
             throw new InvalidOperationException("No active transaction. Call BeginTransactionAsync first.");
 
-        await _transaction.CommitAsync(cancellationToken);
+        await CommitCurrentAsync(_transaction, cancellationToken);
+    }
+
+    // A failed commit keeps the transaction so the caller can roll back; a successful one releases it before the
+    // events are dispatched, so a dispatch failure leaves the unit of work ready for the next transaction.
+    private async Task CommitCurrentAsync(IDbContextTransaction transaction, CancellationToken cancellationToken)
+    {
+        await transaction.CommitAsync(cancellationToken);
+        await ReleaseTransactionAsync();
         await DispatchCommittedEventsAsync(cancellationToken);
+    }
+
+    private async Task ReleaseTransactionAsync()
+    {
+        if (_transaction is not { } transaction)
+            return;
+
+        _transaction = null;
+        await transaction.DisposeAsync();
     }
 
     // Domain events saved inside the transaction are dispatched only now, after EF has released it.
@@ -64,7 +78,14 @@ public sealed class EfUnitOfWork(DbContext context, IEfRepositoryFactory reposit
         if (_transaction is null)
             throw new InvalidOperationException("No active transaction. Call BeginTransactionAsync first.");
 
-        await _transaction.RollbackAsync(cancellationToken);
+        try
+        {
+            await _transaction.RollbackAsync(cancellationToken);
+        }
+        finally
+        {
+            await ReleaseTransactionAsync();
+        }
     }
 
     /// <inheritdoc />
@@ -83,12 +104,7 @@ public sealed class EfUnitOfWork(DbContext context, IEfRepositoryFactory reposit
         if (_disposed)
             return;
 
-        if (_transaction is not null)
-        {
-            await _transaction.DisposeAsync();
-            _transaction = null;
-        }
-
+        await ReleaseTransactionAsync();
         _disposed = true;
     }
 }

@@ -91,6 +91,75 @@ public sealed class EfUnitOfWorkTests : IDisposable
     }
 
     [Fact]
+    public async Task CommitAsync_ThenNewTransaction_BothArePersisted()
+    {
+        await _sut.BeginTransactionAsync();
+        _harness.Context.TestEntities.Add(new TestEntity { Id = Guid.NewGuid(), Name = "first" });
+        await _sut.SaveChangesAsync();
+        await _sut.CommitAsync();
+
+        await _sut.BeginTransactionAsync();
+        _harness.Context.Database.CurrentTransaction.Should().NotBeNull("a new transaction must start after a commit");
+        _harness.Context.TestEntities.Add(new TestEntity { Id = Guid.NewGuid(), Name = "second" });
+        await _sut.SaveChangesAsync();
+        await _sut.CommitAsync();
+
+        using var check = _harness.NewContext();
+        (await check.TestEntities.CountAsync()).Should().Be(2);
+    }
+
+    [Fact]
+    public async Task RollbackAsync_ThenNewTransaction_OnlyTheSecondIsPersisted()
+    {
+        await _sut.BeginTransactionAsync();
+        _harness.Context.TestEntities.Add(new TestEntity { Id = Guid.NewGuid(), Name = "rolled back" });
+        await _sut.SaveChangesAsync();
+        await _sut.RollbackAsync();
+        _harness.Context.ChangeTracker.Clear();
+
+        await _sut.BeginTransactionAsync();
+        _harness.Context.TestEntities.Add(new TestEntity { Id = Guid.NewGuid(), Name = "kept" });
+        await _sut.SaveChangesAsync();
+        await _sut.CommitAsync();
+
+        using var check = _harness.NewContext();
+        (await check.TestEntities.Select(e => e.Name).ToListAsync()).Should().Equal("kept");
+    }
+
+    [Fact]
+    public async Task CommitAsync_AfterCommit_ThrowsNoActiveTransaction()
+    {
+        await _sut.BeginTransactionAsync();
+        await _sut.CommitAsync();
+
+        var act = () => _sut.CommitAsync();
+
+        await act.Should().ThrowAsync<InvalidOperationException>().WithMessage("*No active transaction*");
+    }
+
+    [Fact]
+    public async Task RollbackAsync_AfterCommit_ThrowsNoActiveTransaction()
+    {
+        await _sut.BeginTransactionAsync();
+        await _sut.CommitAsync();
+
+        var act = () => _sut.RollbackAsync();
+
+        await act.Should().ThrowAsync<InvalidOperationException>().WithMessage("*No active transaction*");
+    }
+
+    [Fact]
+    public async Task SaveChangesAsync_AutoCommit_ThenNewTransactionStarts()
+    {
+        await _sut.BeginTransactionAsync();
+        await _sut.SaveChangesAsync(autoCommitTransaction: true);
+
+        await _sut.BeginTransactionAsync();
+
+        _harness.Context.Database.CurrentTransaction.Should().NotBeNull();
+    }
+
+    [Fact]
     public void Repository_ReturnsCachedInstancePerType()
     {
         var first = _sut.Repository<TestEntity, Guid>();
