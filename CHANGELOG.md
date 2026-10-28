@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [4.2.2] — 2026-10-28
+
 ### Fixed
 - `Kck.Persistence.EntityFramework` — a failed database commit left `EfUnitOfWork` holding the broken transaction.
   `Kck.Pipeline.Mediator`'s `TransactionBehavior` never rolls back after `CommitAsync` (it must not after a commit
