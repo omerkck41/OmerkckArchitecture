@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1793133926847,
+  "lastUpdate": 1793202056081,
   "repoUrl": "https://github.com/omerkck41/OmerkckArchitecture",
   "entries": {
     "Benchmark": [
@@ -7438,6 +7438,102 @@ window.BENCHMARK_DATA = {
             "value": 7.85588444073995,
             "unit": "ns",
             "range": "± 0.10788440360360033"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "106805727+omerkck41@users.noreply.github.com",
+            "name": "Ömer KÜÇÜK",
+            "username": "omerkck41"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "304973264077e583f07744dc2b0758240a8ec24b",
+          "message": "fix(persistence): wire registered interceptors; keep permanent deletes (#195)\n\n## Summary\n\n- `AddAuditInterceptor()` and `AddDomainEventDispatch<TDispatcher>()`\nregistered their interceptors in DI but never\nattached them to the `DbContext`: audit / soft-delete fields stayed\nempty and domain events were never dispatched.\n`UseEntityFramework` now adds the registered interceptors to the context\noptions (`AddDbContext((sp, options) => …)`);\nan interceptor of the same type already added in `configure` is not\nadded twice.\n- Wiring the audit interceptor exposed a data-retention bug (adversarial\nreview F1): repository deletes with\n`permanent: true` on `ISoftDeletable` entities were turned into soft\ndeletes, so the row stayed in the database.\nThe repository now marks permanent deletes per `DbContext`\n(`PermanentDeletes`, internal) and `AuditInterceptor`\nskips them; marks are cleared after a successful save, so a retried\n`SaveChanges` still deletes permanently. This\n  also fixes apps that added the interceptor by hand.\n- CHANGELOG: Fixed + \"Changed — behaviour\" section, planned as **4.1.0**\n(soft delete now active for `Remove`, audit\ndates set on save, domain-event dispatch semantics).\n`docs/providers/persistence.md` and the Persistence NuGet\n  README updated.\n\n## Test plan\n\n- [x] RED → GREEN: `AddAuditInterceptor_WiresInterceptorIntoDbContext`,\n`AddDomainEventDispatch_WiresInterceptorIntoDbContext`,\n`AddAuditInterceptor_PermanentDelete_RemovesRow` failed before the fix.\n- [x] Mutation probes: removing the mark in `DeleteRangeAsync` fails\n`…PermanentDeleteRange_RemovesRows`; disabling\n      `Clear` fails `…LaterRemoveOfSameInstanceIsSoft`.\n- [x] Guards: no registrations → no interceptors; manual + builder →\nsingle interceptor; registration order independent.\n- [x] `dotnet build -c Release` 0 warnings / 0 errors; `dotnet test -c\nRelease --filter \"Category!=Integration\"`:\n      39 projects green (Persistence 129/129).\n- [ ] Integration tests (Docker / Testcontainers) — not run locally, CI\ncovers them.\n\n## Follow-ups (tracked, not in this PR)\n\n- Cascade / owned entities with raw `ctx.Remove` under the audit\ninterceptor (adversarial F2/F3).\n- Domain events cleared before dispatch and dispatched before commit\n(F4); sync `SaveChanges` sync-over-async (F6).\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\n---------\n\nCo-authored-by: Claude Opus 5.5 <noreply@anthropic.com>",
+          "timestamp": "2026-10-28T18:33:57+03:00",
+          "tree_id": "53642d66296b01cfef9f071ecfb532e28ffb9ad8",
+          "url": "https://github.com/omerkck41/OmerkckArchitecture/commit/304973264077e583f07744dc2b0758240a8ec24b"
+        },
+        "date": 1793202055391,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Success_Factory",
+            "value": 6.774098877395902,
+            "unit": "ns",
+            "range": "± 0.10055581428854357"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Failure_Factory",
+            "value": 9.303273432453473,
+            "unit": "ns",
+            "range": "± 0.23372334711723058"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Success",
+            "value": 1.6357279265565532,
+            "unit": "ns",
+            "range": "± 0.0076288656480757834"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Failure",
+            "value": 0.5855529068836144,
+            "unit": "ns",
+            "range": "± 0.0034272697736242213"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Serialize_Reflection",
+            "value": 506.23405532836915,
+            "unit": "ns",
+            "range": "± 2.0767939602142333"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Deserialize_Reflection",
+            "value": 814.7381442387899,
+            "unit": "ns",
+            "range": "± 2.0808963985511624"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 0)",
+            "value": 11.09485361079375,
+            "unit": "ns",
+            "range": "± 0.25533380561992935"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 5)",
+            "value": 11.414214328924816,
+            "unit": "ns",
+            "range": "± 0.21800184076894372"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 0)",
+            "value": 10.760266956686973,
+            "unit": "ns",
+            "range": "± 0.20750095294290427"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 5)",
+            "value": 10.732645290593306,
+            "unit": "ns",
+            "range": "± 0.1111118446904474"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 0)",
+            "value": 11.248950931642737,
+            "unit": "ns",
+            "range": "± 0.221009835124921"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 5)",
+            "value": 11.311761834224065,
+            "unit": "ns",
+            "range": "± 0.21563136342994602"
           }
         ]
       }
