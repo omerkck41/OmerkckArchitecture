@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1793207301734,
+  "lastUpdate": 1793211151582,
   "repoUrl": "https://github.com/omerkck41/OmerkckArchitecture",
   "entries": {
     "Benchmark": [
@@ -7822,6 +7822,102 @@ window.BENCHMARK_DATA = {
             "value": 9.946569888637615,
             "unit": "ns",
             "range": "± 0.18151881995370767"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "106805727+omerkck41@users.noreply.github.com",
+            "name": "Ömer KÜÇÜK",
+            "username": "omerkck41"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "ae5146116641b00e04be70174bb7f066de4a4583",
+          "message": "fix(persistence): dispatch domain events after commit, keep on failure (#199)\n\n## Summary\nFixes how `DomainEventDispatchInterceptor` dispatches domain events\n(adversarial review F4 from #195). Planned for\n**4.2.0** (behaviour change).\n\n- **Before:** events saved inside an EF transaction were dispatched at\n`SaveChanges`, before the commit — a\nrolled-back change could still send messages — and were cleared before\ndispatch, so a failing dispatcher lost them.\n- **Now:** events are parked on the `DbTransaction`; rollback, failure\nor an uncommitted dispose drops them.\n`IUnitOfWork.CommitAsync` / `SaveChangesAsync(autoCommitTransaction:\ntrue)` dispatch them after EF has released the\ntransaction (handlers can save through the same context). A direct\n`Database.BeginTransaction` commit leaves them for\nthe context's next `SaveChanges`. A failing dispatcher puts the events\nback on their entities (at-least-once).\n- `Kck.Pipeline.Mediator` `TransactionBehavior`: `CommitAsync` moved\noutside the rollback block — rolling back a\ncommitted transaction after a dispatch failure would hide the real\nerror.\n- New dependency `Microsoft.EntityFrameworkCore.Relational` 10.0.14 for\n`IDbTransactionInterceptor` —\n`decisions/2026-10-28-efcore-relational-dependency.md` (maintainer\napproved).\n- Defensive: a reused `DbTransaction` object (Npgsql) starts with no\nparked events.\n- Docs (`docs/providers/persistence.md`: transaction example with commit\noutside `try`, limits) and CHANGELOG\n  (Fixed + \"Changed — behaviour\").\n\n## Review\nTwo rounds with fresh reviewers. Round 1: 3 high findings (nested save\non commit, zombie transaction on dispatch\nfailure, leaked events after uncommitted dispose) reproduced as failing\ntests → redesign approved by the maintainer.\nRound 2: TransactionBehavior rollback-after-commit (fixed, test), Npgsql\nreuse (defensive fix + integration test),\ndocs gaps (fixed), DI test (added). Out of scope, tracked: savepoint /\n`UseTransaction` / `TransactionScope` (documented),\nsync `SaveChanges` blocking, pre-existing `EfUnitOfWork` not resetting\nits transaction, deleted aggregates' events.\n\n## Test plan\n- [x] `DomainEventDispatchSemanticsTests` (SQLite, 12): acceptance\nexamples 1–6 + review cases; RED seen before the fix\nand via mutation probes (UoW dispatch, autoCommit dispatch, rollback\ndrop)\n- [x] `RegistrationTests`: DI setup → `IUnitOfWork.CommitAsync`\ndispatches (RED via probe)\n- [x] `TransactionBehaviorTests`: commit throws → no rollback (RED\nbefore fix)\n- [x] Release build 0 warnings / 0 errors; 39 test projects green\n(Persistence 142, Mediator 27); pack validation vs 4.1.0\n- [ ] CI: `DomainEventDispatchNpgsqlTests` (Integration, PostgreSQL) —\nnot run locally (no Docker)\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-authored-by: Claude Opus 5.5 <noreply@anthropic.com>",
+          "timestamp": "2026-10-28T21:04:35+03:00",
+          "tree_id": "db9873c6b9cc97154d76a050eee63dfa2797bb6a",
+          "url": "https://github.com/omerkck41/OmerkckArchitecture/commit/ae5146116641b00e04be70174bb7f066de4a4583"
+        },
+        "date": 1793211146913,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Success_Factory",
+            "value": 6.467312610149383,
+            "unit": "ns",
+            "range": "± 0.17180306491622777"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Failure_Factory",
+            "value": 11.135660753046212,
+            "unit": "ns",
+            "range": "± 0.4894188193652448"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Success",
+            "value": 1.643257450312376,
+            "unit": "ns",
+            "range": "± 0.004909512424897312"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Failure",
+            "value": 0.5844109803438187,
+            "unit": "ns",
+            "range": "± 0.00288388739903268"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Serialize_Reflection",
+            "value": 462.79614690633923,
+            "unit": "ns",
+            "range": "± 2.5900090576619865"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Deserialize_Reflection",
+            "value": 805.5528533299764,
+            "unit": "ns",
+            "range": "± 6.7641694339821"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 0)",
+            "value": 12.518108888467152,
+            "unit": "ns",
+            "range": "± 0.14386098400126257"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 5)",
+            "value": 10.89930823991696,
+            "unit": "ns",
+            "range": "± 0.62745335435677"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 0)",
+            "value": 11.525951991740026,
+            "unit": "ns",
+            "range": "± 0.31647064418165516"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 5)",
+            "value": 11.11055902739366,
+            "unit": "ns",
+            "range": "± 0.24415780058909883"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 0)",
+            "value": 10.873842694362004,
+            "unit": "ns",
+            "range": "± 0.22487234758998417"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 5)",
+            "value": 12.25180801507589,
+            "unit": "ns",
+            "range": "± 0.5256651576309911"
           }
         ]
       }
