@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [4.2.0] — 2026-10-28
+
+Changes when and how domain events are dispatched for apps that call `AddDomainEventDispatch<TDispatcher>()`; read
+"Changed — behaviour" before upgrading.
+
 ### Fixed
 - `Kck.Persistence.EntityFramework` — `DomainEventDispatchInterceptor`:
   - Events saved inside an EF transaction are no longer dispatched before the commit: a rolled-back, failed or
