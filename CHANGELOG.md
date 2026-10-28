@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [4.2.3] — 2026-10-29
+
 ### Fixed
 - `Kck.Persistence.EntityFramework` — `DomainEventDispatchInterceptor` never dispatched the domain events of entities
   that were deleted (`DbContext.Remove` on an entity that is not soft-deletable, or a repository delete with
