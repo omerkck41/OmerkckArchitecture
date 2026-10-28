@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1793223433322,
+  "lastUpdate": 1793225290880,
   "repoUrl": "https://github.com/omerkck41/OmerkckArchitecture",
   "entries": {
     "Benchmark": [
@@ -8590,6 +8590,102 @@ window.BENCHMARK_DATA = {
             "value": 10.306366607546806,
             "unit": "ns",
             "range": "± 0.06090558868315227"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "106805727+omerkck41@users.noreply.github.com",
+            "name": "Ömer KÜÇÜK",
+            "username": "omerkck41"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "47ec1c3d72ef5d59828dde125d5c1a29aa414dcc",
+          "message": "fix(persistence): dispatch domain events of deleted entities (#208)\n\n## Summary\n`DomainEventDispatchInterceptor` collected domain events in\n`SavedChanges`, after EF had already detached deleted\nentities — so `DbContext.Remove` on a non-soft-deletable entity, or a\nrepository delete with `permanent: true`, lost\nits events silently. Planned for **4.2.3**.\n\n- Events are collected in `SavingChanges` (and once more after the save,\nfor events raised during it).\n- A save that fails (`SaveChangesFailed`), is canceled, hits a\nconcurrency conflict (`ThrowingConcurrencyException`)\nor is rejected by a later interceptor puts the events back on their\nentities — they are neither lost nor dispatched\n  later for a change that was never saved.\n- Across entities, events now follow the change tracker's order before\nthe save (added first); one entity's events\n  keep their order. CHANGELOG notes it.\n\n## Review\nIndependent review: no critical/high. Medium B1 (later interceptor\nthrows in `SavingChanges` → stale events\ndispatched by the next save) and question 1 (concurrency failure)\nreproduced as failing tests and fixed; low B2\n(events raised during the save) fixed with a test. The cross-entity\nordering assertion change was judged justified.\nTracked: tests for the canceled path and sync delete; pre-existing event\nloss on execution-strategy commit retry.\n\n## Test plan\n- [x] Examples 1–2 RED before the fix; review cases (later interceptor\nrejects, concurrency) RED before their fix;\nfailed-save restore and post-save collection proven by mutation probes\n- [x] Clean Release build 0 errors; 39 test projects green (Persistence\n160); pack validation vs 4.2.2\n- [ ] CI green\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\n---------\n\nCo-authored-by: Claude Opus 5.5 <noreply@anthropic.com>",
+          "timestamp": "2026-10-29T01:00:55+03:00",
+          "tree_id": "a3d883c95c5b342bdccb180a948dc863cbbc48fe",
+          "url": "https://github.com/omerkck41/OmerkckArchitecture/commit/47ec1c3d72ef5d59828dde125d5c1a29aa414dcc"
+        },
+        "date": 1793225290162,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Success_Factory",
+            "value": 5.961595961680779,
+            "unit": "ns",
+            "range": "± 0.03807957709949556"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Failure_Factory",
+            "value": 9.729906370458396,
+            "unit": "ns",
+            "range": "± 0.49026416514731397"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Success",
+            "value": 1.650954828162988,
+            "unit": "ns",
+            "range": "± 0.012270621550473875"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Failure",
+            "value": 0.5890539546425526,
+            "unit": "ns",
+            "range": "± 0.004103455726543466"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Serialize_Reflection",
+            "value": 449.1647616068522,
+            "unit": "ns",
+            "range": "± 4.266102720270197"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Deserialize_Reflection",
+            "value": 774.4208670396072,
+            "unit": "ns",
+            "range": "± 2.2386912753423336"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 0)",
+            "value": 9.760547241816917,
+            "unit": "ns",
+            "range": "± 0.06344531485328642"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 5)",
+            "value": 9.77293234212058,
+            "unit": "ns",
+            "range": "± 0.09479862654730647"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 0)",
+            "value": 9.858356574816364,
+            "unit": "ns",
+            "range": "± 0.03444844053295186"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 5)",
+            "value": 9.602527569731077,
+            "unit": "ns",
+            "range": "± 0.0662776326703899"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 0)",
+            "value": 9.781775865952174,
+            "unit": "ns",
+            "range": "± 0.1408607878091116"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 5)",
+            "value": 9.891264272729556,
+            "unit": "ns",
+            "range": "± 0.15998590682513375"
           }
         ]
       }
