@@ -123,6 +123,35 @@ public class RegistrationTests
     }
 
     [Fact]
+    public async Task AddDomainEventDispatch_UnitOfWorkCommit_DispatchesEventsSavedInTheTransaction()
+    {
+        await using var connection = new Microsoft.Data.Sqlite.SqliteConnection("DataSource=:memory:");
+        await connection.OpenAsync();
+        var services = new ServiceCollection().AddLogging();
+        services.AddKckPersistence(b => b
+            .UseEntityFramework<TestDbContext>(o => o.UseSqlite(connection))
+            .AddDomainEventDispatch<CapturingDispatcher>());
+
+        await using var sp = services.BuildServiceProvider();
+        await using var scope = sp.CreateAsyncScope();
+        var ctx = scope.ServiceProvider.GetRequiredService<TestDbContext>();
+        await ctx.Database.EnsureCreatedAsync();
+        var uow = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
+        var dispatcher = (CapturingDispatcher)scope.ServiceProvider.GetRequiredService<IDomainEventDispatcher>();
+        var entity = new TestEntity { Id = Guid.NewGuid(), Name = "A" };
+        entity.AddDomainEvent(new TestDomainEvent());
+
+        await uow.BeginTransactionAsync();
+        await uow.Repository<TestEntity, Guid>().AddAsync(entity);
+        await uow.SaveChangesAsync();
+        dispatcher.CallCount.Should().Be(0);
+
+        await uow.CommitAsync();
+
+        dispatcher.Received.Should().ContainSingle();
+    }
+
+    [Fact]
     public async Task AddAuditInterceptor_AlreadyAddedManually_IsNotAddedTwice()
     {
         var services = new ServiceCollection();

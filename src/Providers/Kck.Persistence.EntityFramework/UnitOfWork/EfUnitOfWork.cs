@@ -2,8 +2,10 @@ using System.Collections.Concurrent;
 using Kck.Core.Abstractions.Entities;
 using Kck.Persistence.Abstractions.Repositories;
 using Kck.Persistence.Abstractions.UnitOfWork;
+using Kck.Persistence.EntityFramework.Interceptors;
 using Kck.Persistence.EntityFramework.Repositories;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Kck.Persistence.EntityFramework.UnitOfWork;
@@ -31,7 +33,10 @@ public sealed class EfUnitOfWork(DbContext context, IEfRepositoryFactory reposit
         var result = await context.SaveChangesAsync(cancellationToken);
 
         if (autoCommitTransaction && _transaction is not null)
+        {
             await _transaction.CommitAsync(cancellationToken);
+            await DispatchCommittedEventsAsync(cancellationToken);
+        }
 
         return result;
     }
@@ -43,7 +48,15 @@ public sealed class EfUnitOfWork(DbContext context, IEfRepositoryFactory reposit
             throw new InvalidOperationException("No active transaction. Call BeginTransactionAsync first.");
 
         await _transaction.CommitAsync(cancellationToken);
+        await DispatchCommittedEventsAsync(cancellationToken);
     }
+
+    // Domain events saved inside the transaction are dispatched only now, after EF has released it.
+    private Task DispatchCommittedEventsAsync(CancellationToken cancellationToken) =>
+        context.GetService<IDbContextOptions>().FindExtension<CoreOptionsExtension>()?.Interceptors?
+            .OfType<DomainEventDispatchInterceptor>().FirstOrDefault() is { } interceptor
+            ? interceptor.DispatchCommittedAsync(context, cancellationToken)
+            : Task.CompletedTask;
 
     /// <inheritdoc />
     public async Task RollbackAsync(CancellationToken cancellationToken = default)

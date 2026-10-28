@@ -24,13 +24,11 @@ public sealed class TransactionBehavior<TMessage, TResponse>(
         await unitOfWork.BeginTransactionAsync(cancellationToken).ConfigureAwait(false);
         Log.TransactionStarted(logger, messageName);
 
+        TResponse response;
         try
         {
-            var response = await next(message, cancellationToken).ConfigureAwait(false);
+            response = await next(message, cancellationToken).ConfigureAwait(false);
             await unitOfWork.SaveChangesAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
-            await unitOfWork.CommitAsync(cancellationToken).ConfigureAwait(false);
-            Log.TransactionCommitted(logger, messageName);
-            return response;
         }
         catch
         {
@@ -38,5 +36,11 @@ public sealed class TransactionBehavior<TMessage, TResponse>(
             Log.TransactionRolledBack(logger, messageName);
             throw;
         }
+
+        // Outside the try: CommitAsync can throw after the data is committed (domain event dispatch),
+        // and rolling back a committed transaction would hide that error.
+        await unitOfWork.CommitAsync(cancellationToken).ConfigureAwait(false);
+        Log.TransactionCommitted(logger, messageName);
+        return response;
     }
 }

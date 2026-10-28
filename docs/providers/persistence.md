@@ -86,14 +86,18 @@ await uow.BeginTransactionAsync(ct);
 try
 {
     // ... birden cok repository uzerinden islem
-    await uow.SaveChangesAsync(autoCommitTransaction: true, cancellationToken: ct);
+    await uow.SaveChangesAsync(cancellationToken: ct);
 }
 catch
 {
     await uow.RollbackAsync(ct);
     throw;
 }
+
+await uow.CommitAsync(ct); // commit, ardindan transaction icinde kaydedilen domain event'leri dagitilir
 ```
+
+Commit `try` disindadir: commit'ten sonra dagitim hata verirse veri zaten kalicidir, `RollbackAsync` cagrilmamalidir.
 
 ## Interceptor'lar
 
@@ -102,10 +106,21 @@ catch
   Soft-delete edilen satirlar yalniz repository sorgularindan ve soft-delete query filter'i uygulanan context'lerden
   gizlenir; unique index'ler silinmis satirlari disarida birakmiyorsa yeniden ekleme reddedilebilir.
 - `DomainEventDispatchInterceptor` — `AddDomainEventDispatch<TDispatcher>()` ile kaydedilir; aggregate'lerin domain
-  event'lerini `SaveChanges` sonrasi (acik bir transaction'in commit'inden once) dagitir. Event'ler dagitimdan once
-  temizlenir: dispatcher hata verirse veri kaydedilmis olur ve event'ler yeniden denenmez. `SaveChangesAsync` tercih
-  edin; senkron yol dagitim boyunca bir thread-pool thread'ini bloklar. DbContext pooling / `AddDbContextFactory`
-  ile desteklenmez.
+  event'lerini `SaveChanges` sonrasi dagitir. 4.2.0+ davranisi:
+  - EF'in `BeginTransaction`'i ile acilan bir transaction icinde kaydedilen event'ler o transaction'a baglanir;
+    rollback, hata veya commit edilmeden dispose edilirse atilir. Commit'ten sonra `IUnitOfWork.CommitAsync` /
+    `SaveChangesAsync(autoCommitTransaction: true)` onlari commit tamamlaninca dagitir; handler ayni DbContext ile
+    kaydedebilir. Transaction `Database.BeginTransaction` ile acilip dogrudan commit edildiyse event'ler context'in
+    sonraki `SaveChanges`'inde dagitilir; o context'te baska `SaveChanges` cagrilmazsa event'ler sessizce kaybolur —
+    transaction'lari `IUnitOfWork` ile commit edin.
+  - Dispatcher hata verirse veri kaydedilmis olur, hata cagirana doner ve event'ler entity'lere geri eklenir; ayni
+    context'teki sonraki `SaveChanges` onlari yeniden dagitir. Teslim en-az-bir-kezdir: kismen basarili bir dagitim
+    tekrarlanabilir, handler'lar idempotent olmalidir. Hata istegin/scope'un sonunu getirirse (web istegi, Mediator
+    pipeline) ya da uygulama coker ise event'ler kaybolur — dayanikli teslim icin outbox gerekir.
+  - Kapsam disi: `Database.UseTransaction` ile verilen dis transaction'in dogrudan commit'i (event'ler atilir),
+    `TransactionScope`, savepoint'e geri donus (savepoint sonrasi event'ler commit'te yine dagitilir).
+  - `SaveChangesAsync` tercih edin; senkron `SaveChanges` dagitim boyunca bir thread-pool thread'ini bloklar.
+    DbContext pooling / `AddDbContextFactory` ile desteklenmez.
 
 ## Migrasyon
 
