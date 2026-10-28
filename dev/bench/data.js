@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1793217878322,
+  "lastUpdate": 1793220367819,
   "repoUrl": "https://github.com/omerkck41/OmerkckArchitecture",
   "entries": {
     "Benchmark": [
@@ -8302,6 +8302,102 @@ window.BENCHMARK_DATA = {
             "value": 8.00484721821088,
             "unit": "ns",
             "range": "± 0.11482821822292089"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "106805727+omerkck41@users.noreply.github.com",
+            "name": "Ömer KÜÇÜK",
+            "username": "omerkck41"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "8bf8ec0b83bb3e519cc904894f078c8d3249ba5c",
+          "message": "fix(persistence): end the transaction when the database commit fails (#205)\n\n## Summary\nA failed database commit left `EfUnitOfWork` holding the broken\ntransaction for the caller to roll back (4.2.1 note).\n`Kck.Pipeline.Mediator`'s `TransactionBehavior` never rolls back after\n`CommitAsync` — it must not after a commit\nthat succeeded — so every later `ITransactionalRequest` in the same\nscope reused the broken transaction. Planned for\n**4.2.2**.\n\n- `EfUnitOfWork.CommitAsync`: on a failed database commit, attempt a\nrollback (its failure does not replace the commit\nerror) and release the transaction, then rethrow. Rule: once\n`CommitAsync` returns or throws, the transaction has\n  ended. `TransactionBehavior` is unchanged.\n- `IUnitOfWork` XML docs: transaction lifecycle, unknown commit outcome,\n`InvalidOperationException`.\n- CHANGELOG: Fixed + \"Changed — behaviour\" with a migration note for\n`try { CommitAsync } catch { RollbackAsync }`.\n\n## Review\nIndependent review: no critical/high. Applied: unknown-commit-outcome\nwording (B1), behaviour section + migration\n(B2), tests proving the rollback call and that a failing rollback does\nnot hide the commit error (B3), exception doc\n(B4), `NOSONAR S2486` justification per repo convention. Tracked: commit\nrunning with the request token (design\ndecision), dispose failure inside the catch.\n\n## Test plan\n- [x] `EfUnitOfWorkFailureTests` (SQLite + failure-injecting transaction\ninterceptor, 6 tests): failed-commit cases RED\nbefore the fix; mutation probes (no rollback call, no swallow, no\n`finally`) each turn one test RED\n- [x] Clean Release build 0 errors; 39 test projects green\n- [ ] CI green\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\n---------\n\nCo-authored-by: Claude Opus 5.5 <noreply@anthropic.com>",
+          "timestamp": "2026-10-28T23:39:15+03:00",
+          "tree_id": "8bd069a755d05af869969c0e0560ec0d8ba321c6",
+          "url": "https://github.com/omerkck41/OmerkckArchitecture/commit/8bf8ec0b83bb3e519cc904894f078c8d3249ba5c"
+        },
+        "date": 1793220366630,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Success_Factory",
+            "value": 4.990930091341337,
+            "unit": "ns",
+            "range": "± 0.1308452335723479"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Failure_Factory",
+            "value": 6.7361659581462545,
+            "unit": "ns",
+            "range": "± 0.13997415377549985"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Success",
+            "value": 0.8983039755839854,
+            "unit": "ns",
+            "range": "± 0.074811145728564"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Failure",
+            "value": 0.6410294299324354,
+            "unit": "ns",
+            "range": "± 0.013886061834247482"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Serialize_Reflection",
+            "value": 305.0905053274972,
+            "unit": "ns",
+            "range": "± 1.9826346846664344"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Deserialize_Reflection",
+            "value": 553.0083855946858,
+            "unit": "ns",
+            "range": "± 5.533081592135767"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 0)",
+            "value": 7.8954028849090845,
+            "unit": "ns",
+            "range": "± 0.028522623317389917"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 5)",
+            "value": 7.981037093060357,
+            "unit": "ns",
+            "range": "± 0.09223963747405002"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 0)",
+            "value": 8.85584759073598,
+            "unit": "ns",
+            "range": "± 0.1387483467395979"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 5)",
+            "value": 7.866521603294781,
+            "unit": "ns",
+            "range": "± 0.017404180921312285"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 0)",
+            "value": 7.940520140528679,
+            "unit": "ns",
+            "range": "± 0.08337380897412433"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 5)",
+            "value": 8.079433163771263,
+            "unit": "ns",
+            "range": "± 0.05109047219768604"
           }
         ]
       }
