@@ -1,7 +1,7 @@
-"""Tests for the version selection in nuget-publish.yml "Unlist older versions".
+"""Tests for the version selection in nuget-publish.yml "Unlist older versions" and "Unlist the version".
 
-The publish job deliberately runs no repository code, so the logic lives inline in the workflow. This test
-extracts the part of that inline script above the "# --- main ---" marker and executes only that.
+The publish and unlist jobs deliberately run no repository code, so the logic lives inline in the workflow. These
+tests extract the part of each inline script above the "# --- main ---" marker and execute only that.
 Run: python -I -m unittest discover -s .github/scripts -p "test_*.py".
 """
 import textwrap
@@ -10,12 +10,13 @@ from pathlib import Path
 
 WORKFLOW = Path(__file__).resolve().parents[1] / "workflows" / "nuget-publish.yml"
 STEP = "- name: Unlist older versions"
+MANUAL_STEP = "- name: Unlist the version"
 MARKER = "# --- main ---"
 
 
-def load_selection() -> dict:
+def load_selection(step: str = STEP) -> dict:
     lines = WORKFLOW.read_text(encoding="utf-8").splitlines()
-    start = next(i for i, line in enumerate(lines) if line.strip() == STEP)
+    start = next(i for i, line in enumerate(lines) if line.strip() == step)
     run = next(i for i in range(start, len(lines)) if lines[i].strip() == "run: |")
     indent = len(lines[run]) - len(lines[run].lstrip()) + 2
     body = []
@@ -59,6 +60,27 @@ class UnlistSelectionTests(unittest.TestCase):
 
     def test_same_or_higher_version_is_not_unlisted(self) -> None:
         self.assertEqual(self.to_unlist("3.6.0", ["3.6.0", "3.7.0"]), [])
+
+
+class ManualUnlistDecisionTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls) -> None:
+        cls.decide = staticmethod(load_selection(MANUAL_STEP)["decide"])
+
+    def test_listed_version_is_deleted(self) -> None:
+        self.assertEqual(self.decide("3.6.2", [("3.6.1", False), ("3.6.2", True)]), "delete")
+
+    def test_already_unlisted_version_is_skipped(self) -> None:
+        self.assertEqual(self.decide("3.6.2", [("3.6.2", False), ("4.1.0", True)]), "skip")
+
+    def test_version_absent_from_registration_is_missing(self) -> None:
+        self.assertEqual(self.decide("3.6.2", [("3.6.1", True), ("4.1.0", True)]), "missing")
+
+    def test_no_versions_is_missing(self) -> None:
+        self.assertEqual(self.decide("3.6.2", []), "missing")
+
+    def test_comparison_ignores_case(self) -> None:
+        self.assertEqual(self.decide("4.0.0-RC.1", [("4.0.0-rc.1", True)]), "delete")
 
 
 if __name__ == "__main__":
