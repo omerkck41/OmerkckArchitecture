@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [4.2.1] — 2026-10-28
+
 ### Fixed
 - `Kck.Persistence.EntityFramework` — `EfUnitOfWork` kept its transaction after `CommitAsync`, `RollbackAsync` and
   `SaveChangesAsync(autoCommitTransaction: true)`, so a second `BeginTransactionAsync` on the same unit of work started
