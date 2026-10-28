@@ -7,6 +7,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- `Kck.Persistence.EntityFramework` — `DomainEventDispatchInterceptor`:
+  - Events saved inside an EF transaction are no longer dispatched before the commit: a rolled-back, failed or
+    uncommitted-and-disposed transaction drops them, so a change that never became durable no longer sends e-mails
+    or messages.
+  - If the dispatcher throws, the events are put back on their entities and the next `SaveChanges` dispatches them
+    again; before, they were cleared first and lost. The exception still reaches the caller after the data is saved.
+    Delivery is at-least-once: handlers should be idempotent.
+
+### Changed — behaviour
+- Events saved inside a transaction are dispatched after the commit, outside the transaction:
+  `IUnitOfWork.CommitAsync` and `SaveChangesAsync(autoCommitTransaction: true)` dispatch them once the commit has
+  returned; for a transaction committed directly through `Database.BeginTransaction`, the context's next
+  `SaveChanges` dispatches them — if none follows, they are lost, so commit through `IUnitOfWork`. Handlers that
+  relied on writing inside the caller's transaction now write after it (consider an outbox for atomic delivery).
+  Events put back after a dispatcher failure are retried only by a later save on the same context.
+- Do not call `RollbackAsync` when `CommitAsync` throws: the data is committed; see the transaction example in
+  `docs/providers/persistence.md`. `Kck.Pipeline.Mediator`'s `TransactionBehavior` now commits outside its
+  rollback block for the same reason.
+- Not covered: external transactions passed with `Database.UseTransaction` and committed directly (events are
+  dropped), `TransactionScope`, and rolling back to a savepoint.
+- `Kck.Persistence.EntityFramework` now depends on `Microsoft.EntityFrameworkCore.Relational` (same version as EF
+  Core) for the transaction interceptor. Relational providers already reference it.
+  Decision: [decisions/2026-10-28-efcore-relational-dependency.md](decisions/2026-10-28-efcore-relational-dependency.md).
+
 ## [4.1.0] — 2026-10-28
 
 The fixes below change runtime behaviour for apps that call `AddAuditInterceptor()` or

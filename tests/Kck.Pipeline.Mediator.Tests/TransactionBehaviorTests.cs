@@ -50,4 +50,19 @@ public sealed class TransactionBehaviorTests
         await uow.DidNotReceive().CommitAsync(Arg.Any<CancellationToken>());
         logger.Entries.Should().Contain(e => e.Contains("rolled back"));
     }
+
+    [Fact]
+    public async Task Handle_CommitThrows_DoesNotRollBack_Rethrows()
+    {
+        var uow = Substitute.For<IUnitOfWork>();
+        uow.CommitAsync(Arg.Any<CancellationToken>())
+            .Returns(Task.FromException(new InvalidOperationException("dispatch failed after commit")));
+        var logger = new CapturingLogger<TransactionBehavior<TxMessage, string>>();
+        var sut = new TransactionBehavior<TxMessage, string>(uow, logger);
+
+        var act = () => sut.Handle(new TxMessage(), (_, _) => ValueTask.FromResult("ok"), CancellationToken.None).AsTask();
+
+        (await act.Should().ThrowAsync<InvalidOperationException>()).WithMessage("dispatch failed after commit");
+        await uow.DidNotReceive().RollbackAsync(Arg.Any<CancellationToken>());
+    }
 }
