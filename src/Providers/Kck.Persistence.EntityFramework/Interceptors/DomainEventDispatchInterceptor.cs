@@ -21,6 +21,76 @@ public sealed partial class DomainEventDispatchInterceptor(
 {
     private readonly ConditionalWeakTable<DbTransaction, List<EntityEvents>> _parked = new();
     private readonly ConditionalWeakTable<DbContext, List<EntityEvents>> _committed = new();
+    private readonly ConditionalWeakTable<DbContext, List<EntityEvents>> _saving = new();
+
+    // Events are collected before the save: once it succeeds, EF detaches deleted entities, and their events would be
+    // out of reach.
+
+    /// <inheritdoc />
+    public override ValueTask<InterceptionResult<int>> SavingChangesAsync(
+        DbContextEventData eventData,
+        InterceptionResult<int> result,
+        CancellationToken cancellationToken = default) =>
+        ValueTask.FromResult(SavingChanges(eventData, result));
+
+    /// <inheritdoc />
+    public override InterceptionResult<int> SavingChanges(DbContextEventData eventData, InterceptionResult<int> result)
+    {
+        if (eventData.Context is null)
+            return result;
+
+        // A save that failed before EF reports SaveChangesFailed (an interceptor after this one threw) leaves its
+        // events here; put them back so only entities still tracked contribute them again.
+        Restore(Take(_saving, eventData.Context));
+        _saving.GetValue(eventData.Context, _ => []).AddRange(CollectAndClear(eventData.Context));
+        return result;
+    }
+
+    /// <inheritdoc />
+    public override ValueTask<InterceptionResult> ThrowingConcurrencyExceptionAsync(
+        ConcurrencyExceptionEventData eventData,
+        InterceptionResult result,
+        CancellationToken cancellationToken = default) =>
+        ValueTask.FromResult(ThrowingConcurrencyException(eventData, result));
+
+    /// <inheritdoc />
+    public override InterceptionResult ThrowingConcurrencyException(
+        ConcurrencyExceptionEventData eventData,
+        InterceptionResult result)
+    {
+        if (eventData.Context is not null)
+            Restore(Take(_saving, eventData.Context));
+
+        return result;
+    }
+
+    /// <inheritdoc />
+    public override Task SaveChangesFailedAsync(DbContextErrorEventData eventData, CancellationToken cancellationToken = default)
+    {
+        SaveChangesFailed(eventData);
+        return Task.CompletedTask;
+    }
+
+    /// <inheritdoc />
+    public override void SaveChangesFailed(DbContextErrorEventData eventData)
+    {
+        if (eventData.Context is not null)
+            Restore(Take(_saving, eventData.Context));
+    }
+
+    /// <inheritdoc />
+    public override Task SaveChangesCanceledAsync(DbContextEventData eventData, CancellationToken cancellationToken = default)
+    {
+        SaveChangesCanceled(eventData);
+        return Task.CompletedTask;
+    }
+
+    /// <inheritdoc />
+    public override void SaveChangesCanceled(DbContextEventData eventData)
+    {
+        if (eventData.Context is not null)
+            Restore(Take(_saving, eventData.Context));
+    }
 
     /// <inheritdoc />
     public override async ValueTask<int> SavedChangesAsync(
@@ -139,14 +209,16 @@ public sealed partial class DomainEventDispatchInterceptor(
 
     /// <summary>Dispatches the events of transactions this context has committed.</summary>
     internal Task DispatchCommittedAsync(DbContext context, CancellationToken cancellationToken) =>
-        DispatchAsync(TakeCommitted(context), cancellationToken);
+        DispatchAsync(Take(_committed, context), cancellationToken);
 
     [LoggerMessage(Level = LogLevel.Warning, Message = "Sync SavedChanges triggered domain event dispatch. Prefer SaveChangesAsync to avoid thread pool offloading")]
     private static partial void LogSyncSaveChanges(ILogger logger);
 
     private async Task OnSavedAsync(DbContext context, CancellationToken cancellationToken)
     {
-        var collected = CollectAndClear(context);
+        // Events raised during the save (after this interceptor's SavingChanges) are still on tracked entities.
+        var collected = Take(_saving, context);
+        collected.AddRange(CollectAndClear(context));
 
         if ((context.Database.CurrentTransaction as IInfrastructure<DbTransaction>)?.Instance is { } transaction)
         {
@@ -155,18 +227,18 @@ public sealed partial class DomainEventDispatchInterceptor(
             return;
         }
 
-        var pending = TakeCommitted(context);
+        var pending = Take(_committed, context);
         pending.AddRange(collected);
         await DispatchAsync(pending, cancellationToken);
     }
 
-    private List<EntityEvents> TakeCommitted(DbContext context)
+    private static List<EntityEvents> Take(ConditionalWeakTable<DbContext, List<EntityEvents>> table, DbContext context)
     {
-        if (!_committed.TryGetValue(context, out var committed))
+        if (!table.TryGetValue(context, out var events))
             return [];
 
-        _committed.Remove(context);
-        return committed;
+        table.Remove(context);
+        return events;
     }
 
     private async Task DispatchAsync(List<EntityEvents> collected, CancellationToken cancellationToken)
@@ -180,13 +252,17 @@ public sealed partial class DomainEventDispatchInterceptor(
         }
         catch
         {
-            foreach (var (entity, events) in collected)
-            {
-                foreach (var domainEvent in events)
-                    Invoke(entity, nameof(Entity<object>.AddDomainEvent), [typeof(IDomainEvent)], domainEvent);
-            }
-
+            Restore(collected);
             throw;
+        }
+    }
+
+    private static void Restore(List<EntityEvents> collected)
+    {
+        foreach (var (entity, events) in collected)
+        {
+            foreach (var domainEvent in events)
+                Invoke(entity, nameof(Entity<object>.AddDomainEvent), [typeof(IDomainEvent)], domainEvent);
         }
     }
 
