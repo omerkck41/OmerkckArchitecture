@@ -6,7 +6,8 @@ namespace Kck.Persistence.EntityFramework.Interceptors;
 
 /// <summary>
 /// EF Core interceptor that automatically sets audit fields on <see cref="IAuditable"/>
-/// and converts hard deletes to soft deletes for <see cref="ISoftDeletable"/> entities.
+/// and converts hard deletes to soft deletes for <see cref="ISoftDeletable"/> entities, except deletes made
+/// through a repository with <c>permanent: true</c>.
 /// </summary>
 public sealed class AuditInterceptor : SaveChangesInterceptor
 {
@@ -33,6 +34,27 @@ public sealed class AuditInterceptor : SaveChangesInterceptor
         return result;
     }
 
+    /// <inheritdoc />
+    public override ValueTask<int> SavedChangesAsync(
+        SaveChangesCompletedEventData eventData,
+        int result,
+        CancellationToken cancellationToken = default)
+    {
+        if (eventData.Context is not null)
+            PermanentDeletes.Clear(eventData.Context);
+
+        return new ValueTask<int>(result);
+    }
+
+    /// <inheritdoc />
+    public override int SavedChanges(SaveChangesCompletedEventData eventData, int result)
+    {
+        if (eventData.Context is not null)
+            PermanentDeletes.Clear(eventData.Context);
+
+        return result;
+    }
+
     private static void ApplyAuditFields(DbContext context)
     {
         var entries = context.ChangeTracker.Entries().ToList();
@@ -49,7 +71,8 @@ public sealed class AuditInterceptor : SaveChangesInterceptor
                     modifiedAuditable.ModifiedDate = DateTime.UtcNow;
                     break;
 
-                case EntityState.Deleted when entry.Entity is ISoftDeletable softDeletable:
+                case EntityState.Deleted when entry.Entity is ISoftDeletable softDeletable
+                                              && !PermanentDeletes.IsMarked(context, entry.Entity):
                     softDeletable.IsDeleted = true;
                     softDeletable.DeletedDate = DateTime.UtcNow;
                     entry.State = EntityState.Modified;

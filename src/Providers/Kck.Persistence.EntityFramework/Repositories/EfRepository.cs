@@ -4,6 +4,7 @@ using Kck.Core.Abstractions.Paging;
 using Kck.Persistence.Abstractions.Dynamic;
 using Kck.Persistence.Abstractions.Repositories;
 using Kck.Persistence.Abstractions.Security;
+using Kck.Persistence.EntityFramework.Interceptors;
 using Kck.Persistence.EntityFramework.Paging;
 using Kck.Persistence.EntityFramework.Security;
 using Microsoft.EntityFrameworkCore;
@@ -208,6 +209,7 @@ public class EfRepository<T, TId>(
         if (permanent)
         {
             EnsureAttached(entity);
+            PermanentDeletes.Mark(Context, entity);
             DbSet.Remove(entity);
             return Task.FromResult(entity);
         }
@@ -300,7 +302,10 @@ public class EfRepository<T, TId>(
         if (permanent)
         {
             foreach (var entity in entityList)
+            {
                 EnsureAttached(entity);
+                PermanentDeletes.Mark(Context, entity);
+            }
             DbSet.RemoveRange(entityList);
             return Task.CompletedTask;
         }

@@ -15,13 +15,14 @@ ve domain event dispatch icin EF Core interceptor'lari vardir.
 ```csharp
 services.AddKckPersistence(p => p
     .UseEntityFramework<AppDbContext>(o => o
-        .UseSqlServer(builder.Configuration.GetConnectionString("Default"))
-        .AddInterceptors(new AuditInterceptor()))   // CreatedDate / UpdatedDate / soft-delete alanlari
-    .AddAuditInterceptor());
+        .UseSqlServer(builder.Configuration.GetConnectionString("Default")))
+    .AddAuditInterceptor());   // CreatedDate / ModifiedDate / soft-delete alanlari
 ```
 
-`UseEntityFramework` DbContext'i, `IUnitOfWork`'u (scoped) ve `IEfRepositoryFactory`'yi kaydeder. Interceptor'lar
-DbContext'e `AddInterceptors(...)` ile baglanir.
+`UseEntityFramework` DbContext'i, `IUnitOfWork`'u (scoped) ve `IEfRepositoryFactory`'yi kaydeder. `AddAuditInterceptor()`
+ve `AddDomainEventDispatch<TDispatcher>()` ile kaydedilen interceptor'lar DbContext'e otomatik baglanir (4.1.0+);
+ayni tipte bir interceptor `configure` icinde `AddInterceptors(...)` ile zaten eklenmisse ikinci kez eklenmez
+(`OnConfiguring`'de eklenen gorulmez).
 
 ## Repository kullanimi
 
@@ -96,10 +97,15 @@ catch
 
 ## Interceptor'lar
 
-- `AuditInterceptor` — `IAuditable` entity'lerde `CreatedDate` / `UpdatedDate`; `ISoftDeletable` silmelerini
-  `IsDeleted = true` + `DeletedDate`'e cevirir.
+- `AuditInterceptor` — `IAuditable` entity'lerde `CreatedDate` / `ModifiedDate`; `ISoftDeletable` silmelerini
+  `IsDeleted = true` + `DeletedDate`'e cevirir. Repository'de `permanent: true` ile yapilan silmeler kalici kalir.
+  Soft-delete edilen satirlar yalniz repository sorgularindan ve soft-delete query filter'i uygulanan context'lerden
+  gizlenir; unique index'ler silinmis satirlari disarida birakmiyorsa yeniden ekleme reddedilebilir.
 - `DomainEventDispatchInterceptor` — `AddDomainEventDispatch<TDispatcher>()` ile kaydedilir; aggregate'lerin domain
-  event'lerini `SaveChanges` sonrasi dagitir.
+  event'lerini `SaveChanges` sonrasi (acik bir transaction'in commit'inden once) dagitir. Event'ler dagitimdan once
+  temizlenir: dispatcher hata verirse veri kaydedilmis olur ve event'ler yeniden denenmez. `SaveChangesAsync` tercih
+  edin; senkron yol dagitim boyunca bir thread-pool thread'ini bloklar. DbContext pooling / `AddDbContextFactory`
+  ile desteklenmez.
 
 ## Migrasyon
 

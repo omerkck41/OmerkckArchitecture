@@ -7,6 +7,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+Planned as 4.1.0: the fixes below change runtime behaviour for apps that call `AddAuditInterceptor()` or
+`AddDomainEventDispatch<TDispatcher>()`.
+
+### Fixed
+- `Kck.Persistence.EntityFramework`: `AddAuditInterceptor()` and `AddDomainEventDispatch<TDispatcher>()` only
+  registered their interceptors in DI and never attached them to the `DbContext`. `UseEntityFramework` now adds the
+  registered interceptors to the context options; an interceptor of the same type already added in `configure` is
+  not added a second time (one added in `OnConfiguring` is not detected).
+- `AuditInterceptor` turned repository deletes made with `permanent: true` (`DeleteAsync`, `DeleteRangeAsync`) on
+  `ISoftDeletable` entities into soft deletes, so the row stayed in the database. Such deletes are now permanent. This
+  also affected apps that added the interceptor by hand with `AddInterceptors(new AuditInterceptor())`.
+
+### Changed — behaviour (apps calling `AddAuditInterceptor()` / `AddDomainEventDispatch<TDispatcher>()`)
+- `DbContext.Remove` on an `ISoftDeletable` entity is now a soft delete (`IsDeleted = true`), as documented; before
+  this release the row was deleted. Soft-deleted rows are hidden only from repository queries and from contexts that
+  apply the soft-delete query filter; raw `DbSet` queries without it still return them, and unique indexes that do
+  not exclude deleted rows can reject a re-insert.
+- `CreatedDate` and `ModifiedDate` are now set by the interceptor on save; values you assign yourself are overwritten.
+- Domain events are dispatched after `SaveChanges`, before an explicit transaction commits, and are cleared before
+  dispatch: if the dispatcher throws, the data is already saved and the events are not retried. If you dispatched
+  events manually as a workaround, remove it — they would now be dispatched twice. Prefer `SaveChangesAsync`; the
+  synchronous path blocks a thread-pool thread while dispatching.
+
 ## [4.0.0] — 2026-10-27
 
 Upgrade guide: [docs/migrations/v3-to-v4.md](docs/migrations/v3-to-v4.md) · Decision: [ADR-0028](docs/adr/0028-v4-scope.md).
