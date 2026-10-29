@@ -91,7 +91,7 @@ var order = await repo.GetAsync(o => o.Id == id, new QueryOptions(IncludeDeleted
 sorgularinizda `IQueryable<T>.ToPaginateAsync(index, size)` kullanin:
 
 ```csharp
-IPaginate<Order> page = await repo.Query()   // soft-delete filtreli, tracking kapali
+IPaginate<Order> page = await repo.Query(QueryOptions.None)   // soft-delete filtreli, tracking kapali
     .OrderByDescending(o => o.CreatedDate)
     .ToPaginateAsync(index: 0, size: 20, cancellationToken: ct);
 ```

@@ -56,6 +56,7 @@ v1.0.0 — API kaldirilabilir (major bump)
 | KCK0001      | `ITokenService.GetClaimsFromToken(string)` + `JwtTokenService.GetClaimsFromToken(string)` — imzayi dogrulamaz | 0.x | **kaldirildi: v4.0** |
 | KCK0100      | `IReadRepository<T>`: `GetAsync`, `GetListAsync`, `GetListByDynamicAsync`, `AnyAsync`, `GetByIdAsync`, `CountAsync` (bool bayrakli eski imzalar) | 2.x | **kaldirildi: v4.0** (`QueryOptions` metotlari `IReadRepository` uyesi oldu) |
 | KCK0200      | `Kck.Pipeline.MediatR` paketi (`KckPipelineBuilder`, `AddKckPipeline`) — ADR-0021; MediatR 13+ ticari lisans | 2.x (2026-05-07) | **kaldirildi: v4.0** (paket artik yayinlanmiyor; 3.x nuget.org'da deprecated) |
+| KCK0101      | `IQuery<T>.Query(filter, orderBy, bool withDeleted, bool enableTracking)` + `EfRepository.Query(...)` ayni imza — yerine `Query(QueryOptions options, filter, orderBy)` | 4.x (2026-10-29) | v5.0 |
 | (yok)        | `Kck.EventBus.InMemory` eski kayit metotlari (`AddKckEventBusInMemory` x2) — DiagnosticId'siz isaretlenmis | 2.x | **kaldirildi: v4.0** |
 
 > Not (2026-10-26): KCK0200 numara araligina gore Caching kategorisinde ama Pipeline icin kullanildi; kimligi degistirmek
