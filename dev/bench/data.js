@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1793290091327,
+  "lastUpdate": 1793291473173,
   "repoUrl": "https://github.com/omerkck41/OmerkckArchitecture",
   "entries": {
     "Benchmark": [
@@ -9550,6 +9550,102 @@ window.BENCHMARK_DATA = {
             "value": 10.533309859037399,
             "unit": "ns",
             "range": "± 0.20189766588870697"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "106805727+omerkck41@users.noreply.github.com",
+            "name": "Ömer KÜÇÜK",
+            "username": "omerkck41"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "3c9a76453da5645c5f4d9be24b7b2779fa3941cb",
+          "message": "fix(persistence): do not cancel a database commit once it started (#218)\n\n## Summary\nTodo: \"commit isteğin token'ıyla çalışıyor\" (design decision) + missing\ntests (SaveChangesCanceled path, delete with\nsync `SaveChanges`).\n\nDecision (lead engineer, unattended session): **a started database\ncommit is not canceled by the caller's token.**\n- `EfUnitOfWork.CommitAsync` / `SaveChangesAsync(autoCommitTransaction:\ntrue)`: token checked before the commit\n(canceled → rollback, release, `OperationCanceledException`); commit\nruns with `CancellationToken.None`, so a request\nabort can no longer leave the outcome unknown. Dispatch after the commit\nstill observes the token (same as the\nnon-transactional `SaveChangesAsync` path); documented: data durable,\nevents back on their entities.\n- Failed commit + failing dispose: the commit error is rethrown (dispose\nerror no longer hides it).\n- `TransactionBehavior` rolls back with `CancellationToken.None` (a\ncanceled request still ends its transaction).\nAlternative considered: keep the token on the commit (status quo) —\nrejected, ambiguous outcomes on every abort.\n\n## Review\nAdversarial review: no critical/high. Applied: documentation of a token\ncanceled after the commit (ORTA) and provider\ntimeouts. Tracked: rollback error in `TransactionBehavior` hides the\nhandler error (pre-existing).\n\n## Test plan\n- [x] RED before the fix:\n`CommitAsync_CanceledWhileCommitting_StillCommits`,\n      `CommitAsync_CommitFailsAndDisposeFails_SurfacesTheCommitError`,\n`Handle_RequestCanceled_RollsBackWithoutTheCanceledToken` (reviewer\nconfirmed by reverting the source)\n- [x] Characterization tests (green before and after): canceled before\ncommit, canceled while writing\n(`SaveChangesCanceled`; mutation probe removing its restore turns it\nRED), sync `SaveChanges` deletes\n- [x] Persistence 182 + Mediator 28 green\n- [ ] CI + Sonar + CodeQL\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\n---------\n\nCo-authored-by: Claude Opus 5.5 <noreply@anthropic.com>",
+          "timestamp": "2026-10-29T19:24:17+03:00",
+          "tree_id": "9cd94ce6eef1a41a5371a697f94e64db97d70fce",
+          "url": "https://github.com/omerkck41/OmerkckArchitecture/commit/3c9a76453da5645c5f4d9be24b7b2779fa3941cb"
+        },
+        "date": 1793291471953,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Success_Factory",
+            "value": 3.545934211300767,
+            "unit": "ns",
+            "range": "± 0.1423915646080515"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Failure_Factory",
+            "value": 4.421229725969689,
+            "unit": "ns",
+            "range": "± 0.10384397664563648"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Success",
+            "value": 0.48590336138239276,
+            "unit": "ns",
+            "range": "± 0.03119688345676395"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Failure",
+            "value": 0.22111388615199498,
+            "unit": "ns",
+            "range": "± 0.029420587381624945"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Serialize_Reflection",
+            "value": 236.82557395100594,
+            "unit": "ns",
+            "range": "± 4.696461385964765"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Deserialize_Reflection",
+            "value": 411.46525284222196,
+            "unit": "ns",
+            "range": "± 5.39847116467041"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 0)",
+            "value": 5.61005923230397,
+            "unit": "ns",
+            "range": "± 0.1680604759028893"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 5)",
+            "value": 5.39842678893071,
+            "unit": "ns",
+            "range": "± 0.10636301996883332"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 0)",
+            "value": 5.299663214999087,
+            "unit": "ns",
+            "range": "± 0.23200061806348538"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 5)",
+            "value": 5.361873549222946,
+            "unit": "ns",
+            "range": "± 0.12750809102256785"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 0)",
+            "value": 5.278234954675039,
+            "unit": "ns",
+            "range": "± 0.11831916283277855"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 5)",
+            "value": 5.413043191035588,
+            "unit": "ns",
+            "range": "± 0.13913732269484438"
           }
         ]
       }
