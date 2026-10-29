@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Native AOT: `Kck.Security.Jwt`, `Kck.Localization`, `Kck.Localization.Json`, `Kck.Resilience.Polly` and
+  `Kck.Logging.Serilog` are marked `IsAotCompatible` too; the CI native AOT smoke now issues and validates a JWT, reads a
+  JSON resource, runs a retry pipeline and writes a Serilog file.
+
 ### Fixed
 - `Kck.AspNetCore` — `ApiResponseHelper.CreateSuccess` returned `Success = true` with status 404 for a GET with
   `null` data. That case is now the same 404 failure as `CreateFail` (`Success = false`, `TraceId` set; the message

@@ -1,5 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
+    <!-- Native AOT: verified by samples/Kck.AotSmoke (CI publishes and runs it). -->
+    <IsAotCompatible>true</IsAotCompatible>
     <Title>Kck Localization (JSON)</Title>
     <Description>JSON file-backed ILocalizationService resource provider. Loads translations from JSON files per culture (e.g. en.json, tr.json) with optional hot-reload support. Registered via AddKckLocalizationJson().</Description>
     <PackageTags>dotnet;kck;localization;i18n;json;resource-files</PackageTags>
