@@ -1,1 +1,2 @@
 #nullable enable
+Kck.Persistence.Abstractions.Repositories.IQuery<T>.Query(Kck.Persistence.Abstractions.Repositories.QueryOptions options, System.Linq.Expressions.Expression<System.Func<T, bool>!>? filter = null, System.Func<System.Linq.IQueryable<T>!, System.Linq.IOrderedQueryable<T>!>? orderBy = null) -> System.Linq.IQueryable<T>!
