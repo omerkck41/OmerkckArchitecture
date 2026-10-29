@@ -105,6 +105,13 @@ Commit `try` disindadir: commit'ten sonra dagitim hata verirse veri zaten kalici
   `IsDeleted = true` + `DeletedDate`'e cevirir. Repository'de `permanent: true` ile yapilan silmeler kalici kalir.
   Soft-delete edilen satirlar yalniz repository sorgularindan ve soft-delete query filter'i uygulanan context'lerden
   gizlenir; unique index'ler silinmis satirlari disarida birakmiyorsa yeniden ekleme reddedilebilir.
+  Soft-delete edilen bir kaydin izlenen (yuklu) bagimli kayitlari (4.2.4+): soft-delete olanlar da soft-delete
+  edilir; soft-delete olmayanlar, owned degerler ve many-to-many baglantilari korunur (navigasyon olmasa da);
+  istege bagli iliskide NULL'a cekilen yabanci anahtar eski degerine geri yazilir. Ayni `SaveChanges`'te acikca
+  `Remove` edilen soft-delete olmayan bir bagimli kayit da korunur, acikca NULL'a cekilen yabanci anahtar ya da
+  koleksiyondan cikarilan many-to-many baglantisi da geri alinir — bunlari ayri bir `SaveChanges` ile yapin.
+  Kapsam disi: `ChangeTracker.CascadeDeleteTiming = OnSaveChanges` (cascade interceptor'dan sonra calisir, soft-delete
+  olan bagimlilar soft-delete edilmez).
 - `DomainEventDispatchInterceptor` — `AddDomainEventDispatch<TDispatcher>()` ile kaydedilir; aggregate'lerin domain
   event'lerini `SaveChanges` sonrasi dagitir. 4.2.0+ davranisi:
   - EF'in `BeginTransaction`'i ile acilan bir transaction icinde kaydedilen event'ler o transaction'a baglanir;

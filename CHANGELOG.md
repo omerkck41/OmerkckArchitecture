@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- `Kck.Persistence.EntityFramework` — `AuditInterceptor`: `DbContext.Remove` on a soft-deletable entity kept the entity
+  (soft delete) but EF's cascade still hit its tracked dependents: required ones that are not soft-deletable were
+  hard-deleted (with or without a navigation), owned values (table splitting) were set to `NULL`, many-to-many links
+  were deleted, and optional dependents had their foreign key set to `NULL`. These dependents now stay linked to the
+  kept row; soft-deletable dependents are soft-deleted as before. Repository deletes with `permanent: true` and
+  entities that are not soft-deletable still cascade.
+  - In the same `SaveChanges` as its soft-deleted owner, a non-soft-deletable dependent removed explicitly is also
+    kept, and a foreign key set to `null` or a many-to-many link removed explicitly is restored; make those changes in
+    a separate `SaveChanges`.
+  - Not covered: `ChangeTracker.CascadeDeleteTiming = OnSaveChanges`.
+
 ## [4.2.3] — 2026-10-29
 
 ### Fixed
