@@ -21,6 +21,13 @@
       "sha256": ["9e784e4e25789e2b2a0a4fc307b473d4b27770fd970cd5f591a9bb4773eb04c8"]
     },
     {
+      "id": "dotnet-stryker",
+      "kind": "file",
+      "license": "Apache-2.0",
+      "status": "allowed",
+      "sha256": ["59d8f0ba87ad9a2f1a431123c8d16646e5b89ba53653e818f16d136d77263c99"]
+    },
+    {
       "id": "Otp.NET",
       "kind": "file",
       "license": "MIT",
