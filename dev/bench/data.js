@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1793314607236,
+  "lastUpdate": 1793315179359,
   "repoUrl": "https://github.com/omerkck41/OmerkckArchitecture",
   "entries": {
     "Benchmark": [
@@ -11566,6 +11566,102 @@ window.BENCHMARK_DATA = {
             "value": 12.85519706777164,
             "unit": "ns",
             "range": "± 0.15376425019375373"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "106805727+omerkck41@users.noreply.github.com",
+            "name": "Ömer KÜÇÜK",
+            "username": "omerkck41"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "c3fa49efb81b8faf9bcad8c26130328b07cdd6a7",
+          "message": "ci(release): harden the unlist paths of nuget-publish (#240)\n\n## Summary\nTodo (2026-10-28 adversarial, low): nuget-publish unlist paths F4, F6,\nQ1, Q2.\n\n- **F4** — a failed `dotnet nuget delete` printed nothing about why, and\n403 was retried 3×. Each failed attempt now logs `exit N: <output tail>`\nwith the API key masked (masked before truncation); 401/403/404 stop the\nretries (`is_permanent`). Same helpers in both inline steps (the\nprivileged jobs run no repository code), both copies tested.\n- **F6** — the manual unlist validated its input inside the approved\njob. New job `resolve-unlist` (no environment, `contents: read` +\n`actions: read`) checks the tag and picks the run first, so a bad input\nfails before anyone is asked to approve; `unlist` needs it and runs\nunder `concurrency: nuget-unlist`.\n- **Q2** — the run was picked by `conclusion == success`, so a run whose\npush succeeded but whose \"Unlist older versions\" step failed could never\nbe unlisted. It is now picked by its \"Push to NuGet\" step succeeding.\n- **Q1** — `nupkgs` retention 30 → 90 days (maximum); older versions:\nunlist on nuget.org.\n\n## Test plan\n- [x] 3 new tests RED first (helpers absent), green after; script tests\npass; YAML parses; both Python steps parse (`ast`); resolve step passes\n`bash -n`\n- [ ] Adversarial review (running)\n- [ ] CI (+ workflow-lint once #236 is in)\n- Not run live: the unlist mode needs a real release; the publish path\nis unchanged except logging\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\n---------\n\nCo-authored-by: Claude Opus 5.5 <noreply@anthropic.com>",
+          "timestamp": "2026-10-30T02:00:17+03:00",
+          "tree_id": "a12dfc64d3de3020fa65847bb1df4340d6aca7e6",
+          "url": "https://github.com/omerkck41/OmerkckArchitecture/commit/c3fa49efb81b8faf9bcad8c26130328b07cdd6a7"
+        },
+        "date": 1793315177994,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Success_Factory",
+            "value": 3.643200386315584,
+            "unit": "ns",
+            "range": "± 0.05996227994259052"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Failure_Factory",
+            "value": 4.858288096693846,
+            "unit": "ns",
+            "range": "± 0.07988503524672018"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Success",
+            "value": 0.4831396107162748,
+            "unit": "ns",
+            "range": "± 0.01653863559225765"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Failure",
+            "value": 0.45168302798022825,
+            "unit": "ns",
+            "range": "± 0.013590424894327048"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Serialize_Reflection",
+            "value": 245.15760952631632,
+            "unit": "ns",
+            "range": "± 3.9252556953472526"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Deserialize_Reflection",
+            "value": 439.13268726212635,
+            "unit": "ns",
+            "range": "± 4.709419505362766"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 0)",
+            "value": 5.826309355241912,
+            "unit": "ns",
+            "range": "± 0.14003600920649834"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 5)",
+            "value": 5.677628504112363,
+            "unit": "ns",
+            "range": "± 0.20354174974194703"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 0)",
+            "value": 5.650277436260255,
+            "unit": "ns",
+            "range": "± 0.23682377654768147"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 5)",
+            "value": 5.569816462695599,
+            "unit": "ns",
+            "range": "± 0.10015624663012092"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 0)",
+            "value": 5.584923392368688,
+            "unit": "ns",
+            "range": "± 0.16344131479148943"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 5)",
+            "value": 5.669555136561394,
+            "unit": "ns",
+            "range": "± 0.17921170384368243"
           }
         ]
       }
