@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1793301817008,
+  "lastUpdate": 1793302251942,
   "repoUrl": "https://github.com/omerkck41/OmerkckArchitecture",
   "entries": {
     "Benchmark": [
@@ -10414,6 +10414,102 @@ window.BENCHMARK_DATA = {
             "value": 8.297942835305419,
             "unit": "ns",
             "range": "± 0.038552884906290406"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "106805727+omerkck41@users.noreply.github.com",
+            "name": "Ömer KÜÇÜK",
+            "username": "omerkck41"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "4f81c4a5dcc55670e704c7607e6cf87b1252914e",
+          "message": "ci(license): check the local .NET tools in the license gate (#228)\n\n## Summary\nTodo (adversarial-review M1, 2026-10-26): the license gate read only\n`packages.lock.json`, so the local .NET tools of\n`.config/dotnet-tools.json` (MinVer, ReportGenerator, dotnet-ef,\nStryker, CycloneDX) were never checked — a tool moving to a commercial\nlicence would pass.\n\n- `license_gate.py` reads every `dotnet-tools.json` manifest dotnet\nwould use (root and `.config/`, any directory; hidden dirs other than\n`.config`, `bin`, `obj` skipped) and checks each tool's nuspec with the\nexisting rules. Fail-closed: a tool that was not restored, a\nmissing/non-string version or a malformed manifest fails the job.\n- `license-audit.yml`: `dotnet tool restore` before the gate.\n- The gate immediately found `dotnet-stryker 4.14.2` declaring a\n**file** licence: reviewed (standard Apache-2.0 text, sections 1–9, no\nadditional terms) and pinned by SHA-256 in the policy.\n- `docs/licensing.md` updated; accepted risk: assemblies bundled inside\na tool are covered by the tool's own licence only.\n\n## Review\nAdversarial review: two ORTA — root/nested manifests passed silently\n(fixed in 279b7e1, regression test), global tools installed unpinned by\n`docs.yml` (docfx) and `sonar.yml` (sonarscanner) are outside the gate\n(tracked as todo; documented). DÜŞÜK type errors → now gate errors.\n\n## Test plan\n- [x] 5 new tests RED first, script tests 46 green\n- [x] Real repo: 231 packages incl. 5 tools, 0 violations\n- [ ] CI (license-audit runs the new restore step)\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\n---------\n\nCo-authored-by: Claude Opus 5.5 <noreply@anthropic.com>",
+          "timestamp": "2026-10-29T19:23:23Z",
+          "tree_id": "c168189c7745f0fce944d246ccd47c8f2a36824a",
+          "url": "https://github.com/omerkck41/OmerkckArchitecture/commit/4f81c4a5dcc55670e704c7607e6cf87b1252914e"
+        },
+        "date": 1793302250696,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Success_Factory",
+            "value": 5.303557686507702,
+            "unit": "ns",
+            "range": "± 0.1608754491178675"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Failure_Factory",
+            "value": 7.222229020794233,
+            "unit": "ns",
+            "range": "± 0.1445610792933425"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Success",
+            "value": 1.003131582144093,
+            "unit": "ns",
+            "range": "± 0.13879436532628195"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Failure",
+            "value": 0.4875638426209872,
+            "unit": "ns",
+            "range": "± 0.011557122606648937"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Serialize_Reflection",
+            "value": 316.34409628595625,
+            "unit": "ns",
+            "range": "± 1.1608431726107158"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Deserialize_Reflection",
+            "value": 591.4585542678833,
+            "unit": "ns",
+            "range": "± 2.2297487667426905"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 0)",
+            "value": 8.068445116778214,
+            "unit": "ns",
+            "range": "± 0.10219986942627887"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 5)",
+            "value": 7.959840798377991,
+            "unit": "ns",
+            "range": "± 0.10326547140325076"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 0)",
+            "value": 8.227277702093124,
+            "unit": "ns",
+            "range": "± 0.13576579307020137"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 5)",
+            "value": 8.81009107430776,
+            "unit": "ns",
+            "range": "± 0.09737071745188546"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 0)",
+            "value": 8.347441603740057,
+            "unit": "ns",
+            "range": "± 0.13837326078974746"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 5)",
+            "value": 9.401152325528008,
+            "unit": "ns",
+            "range": "± 0.06835016547412712"
           }
         ]
       }
