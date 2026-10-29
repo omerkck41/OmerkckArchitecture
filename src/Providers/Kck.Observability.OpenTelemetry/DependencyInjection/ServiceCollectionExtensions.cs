@@ -5,11 +5,6 @@ namespace Microsoft.Extensions.DependencyInjection;
 
 public static class KckObservabilityServiceCollectionExtensions
 {
-    private static readonly System.Text.Json.JsonSerializerOptions JsonOptions = new()
-    {
-        PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase
-    };
-
     public static IServiceCollection AddKckObservability(
         this IServiceCollection services,
         Action<KckObservabilityBuilder> configure)
@@ -65,20 +60,15 @@ public static class KckObservabilityServiceCollectionExtensions
     {
         context.Response.ContentType = "application/json";
 
-        var result = new
-        {
-            status = report.Status.ToString(),
-            checks = report.Entries.Select(e => new
-            {
-                name = e.Key,
-                status = e.Value.Status.ToString(),
-                description = e.Value.Description,
-                duration = e.Value.Duration.TotalMilliseconds
-            }),
-            totalDuration = report.TotalDuration.TotalMilliseconds
-        };
+        var result = new Kck.Observability.OpenTelemetry.HealthReportBody(
+            report.Status.ToString(),
+            [.. report.Entries.Select(e => new Kck.Observability.OpenTelemetry.HealthEntryBody(
+                e.Key, e.Value.Status.ToString(), e.Value.Description, e.Value.Duration.TotalMilliseconds))],
+            report.TotalDuration.TotalMilliseconds);
 
+        // Source-generated metadata: no reflection, so the endpoint works under Native AOT.
         await System.Text.Json.JsonSerializer.SerializeAsync(
-            context.Response.Body, result, JsonOptions).ConfigureAwait(false);
+            context.Response.Body, result,
+            Kck.Observability.OpenTelemetry.HealthJsonContext.Default.HealthReportBody).ConfigureAwait(false);
     }
 }

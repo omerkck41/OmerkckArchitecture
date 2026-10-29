@@ -1,8 +1,11 @@
+using System.Net;
 using System.Security.Cryptography;
 using System.Text.Json.Serialization;
 using Kck.Caching.Abstractions;
 using Kck.EventBus.Abstractions;
 using Kck.FeatureFlags.Abstractions;
+using Kck.Http.Abstractions;
+using Kck.Http.Resilience;
 using Kck.Localization.Abstractions;
 using Kck.Pipeline.Abstractions;
 using Kck.Pipeline.Mediator;
@@ -12,6 +15,11 @@ using Kck.Security.Abstractions.Hashing;
 using Kck.Security.Abstractions.Mfa;
 using Kck.Security.Abstractions.Token;
 using Mediator;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http.Features;
+using Microsoft.AspNetCore.Hosting.Server;
+using Microsoft.AspNetCore.Hosting.Server.Features;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Polly;
@@ -43,9 +51,11 @@ var services = new ServiceCollection()
     .AddKckLocalization(o => o.ResourcePath = workDir.FullName)
     .AddKckLocalizationJson()
     .AddKckResilience("smoke", b => b.AddRetry(new RetryStrategyOptions { MaxRetryAttempts = 1, Delay = TimeSpan.Zero }))
+    .AddKckHttpResilience(o => o.SerializerOptions = SmokeJsonContext.Default.Options)
     .AddKckEventBus(b => b.UseInMemory())
     .AddSingleton<PingHandler>()
     .AddSingleton<IEventHandler<Ping>>(sp => sp.GetRequiredService<PingHandler>());
+services.AddHttpClient<IApiClient, ResilientApiClient>().ConfigurePrimaryHttpMessageHandler(() => new EchoHandler());
 new KckMediatorPipelineBuilder(services)
     .UseCachingBehavior(o => o.SerializerOptions = SmokeJsonContext.Default.Options);
 
@@ -105,6 +115,29 @@ await pipeline.ExecuteAsync(_ =>
 });
 Check(attempts == 2, "Resilience.Polly");
 
+var api = provider.GetRequiredService<IApiClient>();
+var echoed = await api.PostAsync<Count>("http://smoke.test/echo", new Count(5));
+Check(echoed.IsSuccess && echoed.Data == new Count(5), "Http.Resilience (source-generated JSON)");
+
+// Observability: OpenTelemetry tracing/metrics and the health endpoints on a real Kestrel listener.
+var web = WebApplication.CreateSlimBuilder();
+web.WebHost.UseUrls("http://127.0.0.1:0");
+web.Services.AddKckObservability(o => o
+    .UseOpenTelemetry(t => t.EnableTracing().EnableMetrics())
+    .UseHealthChecks(h => h.AddLivenessCheck("smoke", _ => Task.FromResult(
+        new Kck.Observability.Abstractions.HealthCheckResult(Kck.Observability.Abstractions.HealthStatus.Healthy)))));
+await using (var app = web.Build())
+{
+    app.MapKckHealthChecks();
+    await app.StartAsync();
+    var address = app.Services.GetRequiredService<IServer>().Features.GetRequiredFeature<IServerAddressesFeature>().Addresses.First();
+    using var http = new HttpClient();
+    var health = await http.GetStringAsync(new Uri(new Uri(address), "/health/live"));
+    Check(health.Contains("\"status\":\"Healthy\"", StringComparison.Ordinal) && health.Contains("\"name\":\"smoke\"", StringComparison.Ordinal),
+        "Observability.OpenTelemetry (health endpoint)");
+    await app.StopAsync();
+}
+
 workDir.Delete(recursive: true);
 return failures.Count == 0 ? 0 : 1;
 
@@ -129,6 +162,15 @@ internal sealed class PingHandler : IEventHandler<Ping>
         Received++;
         return Task.CompletedTask;
     }
+}
+
+internal sealed class EchoHandler : HttpMessageHandler
+{
+    protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken) =>
+        new(HttpStatusCode.OK)
+        {
+            Content = new StringContent(await request.Content!.ReadAsStringAsync(cancellationToken), System.Text.Encoding.UTF8, "application/json"),
+        };
 }
 
 internal static partial class SmokeLog
