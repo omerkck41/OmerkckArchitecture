@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [4.3.0] — 2026-10-29
+
 ### Added
 - Native AOT: `Kck.Pipeline.Mediator`, `Kck.Caching.InMemory`, `Kck.EventBus.InMemory`, `Kck.FeatureFlags.InMemory`,
   `Kck.Security.Argon2` and `Kck.Security.Totp` are marked `IsAotCompatible` (trim/AOT analyzers on, 0 warnings).
@@ -16,6 +18,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   without it the behavior throws `InvalidOperationException` on the first cacheable request). Default behaviour
   (reflection, `JsonSerializerOptions.Default` settings) is unchanged.
 
+### Changed — behaviour
+- Repository soft delete (`DeleteAsync` / `DeleteRangeAsync` without `permanent`):
+  - optional soft-deletable dependents (`SetNull` / `ClientSetNull`) are no longer soft-deleted; they stay linked to
+    the soft-deleted owner. Configure `DeleteBehavior.Cascade` on relationships whose dependents should go with it;
+  - soft-deletable dependents of dependents are soft-deleted too (before: one level only);
+  - soft-deleting an entity that was added but never saved detaches it instead of failing on `SaveChanges`.
+- `AuditInterceptor`: soft-deletable rows below a kept, non-soft-deletable dependent (e.g. notes of an order line
+  when the order is soft-deleted) are no longer soft-deleted; the line and everything below it stay. A dependent kept
+  only to restore its foreign key is no longer stamped with `ModifiedDate`.
+- `RevertSoftDeleteAsync` restores only the entity itself (documented; unchanged).
+
 ### Deprecated
 - `Kck.Persistence.Abstractions` — `IQuery<T>.Query(filter, orderBy, withDeleted, enableTracking)` (and the same
   `EfRepository` method) is obsolete (`KCK0101`), removed in v5.0. Use the new `IQuery<T>.Query(QueryOptions options,
@@ -24,15 +37,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   has a default implementation, so existing `IQuery<T>` implementations keep compiling.
   - `repo.Query(default)` is now ambiguous (CS0121); write `repo.Query(QueryOptions.None)`.
   - Mocks (NSubstitute / Moq) set up on the old overload are not hit by calls to the new one; move the setups.
-
-### Fixed — documentation
-- README quick starts that did not compile: root README (`AddKckWebApi`, `AddKckExceptions`, `UseKckExceptionHandler`
-  do not exist → `AddKckWebApiDefaults` / `UseKckWebApiDefaults`, `AddKckExceptionHandling` /
-  `UseKckExceptionHandling`), `Kck.Bundle.MinimalApi` (`UseKckMinimalApiDefaults` does not exist),
-  `Kck.Persistence.EntityFramework` (`AddKckEntityFramework` and `IRepository<T>` do not exist; `SaveChangesAsync(ct)`
-  bound the token to `autoCommitTransaction`), `Kck.Pipeline.Mediator` (`AddKckMediator` options and the performance
-  behaviour do not exist), `Kck.Caching.InMemory` (undefined `_db`). These README blocks and those of the three bundles
-  and `Kck.Persistence.Abstractions` are now compiled in CI (`samples/Kck.ReadmeSnippets`).
 
 ### Fixed
 - `Kck.Persistence.Abstractions` — the parameterized constructors of `Filter` and `Sort` could not be called
@@ -59,17 +63,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `Kck.Pipeline.Mediator` — `TransactionBehavior` rolled back with the request's token; for a canceled request the
   rollback was canceled too and the transaction was only ended by its disposal. It now rolls back with
   `CancellationToken.None`.
-
-### Changed — behaviour
-- Repository soft delete (`DeleteAsync` / `DeleteRangeAsync` without `permanent`):
-  - optional soft-deletable dependents (`SetNull` / `ClientSetNull`) are no longer soft-deleted; they stay linked to
-    the soft-deleted owner. Configure `DeleteBehavior.Cascade` on relationships whose dependents should go with it;
-  - soft-deletable dependents of dependents are soft-deleted too (before: one level only);
-  - soft-deleting an entity that was added but never saved detaches it instead of failing on `SaveChanges`.
-- `AuditInterceptor`: soft-deletable rows below a kept, non-soft-deletable dependent (e.g. notes of an order line
-  when the order is soft-deleted) are no longer soft-deleted; the line and everything below it stay. A dependent kept
-  only to restore its foreign key is no longer stamped with `ModifiedDate`.
-- `RevertSoftDeleteAsync` restores only the entity itself (documented; unchanged).
+- Documentation — README quick starts that did not compile: root README (`AddKckWebApi`, `AddKckExceptions`, `UseKckExceptionHandler`
+  do not exist → `AddKckWebApiDefaults` / `UseKckWebApiDefaults`, `AddKckExceptionHandling` /
+  `UseKckExceptionHandling`), `Kck.Bundle.MinimalApi` (`UseKckMinimalApiDefaults` does not exist),
+  `Kck.Persistence.EntityFramework` (`AddKckEntityFramework` and `IRepository<T>` do not exist; `SaveChangesAsync(ct)`
+  bound the token to `autoCommitTransaction`), `Kck.Pipeline.Mediator` (`AddKckMediator` options and the performance
+  behaviour do not exist), `Kck.Caching.InMemory` (undefined `_db`). These README blocks and those of the three bundles
+  and `Kck.Persistence.Abstractions` are now compiled in CI (`samples/Kck.ReadmeSnippets`).
 
 ## [4.2.5] — 2026-10-29
 
