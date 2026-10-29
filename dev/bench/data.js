@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1793315179359,
+  "lastUpdate": 1793315834862,
   "repoUrl": "https://github.com/omerkck41/OmerkckArchitecture",
   "entries": {
     "Benchmark": [
@@ -11662,6 +11662,102 @@ window.BENCHMARK_DATA = {
             "value": 5.669555136561394,
             "unit": "ns",
             "range": "± 0.17921170384368243"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "106805727+omerkck41@users.noreply.github.com",
+            "name": "Ömer KÜÇÜK",
+            "username": "omerkck41"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "a566008503623eb2c2a1465879e5fd8fffc21680",
+          "message": "test(persistence): domain events on failed commit and sync transactions (#241)\n\n## Summary\nAdds four tests to `DomainEventDispatchSemanticsTests` for the domain\nevent dispatch paths that had none:\n\n- `IUnitOfWork.CommitAsync` fails: the parked events are dropped and a\nlater committed transaction dispatches only its own events\n(`TransactionFailedAsync`).\n- Synchronous `Database.BeginTransaction`: commit (events wait for the\nnext `SaveChanges`), rollback and failed commit (`TransactionCommitted`\n/ `TransactionRolledBack` / `TransactionFailed`).\n\nTest-only; no production code changes.\n\n## Verification\n- Mutation check: making the failed/rolled-back callbacks hand their\nevents to the next dispatch fails 3 of the new tests (RED), restored\nsource passes.\n- `Kck.Persistence.EntityFramework.Tests`: 300 passed locally; the 3\nDocker (Npgsql) integration tests run in CI.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-authored-by: Claude Opus 5.5 <noreply@anthropic.com>",
+          "timestamp": "2026-10-30T02:10:06+03:00",
+          "tree_id": "42c946b029c37d585329df9f3a09c9278fc112ab",
+          "url": "https://github.com/omerkck41/OmerkckArchitecture/commit/a566008503623eb2c2a1465879e5fd8fffc21680"
+        },
+        "date": 1793315833751,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Success_Factory",
+            "value": 7.08051064213117,
+            "unit": "ns",
+            "range": "± 0.08276264539796506"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Failure_Factory",
+            "value": 9.950425870278302,
+            "unit": "ns",
+            "range": "± 0.25895855162972964"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Success",
+            "value": 1.6378044297297796,
+            "unit": "ns",
+            "range": "± 0.0055463529689779075"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Failure",
+            "value": 0.5862211013833681,
+            "unit": "ns",
+            "range": "± 0.0030278732533942534"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Serialize_Reflection",
+            "value": 484.2361505508423,
+            "unit": "ns",
+            "range": "± 3.8593175996967073"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Deserialize_Reflection",
+            "value": 802.5327475865682,
+            "unit": "ns",
+            "range": "± 8.18183713602596"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 0)",
+            "value": 10.848008509311411,
+            "unit": "ns",
+            "range": "± 0.3008870836588433"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 5)",
+            "value": 10.415690431371331,
+            "unit": "ns",
+            "range": "± 0.25914289419306796"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 0)",
+            "value": 11.460062674645867,
+            "unit": "ns",
+            "range": "± 0.41175225313179253"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 5)",
+            "value": 10.696311921874683,
+            "unit": "ns",
+            "range": "± 0.22126225394884974"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 0)",
+            "value": 11.047050360838572,
+            "unit": "ns",
+            "range": "± 0.15964148765927888"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 5)",
+            "value": 11.168163707623115,
+            "unit": "ns",
+            "range": "± 0.1791987438549646"
           }
         ]
       }
