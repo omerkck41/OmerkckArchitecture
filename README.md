@@ -107,7 +107,7 @@ Kck, ABP'den **daha hafif**, FastEndpoints'ten **daha kapsamli**, Aspire'a **uyu
 | **DI Konvansiyonu** | `Microsoft.Extensions.*` native | ABP DI extension'lari | `Microsoft.Extensions.*` | `Microsoft.Extensions.*` |
 | **Source-gen / Proxy** | Yok (saf C#) | Cok (UoW interceptor, dynamic proxy) | Yok | Yok |
 | **TFM Destegi** | net10.0 | net8 + net9 | net8 + net9 + net10 | net8 + net9 + net10 |
-| **AOT-uyumu** | Kismen (abstraction'lar) | Hayir | Evet | Evet |
+| **AOT-uyumu** | Kismen (abstraction'lar + Mediator, InMemory cache/event bus/feature flags, Argon2, TOTP; CI'da native AOT smoke) | Hayir | Evet | Evet |
 | **Provider Sayisi** | 30+ resmi | 15+ resmi (Pro) | N/A | N/A (orchestration) |
 | **Battery-included** | Opt-in modullerle | Tum-in-bir | Sadece HTTP | Yok |
 | **Source-Link + Symbols** | Var | Var | Var | Var |
