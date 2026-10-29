@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1793313027325,
+  "lastUpdate": 1793314085908,
   "repoUrl": "https://github.com/omerkck41/OmerkckArchitecture",
   "entries": {
     "Benchmark": [
@@ -11374,6 +11374,102 @@ window.BENCHMARK_DATA = {
             "value": 10.247833278562341,
             "unit": "ns",
             "range": "± 0.09414050747449551"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "106805727+omerkck41@users.noreply.github.com",
+            "name": "Ömer KÜÇÜK",
+            "username": "omerkck41"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "2c24e892ec935ecf33ea40cf216b3e90e0f64866",
+          "message": "feat(persistence): DbContext pooling with UseEntityFrameworkPool (#239)\n\n## Summary\nTodo: \"AddDomainEventDispatch + DbContext pooling / AddDbContextFactory:\ninterceptor scoped; singleton options altında desteklenmez\".\n\n- New `KckPersistenceBuilder.UseEntityFrameworkPool<TContext>(configure,\npoolSize = 1024)` → `AddDbContextPool`, same registrations as\n`UseEntityFramework` (`DbContext`, `IUnitOfWork`,\n`IEfRepositoryFactory`).\n- Pooled options are built once from the root provider: the audit\ninterceptor (singleton) is added as before; for domain events a\nsingleton `DomainEventDispatchInterceptor` (new **internal** constructor\ntaking `IServiceScopeFactory`) resolves `IDomainEventDispatcher` from a\nnew scope per dispatch. Internal so the container never sees two\nconstructors.\n- Scoped path unchanged (handler can still save through the same\nDbContext there).\n- Docs: pooling section; caveat — events of a transaction committed\ndirectly (not via `IUnitOfWork`) can be dispatched by the pooled\ninstance's next `SaveChanges`, i.e. in another request.\n- Alternative rejected: one singleton interceptor for both paths\nresolving the dispatcher from the context's application provider — needs\ntelling root from scope apart, container-specific.\n\n## Test plan\n- [x] `PooledContextTests` (ValidateScopes + ValidateOnBuild): pooling\nreuses the context, SaveChanges dispatch through a scoped dispatcher,\nUoW dispatch after commit, dispatcher failure restores events, audit\ninterceptor wired — RED (compile) first; persistence 295/295\n- [ ] Adversarial review (running)\n- [ ] CI\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\n---------\n\nCo-authored-by: Claude Opus 5.5 <noreply@anthropic.com>",
+          "timestamp": "2026-10-30T01:40:30+03:00",
+          "tree_id": "4de57a47bd6543a3ebe38219221c6a8ad9cf85c7",
+          "url": "https://github.com/omerkck41/OmerkckArchitecture/commit/2c24e892ec935ecf33ea40cf216b3e90e0f64866"
+        },
+        "date": 1793314084954,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Success_Factory",
+            "value": 3.923256910250833,
+            "unit": "ns",
+            "range": "± 0.24097677733532255"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Failure_Factory",
+            "value": 5.106529975620409,
+            "unit": "ns",
+            "range": "± 0.18969500423795194"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Success",
+            "value": 0.5237258285857164,
+            "unit": "ns",
+            "range": "± 0.033368455720910066"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Failure",
+            "value": 0.22365302809824547,
+            "unit": "ns",
+            "range": "± 0.01835266588680926"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Serialize_Reflection",
+            "value": 252.48571707652167,
+            "unit": "ns",
+            "range": "± 6.6835540721188975"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Deserialize_Reflection",
+            "value": 435.84419135252637,
+            "unit": "ns",
+            "range": "± 11.321799981723844"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 0)",
+            "value": 6.007263510938613,
+            "unit": "ns",
+            "range": "± 0.22105977013787148"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 5)",
+            "value": 6.056082653916544,
+            "unit": "ns",
+            "range": "± 0.2576313095705568"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 0)",
+            "value": 6.110170478799513,
+            "unit": "ns",
+            "range": "± 0.23753629195938158"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 5)",
+            "value": 5.894157054000779,
+            "unit": "ns",
+            "range": "± 0.2772684601883736"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 0)",
+            "value": 5.601647759859379,
+            "unit": "ns",
+            "range": "± 0.09997615555265932"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 5)",
+            "value": 6.298058067448437,
+            "unit": "ns",
+            "range": "± 0.16579364741705668"
           }
         ]
       }
