@@ -15,11 +15,6 @@ using Kck.Security.Abstractions.Hashing;
 using Kck.Security.Abstractions.Mfa;
 using Kck.Security.Abstractions.Token;
 using Mediator;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http.Features;
-using Microsoft.AspNetCore.Hosting.Server;
-using Microsoft.AspNetCore.Hosting.Server.Features;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Polly;
@@ -118,25 +113,6 @@ Check(attempts == 2, "Resilience.Polly");
 var api = provider.GetRequiredService<IApiClient>();
 var echoed = await api.PostAsync<Count>("http://smoke.test/echo", new Count(5));
 Check(echoed.IsSuccess && echoed.Data == new Count(5), "Http.Resilience (source-generated JSON)");
-
-// Observability: OpenTelemetry tracing/metrics and the health endpoints on a real Kestrel listener.
-var web = WebApplication.CreateSlimBuilder();
-web.WebHost.UseUrls("http://127.0.0.1:0");
-web.Services.AddKckObservability(o => o
-    .UseOpenTelemetry(t => t.EnableTracing().EnableMetrics())
-    .UseHealthChecks(h => h.AddLivenessCheck("smoke", _ => Task.FromResult(
-        new Kck.Observability.Abstractions.HealthCheckResult(Kck.Observability.Abstractions.HealthStatus.Healthy)))));
-await using (var app = web.Build())
-{
-    app.MapKckHealthChecks();
-    await app.StartAsync();
-    var address = app.Services.GetRequiredService<IServer>().Features.GetRequiredFeature<IServerAddressesFeature>().Addresses.First();
-    using var http = new HttpClient();
-    var health = await http.GetStringAsync(new Uri(new Uri(address), "/health/live"));
-    Check(health.Contains("\"status\":\"Healthy\"", StringComparison.Ordinal) && health.Contains("\"name\":\"smoke\"", StringComparison.Ordinal),
-        "Observability.OpenTelemetry (health endpoint)");
-    await app.StopAsync();
-}
 
 workDir.Delete(recursive: true);
 return failures.Count == 0 ? 0 : 1;

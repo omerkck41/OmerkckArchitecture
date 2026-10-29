@@ -8,8 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
-- Native AOT: `Kck.Http.Resilience` and `Kck.Observability.OpenTelemetry` are `IsAotCompatible`, verified by the CI
-  native AOT smoke (typed HTTP client round trip, `/health/live` on Kestrel).
+- Native AOT: `Kck.Http.Resilience` is `IsAotCompatible`, verified by the CI native AOT smoke (typed HTTP client round
+  trip). `Kck.Observability.OpenTelemetry` is not: `OpenTelemetry.Instrumentation.EntityFrameworkCore` (beta) produces
+  trim warnings (IL2104).
 - `Kck.Http.Abstractions` — `ResilienceOptions.SerializerOptions`: JSON options for request bodies and responses of
   `ResilientApiClient`, e.g. a source-generated `JsonSerializerContext` for Native AOT. `null` keeps the web defaults
   (camelCase, reflection), as before.

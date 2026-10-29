@@ -30,6 +30,5 @@
     <ProjectReference Include="../../src/Providers/Kck.Localization.Json/Kck.Localization.Json.csproj" />
     <ProjectReference Include="../../src/Providers/Kck.Resilience.Polly/Kck.Resilience.Polly.csproj" />
     <ProjectReference Include="../../src/Providers/Kck.Http.Resilience/Kck.Http.Resilience.csproj" />
-    <ProjectReference Include="../../src/Providers/Kck.Observability.OpenTelemetry/Kck.Observability.OpenTelemetry.csproj" />
   </ItemGroup>
 </Project>
