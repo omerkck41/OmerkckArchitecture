@@ -145,6 +145,9 @@ Commit `try` disindadir: commit'ten sonra dagitim hata verirse veri zaten kalici
     context'teki sonraki `SaveChanges` onlari yeniden dagitir. Teslim en-az-bir-kezdir: kismen basarili bir dagitim
     tekrarlanabilir, handler'lar idempotent olmalidir. Hata istegin/scope'un sonunu getirirse (web istegi, Mediator
     pipeline) ya da uygulama coker ise event'ler kaybolur — dayanikli teslim icin outbox gerekir.
+  - Senkron `SaveChanges()`: dispatcher asenkron oldugu icin dagitim bir thread-pool is parcaciginda calisir ve
+    cagiran is parcacigi dagitim bitene kadar bloklanir (deadlock olmaz; her seferinde uyari loglanir). Domain event
+    kullanan kodda `SaveChangesAsync` kullanin.
   - Kapsam disi: `Database.UseTransaction` ile verilen dis transaction'in dogrudan commit'i (event'ler atilir),
     `TransactionScope`, savepoint'e geri donus (savepoint sonrasi event'ler commit'te yine dagitilir).
   - `SaveChangesAsync` tercih edin; senkron `SaveChanges` dagitim boyunca bir thread-pool thread'ini bloklar.
