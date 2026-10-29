@@ -29,7 +29,7 @@ public class HelperAndFilterTests
         harness.Context.Parents.Add(parent);
         await harness.Context.SaveChangesAsync();
 
-        // Reload with navigations populated so CascadeSoftDelete sees CurrentValue.
+        // Reload with navigations populated so EF's cascade reaches the tracked children.
         var loaded = await harness.Context.Parents
             .Include(p => p.Children)
             .Include(p => p.Reference)

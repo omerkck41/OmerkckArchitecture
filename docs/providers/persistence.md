@@ -43,10 +43,27 @@ public sealed class OrderService(IUnitOfWork uow)
 }
 ```
 
-`DeleteAsync` / `DeleteRangeAsync` varsayilan olarak soft-delete yapar (`ISoftDeletable` entity'lerde) ve bunu
-entity'nin yuklu, soft-delete olan bagimli kayitlarina (alt kayitlarina, tek seviye) da uygular; iliskinin
-`DeleteBehavior`'i dikkate alinmaz. Entity'nin isaret ettigi ust kayitlar ve many-to-many karsi tarafi silinmez
-(4.2.5+). `RevertSoftDeleteAsync` yalniz kaydin kendisini geri alir. `permanent: true` kalici siler.
+`DeleteAsync` / `DeleteRangeAsync` varsayilan olarak soft-delete yapar (`ISoftDeletable` entity'lerde);
+`permanent: true` kalici siler. Soft-delete, `DbContext.Remove` + `AuditInterceptor` ile ayni kurali izler (asagida,
+"Soft-delete kapsami"); interceptor kayitli olmasa da. `RevertSoftDeleteAsync` yalniz kaydin kendisini geri alir;
+onunla birlikte soft-delete edilen bagimli kayitlar silinmis kalir.
+
+### Soft-delete kapsami (4.3.0+)
+
+Soft-delete, kalici silmenin silecegi satirlari kapsar: EF'in izlenen (yuklu) bagimli kayitlara uyguladigi cascade,
+modeldeki `DeleteBehavior`'a gore. Bu satirlardan:
+
+- soft-delete olanlar soft-delete edilir, zincir boyunca (alt kaydin alt kaydi da);
+- soft-delete olmayanlar, owned degerler ve many-to-many baglantilari korunur; korunan bir kaydin altindaki her sey
+  de korunur (soft-delete olsa bile);
+- istege bagli iliskide (`SetNull` / `ClientSetNull`) bagimli kayit silinmez; NULL'a cekilen yabanci anahtar eski
+  degerine geri yazilir (bilesik anahtarda yalniz NULL'a cekilen parcalar).
+
+Entity'nin isaret ettigi ust kayitlar ve many-to-many karsi tarafi silinmez. Ayni `SaveChanges`'te kalici silinen
+(`permanent: true` ya da soft-delete olmayan) bir kayda cascade eden iliskiyle (`Cascade` / `ClientCascade`) bagli
+satir, soft-delete olsa da onunla birlikte kalici silinir; `SetNull` / `Restrict` iliskisi bunu yapmaz. Bilinen
+sinir: soft-delete edilen kayda ayni anda eklenen (`Added`, henuz kaydedilmemis) zorunlu bagimli kayitlar EF'in
+cascade'i ile izlemeden cikar ve eklenmez.
 
 ## QueryOptions
 
@@ -110,9 +127,8 @@ Commit `try` disindadir: commit'ten sonra dagitim hata verirse veri zaten kalici
   `IsDeleted = true` + `DeletedDate`'e cevirir. Repository'de `permanent: true` ile yapilan silmeler kalici kalir.
   Soft-delete edilen satirlar yalniz repository sorgularindan ve soft-delete query filter'i uygulanan context'lerden
   gizlenir; unique index'ler silinmis satirlari disarida birakmiyorsa yeniden ekleme reddedilebilir.
-  Soft-delete edilen bir kaydin izlenen (yuklu) bagimli kayitlari (4.2.4+): soft-delete olanlar da soft-delete
-  edilir; soft-delete olmayanlar, owned degerler ve many-to-many baglantilari korunur (navigasyon olmasa da);
-  istege bagli iliskide NULL'a cekilen yabanci anahtar eski degerine geri yazilir. Ayni `SaveChanges`'te acikca
+  Soft-delete edilen bir kaydin izlenen (yuklu) bagimli kayitlari "Soft-delete kapsami" kuralini izler (navigasyon
+  olmasa da). Ayni `SaveChanges`'te acikca
   `Remove` edilen soft-delete olmayan bir bagimli kayit da korunur, acikca NULL'a cekilen yabanci anahtar ya da
   koleksiyondan cikarilan many-to-many baglantisi da geri alinir — bunlari ayri bir `SaveChanges` ile yapin.
   Kapsam disi: `ChangeTracker.CascadeDeleteTiming = OnSaveChanges` (cascade interceptor'dan sonra calisir, soft-delete
