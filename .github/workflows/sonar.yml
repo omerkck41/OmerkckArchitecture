@@ -47,8 +47,9 @@ jobs:
         with:
           dotnet-version: '10.0.402'
 
+      # Pinned in .config/dotnet-tools.json (checked by the license gate); decisions/2026-10-29-ci-tools-pinned.md
       - name: Install SonarScanner for .NET
-        run: dotnet tool install --global dotnet-sonarscanner
+        run: dotnet tool restore
 
       - name: Restore
         run: dotnet restore --locked-mode

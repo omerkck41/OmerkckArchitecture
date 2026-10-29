@@ -52,14 +52,15 @@ jobs:
       - name: Build (generates XML docs, needed by DocFX metadata)
         run: dotnet build --configuration Release --no-restore
 
+      # Pinned in .config/dotnet-tools.json (checked by the license gate); decisions/2026-10-29-ci-tools-pinned.md
       - name: Install DocFX
-        run: dotnet tool install --global docfx
+        run: dotnet tool restore
 
       - name: Generate API metadata
-        run: docfx metadata docfx.json --logLevel verbose
+        run: dotnet docfx metadata docfx.json --logLevel verbose
 
       - name: Build static site
-        run: docfx build docfx.json
+        run: dotnet docfx build docfx.json
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
