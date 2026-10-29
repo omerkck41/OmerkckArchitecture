@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1793282842549,
+  "lastUpdate": 1793283938010,
   "repoUrl": "https://github.com/omerkck41/OmerkckArchitecture",
   "entries": {
     "Benchmark": [
@@ -9166,6 +9166,102 @@ window.BENCHMARK_DATA = {
             "value": 9.061460797603313,
             "unit": "ns",
             "range": "± 0.1792986544920527"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "106805727+omerkck41@users.noreply.github.com",
+            "name": "Ömer KÜÇÜK",
+            "username": "omerkck41"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "669d6319c68a1f570d1993bb873bff7f197d9429",
+          "message": "fix(persistence): soft delete cascades only to dependents (#214)\n\n## Summary\nRepository soft delete (`DeleteAsync` / `DeleteRangeAsync` without\n`permanent`) soft-deleted every loaded\nsoft-deletable entity reachable through any navigation — including the\nprincipal the deleted entity references (which\nother rows may share) and the other side of a many-to-many (shared\ntags). Planned for **4.2.5**.\n\n`SoftDeleteHelper` now follows only navigations to dependents\n(`INavigation { IsOnDependent: false }`). Maintainer\ndecision: cascade to dependents only.\n\n| Case | Before | After |\n|---|---|---|\n| Shared principal loaded, one referencing row deleted | principal\nsoft-deleted | kept |\n| Loaded soft-deletable dependents | soft-deleted | unchanged |\n| Many-to-many other side | soft-deleted | kept |\n| One-to-one, principal side deleted | dependent soft-deleted |\nunchanged |\n| One-to-one, dependent side deleted | principal soft-deleted | kept |\n\nCHANGELOG has a \"Changed — behaviour\" note with migration guidance (FK\non the deleted side, e.g.\n`Order.ShippingAddressId`); `docs/providers/persistence.md` documents\nrepository soft-delete scope.\n\n## Review\nAdversarial review: no critical/high. Applied: one-to-one tests\n(covering the single-reference branch and the null\ncase), CHANGELOG wording and migration note, doc scope (one level,\n`DeleteBehavior` ignored, revert is not cascaded).\nTracked: alignment of repository soft delete with `DbContext.Remove` +\n`AuditInterceptor` (optional dependents,\ndepth, revert) — maintainer decision.\n\n## Test plan\n- [x] Shared principal, many-to-many, updated `Reference` test and\none-to-one dependent-side test RED before the fix;\nmutation probes (direction filter, single-reference branch) each turn\none test RED\n- [x] Clean Release build 0 errors; 39 test projects green; pack\nvalidation vs 4.2.4\n- [ ] CI + Sonar + CodeQL\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-authored-by: Claude Opus 5.5 <noreply@anthropic.com>",
+          "timestamp": "2026-10-29T17:17:06+03:00",
+          "tree_id": "05c5436a95ad73db89fa28d651d27e576addf009",
+          "url": "https://github.com/omerkck41/OmerkckArchitecture/commit/669d6319c68a1f570d1993bb873bff7f197d9429"
+        },
+        "date": 1793283937041,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Success_Factory",
+            "value": 6.7703407098849615,
+            "unit": "ns",
+            "range": "± 0.1618213108696081"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Failure_Factory",
+            "value": 10.939266160726547,
+            "unit": "ns",
+            "range": "± 0.9333751344423145"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Success",
+            "value": 1.6560587781880582,
+            "unit": "ns",
+            "range": "± 0.028472906986254563"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Failure",
+            "value": 0.5859410768108708,
+            "unit": "ns",
+            "range": "± 0.0026846883766205028"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Serialize_Reflection",
+            "value": 476.1194455807026,
+            "unit": "ns",
+            "range": "± 2.0634567228691214"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Deserialize_Reflection",
+            "value": 809.8516823450724,
+            "unit": "ns",
+            "range": "± 5.0935193286253"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 0)",
+            "value": 11.030885381624103,
+            "unit": "ns",
+            "range": "± 0.3656042670316785"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 5)",
+            "value": 11.12428217381239,
+            "unit": "ns",
+            "range": "± 0.1986045914078836"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 0)",
+            "value": 11.865857071917633,
+            "unit": "ns",
+            "range": "± 0.44461049298038713"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 5)",
+            "value": 11.079612964933569,
+            "unit": "ns",
+            "range": "± 0.34378929631870486"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 0)",
+            "value": 10.941981679626874,
+            "unit": "ns",
+            "range": "± 0.21524654485577546"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 5)",
+            "value": 11.823265303046472,
+            "unit": "ns",
+            "range": "± 0.462145542688783"
           }
         ]
       }
