@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1793314085908,
+  "lastUpdate": 1793314607236,
   "repoUrl": "https://github.com/omerkck41/OmerkckArchitecture",
   "entries": {
     "Benchmark": [
@@ -11470,6 +11470,102 @@ window.BENCHMARK_DATA = {
             "value": 6.298058067448437,
             "unit": "ns",
             "range": "± 0.16579364741705668"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "106805727+omerkck41@users.noreply.github.com",
+            "name": "Ömer KÜÇÜK",
+            "username": "omerkck41"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "cadedcafddb23306e11cdeafe1aa739377fe63e7",
+          "message": "ci: lint workflows with actionlint and zizmor (#236)\n\n## Summary\nTodo: \"actionlint + zizmor yerelde çalıştırılmadı\" — maintainer chose CI\nover a one-off local run.\n\n- `.github/workflows/workflow-lint.yml`: on changes to\n`.github/workflows/**` runs **actionlint v1.7.12** (`go install`, Go\nchecksum DB) and **zizmor 1.31.1** (`pip --require-hashes\n--only-binary`, `--offline`). No third-party action added; `permissions:\ncontents: read`.\n- `.github/workflow-lint/requirements.txt` + Dependabot `pip` entry so\nzizmor stays current.\n- `decisions/2026-10-30-workflow-lint.md` (pre-committed criteria,\nalternatives: zizmor-action/actionlint image rejected — two new\nthird-party dependencies).\n- `decisions/2026-10-14-actions-checkout-v7-setup-dotnet-v6.md`: the\nrecord of #147, found uncommitted in an old worktree; status updated to\napplied.\n\n## Test plan\n- [ ] This PR's own `workflow-lint` run — first lint of all workflows;\nfindings get fixed here before merge (not a required check → merged by\nhand)\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\n---------\n\nCo-authored-by: Claude Opus 5.5 <noreply@anthropic.com>",
+          "timestamp": "2026-10-30T01:50:42+03:00",
+          "tree_id": "611c978303fe489f3da3a3e1604600569d202329",
+          "url": "https://github.com/omerkck41/OmerkckArchitecture/commit/cadedcafddb23306e11cdeafe1aa739377fe63e7"
+        },
+        "date": 1793314606072,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Success_Factory",
+            "value": 7.35797775487105,
+            "unit": "ns",
+            "range": "± 0.09203803219602709"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Failure_Factory",
+            "value": 8.025215431054432,
+            "unit": "ns",
+            "range": "± 0.05707016917141489"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Success",
+            "value": 1.358484333647149,
+            "unit": "ns",
+            "range": "± 0.012694475151293952"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Failure",
+            "value": 0.6282107625156641,
+            "unit": "ns",
+            "range": "± 0.005511649871169897"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Serialize_Reflection",
+            "value": 341.32970098086764,
+            "unit": "ns",
+            "range": "± 1.3729720925823927"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Deserialize_Reflection",
+            "value": 602.720762865884,
+            "unit": "ns",
+            "range": "± 2.4375340297242944"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 0)",
+            "value": 12.058526867628098,
+            "unit": "ns",
+            "range": "± 0.11346544286332674"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 5)",
+            "value": 12.372758947809537,
+            "unit": "ns",
+            "range": "± 0.08001979475991355"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 0)",
+            "value": 13.075652436415355,
+            "unit": "ns",
+            "range": "± 0.1247948170099461"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 5)",
+            "value": 13.04452004035314,
+            "unit": "ns",
+            "range": "± 0.14271788330453172"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 0)",
+            "value": 13.115320700407029,
+            "unit": "ns",
+            "range": "± 0.12803295215540714"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 5)",
+            "value": 12.85519706777164,
+            "unit": "ns",
+            "range": "± 0.15376425019375373"
           }
         ]
       }
