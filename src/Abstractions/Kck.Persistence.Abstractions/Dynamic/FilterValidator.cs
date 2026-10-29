@@ -26,7 +26,7 @@ public static class FilterValidator
         if (string.IsNullOrWhiteSpace(filter.Operator) || !SupportedOperators.Contains(filter.Operator))
             return false;
 
-        if (filter.Operator is "isnull" or "isnotnull")
+        if (filter.OperatorEnum is FilterOperator.IsNull or FilterOperator.IsNotNull)
         {
             if (filter.Value is not null)
                 return false;

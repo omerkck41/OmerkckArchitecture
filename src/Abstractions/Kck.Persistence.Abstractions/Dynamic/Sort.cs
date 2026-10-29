@@ -1,3 +1,5 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace Kck.Persistence.Abstractions.Dynamic;
 
 /// <summary>
@@ -32,6 +34,7 @@ public sealed class Sort
     /// <param name="field">The entity property name to sort by.</param>
     /// <param name="dir">Sort direction (<c>"asc"</c> or <c>"desc"</c>).</param>
     /// <param name="priority">Sort priority; defaults to <c>0</c>.</param>
+    [SetsRequiredMembers]
     public Sort(string field, string dir, int priority = 0)
     {
         Field = field;
