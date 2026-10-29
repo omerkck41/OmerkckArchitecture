@@ -32,7 +32,8 @@ public sealed class TransactionBehavior<TMessage, TResponse>(
         }
         catch
         {
-            await unitOfWork.RollbackAsync(cancellationToken).ConfigureAwait(false);
+            // Not the request's token: a canceled request still has to end its transaction.
+            await unitOfWork.RollbackAsync(CancellationToken.None).ConfigureAwait(false);
             Log.TransactionRolledBack(logger, messageName);
             throw;
         }

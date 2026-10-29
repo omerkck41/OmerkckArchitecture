@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- `Kck.Persistence.EntityFramework` — `EfUnitOfWork.CommitAsync` (and `SaveChangesAsync(autoCommitTransaction: true)`)
+  passed the caller's token to the database commit: a request aborted while the commit ran left its outcome unknown
+  (the data could be durable while the caller saw a cancellation). The token is now checked before the commit starts
+  (canceled → rollback and `OperationCanceledException`); the commit itself runs to completion. Domain event dispatch
+  after the commit still observes the token.
+- `EfUnitOfWork` — when the commit failed and disposing the transaction also threw, the dispose error hid the commit
+  error. The commit error is rethrown.
+- `Kck.Pipeline.Mediator` — `TransactionBehavior` rolled back with the request's token; for a canceled request the
+  rollback was canceled too and the transaction was only ended by its disposal. It now rolls back with
+  `CancellationToken.None`.
+
 ## [4.2.5] — 2026-10-29
 
 ### Fixed
