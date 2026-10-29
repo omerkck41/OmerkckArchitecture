@@ -28,6 +28,7 @@ public sealed class Filter
     public Filter() { }
 
     /// <summary>Initializes a new <see cref="Filter"/> with the specified field, operator, and value.</summary>
+    [SetsRequiredMembers]
     public Filter(string field, string @operator, object? value, string? logic = null, IEnumerable<Filter>? filters = null)
     {
         Field = field;
@@ -48,6 +49,7 @@ public sealed class Filter
     /// kasitli kabul edildi.
     /// </remarks>
 #pragma warning disable RS0026
+    [SetsRequiredMembers]
     public Filter(string field, FilterOperator @operator, object? value, string? logic = null, IEnumerable<Filter>? filters = null)
         : this(field, @operator.ToString().ToLowerInvariant(), value, logic, filters) { }
 #pragma warning restore RS0026
