@@ -22,6 +22,51 @@ env:
   DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
 
 jobs:
+  # .NET 11 runtime smoke (F3 H19): built with the pinned .NET 10 SDK (global.json unchanged), the net10.0 unit tests run
+  # on the newest installed runtime through roll-forward. .NET 11 is at RC (go-live) until GA; then bump the version
+  # below. Decision: decisions/2026-10-30-net11-runtime-smoke.md
+  net11-runtime:
+    name: Unit tests on .NET 11 runtime
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          fetch-depth: 0  # MinVer needs full history for tag resolution
+
+      - name: Setup .NET 10 SDK and .NET 11 runtime
+        uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+        with:
+          dotnet-version: |
+            10.0.402
+            11.0.100-rc.3.26522.148
+
+      - name: Restore
+        run: dotnet restore --locked-mode
+
+      - name: Build (.NET 10 SDK)
+        run: dotnet build --configuration Release --no-restore
+
+      # Proves roll-forward picks .NET 11: a net10.0 app run with the same settings must report runtime 11.
+      # Roll-forward settings only here and in the test step: restore and build stay on the .NET 10 runtime.
+      - name: Check the runtime tests will use
+        shell: bash
+        env:
+          DOTNET_ROLL_FORWARD: LatestMajor
+          DOTNET_ROLL_FORWARD_TO_PRERELEASE: 1
+        run: |
+          printf '%s\n' '#:property TargetFramework=net10.0' \
+            'if (System.Environment.Version.Major != 11) { System.Console.Error.WriteLine($"runtime {System.Environment.Version}"); return 1; }' \
+            'System.Console.WriteLine($"runtime {System.Environment.Version}"); return 0;' > "$RUNNER_TEMP/runtime.cs"
+          dotnet run "$RUNNER_TEMP/runtime.cs"
+
+      - name: Test (unit, .NET 11 runtime)
+        env:
+          DOTNET_ROLL_FORWARD: LatestMajor
+          DOTNET_ROLL_FORWARD_TO_PRERELEASE: 1
+        run: dotnet test --configuration Release --no-build --filter "Category!=Integration"
+
   # Native AOT smoke (F3 H22): publishes samples/Kck.AotSmoke, which exercises every provider marked
   # IsAotCompatible, and runs the binary. Trim/AOT warnings fail the publish (warnings are errors).
   aot-smoke:
