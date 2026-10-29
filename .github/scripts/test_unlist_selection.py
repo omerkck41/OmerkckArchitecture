@@ -83,5 +83,32 @@ class ManualUnlistDecisionTests(unittest.TestCase):
         self.assertEqual(self.decide("4.0.0-RC.1", [("4.0.0-rc.1", True)]), "delete")
 
 
+
+
+class DeleteFailureTests(unittest.TestCase):
+    """Both privileged steps carry their own copy (they run no repository code); both must behave the same."""
+
+    def test_describe_failure_masks_the_key_and_keeps_the_exit_code(self) -> None:
+        for step in (STEP, MANUAL_STEP):
+            describe = load_selection(step)["describe_failure"]
+            line = describe(1, "Response status code does not indicate success: 403 (key oy2abc is invalid)\n", "oy2abc")
+            self.assertEqual(line, "exit 1: Response status code does not indicate success: 403 (key *** is invalid)")
+
+    def test_describe_failure_keeps_only_the_tail_of_long_output(self) -> None:
+        for step in (STEP, MANUAL_STEP):
+            line = load_selection(step)["describe_failure"](2, "x" * 1000 + " end", "")
+            self.assertTrue(line.endswith(" end"))
+            self.assertLessEqual(len(line), len("exit 2: ") + 400)
+
+    def test_permission_and_missing_errors_are_not_retried(self) -> None:
+        for step in (STEP, MANUAL_STEP):
+            is_permanent = load_selection(step)["is_permanent"]
+            self.assertTrue(is_permanent("Response status code does not indicate success: 403 (Forbidden)."))
+            self.assertTrue(is_permanent("Response status code does not indicate success: 401 (Unauthorized)."))
+            self.assertTrue(is_permanent("Response status code does not indicate success: 404 (Not Found)."))
+            self.assertFalse(is_permanent("Response status code does not indicate success: 503 (Service Unavailable)."))
+            self.assertFalse(is_permanent("The request timed out after 4040 ms"))
+
+
 if __name__ == "__main__":
     unittest.main()
