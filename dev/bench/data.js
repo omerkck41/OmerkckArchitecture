@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1793316273232,
+  "lastUpdate": 1793316928804,
   "repoUrl": "https://github.com/omerkck41/OmerkckArchitecture",
   "entries": {
     "Benchmark": [
@@ -11854,6 +11854,102 @@ window.BENCHMARK_DATA = {
             "value": 10.460946066180865,
             "unit": "ns",
             "range": "± 0.24995554371930148"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "106805727+omerkck41@users.noreply.github.com",
+            "name": "Ömer KÜÇÜK",
+            "username": "omerkck41"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "c236a2492c577186e4cd49cbef008e02185a68e8",
+          "message": "docs(changelog): 4.5.0 release notes (#243)\n\n## Summary\nRelease preparation for **4.5.0** (no tag here — tag and `nuget`\napproval stay with the maintainer).\n\n`[Unreleased]` → `[4.5.0] — 2026-10-30`:\n- Added: `UseEntityFrameworkPool<TContext>` — DbContext pooling with\naudit and domain event interceptors (#239);\n`Kck.Http.Resilience` is Native AOT-compatible (#238);\n`ResilienceOptions.SerializerOptions` (#238).\n- Changed: health endpoints write JSON with source-generated metadata,\nbody unchanged (#238).\n\nAlso fixes `docs/providers/persistence.md`: its domain event section\nstill said DbContext pooling is not supported.\n\nCI/test-only changes since 4.4.0 (#236, #237, #240, #241) are not\nuser-facing and not listed. Minor version: additive,\nno API removed or changed; package validation vs 4.4.0 green on every\nPR. After the release: baseline → 4.5.0 (as #235).\n\n## Test plan\n- [x] Local: Release build 0 errors, unit tests 39/39 projects, README\nblocks up to date, AOT smoke sample PASS on JIT\n- [ ] CI\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-authored-by: Claude Opus 5.5 <noreply@anthropic.com>",
+          "timestamp": "2026-10-30T02:28:28+03:00",
+          "tree_id": "253861fec55dc1b333e75532e7f3fb9629118da1",
+          "url": "https://github.com/omerkck41/OmerkckArchitecture/commit/c236a2492c577186e4cd49cbef008e02185a68e8"
+        },
+        "date": 1793316927700,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Success_Factory",
+            "value": 4.944645562767983,
+            "unit": "ns",
+            "range": "± 0.10516886738611737"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Failure_Factory",
+            "value": 6.702320629854997,
+            "unit": "ns",
+            "range": "± 0.11627410800121142"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Success",
+            "value": 0.6754243933457009,
+            "unit": "ns",
+            "range": "± 0.13599074990919366"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Failure",
+            "value": 0.5110393382076707,
+            "unit": "ns",
+            "range": "± 0.0018871018627900267"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Serialize_Reflection",
+            "value": 310.7496813705989,
+            "unit": "ns",
+            "range": "± 1.0550129865373779"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Deserialize_Reflection",
+            "value": 543.6798254648844,
+            "unit": "ns",
+            "range": "± 3.04279418980252"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 0)",
+            "value": 8.700629883087599,
+            "unit": "ns",
+            "range": "± 0.01545324250135683"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 5)",
+            "value": 7.6659718070711405,
+            "unit": "ns",
+            "range": "± 0.013890540134735082"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 0)",
+            "value": 7.948641335325582,
+            "unit": "ns",
+            "range": "± 0.013839185627629072"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 5)",
+            "value": 7.9055187074201445,
+            "unit": "ns",
+            "range": "± 0.019068974780985116"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 0)",
+            "value": 8.56024411469698,
+            "unit": "ns",
+            "range": "± 0.1343957053253456"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 5)",
+            "value": 8.097307773431142,
+            "unit": "ns",
+            "range": "± 0.11175733196238745"
           }
         ]
       }
