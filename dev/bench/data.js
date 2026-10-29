@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1793308297395,
+  "lastUpdate": 1793309345424,
   "repoUrl": "https://github.com/omerkck41/OmerkckArchitecture",
   "entries": {
     "Benchmark": [
@@ -11086,6 +11086,102 @@ window.BENCHMARK_DATA = {
             "value": 11.352971638071127,
             "unit": "ns",
             "range": "± 0.4198858454150964"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "106805727+omerkck41@users.noreply.github.com",
+            "name": "Ömer KÜÇÜK",
+            "username": "omerkck41"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "560b0c3df86670c376594a738160a8dcef9621ed",
+          "message": "docs(changelog): 4.4.0 release notes (#234)\n\n## Summary\nRelease preparation for **4.4.0** (no tag here — tag and `nuget`\napproval stay with the maintainer).\n\n`[Unreleased]` → `[4.4.0] — 2026-10-29`, ordered Added → Changed —\nbehaviour → Fixed:\n- Added: Native AOT for Security.Jwt, Localization, Localization.Json,\nResilience.Polly (#232; Serilog excluded — IL2104 inside Serilog).\n- Changed — behaviour: `ApiResponseHelper.CreateSuccess` GET + null →\n`Success = false` (#226), now named with its module.\n- Fixed: `TransactionBehavior` keeps the handler's error when the\nrollback fails (#230); the `ApiResponseHelper` fix (#226).\n\nCI/docs-only changes since 4.3.0 (#227–#229, #231, #233) are not\nuser-facing and not listed. Minor version: additive, no API removed or\nchanged; package validation vs 4.3.0 green on every PR. After the\nrelease: baseline → 4.4.0 (as #225).\n\n## Test plan\n- [ ] CI\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\n---------\n\nCo-authored-by: Claude Opus 5.5 <noreply@anthropic.com>",
+          "timestamp": "2026-10-29T21:22:01Z",
+          "tree_id": "27a95306e46313fb84d3525a79fbb930c1488979",
+          "url": "https://github.com/omerkck41/OmerkckArchitecture/commit/560b0c3df86670c376594a738160a8dcef9621ed"
+        },
+        "date": 1793309344426,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Success_Factory",
+            "value": 6.535451587703493,
+            "unit": "ns",
+            "range": "± 0.21378244727509865"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Failure_Factory",
+            "value": 8.148129553667136,
+            "unit": "ns",
+            "range": "± 0.07286236332477782"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Success",
+            "value": 1.124851766453926,
+            "unit": "ns",
+            "range": "± 0.17036380276259927"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Failure",
+            "value": 0.5779422099391619,
+            "unit": "ns",
+            "range": "± 0.0040417809396968915"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Serialize_Reflection",
+            "value": 395.18849570410595,
+            "unit": "ns",
+            "range": "± 2.1827009387223257"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Deserialize_Reflection",
+            "value": 733.8374202728271,
+            "unit": "ns",
+            "range": "± 11.085558536483102"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 0)",
+            "value": 10.289281411965687,
+            "unit": "ns",
+            "range": "± 0.08605597097109478"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 5)",
+            "value": 10.488584530140672,
+            "unit": "ns",
+            "range": "± 0.17106462713650572"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 0)",
+            "value": 11.485980757077535,
+            "unit": "ns",
+            "range": "± 0.10279538754193912"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 5)",
+            "value": 10.566613003611565,
+            "unit": "ns",
+            "range": "± 0.12401642207680456"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 0)",
+            "value": 10.61686414054462,
+            "unit": "ns",
+            "range": "± 0.15906066241985534"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 5)",
+            "value": 10.369178057781287,
+            "unit": "ns",
+            "range": "± 0.054382577114066424"
           }
         ]
       }
