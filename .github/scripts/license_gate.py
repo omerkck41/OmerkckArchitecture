@@ -1,7 +1,9 @@
 """Fail-closed license gate for NuGet dependencies.
 
-Reads every packages.lock.json under the repository (the exact set CI restores with --locked-mode), looks up each
-resolved package's nuspec in the NuGet global packages folder and checks its declared license against a policy file.
+Reads every packages.lock.json under the repository (the exact set CI restores with --locked-mode) and the local .NET
+tools of .config/dotnet-tools.json (restored by `dotnet tool restore` into the same folder), looks up each resolved
+package's nuspec in the NuGet global packages folder and checks its declared license against a policy file. A tool is
+checked as a whole package: assemblies it bundles are covered only by the tool's own license.
 Decision record: decisions/2026-10-26-license-gate.md.
 
 Exit codes: 0 = all packages allowed or covered by an active exception, 1 = violations, 2 = gate could not run.
@@ -24,6 +26,8 @@ from pathlib import Path
 log = logging.getLogger("license-gate")
 
 SKIPPED_DIRS = {"bin", "obj", "node_modules"}
+TOOL_MANIFEST = Path(".config") / "dotnet-tools.json"
+TOOLS_LABEL = "dotnet-tools"
 
 
 class GateError(Exception):
@@ -82,8 +86,22 @@ def _lock_entries(lock: Path) -> Iterator[tuple[str, str]]:
             yield pkg_id, resolved
 
 
+def _tool_entries(repo_root: Path) -> Iterator[tuple[str, str]]:
+    manifest = repo_root / TOOL_MANIFEST
+    if not manifest.is_file():
+        return
+    tools = json.loads(manifest.read_text(encoding="utf-8-sig")).get("tools")
+    if not isinstance(tools, dict):
+        raise GateError(f"{manifest}: no tools object")
+    for tool_id, info in tools.items():
+        version = info.get("version") if isinstance(info, dict) else None
+        if not version:
+            raise GateError(f"{manifest}: {tool_id} has no version")
+        yield tool_id, version
+
+
 def collect_packages(repo_root: Path) -> dict[tuple[str, str], set[str]]:
-    """Returns {(package id, resolved version): {project names}} for all non-project lock entries."""
+    """Returns {(package id, resolved version): {project names}} for all non-project lock entries and local tools."""
     lock_files = _lock_files(repo_root)
     if not lock_files:
         raise GateError(f"no packages.lock.json found under {repo_root}")
@@ -91,6 +109,8 @@ def collect_packages(repo_root: Path) -> dict[tuple[str, str], set[str]]:
     for lock in lock_files:
         for key in _lock_entries(lock):
             packages.setdefault(key, set()).add(lock.parent.name)
+    for key in _tool_entries(repo_root):
+        packages.setdefault(key, set()).add(TOOLS_LABEL)
     return packages
 
 

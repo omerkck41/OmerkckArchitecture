@@ -7,9 +7,12 @@ request and weekly schedule. Decision record: [decisions/2026-10-26-license-gate
 ## How the gate works
 
 `.github/scripts/license_gate.py` reads every `packages.lock.json` (the exact dependency set CI restores with
-`--locked-mode`), opens each package's nuspec in the NuGet global packages folder and compares its declared license with
-[`.github/license-policy.json`](../.github/license-policy.json). The gate is **fail-closed**: an unknown license, an
-unreadable nuspec, a missing lock file or an expired exception fails the job.
+`--locked-mode`) and the local .NET tools in `.config/dotnet-tools.json` (MinVer, ReportGenerator, dotnet-ef, Stryker,
+CycloneDX — restored by `dotnet tool restore`), opens each package's nuspec in the NuGet global packages folder and
+compares its declared license with [`.github/license-policy.json`](../.github/license-policy.json). The gate is
+**fail-closed**: an unknown license, an unreadable nuspec (including a tool that was not restored), a missing lock file,
+a tool without a version or an expired exception fails the job. A tool is checked as one package: assemblies it bundles
+are covered by the tool's own license only.
 
 | Declared license | Result |
 |---|---|

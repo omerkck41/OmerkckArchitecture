@@ -51,6 +51,19 @@ class GateFixture:
         for name, content in (files or {}).items():
             (pkg_dir / name).write_text(content, encoding="utf-8", newline="")
 
+    def add_tool(self, tool_id: str, version: str, license_xml: str = "", restored: bool = True) -> None:
+        """Adds a local .NET tool to .config/dotnet-tools.json (and, when restored, to the packages folder)."""
+        manifest = self.repo / ".config" / "dotnet-tools.json"
+        manifest.parent.mkdir(exist_ok=True)
+        data = json.loads(manifest.read_text(encoding="utf-8")) if manifest.exists() else {"version": 1, "tools": {}}
+        data["tools"][tool_id] = {"version": version, "commands": [tool_id], "rollForward": False}
+        manifest.write_text(json.dumps(data), encoding="utf-8")
+        if restored:
+            pkg_dir = self.nuget / tool_id.lower() / version.lower()
+            pkg_dir.mkdir(parents=True)
+            (pkg_dir / f"{tool_id.lower()}.nuspec").write_text(
+                NUSPEC.format(id=tool_id, version=version, license=license_xml), encoding="utf-8")
+
     def write_lock(self, project: str = "src/Lib") -> None:
         lock_dir = self.repo / project
         lock_dir.mkdir(parents=True, exist_ok=True)
@@ -214,6 +227,33 @@ class LicenseGateTests(unittest.TestCase):
         code, findings = self.fx.run(BASE_POLICY)
         self.assertEqual(code, 0)
         self.assertEqual(self.statuses(findings), {"Good.Lib": "ok"})
+
+    def test_tool_manifest_tools_are_checked(self) -> None:
+        self.fx.add("Good.Lib", "1.0.0", expression("MIT"))
+        self.fx.write_lock()
+        self.fx.add_tool("good-tool", "2.0.0", expression("Apache-2.0"))
+        self.fx.add_tool("paid-tool", "3.1.0", expression("LicenseRef-Commercial"))
+        code, findings = self.fx.run(BASE_POLICY)
+        self.assertEqual(code, 1)
+        self.assertEqual(self.statuses(findings), {"Good.Lib": "ok", "good-tool": "ok", "paid-tool": "violation"})
+        self.assertEqual(next(f for f in findings if f.package_id == "paid-tool").projects, "dotnet-tools")
+
+    def test_tool_not_restored_fails_closed(self) -> None:
+        self.fx.add("Good.Lib", "1.0.0", expression("MIT"))
+        self.fx.write_lock()
+        self.fx.add_tool("missing-tool", "1.0.0", restored=False)
+        code, findings = self.fx.run(BASE_POLICY)
+        self.assertEqual(code, 1)
+        self.assertEqual(self.statuses(findings)["missing-tool"], "violation")
+
+    def test_tool_manifest_without_version_is_a_gate_error(self) -> None:
+        self.fx.add("Good.Lib", "1.0.0", expression("MIT"))
+        self.fx.write_lock()
+        (self.fx.repo / ".config").mkdir()
+        (self.fx.repo / ".config" / "dotnet-tools.json").write_text(
+            json.dumps({"version": 1, "tools": {"no-version": {"commands": ["x"]}}}), encoding="utf-8")
+        with self.assertRaises(license_gate.GateError):
+            license_gate.collect_packages(self.fx.repo)
 
     def test_no_lock_files_fails_closed(self) -> None:
         with self.assertRaises(license_gate.GateError):
