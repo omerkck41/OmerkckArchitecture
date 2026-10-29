@@ -29,7 +29,14 @@ public interface IQuery<T>
     IQueryable<T> Query(QueryOptions options,
                         Expression<Func<T, bool>>? filter = null,
                         Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null)
-#pragma warning disable KCK0101 // the default forwards to the member it replaces until v5.0
-        => Query(filter, orderBy, options.IncludeDeleted, options.AsTracking);
+    {
+#pragma warning disable KCK0101 // implementations written before v4.3 only have the member this one replaces
+        return ForwardToDeprecatedMember();
+
+        // Marked like the member it calls: the forwarding itself is part of the deprecated surface, removed in v5.0.
+        [Obsolete("Forwards to the KCK0101 member until v5.0.", DiagnosticId = "KCK0101")]
+        IQueryable<T> ForwardToDeprecatedMember() =>
+            Query(filter, orderBy, options.IncludeDeleted, options.AsTracking);
 #pragma warning restore KCK0101
+    }
 }
