@@ -1,0 +1,33 @@
+{
+  "stryker-config": {
+    "project-info": {
+      "name": "Kck Modular Architecture",
+      "module": "FileStorage (AzureBlob)"
+    },
+    "mutation-level": "Standard",
+    "thresholds": {
+      "high": 80,
+      "low": 70,
+      "break": 30
+    },
+    "project": "src/Providers/Kck.FileStorage.AzureBlob/Kck.FileStorage.AzureBlob.csproj",
+    "test-projects": [
+      "tests/Kck.FileStorage.AzureBlob.Tests/Kck.FileStorage.AzureBlob.Tests.csproj"
+    ],
+    "reporters": [
+      "html",
+      "progress",
+      "cleartext"
+    ],
+    "since": {
+      "enabled": false
+    },
+    "ignore-mutations": [
+      "string",
+      "logical"
+    ],
+    "ignore-methods": [
+      "ConfigureAwait"
+    ]
+  }
+}
