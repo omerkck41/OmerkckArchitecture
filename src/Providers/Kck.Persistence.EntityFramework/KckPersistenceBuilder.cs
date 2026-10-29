@@ -58,7 +58,8 @@ public sealed class KckPersistenceBuilder(IServiceCollection services)
         {
             configure(options);
             AddRegisteredInterceptor<AuditInterceptor>(sp, options);
-            if (sp.GetService<IServiceProviderIsService>()?.IsService(typeof(IDomainEventDispatcher)) == true)
+            // The collection, not IServiceProviderIsService: works with any container (registration is complete here).
+            if (Services.Any(d => d.ServiceType == typeof(IDomainEventDispatcher)))
             {
                 AddInterceptor(options, new DomainEventDispatchInterceptor(
                     sp.GetRequiredService<IServiceScopeFactory>(),

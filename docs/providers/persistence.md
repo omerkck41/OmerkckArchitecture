@@ -36,7 +36,8 @@ services.AddKckPersistence(p => p
 `UseEntityFrameworkPool` `AddDbContextPool` kullanir; kayitlar `UseEntityFramework` ile aynidir. Havuzdaki context'ler tek
 bir options ornegini paylasir: `configure` bir kez, root servis saglayicisindan calisir. Domain event dispatcher'i her
 dagitimda yeni bir scope'tan cozulur — handler'in kaydettigi DbContext, event'i ureten context degil, kendi scope'unun
-context'idir. `Database.BeginTransaction` ile acilip dogrudan commit edilen bir transaction'in bekleyen event'leri
+context'idir; istegin scoped durumunu (tenant, gecerli kullanici, korelasyon tutuculari) da gormez — gerekenleri event'e
+koyun. `Database.BeginTransaction` ile acilip dogrudan commit edilen bir transaction'in bekleyen event'leri
 (asagida) havuzsuz kullanimda oldugu gibi istekle biter: context havuza donup yeniden kiralaninca atilir (uyari loglanir),
 baska bir istekte dagitilmaz. Transaction'lari `IUnitOfWork` ile commit edin.
 
