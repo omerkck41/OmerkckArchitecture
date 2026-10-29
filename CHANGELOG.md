@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Deprecated
+- `Kck.Persistence.Abstractions` — `IQuery<T>.Query(filter, orderBy, withDeleted, enableTracking)` (and the same
+  `EfRepository` method) is obsolete (`KCK0101`), removed in v5.0. Use the new `IQuery<T>.Query(QueryOptions options,
+  filter, orderBy)` member: `repo.Query()` → `repo.Query(QueryOptions.None)`, `Query(withDeleted: true)` →
+  `Query(QueryOptions.WithDeleted)`, `Query(enableTracking: true)` → `Query(QueryOptions.Tracking)`. The new member
+  has a default implementation, so existing `IQuery<T>` implementations keep compiling.
+  - `repo.Query(default)` is now ambiguous (CS0121); write `repo.Query(QueryOptions.None)`.
+  - Mocks (NSubstitute / Moq) set up on the old overload are not hit by calls to the new one; move the setups.
+
 ### Fixed
 - `Kck.Persistence.EntityFramework` — repository soft delete and `DbContext.Remove` under `AuditInterceptor` now
   follow one rule; before, they gave different rows for the same delete. A soft delete covers the rows a hard delete
@@ -275,6 +284,44 @@ See [docs/policies/deprecation.md](docs/policies/deprecation.md).
 - Old `IReadRepository<T>` overloads (**KCK0100**): `GetAsync`, `GetListAsync`, `GetListByDynamicAsync`, `AnyAsync`,
   `GetByIdAsync`, `CountAsync` — use the `QueryOptions` overloads.
 - `Kck.EventBus.InMemory` legacy registration methods (marked `[Obsolete]`).
+
+## [3.5.0] — 2026-10-15
+
+### Fixed
+- `Kck.Persistence.EntityFramework` — `BulkUpdateAsync` sent `object`-typed setters to `ExecuteUpdateAsync`; providers
+  without an `object` type mapping (SQLite) failed. Setters are now typed per property. A value whose CLR type does
+  not match its property exactly throws `ArgumentException`.
+
+### Changed
+- `Kck.Core.Abstractions` — `Entity<TId>.Id` is no longer `virtual`.
+- `Kck.EventBus.Abstractions` — the `event` parameter of `IEventBus.PublishAsync` and `IEventHandler<TEvent>.HandleAsync`
+  is renamed to `eventData`; calls that pass it by name (`@event:`) must be updated.
+- `Kck.Documents.ImageSharp` — SixLabors.ImageSharp 3.1.12 → 4.1.3 (security; the vulnerability suppression is gone).
+  See `decisions/2026-10-14-sdk-10.0.402-imagesharp-4.md` for the licence terms.
+- Dependency security sweep: .NET SDK 10.0.402, Microsoft.Extensions 10.0.13 / 10.11.0, EF Core 10.0.13 and other
+  patch updates.
+- Packages are published with NuGet Trusted Publishing behind an approval gate; on each stable release older versions
+  of the same major are unlisted.
+
+## [3.4.0] — 2026-05-18
+
+### Changed
+- Every package has its own `README.nuget.md`, accurate release notes and signing information on nuget.org.
+
+## [3.3.0] — 2026-05-18
+
+### Changed
+- Per-package NuGet metadata (description, tags, project and repository links) for all packages.
+
+## [3.2.0] — 2026-05-17
+
+### Removed
+- `Kck.Core.Abstractions.Pipeline` — the `[Obsolete]` forwarding interfaces `ICachableRequest`, `ILoggableRequest`,
+  `ISecuredRequest` and `ITransactionalRequest` (ADR-0026). Use the types in `Kck.Pipeline.Abstractions`. This
+  removal in a minor version went against the deprecation policy; later removals happen only in a major version.
+
+### Changed
+- XML documentation for the public members of the provider packages.
 
 ## [3.1.0] — 2026-05-17
 

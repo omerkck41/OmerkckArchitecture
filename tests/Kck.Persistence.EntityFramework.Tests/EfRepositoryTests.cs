@@ -1,5 +1,6 @@
 using AwesomeAssertions;
 using Kck.Persistence.Abstractions.Dynamic;
+using Kck.Persistence.Abstractions.Repositories;
 using Kck.Persistence.EntityFramework.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Xunit;
@@ -114,7 +115,7 @@ public class EfRepositoryTests : IDisposable
         );
         await _context.SaveChangesAsync();
 
-        var results = _sut.Query().ToList();
+        var results = _sut.Query(QueryOptions.None).ToList();
 
         results.Should().ContainSingle(e => e.Name == "Active");
         results.Should().NotContain(e => e.Name == "Deleted");
@@ -129,7 +130,7 @@ public class EfRepositoryTests : IDisposable
         );
         await _context.SaveChangesAsync();
 
-        var results = _sut.Query(withDeleted: true).ToList();
+        var results = _sut.Query(QueryOptions.WithDeleted).ToList();
 
         results.Should().HaveCount(2);
     }

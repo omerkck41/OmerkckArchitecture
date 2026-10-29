@@ -38,6 +38,45 @@ public sealed class QueryOptionsRepositoryTests : IDisposable
     }
 
     [Fact]
+    public async Task Query_ObsoleteBoolOverload_StillReturnsDeletedAndTrackedRows()
+    {
+        await Seed("Deleted", deleted: true);
+        var repository = new EfRepository<TestEntity, Guid>(_ctx);
+
+#pragma warning disable KCK0101 // the deprecated overload keeps working until v5.0
+        var item = repository.Query(withDeleted: true, enableTracking: true).Single();
+#pragma warning restore KCK0101
+
+        item.IsDeleted.Should().BeTrue();
+        _ctx.Entry(item).State.Should().Be(EntityState.Unchanged);
+    }
+
+    [Fact]
+    public void IQuery_QueryOptionsOverload_DefaultsToTheBoolOverloadOfOtherImplementations()
+    {
+        var rows = new[] { new TestEntity { Name = "Active" }, new TestEntity { Name = "Deleted", IsDeleted = true } };
+        IQuery<TestEntity> query = new ListQuery(rows);
+
+        query.Query(QueryOptions.WithDeleted, e => e.Name.Length > 0).Should().HaveCount(2);
+        query.Query(QueryOptions.None).Should().ContainSingle().Which.Name.Should().Be("Active");
+    }
+
+    // An IQuery implemented before the QueryOptions member existed.
+    private sealed class ListQuery(IEnumerable<TestEntity> rows) : IQuery<TestEntity>
+    {
+        [Obsolete("Implements the deprecated member.", DiagnosticId = "KCK0101")]
+        public IQueryable<TestEntity> Query(
+            System.Linq.Expressions.Expression<Func<TestEntity, bool>>? filter = null,
+            Func<IQueryable<TestEntity>, IOrderedQueryable<TestEntity>>? orderBy = null,
+            bool withDeleted = false,
+            bool enableTracking = false)
+        {
+            var query = rows.AsQueryable().Where(e => withDeleted || !e.IsDeleted);
+            return filter is null ? query : query.Where(filter);
+        }
+    }
+
+    [Fact]
     public void IReadRepository_HasNoBoolFlagOverloads()
     {
         var boolParameters = typeof(IReadRepository<,>).GetMethods()
