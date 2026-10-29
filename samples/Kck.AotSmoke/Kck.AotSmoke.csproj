@@ -29,6 +29,5 @@
     <ProjectReference Include="../../src/Providers/Kck.Localization/Kck.Localization.csproj" />
     <ProjectReference Include="../../src/Providers/Kck.Localization.Json/Kck.Localization.Json.csproj" />
     <ProjectReference Include="../../src/Providers/Kck.Resilience.Polly/Kck.Resilience.Polly.csproj" />
-    <ProjectReference Include="../../src/Providers/Kck.Logging.Serilog/Kck.Logging.Serilog.csproj" />
   </ItemGroup>
 </Project>

@@ -8,9 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
-- Native AOT: `Kck.Security.Jwt`, `Kck.Localization`, `Kck.Localization.Json`, `Kck.Resilience.Polly` and
-  `Kck.Logging.Serilog` are marked `IsAotCompatible` too; the CI native AOT smoke now issues and validates a JWT, reads a
-  JSON resource, runs a retry pipeline and writes a Serilog file.
+- Native AOT: `Kck.Security.Jwt`, `Kck.Localization`, `Kck.Localization.Json` and `Kck.Resilience.Polly` are marked
+  `IsAotCompatible` too; the CI native AOT smoke now issues and validates a JWT, reads a JSON resource and runs a retry
+  pipeline. `Kck.Logging.Serilog` is not: Serilog itself produces trim warnings (IL2104) under Native AOT.
 
 ### Fixed
 - `Kck.AspNetCore` — `ApiResponseHelper.CreateSuccess` returned `Success = true` with status 404 for a GET with

@@ -105,19 +105,6 @@ await pipeline.ExecuteAsync(_ =>
 });
 Check(attempts == 2, "Resilience.Polly");
 
-// Serilog replaces the logging pipeline, so it gets a container of its own.
-var logFile = Path.Join(workDir.FullName, "serilog-.log");
-await using (var serilogProvider = new ServiceCollection()
-                 .AddKckSerilog(b => b.WriteToFile(logFile, Serilog.RollingInterval.Day))
-                 .BuildServiceProvider())
-{
-    var serilogLogger = serilogProvider.GetRequiredService<ILoggerFactory>().CreateLogger("Kck.AotSmoke");
-    SmokeLog.SerilogProbe(serilogLogger, 42);
-}
-
-var logged = Directory.GetFiles(workDir.FullName, "serilog-*.log").Select(File.ReadAllText).SingleOrDefault() ?? "";
-Check(logged.Contains("serilog probe 42", StringComparison.Ordinal), "Logging.Serilog");
-
 workDir.Delete(recursive: true);
 return failures.Count == 0 ? 0 : 1;
 
@@ -151,9 +138,6 @@ internal static partial class SmokeLog
 
     [LoggerMessage(Level = LogLevel.Error, Message = "FAIL {Check}")]
     public static partial void Failed(ILogger logger, string check);
-
-    [LoggerMessage(Level = LogLevel.Information, Message = "serilog probe {Value}")]
-    public static partial void SerilogProbe(ILogger logger, int value);
 }
 
 [JsonSerializable(typeof(Count))]
