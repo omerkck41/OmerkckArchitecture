@@ -10,16 +10,15 @@ ve kademeli yukseltme politikasini tanimlar.
 icinde **kademeli** olarak yukselir; ancak yukseltme **test yazimina**
 baglidir, kararname ile degil.
 
-## Mevcut Esikler (2026-10-26 circir; build-test.yml)
+## Mevcut Esikler (2026-10-29 circir; build-test.yml)
 
-| Metrik | Esik | CI olcumu (main, 2026-10-29) | Yerel olcum (H20 testleriyle, 2026-10-29) |
-|---|---|---|---|
-| Line | **55%** | 59.4% | 72.9% |
-| Branch | **51%** | 56.8% | 70.1% |
+| Metrik | Esik | CI olcumu (3 ardisik yesil build, 2026-10-29) |
+|---|---|---|
+| Line | **70%** | 72.9% / 73.0% / 73.3% |
+| Branch | **67%** | 70.1% / 70.1% / 70.1% |
 
-> **H20 (2026-10-29):** Observability.OpenTelemetry, Http.Resilience, AspNetCore, Logging.Serilog ve abstraction'lar icin
-> birim testleri eklendi; Kademe 2 (65/50) yerelde asildi. Esik, asagidaki on sart 2 geregi main'de 3 ardisik yesil
-> build'den sonra ayri PR'da ~70/67'ye yukseltilir.
+> **H20 (2026-10-29, #222):** Observability.OpenTelemetry, Http.Resilience, AspNetCore, Logging.Serilog ve
+> abstraction'lar icin birim testleri. Esik, olcumun ~3 puan altinda (yerel / CI farkini emer). Onceki esik 55/51.
 
 > Yerel olcum: `dotnet test --collect:"XPlat Code Coverage"` +
 > `reportgenerator -reporttypes:TextSummary` ile uretildi (CI ile ayni komut).
@@ -38,7 +37,7 @@ Yol haritasi (her kademe ayri faz, test yazimi gerektirir):
 |---|---|---|---|
 | **0** | 40 | 35 | LS-FAZ-4 — regression onleme |
 | **1** ✅ | 50 | 45 | Faz-B2 — Entity/Paginate/Error/property-based testler |
-| **2** (yerelde asildi) | 65 | 50 | H20 — provider ve abstraction birim testleri (2026-10-29) |
+| **2** ✅ | 65 | 50 | H20 — provider ve abstraction birim testleri (2026-10-29, esik 70/67) |
 | **3** | 75 | 60 | Mutation testing (Stryker.NET) ile boslukları doldurarak |
 
 ## Bir Kademeyi Yukseltme Ön Sartlari
