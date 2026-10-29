@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1793227901990,
+  "lastUpdate": 1793279787725,
   "repoUrl": "https://github.com/omerkck41/OmerkckArchitecture",
   "entries": {
     "Benchmark": [
@@ -8878,6 +8878,102 @@ window.BENCHMARK_DATA = {
             "value": 5.765440301253245,
             "unit": "ns",
             "range": "± 0.09030606140496784"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "106805727+omerkck41@users.noreply.github.com",
+            "name": "Ömer KÜÇÜK",
+            "username": "omerkck41"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "1fe8fbf0995cb163e0521486397c8c1c7faf0db8",
+          "message": "fix(persistence): keep dependents of soft-deleted entities (#211)\n\n## Summary\n`DbContext.Remove` on a soft-deletable entity kept the row (soft\ndelete), but EF's cascade still hit its tracked\ndependents — data loss reproduced on SQLite (adversarial review F2/F3\nfrom #195, plus three more cases from this PR's\nreview). Planned for **4.2.4**.\n\n| Dependent | Before | After |\n|---|---|---|\n| Required, not soft-deletable (with or without a navigation), and their\ndependents | hard-deleted | kept |\n| Owned value (table splitting) | columns set to `NULL` | kept |\n| Many-to-many link | deleted | kept |\n| Optional | foreign key set to `NULL` | key restored |\n| Soft-deletable | soft-deleted | unchanged |\n| Owner deleted with `permanent: true` / not soft-deletable | cascade |\nunchanged |\n\n`AuditInterceptor` walks the soft-deleted entity's referencing foreign\nkeys (EF metadata, original key values, EF key\ncomparers) iteratively. Maintainer decision: a dependent removed,\nunlinked or nulled explicitly in the same\n`SaveChanges` is kept/restored too (documented in CHANGELOG and\n`docs/providers/persistence.md`).\n\n## Review\nTwo adversarial rounds. Round 1: navigation-only traversal missed\nnav-less FKs, optional SetNull and M2M — reproduced as\nfailing tests, fixed with the FK-based rewrite. Round 2: no\ncritical/high; \"other hard-deleted owner's cascade undone\"\ncould not be reproduced (EF re-runs cascade for deleted principals at\nsave; kept as a guard test); state pre-filter and\nkey comparers applied. Tracked: composite FK partially nulled,\npre-existing `SoftDeleteHelper` spreading to principals,\nsoft-deletable dependents under a permanent delete.\n\n## Test plan\n- [x] `AuditInterceptorRelationshipTests` (SQLite, 11): five data-loss\ncases RED before the fix; mutation probes\n(transitive push, FK restore, move guard, original recursion) each turn\none test RED\n- [x] Clean Release build 0 errors; 39 test projects green (Persistence\n171); pack validation vs 4.2.3\n- [ ] CI + Sonar (new-code coverage ≥ 80)\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\n---------\n\nCo-authored-by: Claude Opus 5.5 <noreply@anthropic.com>",
+          "timestamp": "2026-10-29T16:09:07+03:00",
+          "tree_id": "b672bb1ca42270b2ffbdf81f9a4daf1829c6705c",
+          "url": "https://github.com/omerkck41/OmerkckArchitecture/commit/1fe8fbf0995cb163e0521486397c8c1c7faf0db8"
+        },
+        "date": 1793279786885,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Success_Factory",
+            "value": 7.202039120594661,
+            "unit": "ns",
+            "range": "± 0.09214935298955546"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Failure_Factory",
+            "value": 14.660768183378073,
+            "unit": "ns",
+            "range": "± 0.734163410504026"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Success",
+            "value": 1.6380714055682932,
+            "unit": "ns",
+            "range": "± 0.0040577228231654045"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Failure",
+            "value": 0.5826904189128143,
+            "unit": "ns",
+            "range": "± 0.0036017077766316028"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Serialize_Reflection",
+            "value": 474.43553510079016,
+            "unit": "ns",
+            "range": "± 1.541220089969997"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Deserialize_Reflection",
+            "value": 825.7105863434928,
+            "unit": "ns",
+            "range": "± 2.564754701567242"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 0)",
+            "value": 11.321005577842394,
+            "unit": "ns",
+            "range": "± 0.13023952618515192"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 5)",
+            "value": 11.08568433523178,
+            "unit": "ns",
+            "range": "± 0.21394827152952875"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 0)",
+            "value": 10.891283360975129,
+            "unit": "ns",
+            "range": "± 0.22160551081494018"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 5)",
+            "value": 10.953565479389258,
+            "unit": "ns",
+            "range": "± 0.19399521218227006"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 0)",
+            "value": 11.160390264789264,
+            "unit": "ns",
+            "range": "± 0.17964372707633633"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 5)",
+            "value": 11.361797041694324,
+            "unit": "ns",
+            "range": "± 0.21853897118513346"
           }
         ]
       }
