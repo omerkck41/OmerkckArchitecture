@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1793297017051,
+  "lastUpdate": 1793297840794,
   "repoUrl": "https://github.com/omerkck41/OmerkckArchitecture",
   "entries": {
     "Benchmark": [
@@ -10126,6 +10126,102 @@ window.BENCHMARK_DATA = {
             "value": 10.42951906898192,
             "unit": "ns",
             "range": "± 0.12399195635462998"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "106805727+omerkck41@users.noreply.github.com",
+            "name": "Ömer KÜÇÜK",
+            "username": "omerkck41"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "c5d54e0c8016da373df947727461ba4d2c3d89f9",
+          "message": "chore(release): 4.3.0 changelog and coverage gate 70/67 (#224)\n\n## Summary\nRelease preparation for **4.3.0** (no tag here — the tag and the `nuget`\nenvironment approval stay with the maintainer).\n\n1. `docs(changelog)`: `[Unreleased]` → `[4.3.0] — 2026-10-29`, ordered\nAdded → Changed — behaviour → Deprecated →\nFixed (#217–#223). Adjust the date if the tag is pushed on another day.\nRelease notes draft for the GitHub Release\n   is in the session's `tasks/release-notes-v4.3.0.md`.\n2. `ci`: coverage gate 55/51 → **70/67**.\n`docs/policies/test-coverage.md` condition 2 (three consecutive green CI\nbuilds at the new level) met by #222: line 72.9 / 73.0 / 73.3 %, branch\n70.1 % (runs 40916378964, 40917790145,\n   40920285742). Policy table and roadmap row updated.\n\nVersion: minor (behaviour changes in persistence, one deprecation,\nadditive APIs; package validation vs 4.2.5 green\non every PR). After the release: bump `PackageValidationBaselineVersion`\nto 4.3.0 (as #216 did for 4.2.5).\n\n## Test plan\n- [ ] CI green with the new gate (main already contains the #222 tests)\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\n---------\n\nCo-authored-by: Claude Opus 5.5 <noreply@anthropic.com>",
+          "timestamp": "2026-10-29T18:10:22Z",
+          "tree_id": "d7fc19c86eccc75a40f12313ca60f040dd215fcb",
+          "url": "https://github.com/omerkck41/OmerkckArchitecture/commit/c5d54e0c8016da373df947727461ba4d2c3d89f9"
+        },
+        "date": 1793297839557,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Success_Factory",
+            "value": 3.7148641270718405,
+            "unit": "ns",
+            "range": "± 0.1588850744509807"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Failure_Factory",
+            "value": 4.918825908430985,
+            "unit": "ns",
+            "range": "± 0.29497417300423345"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Success",
+            "value": 0.47544174498090375,
+            "unit": "ns",
+            "range": "± 0.015915649531582716"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Failure",
+            "value": 0.44500358746601987,
+            "unit": "ns",
+            "range": "± 0.02669798542793114"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Serialize_Reflection",
+            "value": 239.3746678829193,
+            "unit": "ns",
+            "range": "± 3.0798674948272033"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Deserialize_Reflection",
+            "value": 416.23786848241633,
+            "unit": "ns",
+            "range": "± 9.787584523047045"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 0)",
+            "value": 5.779995615177966,
+            "unit": "ns",
+            "range": "± 0.3070529847311902"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 5)",
+            "value": 5.828508260158392,
+            "unit": "ns",
+            "range": "± 0.09637053155273308"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 0)",
+            "value": 5.818919252355894,
+            "unit": "ns",
+            "range": "± 0.125502899576455"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 5)",
+            "value": 5.787697556614876,
+            "unit": "ns",
+            "range": "± 0.11826380287670674"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 0)",
+            "value": 5.8839311347557945,
+            "unit": "ns",
+            "range": "± 0.09287427910302427"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 5)",
+            "value": 5.701135973930359,
+            "unit": "ns",
+            "range": "± 0.20351013178831562"
           }
         ]
       }
