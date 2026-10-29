@@ -36,11 +36,17 @@ public interface IUnitOfWork : IAsyncDisposable
     /// <remarks>
     /// When this method returns or throws, the transaction has ended: if the database commit fails, a rollback is
     /// attempted and the transaction is released before the error is rethrown. Do not call <see cref="RollbackAsync"/>
-    /// after a failed commit. When the commit outcome is unknown (connection lost or cancellation during the commit),
-    /// the changes may already be durable. An exception can also come after a successful commit (for example from
-    /// domain event dispatch); the changes are then durable.
+    /// after a failed commit. When the commit outcome is unknown (for example the connection is lost during the
+    /// commit), the changes may already be durable. An exception can also come after a successful commit (for example
+    /// from domain event dispatch); the changes are then durable.
     /// </remarks>
-    /// <param name="cancellationToken">Token to cancel the operation.</param>
+    /// <param name="cancellationToken">
+    /// Observed before the database commit starts (a canceled token rolls back and throws) and by the work that follows
+    /// a successful commit, such as domain event dispatch; the database commit itself is not canceled once started
+    /// (a dead connection is bounded by the provider's own timeouts). Canceled after the commit, the changes are
+    /// durable and dispatch may be canceled: its events go back on their entities, so only a later save through the
+    /// same context dispatches them — use an outbox when every event must be delivered.
+    /// </param>
     /// <exception cref="InvalidOperationException">
     /// No transaction is active, or the provider reports the transaction unusable.
     /// </exception>

@@ -52,6 +52,24 @@ public sealed class TransactionBehaviorTests
     }
 
     [Fact]
+    public async Task Handle_RequestCanceled_RollsBackWithoutTheCanceledToken()
+    {
+        var uow = Substitute.For<IUnitOfWork>();
+        var logger = new CapturingLogger<TransactionBehavior<TxMessage, string>>();
+        var sut = new TransactionBehavior<TxMessage, string>(uow, logger);
+        using var aborted = new CancellationTokenSource();
+        await aborted.CancelAsync();
+
+        var act = () => sut.Handle(
+            new TxMessage(),
+            (_, ct) => throw new OperationCanceledException(ct),
+            aborted.Token).AsTask();
+
+        await act.Should().ThrowAsync<OperationCanceledException>();
+        await uow.Received(1).RollbackAsync(Arg.Is<CancellationToken>(t => !t.IsCancellationRequested));
+    }
+
+    [Fact]
     public async Task Handle_CommitThrows_DoesNotRollBack_Rethrows()
     {
         var uow = Substitute.For<IUnitOfWork>();
