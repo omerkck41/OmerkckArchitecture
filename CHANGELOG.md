@@ -13,6 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   filter, orderBy)` member: `repo.Query()` → `repo.Query(QueryOptions.None)`, `Query(withDeleted: true)` →
   `Query(QueryOptions.WithDeleted)`, `Query(enableTracking: true)` → `Query(QueryOptions.Tracking)`. The new member
   has a default implementation, so existing `IQuery<T>` implementations keep compiling.
+  - `repo.Query(default)` is now ambiguous (CS0121); write `repo.Query(QueryOptions.None)`.
+  - Mocks (NSubstitute / Moq) set up on the old overload are not hit by calls to the new one; move the setups.
 
 ### Fixed
 - `Kck.Persistence.EntityFramework` — repository soft delete and `DbContext.Remove` under `AuditInterceptor` now
