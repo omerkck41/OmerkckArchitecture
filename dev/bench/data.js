@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1793280374575,
+  "lastUpdate": 1793282842549,
   "repoUrl": "https://github.com/omerkck41/OmerkckArchitecture",
   "entries": {
     "Benchmark": [
@@ -9070,6 +9070,102 @@ window.BENCHMARK_DATA = {
             "value": 13.426686652004719,
             "unit": "ns",
             "range": "± 0.36793521868085916"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "106805727+omerkck41@users.noreply.github.com",
+            "name": "Ömer KÜÇÜK",
+            "username": "omerkck41"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "7553cd279860f52a3bef2b101388594f24851c30",
+          "message": "build: validate packages against released 4.2.4 (#213)\n\n## Summary\nPost-release step for v4.2.4: `PackageValidationBaselineVersion` 4.2.3 →\n4.2.4.\n\nv4.2.4 verified on nuget.org: 58/58 packages list only 4.2.4 (4.2.3\nunlisted by the release workflow;\n`Kck.Observability.OpenTelemetry` checked through its registration).\nGitHub Release \"Kck 4.2.4\" is marked Latest.\n\n## Test plan\n- [x] `dotnet pack -c Release` (invariant globalization): exit 0, 58\npackages validated against the downloaded 4.2.4\n      baselines\n- [ ] CI green\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-authored-by: Claude Opus 5.5 <noreply@anthropic.com>",
+          "timestamp": "2026-10-29T16:56:06+03:00",
+          "tree_id": "e45e9bab098a9eca2f6c6bf3a3ee1d17dc1b1faa",
+          "url": "https://github.com/omerkck41/OmerkckArchitecture/commit/7553cd279860f52a3bef2b101388594f24851c30"
+        },
+        "date": 1793282840404,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Success_Factory",
+            "value": 5.4545953986515485,
+            "unit": "ns",
+            "range": "± 0.43860272544391277"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Failure_Factory",
+            "value": 6.33355218455905,
+            "unit": "ns",
+            "range": "± 0.4643425361168108"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Success",
+            "value": 1.2551410721242429,
+            "unit": "ns",
+            "range": "± 0.09651473637636711"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Failure",
+            "value": 0.544528185389936,
+            "unit": "ns",
+            "range": "± 0.02461405718138611"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Serialize_Reflection",
+            "value": 300.89459628529016,
+            "unit": "ns",
+            "range": "± 5.561636150657622"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Deserialize_Reflection",
+            "value": 535.4407464947019,
+            "unit": "ns",
+            "range": "± 22.154354929937245"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 0)",
+            "value": 10.076241911830087,
+            "unit": "ns",
+            "range": "± 0.6359547043487244"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 5)",
+            "value": 10.191509660672057,
+            "unit": "ns",
+            "range": "± 0.5823815649097838"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 0)",
+            "value": 11.176356729865073,
+            "unit": "ns",
+            "range": "± 0.4404600339901041"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 5)",
+            "value": 11.430121807889504,
+            "unit": "ns",
+            "range": "± 0.3273288556247341"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 0)",
+            "value": 10.883439086120704,
+            "unit": "ns",
+            "range": "± 0.5777961975907276"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 5)",
+            "value": 9.061460797603313,
+            "unit": "ns",
+            "range": "± 0.1792986544920527"
           }
         ]
       }
