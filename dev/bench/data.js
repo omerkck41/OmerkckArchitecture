@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1793306252698,
+  "lastUpdate": 1793307261200,
   "repoUrl": "https://github.com/omerkck41/OmerkckArchitecture",
   "entries": {
     "Benchmark": [
@@ -10894,6 +10894,102 @@ window.BENCHMARK_DATA = {
             "value": 6.455362945795059,
             "unit": "ns",
             "range": "± 0.1536835958242702"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "106805727+omerkck41@users.noreply.github.com",
+            "name": "Ömer KÜÇÜK",
+            "username": "omerkck41"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "f1304bfc7f3c74246a2b998204882a6d0c0e4f1d",
+          "message": "feat(aot): verify four more providers in the native AOT smoke (#232)\n\n## Summary\nH22 follow-up (todo: analyzer-clean but not smoke-tested):\n`Kck.Security.Jwt`, `Kck.Localization`, `Kck.Localization.Json`,\n`Kck.Resilience.Polly` are now `IsAotCompatible`, each exercised by\n`samples/Kck.AotSmoke`:\n\n| Provider | Smoke check |\n|---|---|\n| Security.Jwt | issue + validate an RS256 token (key generated at\nruntime, nothing hard-coded); tampered token rejected |\n| Localization + .Json | `GetStringAsync(\"greeting\", \"en\", [\"Kck\"])`\nfrom a temp `en.json` → \"Hello Kck\" |\n| Resilience.Polly | named pipeline retries once after a transient\nexception |\n\n**Not AOT-compatible: `Kck.Logging.Serilog`.** The first CI native\npublish failed with `IL2104: Assembly 'Serilog' produced trim warnings`\n— the warnings are inside Serilog itself, so the check and the\n`IsAotCompatible` claim were dropped (a5fe24a) instead of suppressing\nthem. CHANGELOG says so.\n\n## Test plan\n- [x] JIT run: 9/9 PASS\n- [x] `restore --force-evaluate` + `--locked-mode` clean; Release build\n0 errors\n- [ ] CI `Native AOT smoke` green (merged manually — not a required\ncheck)\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\n---------\n\nCo-authored-by: Claude Opus 5.5 <noreply@anthropic.com>",
+          "timestamp": "2026-10-29T20:48:12Z",
+          "tree_id": "f9c14aaa9d43682d55c6653dce3d01062ece3f34",
+          "url": "https://github.com/omerkck41/OmerkckArchitecture/commit/f1304bfc7f3c74246a2b998204882a6d0c0e4f1d"
+        },
+        "date": 1793307260333,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Success_Factory",
+            "value": 3.5358621202982388,
+            "unit": "ns",
+            "range": "± 0.07680147136872921"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Failure_Factory",
+            "value": 4.580319118819067,
+            "unit": "ns",
+            "range": "± 0.11859086135285762"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Success",
+            "value": 0.50348668971232,
+            "unit": "ns",
+            "range": "± 0.02020224329997422"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Failure",
+            "value": 0.45520294085144997,
+            "unit": "ns",
+            "range": "± 0.018665040890810832"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Serialize_Reflection",
+            "value": 251.44136844362532,
+            "unit": "ns",
+            "range": "± 3.366780565043543"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Deserialize_Reflection",
+            "value": 410.8793268637224,
+            "unit": "ns",
+            "range": "± 9.820652428468025"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 0)",
+            "value": 5.763666741549969,
+            "unit": "ns",
+            "range": "± 0.1461603774770802"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 5)",
+            "value": 5.704264039794604,
+            "unit": "ns",
+            "range": "± 0.11658810073466751"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 0)",
+            "value": 5.716274341302259,
+            "unit": "ns",
+            "range": "± 0.13691105643842463"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 5)",
+            "value": 5.650423007576089,
+            "unit": "ns",
+            "range": "± 0.26517525618049403"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 0)",
+            "value": 5.673757389187813,
+            "unit": "ns",
+            "range": "± 0.11487362815632127"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 5)",
+            "value": 5.504277490079403,
+            "unit": "ns",
+            "range": "± 0.13761984512562866"
           }
         ]
       }
