@@ -49,17 +49,19 @@ public sealed class EfUnitOfWork(DbContext context, IEfRepositoryFactory reposit
 
     // Whether the commit succeeds or fails, the transaction is gone when this returns, so callers never roll back after
     // CommitAsync. A successful commit releases it before the events are dispatched, so a dispatch failure leaves the
-    // unit of work ready for the next transaction.
+    // unit of work ready for the next transaction. The token can stop the commit only before it starts: canceled while
+    // it runs, the commit's outcome would be unknown (a request abort must not leave the caller guessing).
     private async Task CommitCurrentAsync(IDbContextTransaction transaction, CancellationToken cancellationToken)
     {
         try
         {
-            await transaction.CommitAsync(cancellationToken);
+            cancellationToken.ThrowIfCancellationRequested();
+            await transaction.CommitAsync(CancellationToken.None);
         }
         catch
         {
             await RollbackAfterFailedCommitAsync(transaction);
-            await ReleaseTransactionAsync();
+            await ReleaseAfterFailedCommitAsync();
             throw;
         }
 
@@ -76,6 +78,18 @@ public sealed class EfUnitOfWork(DbContext context, IEfRepositoryFactory reposit
         catch (Exception rollbackError) when (rollbackError is not OutOfMemoryException) // NOSONAR S2486 - the commit error is rethrown by the caller; a failing rollback adds nothing to it
         {
             // The commit error is the one the caller needs; a rollback that also fails changes nothing for it.
+        }
+    }
+
+    private async Task ReleaseAfterFailedCommitAsync()
+    {
+        try
+        {
+            await ReleaseTransactionAsync();
+        }
+        catch (Exception disposeError) when (disposeError is not OutOfMemoryException) // NOSONAR S2486 - the commit error is rethrown by the caller; the transaction is already released
+        {
+            // As above: the commit error is the one the caller needs.
         }
     }
 

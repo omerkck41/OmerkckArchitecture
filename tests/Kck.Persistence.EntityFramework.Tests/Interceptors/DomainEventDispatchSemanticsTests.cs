@@ -1,6 +1,7 @@
 using AwesomeAssertions;
 using Kck.Core.Abstractions.Entities;
 using Kck.Persistence.EntityFramework.Interceptors;
+using Kck.Persistence.EntityFramework.Repositories;
 using Kck.Persistence.EntityFramework.UnitOfWork;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
@@ -175,6 +176,58 @@ public sealed class DomainEventDispatchSemanticsTests : IAsyncLifetime
         await save.Should().ThrowAsync<OperationCanceledException>();
         _dispatcher.CallCount.Should().Be(0);
         entity.DomainEvents.Should().Equal(domainEvent);
+    }
+
+    [Fact]
+    public async Task CanceledWhileWriting_EventsGoBackOnTheEntityAndAreNotDispatched()
+    {
+        await using var ctx = new TestDbContext(new DbContextOptionsBuilder<TestDbContext>()
+            .UseSqlite(_connection)
+            .AddInterceptors(
+                new DomainEventDispatchInterceptor(_dispatcher, NullLogger<DomainEventDispatchInterceptor>.Instance),
+                new CancelOnWriteInterceptor())
+            .Options);
+        var entity = new TestEntity { Id = Guid.NewGuid(), Name = "A" };
+        var domainEvent = new TestDomainEvent();
+        entity.AddDomainEvent(domainEvent);
+        ctx.TestEntities.Add(entity);
+
+        var save = () => ctx.SaveChangesAsync();
+
+        await save.Should().ThrowAsync<OperationCanceledException>();
+        _dispatcher.CallCount.Should().Be(0);
+        entity.DomainEvents.Should().Equal(domainEvent);
+    }
+
+    [Fact]
+    public void SyncSaveChanges_DeletedEntity_EventsAreDispatched()
+    {
+        var entity = new PlainEntity { Id = Guid.NewGuid(), Name = "A" };
+        _ctx.PlainEntities.Add(entity);
+        _ctx.SaveChanges();
+        var deleted = new TestDomainEvent();
+        entity.AddDomainEvent(deleted);
+
+        _ctx.PlainEntities.Remove(entity);
+        _ctx.SaveChanges();
+
+        _dispatcher.Received.Should().Equal(deleted);
+        _ctx.PlainEntities.Any().Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task SyncSaveChanges_PermanentRepositoryDelete_EventsAreDispatched()
+    {
+        var entity = AddWithEvent(out var added);
+        _ctx.SaveChanges();
+        var deleted = new TestDomainEvent();
+        entity.AddDomainEvent(deleted);
+
+        await new EfRepository<TestEntity, Guid>(_ctx).DeleteAsync(entity, permanent: true);
+        _ctx.SaveChanges();
+
+        _dispatcher.Received.Should().Equal(added, deleted);
+        _ctx.TestEntities.Any().Should().BeFalse();
     }
 
     [Fact]
@@ -411,6 +464,24 @@ public sealed class DomainEventDispatchSemanticsTests : IAsyncLifetime
             FailNext = false;
             throw new InvalidOperationException("saving rejected");
         }
+    }
+
+    // Cancels the save after the interceptors' SavingChanges ran: EF reports it through SaveChangesCanceled.
+    private sealed class CancelOnWriteInterceptor : DbCommandInterceptor
+    {
+        public override ValueTask<InterceptionResult<System.Data.Common.DbDataReader>> ReaderExecutingAsync(
+            System.Data.Common.DbCommand command,
+            CommandEventData eventData,
+            InterceptionResult<System.Data.Common.DbDataReader> result,
+            CancellationToken cancellationToken = default) =>
+            throw new OperationCanceledException("canceled while writing");
+
+        public override ValueTask<InterceptionResult<int>> NonQueryExecutingAsync(
+            System.Data.Common.DbCommand command,
+            CommandEventData eventData,
+            InterceptionResult<int> result,
+            CancellationToken cancellationToken = default) =>
+            throw new OperationCanceledException("canceled while writing");
     }
 
     private sealed class ToggleDispatcher : IDomainEventDispatcher

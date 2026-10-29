@@ -19,22 +19,37 @@ public class EfRepository<T, TId>(
     IFilterPropertyWhitelist<T>? whitelist = null) : IRepository<T, TId>
     where T : Entity<TId>
 {
+    // Deletes and reverts find the row whether or not it is already soft-deleted.
+    private static readonly QueryOptions TrackingWithDeleted = new(IncludeDeleted: true, AsTracking: true);
+
     protected DbContext Context { get; } = context;
     protected DbSet<T> DbSet => Context.Set<T>();
 
     /// <inheritdoc />
+    [Obsolete(
+        "Positional bool flags are replaced by QueryOptions: use Query(QueryOptions.None, filter, orderBy) " +
+        "(or QueryOptions.Tracking / QueryOptions.WithDeleted). Removed in v5.0.",
+        DiagnosticId = "KCK0101",
+        UrlFormat = "https://github.com/omerkck41/OmerkckArchitecture/blob/main/docs/policies/deprecation.md#{0}")]
     public IQueryable<T> Query(
         Expression<Func<T, bool>>? filter = null,
         Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null,
         bool withDeleted = false,
         bool enableTracking = false)
+        => Query(new QueryOptions(withDeleted, enableTracking), filter, orderBy);
+
+    /// <inheritdoc />
+    public IQueryable<T> Query(
+        QueryOptions options,
+        Expression<Func<T, bool>>? filter = null,
+        Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null)
     {
         IQueryable<T> query = DbSet;
 
-        if (!enableTracking)
+        if (!options.AsTracking)
             query = query.AsNoTracking();
 
-        if (!withDeleted)
+        if (!options.IncludeDeleted)
             query = query.Where(e => !((ISoftDeletable)e).IsDeleted);
 
         if (filter is not null)
@@ -45,16 +60,6 @@ public class EfRepository<T, TId>(
 
         return query;
     }
-
-    /// <summary>
-    /// Convenience overload that accepts a <see cref="QueryOptions"/> value object
-    /// instead of positional boolean flags.
-    /// </summary>
-    public IQueryable<T> Query(
-        QueryOptions options,
-        Expression<Func<T, bool>>? filter = null,
-        Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null)
-        => Query(filter, orderBy, options.IncludeDeleted, options.AsTracking);
 
     /// <inheritdoc />
     public async Task<T?> GetAsync(
@@ -247,7 +252,7 @@ public class EfRepository<T, TId>(
         bool permanent = false,
         CancellationToken cancellationToken = default)
     {
-        var entity = await Query(predicate, withDeleted: true, enableTracking: true)
+        var entity = await Query(TrackingWithDeleted, predicate)
             .FirstOrDefaultAsync(cancellationToken);
 
         if (entity is null)
@@ -262,7 +267,7 @@ public class EfRepository<T, TId>(
         bool permanent = false,
         CancellationToken cancellationToken = default)
     {
-        var entity = await Query(withDeleted: true, enableTracking: true)
+        var entity = await Query(TrackingWithDeleted)
             .FirstOrDefaultAsync(e => e.Id!.Equals(id), cancellationToken);
 
         if (entity is null)
@@ -274,7 +279,7 @@ public class EfRepository<T, TId>(
     /// <inheritdoc />
     public async Task<T> RevertSoftDeleteAsync(TId id, CancellationToken cancellationToken = default)
     {
-        var entity = await Query(withDeleted: true, enableTracking: true)
+        var entity = await Query(TrackingWithDeleted)
             .FirstOrDefaultAsync(e => e.Id!.Equals(id), cancellationToken);
 
         if (entity is null)

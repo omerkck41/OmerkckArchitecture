@@ -1,5 +1,6 @@
 using AwesomeAssertions;
 using Kck.Persistence.Abstractions.Dynamic;
+using Kck.Persistence.Abstractions.Repositories;
 using Kck.Persistence.EntityFramework.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Xunit;
@@ -42,7 +43,7 @@ public sealed class EfRepositoryMutationTests : IDisposable
     {
         await Seed("Tracked");
 
-        var item = _sut.Query(enableTracking: true).Single();
+        var item = _sut.Query(QueryOptions.Tracking).Single();
 
         _ctx.Entry(item).State.Should().Be(EntityState.Unchanged);
     }
@@ -52,7 +53,7 @@ public sealed class EfRepositoryMutationTests : IDisposable
     {
         await Seed("Untracked");
 
-        var item = _sut.Query().Single();
+        var item = _sut.Query(QueryOptions.None).Single();
 
         _ctx.Entry(item).State.Should().Be(EntityState.Detached);
     }
