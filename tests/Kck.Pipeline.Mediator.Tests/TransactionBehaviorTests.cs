@@ -70,6 +70,24 @@ public sealed class TransactionBehaviorTests
     }
 
     [Fact]
+    public async Task Handle_HandlerAndRollbackThrow_SurfacesTheHandlerErrorAndLogsTheRollbackError()
+    {
+        var uow = Substitute.For<IUnitOfWork>();
+        uow.RollbackAsync(Arg.Any<CancellationToken>())
+            .Returns(Task.FromException(new InvalidOperationException("rollback failed")));
+        var logger = new CapturingLogger<TransactionBehavior<TxMessage, string>>();
+        var sut = new TransactionBehavior<TxMessage, string>(uow, logger);
+
+        var act = () => sut.Handle(
+            new TxMessage(),
+            (_, _) => throw new ArgumentException("handler failed"),
+            CancellationToken.None).AsTask();
+
+        (await act.Should().ThrowAsync<ArgumentException>()).WithMessage("handler failed");
+        logger.Entries.Should().Contain(e => e.Contains("Rollback failed") && e.Contains(nameof(TxMessage)));
+    }
+
+    [Fact]
     public async Task Handle_CommitThrows_DoesNotRollBack_Rethrows()
     {
         var uow = Substitute.For<IUnitOfWork>();
