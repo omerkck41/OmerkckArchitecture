@@ -19,11 +19,11 @@ builder.Services.AddKckCachingInMemory(options =>
 });
 
 // Usage
-public class CatalogService(ICacheService cache)
+public class CatalogService(ICacheService cache, AppDbContext db)
 {
-    public async Task<IReadOnlyList<Category>> GetCategoriesAsync(CancellationToken ct)
+    public async Task<List<Category>?> GetCategoriesAsync(CancellationToken ct)
         => await cache.GetOrSetAsync("categories",
-               () => _db.Categories.ToListAsync(ct),
+               () => db.Categories.ToListAsync(ct),
                ct: ct);
 }
 ```

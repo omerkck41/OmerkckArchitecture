@@ -74,6 +74,12 @@ jobs:
       - name: Restore
         run: dotnet restore --locked-mode
 
+      # README code blocks are compiled by the Build step (samples/Kck.ReadmeSnippets); this fails when a README was
+      # edited without regenerating them (F3 H21).
+      - name: README code blocks up to date
+        if: matrix.os == 'ubuntu-latest'
+        run: python3 -I .github/scripts/readme_snippets.py --check
+
       - name: Audit transitive dependencies
         if: matrix.os == 'ubuntu-latest'
         shell: bash

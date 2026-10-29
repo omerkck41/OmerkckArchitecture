@@ -15,6 +15,8 @@ dotnet add package Kck.Persistence.EntityFramework
 
 ```csharp
 // Program.cs — register the Entity Framework provider
+using Kck.Persistence.EntityFramework.Extensions;
+
 builder.Services.AddKckPersistence(p => p
     .UseEntityFramework<AppDbContext>(o => o
         .UseSqlServer(builder.Configuration.GetConnectionString("Default")))

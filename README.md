@@ -13,14 +13,14 @@ Modular, extensible .NET framework organized around an **Abstractions → Provid
 
 ```bash
 dotnet add package Kck.Bundle.WebApi
+dotnet add package Kck.Messaging.MailKit
 ```
 
 ```csharp
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services
-    .AddKckWebApi()
-    .AddKckCachingInMemory()
+    .AddKckWebApiDefaults(builder.Configuration)   // Serilog, InMemory cache, JWT, Argon2, event bus, exceptions, OTel
     .AddKckMessagingMailKit(opt =>
     {
         opt.Host = builder.Configuration["Mail:Host"]!;
@@ -29,7 +29,7 @@ builder.Services
     });
 
 var app = builder.Build();
-app.UseKckExceptionHandler();
+app.UseKckWebApiDefaults();                        // exception handling + Kck.AspNetCore middleware
 app.MapGet("/", () => Results.Ok("Hello from Kck!"));
 app.Run();
 ```
@@ -39,16 +39,19 @@ app.Run();
 ### Minimal API (Slim, only what you need)
 
 ```bash
-dotnet add package Kck.AspNetCore
+dotnet add package Kck.Exceptions.AspNetCore
 dotnet add package Kck.Caching.InMemory
 dotnet add package Kck.Pipeline.Mediator
+dotnet add package Mediator.SourceGenerator    # generates AddMediator() and the dispatcher
 ```
 
 ```csharp
+using Kck.Exceptions.AspNetCore.Extensions;
+
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services
-    .AddKckExceptions()
+    .AddKckExceptionHandling()
     .AddKckCachingInMemory()
     .AddMediator()                          // Mediator source-gen dispatcher
     .AddKckMediatorPipeline(p => p
@@ -56,6 +59,7 @@ builder.Services
         .UseLoggingBehavior());
 
 var app = builder.Build();
+app.UseKckExceptionHandling();
 app.MapPost("/users", async (CreateUserCommand cmd, IMediator mediator) =>
     Results.Ok(await mediator.Send(cmd)));
 app.Run();
