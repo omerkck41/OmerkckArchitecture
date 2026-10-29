@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1793303395550,
+  "lastUpdate": 1793304589606,
   "repoUrl": "https://github.com/omerkck41/OmerkckArchitecture",
   "entries": {
     "Benchmark": [
@@ -10606,6 +10606,102 @@ window.BENCHMARK_DATA = {
             "value": 8.693146727406061,
             "unit": "ns",
             "range": "± 0.05391166539847995"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "106805727+omerkck41@users.noreply.github.com",
+            "name": "Ömer KÜÇÜK",
+            "username": "omerkck41"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "e5354a5a3fccc9e34a6f4d3fa9fa68fab0f025ac",
+          "message": "ci: pin docfx and dotnet-sonarscanner as local tools (#229)\n\n## Summary\nFollow-up of the #228 adversarial review: `docs.yml` (docfx) and\n`sonar.yml` (dotnet-sonarscanner) installed **unpinned global tools** —\nevery run took that day's latest version and the license gate never saw\nthem.\n\n- Both pinned in `.config/dotnet-tools.json` at the versions CI already\ninstalls today (no behaviour change): **docfx 2.81.0** (2026-09-25, MIT)\nand **dotnet-sonarscanner 12.0.0** (2026-10-15). Both are the latest\nstable on nuget.org, not deprecated, no known vulnerabilities, not in\nthe deprecated registry (catalog checked 2026-10-29).\n- Workflows: `dotnet tool restore` + `dotnet docfx …` / `dotnet\nsonarscanner …` (verified locally: 2.81.0 / 12.0).\n- sonarscanner ships its licence as a file: **GNU LGPL v3** → documented\nexception in `.github/license-policy.json` (CI-only, never shipped in or\nlinked into Kck packages; free). Text pinned by SHA-256.\n- Decision record: `decisions/2026-10-29-ci-tools-pinned.md`\n(alternative rejected: `--version` on the global install — reproducible\nbut still outside the gate). Dependabot's `nuget` ecosystem at `/`\nupdates the manifest.\n\n## Test plan\n- [x] #228's gate run against this branch: 233 packages (7 tools), 0\nviolations, sonarscanner reported as exception\n- [ ] CI: docs and sonar workflows with the local tools; license-audit\n\nMerge after #228 (then `docs/licensing.md`'s \"global tools are not\nchecked yet\" sentence is updated here).\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\n---------\n\nCo-authored-by: Claude Opus 5.5 <noreply@anthropic.com>",
+          "timestamp": "2026-10-29T20:02:38Z",
+          "tree_id": "02be1e816e0dbbcc3b1f3e8a03f58a7206ca87e8",
+          "url": "https://github.com/omerkck41/OmerkckArchitecture/commit/e5354a5a3fccc9e34a6f4d3fa9fa68fab0f025ac"
+        },
+        "date": 1793304588842,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Success_Factory",
+            "value": 6.052741072575251,
+            "unit": "ns",
+            "range": "± 0.1353410520006185"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Failure_Factory",
+            "value": 8.301209088166555,
+            "unit": "ns",
+            "range": "± 0.189942952325731"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Success",
+            "value": 1.0058568976819515,
+            "unit": "ns",
+            "range": "± 0.1478978822155392"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Failure",
+            "value": 0.6656028474015849,
+            "unit": "ns",
+            "range": "± 0.0068396628465974005"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Serialize_Reflection",
+            "value": 416.846098502477,
+            "unit": "ns",
+            "range": "± 4.37785634430392"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Deserialize_Reflection",
+            "value": 745.9167981465657,
+            "unit": "ns",
+            "range": "± 5.125424623362174"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 0)",
+            "value": 10.2861313733917,
+            "unit": "ns",
+            "range": "± 0.03315688714988408"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 5)",
+            "value": 12.520770794578961,
+            "unit": "ns",
+            "range": "± 0.09912258678852998"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 0)",
+            "value": 10.454602078667708,
+            "unit": "ns",
+            "range": "± 0.09003084296124725"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 5)",
+            "value": 10.524580422043801,
+            "unit": "ns",
+            "range": "± 0.1424781068070498"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 0)",
+            "value": 10.083157868434986,
+            "unit": "ns",
+            "range": "± 0.0492973069955237"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 5)",
+            "value": 10.841312803824742,
+            "unit": "ns",
+            "range": "± 0.05589082676838359"
           }
         ]
       }
