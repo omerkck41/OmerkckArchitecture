@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- `Kck.Persistence.EntityFramework` — `UseEntityFrameworkPool<TContext>(configure, poolSize)`: DbContext pooling with
+  the same registrations as `UseEntityFramework`. `AddAuditInterceptor` and `AddDomainEventDispatch` work with it; the
+  pooled domain event interceptor resolves the dispatcher from a new scope for each dispatch.
+
 ## [4.4.0] — 2026-10-30
 
 ### Added

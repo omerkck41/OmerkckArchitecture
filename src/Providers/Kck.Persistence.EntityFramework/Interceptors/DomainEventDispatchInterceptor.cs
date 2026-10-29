@@ -4,6 +4,7 @@ using Kck.Core.Abstractions.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace Kck.Persistence.EntityFramework.Interceptors;
@@ -15,13 +16,29 @@ namespace Kck.Persistence.EntityFramework.Interceptors;
 /// commit, or by the context's next SaveChanges when the transaction was committed directly.
 /// If the dispatcher throws, the events go back to their entities so the next save dispatches them again.
 /// </summary>
-public sealed partial class DomainEventDispatchInterceptor(
-    IDomainEventDispatcher dispatcher,
-    ILogger<DomainEventDispatchInterceptor> logger) : SaveChangesInterceptor, IDbTransactionInterceptor
+public sealed partial class DomainEventDispatchInterceptor : SaveChangesInterceptor, IDbTransactionInterceptor
 {
+    private readonly IDomainEventDispatcher? _dispatcher;
+    private readonly IServiceScopeFactory? _scopeFactory;
+    private readonly ILogger<DomainEventDispatchInterceptor> logger;
     private readonly ConditionalWeakTable<DbTransaction, List<EntityEvents>> _parked = new();
     private readonly ConditionalWeakTable<DbContext, List<EntityEvents>> _committed = new();
     private readonly ConditionalWeakTable<DbContext, List<EntityEvents>> _saving = new();
+
+    /// <summary>Dispatches through <paramref name="dispatcher"/> (a scoped interceptor, one per DbContext scope).</summary>
+    public DomainEventDispatchInterceptor(IDomainEventDispatcher dispatcher, ILogger<DomainEventDispatchInterceptor> logger)
+    {
+        _dispatcher = dispatcher;
+        this.logger = logger;
+    }
+
+    // Pooled contexts share one options instance, so the interceptor is a singleton: each dispatch resolves the
+    // dispatcher from a new scope. Internal so the container never has to choose between two constructors.
+    internal DomainEventDispatchInterceptor(IServiceScopeFactory scopeFactory, ILogger<DomainEventDispatchInterceptor> logger)
+    {
+        _scopeFactory = scopeFactory;
+        this.logger = logger;
+    }
 
     // Events are collected before the save: once it succeeds, EF detaches deleted entities, and their events would be
     // out of reach.
@@ -248,7 +265,16 @@ public sealed partial class DomainEventDispatchInterceptor(
 
         try
         {
-            await dispatcher.DispatchAsync(collected.SelectMany(c => c.Events).ToList(), cancellationToken);
+            var events = collected.SelectMany(c => c.Events).ToList();
+            if (_dispatcher is not null)
+            {
+                await _dispatcher.DispatchAsync(events, cancellationToken);
+            }
+            else
+            {
+                await using var scope = _scopeFactory!.CreateAsyncScope();
+                await scope.ServiceProvider.GetRequiredService<IDomainEventDispatcher>().DispatchAsync(events, cancellationToken);
+            }
         }
         catch
         {

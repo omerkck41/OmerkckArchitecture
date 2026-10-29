@@ -24,6 +24,22 @@ ve `AddDomainEventDispatch<TDispatcher>()` ile kaydedilen interceptor'lar DbCont
 ayni tipte bir interceptor `configure` icinde `AddInterceptors(...)` ile zaten eklenmisse ikinci kez eklenmez
 (`OnConfiguring`'de eklenen gorulmez).
 
+### DbContext pooling (4.5.0+)
+
+```csharp
+services.AddKckPersistence(p => p
+    .UseEntityFrameworkPool<AppDbContext>(o => o.UseSqlServer(connectionString), poolSize: 1024)
+    .AddAuditInterceptor()
+    .AddDomainEventDispatch<MediatorDomainEventDispatcher>());
+```
+
+`UseEntityFrameworkPool` `AddDbContextPool` kullanir; kayitlar `UseEntityFramework` ile aynidir. Havuzdaki context'ler tek
+bir options ornegini paylasir: `configure` bir kez, root servis saglayicisindan calisir. Domain event dispatcher'i her
+dagitimda yeni bir scope'tan cozulur — handler'in kaydettigi DbContext, event'i ureten context degil, kendi scope'unun
+context'idir. `Database.BeginTransaction` ile acilip dogrudan commit edilen bir transaction'in event'leri (asagida)
+havuzdaki ayni context'in bir sonraki `SaveChanges`'ine, yani baska bir istege kalabilir; transaction'lari `IUnitOfWork`
+ile commit edin.
+
 ## Repository kullanimi
 
 Repository'ler `IUnitOfWork` uzerinden alinir:
