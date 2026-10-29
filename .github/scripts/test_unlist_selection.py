@@ -83,8 +83,6 @@ class ManualUnlistDecisionTests(unittest.TestCase):
         self.assertEqual(self.decide("4.0.0-RC.1", [("4.0.0-rc.1", True)]), "delete")
 
 
-if __name__ == "__main__":
-    unittest.main()
 
 
 class DeleteFailureTests(unittest.TestCase):
@@ -110,3 +108,7 @@ class DeleteFailureTests(unittest.TestCase):
             self.assertTrue(is_permanent("Response status code does not indicate success: 404 (Not Found)."))
             self.assertFalse(is_permanent("Response status code does not indicate success: 503 (Service Unavailable)."))
             self.assertFalse(is_permanent("The request timed out after 4040 ms"))
+
+
+if __name__ == "__main__":
+    unittest.main()

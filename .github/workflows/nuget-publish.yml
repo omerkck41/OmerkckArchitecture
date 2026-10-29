@@ -286,8 +286,15 @@ jobs:
             exit 1
           fi
           # The run must have built the commit the tag points at; a branch with the tag's name, or a tag
-          # pushed again to another commit, must not pick the package set.
-          tag_sha=$(gh api "repos/$REPO/commits/$TAG_INPUT" --jq .sha)
+          # pushed again to another commit, must not pick the package set. git/ref/tags matches tags only;
+          # an annotated tag points at a tag object, which points at the commit.
+          read -r obj_type obj_sha < <(gh api "repos/$REPO/git/ref/tags/$TAG_INPUT" \
+            --jq '"\(.object.type) \(.object.sha)"')
+          if [[ "$obj_type" == "tag" ]]; then
+            tag_sha=$(gh api "repos/$REPO/git/tags/$obj_sha" --jq .object.sha)
+          else
+            tag_sha="$obj_sha"
+          fi
           if [[ ! "$tag_sha" =~ ^[0-9a-f]{40}$ ]]; then
             echo "::error::Could not resolve the tag to a commit"
             exit 1
@@ -299,7 +306,7 @@ jobs:
             --jq "[.[] | select(.headSha == \"$tag_sha\") | .databaseId | tostring] | join(\" \")")
           runs=()
           for id in $candidates; do
-            pushed=$(gh api "repos/$REPO/actions/runs/$id/jobs" --jq '[.jobs[] | select(.name == "Push to NuGet")
+            pushed=$(gh api "repos/$REPO/actions/runs/$id/jobs?filter=all" --jq '[.jobs[] | select(.name == "Push to NuGet")
               | .steps[] | select(.name == "Push to NuGet" and .conclusion == "success")] | length')
             if [[ "$pushed" == "1" ]]; then
               runs+=("$id")
@@ -323,7 +330,8 @@ jobs:
     runs-on: ubuntu-latest
     environment: nuget
     concurrency:
-      group: nuget-unlist   # one unlist at a time
+      # One unlist at a time; GitHub keeps one pending run per group, so a third dispatch replaces a waiting second.
+      group: nuget-unlist
       cancel-in-progress: false
     permissions:
       id-token: write   # GitHub OIDC token for NuGet Trusted Publishing
