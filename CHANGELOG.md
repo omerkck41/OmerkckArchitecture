@@ -7,10 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [4.4.0] — 2026-10-29
+
 ### Added
 - Native AOT: `Kck.Security.Jwt`, `Kck.Localization`, `Kck.Localization.Json` and `Kck.Resilience.Polly` are marked
   `IsAotCompatible` too; the CI native AOT smoke now issues and validates a JWT, reads a JSON resource and runs a retry
   pipeline. `Kck.Logging.Serilog` is not: Serilog itself produces trim warnings (IL2104) under Native AOT.
+
+### Changed — behaviour
+- `Kck.AspNetCore` — `ApiResponseHelper.CreateSuccess` on a GET with `null` data now returns `Success = false` (see
+  Fixed). Code that read `Success` to detect "not found" there now sees `false`; check `StatusCode == 404` or call
+  `CreateFail` directly.
 
 ### Fixed
 - `Kck.Pipeline.Mediator` — `TransactionBehavior`: when the handler failed and the rollback failed too, the rollback
@@ -18,10 +25,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `Kck.AspNetCore` — `ApiResponseHelper.CreateSuccess` returned `Success = true` with status 404 for a GET with
   `null` data. That case is now the same 404 failure as `CreateFail` (`Success = false`, `TraceId` set; the message
   is kept).
-
-### Changed — behaviour
-- Code that read `Success` to detect "not found" after `CreateSuccess` on a GET now sees `false`; check
-  `StatusCode == 404` or call `CreateFail` directly.
 
 ## [4.3.0] — 2026-10-29
 
