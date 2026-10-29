@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1793294285434,
+  "lastUpdate": 1793295677576,
   "repoUrl": "https://github.com/omerkck41/OmerkckArchitecture",
   "entries": {
     "Benchmark": [
@@ -9934,6 +9934,102 @@ window.BENCHMARK_DATA = {
             "value": 9.467667013406754,
             "unit": "ns",
             "range": "± 0.05080419508138747"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "106805727+omerkck41@users.noreply.github.com",
+            "name": "Ömer KÜÇÜK",
+            "username": "omerkck41"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "955f9a4d7b8fa752dc5192f7a966f61a9c753407",
+          "message": "ci(docs): compile README code blocks in CI (#221)\n\n## Summary\nF3 **H21** (roadmap): README examples under compile check — bundles and\nthe most used packages first.\n\n- `.github/scripts/readme_snippets.py` turns every ```` ```csharp ````\nblock of the listed READMEs into\n`samples/Kck.ReadmeSnippets/Generated/<Name>.g.cs`: its own namespace,\n`using` lines kept, statements wrapped in a\nmethod (ambient `args`/`builder`/`app` passed in unless the block\ndeclares them), declarations at namespace level,\n`#line` back to the README so a compiler error points at the README\nline. Reader-owned types (Order, AppDbContext…)\nand stand-ins for packages this repo does not reference (`UseSqlServer`,\nMediator source generator) live in\n  `Context/ReaderTypes.cs`.\n- The normal solution build compiles them; CI (`build-test`, ubuntu)\nruns `readme_snippets.py --check` so a README\nedit without regeneration fails. Unit tests for the script run with the\nexisting `test_*.py` discovery.\n- Scope: root README (3), the 3 bundles, Persistence.Abstractions,\nPersistence.EntityFramework, Pipeline.Mediator,\n  Caching.InMemory — 10 blocks. Others can be added to `README_FILES`.\n- Alternative considered: a hand-written sample project mirroring the\nREADMEs — rejected, drifts silently.\n\n### README fixes the check found (none of these compiled)\nRoot: `AddKckWebApi`, `AddKckExceptions`, `UseKckExceptionHandler` →\n`AddKckWebApiDefaults`/`UseKckWebApiDefaults`,\n`AddKckExceptionHandling`/`UseKckExceptionHandling`. MinimalApi bundle:\n`UseKckMinimalApiDefaults` →\n`UseKckExceptionHandling`. Persistence.EntityFramework:\n`AddKckEntityFramework`, `IRepository<Order>` and a config\ntable of nonexistent options → `AddKckPersistence(p =>\np.UseEntityFramework…)`, `uow.Repository<Order, Guid>()`;\n`SaveChangesAsync(ct)` silently bound the token to\n`autoCommitTransaction`. Pipeline.Mediator: `AddKckMediator(options…)`\nand a nonexistent performance behaviour → `AddMediator()` +\n`AddKckMediatorPipeline(p => …)`. Caching.InMemory:\nundefined `_db`.\n\n## Test plan\n- [x] Script unit tests (5 new, 41 total) green; generated `--check`\nclean\n- [x] Before the README fixes: 14 compile errors (declarations), then 9\n(bodies); after: 0\n- [x] `dotnet restore --force-evaluate` + `--locked-mode` clean; Release\nbuild 0 errors\n- [ ] CI\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-authored-by: Claude Opus 5.5 <noreply@anthropic.com>",
+          "timestamp": "2026-10-29T17:27:21Z",
+          "tree_id": "f9331a494f217e579fb370fbe89e1b42163ae28a",
+          "url": "https://github.com/omerkck41/OmerkckArchitecture/commit/955f9a4d7b8fa752dc5192f7a966f61a9c753407"
+        },
+        "date": 1793295676976,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Success_Factory",
+            "value": 6.262707696606715,
+            "unit": "ns",
+            "range": "± 0.10621501938548854"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Failure_Factory",
+            "value": 11.19316833242774,
+            "unit": "ns",
+            "range": "± 0.8993514572476258"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Success",
+            "value": 1.7957740738987922,
+            "unit": "ns",
+            "range": "± 0.1347770835283114"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Failure",
+            "value": 0.5833499350895485,
+            "unit": "ns",
+            "range": "± 0.005490120620265006"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Serialize_Reflection",
+            "value": 472.4041336945125,
+            "unit": "ns",
+            "range": "± 1.1043915598939689"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Deserialize_Reflection",
+            "value": 793.4687600816999,
+            "unit": "ns",
+            "range": "± 5.897100830709841"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 0)",
+            "value": 11.870977365970612,
+            "unit": "ns",
+            "range": "± 0.22436533336937875"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 5)",
+            "value": 11.453659598865817,
+            "unit": "ns",
+            "range": "± 0.8349678443464181"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 0)",
+            "value": 11.87029651168621,
+            "unit": "ns",
+            "range": "± 0.48087037226392726"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 5)",
+            "value": 11.447101096712775,
+            "unit": "ns",
+            "range": "± 0.6717893281560765"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 0)",
+            "value": 11.413212311714888,
+            "unit": "ns",
+            "range": "± 1.1880793429167347"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 5)",
+            "value": 11.44668657630682,
+            "unit": "ns",
+            "range": "± 1.0926878227757597"
           }
         ]
       }
