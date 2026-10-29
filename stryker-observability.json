@@ -1,0 +1,33 @@
+{
+  "stryker-config": {
+    "project-info": {
+      "name": "Kck Modular Architecture",
+      "module": "Observability (OpenTelemetry)"
+    },
+    "mutation-level": "Standard",
+    "thresholds": {
+      "high": 80,
+      "low": 70,
+      "break": 69
+    },
+    "project": "src/Providers/Kck.Observability.OpenTelemetry/Kck.Observability.OpenTelemetry.csproj",
+    "test-projects": [
+      "tests/Kck.Observability.OpenTelemetry.Tests/Kck.Observability.OpenTelemetry.Tests.csproj"
+    ],
+    "reporters": [
+      "html",
+      "progress",
+      "cleartext"
+    ],
+    "since": {
+      "enabled": false
+    },
+    "ignore-mutations": [
+      "string",
+      "logical"
+    ],
+    "ignore-methods": [
+      "ConfigureAwait"
+    ]
+  }
+}

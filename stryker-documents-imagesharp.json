@@ -1,0 +1,33 @@
+{
+  "stryker-config": {
+    "project-info": {
+      "name": "Kck Modular Architecture",
+      "module": "Documents (ImageSharp)"
+    },
+    "mutation-level": "Standard",
+    "thresholds": {
+      "high": 80,
+      "low": 70,
+      "break": 40
+    },
+    "project": "src/Providers/Kck.Documents.ImageSharp/Kck.Documents.ImageSharp.csproj",
+    "test-projects": [
+      "tests/Kck.Documents.ImageSharp.Tests/Kck.Documents.ImageSharp.Tests.csproj"
+    ],
+    "reporters": [
+      "html",
+      "progress",
+      "cleartext"
+    ],
+    "since": {
+      "enabled": false
+    },
+    "ignore-mutations": [
+      "string",
+      "logical"
+    ],
+    "ignore-methods": [
+      "ConfigureAwait"
+    ]
+  }
+}

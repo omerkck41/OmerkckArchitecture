@@ -1,0 +1,33 @@
+{
+  "stryker-config": {
+    "project-info": {
+      "name": "Kck Modular Architecture",
+      "module": "FileStorage (AwsS3)"
+    },
+    "mutation-level": "Standard",
+    "thresholds": {
+      "high": 80,
+      "low": 70,
+      "break": 35
+    },
+    "project": "src/Providers/Kck.FileStorage.AwsS3/Kck.FileStorage.AwsS3.csproj",
+    "test-projects": [
+      "tests/Kck.FileStorage.AwsS3.Tests/Kck.FileStorage.AwsS3.Tests.csproj"
+    ],
+    "reporters": [
+      "html",
+      "progress",
+      "cleartext"
+    ],
+    "since": {
+      "enabled": false
+    },
+    "ignore-mutations": [
+      "string",
+      "logical"
+    ],
+    "ignore-methods": [
+      "ConfigureAwait"
+    ]
+  }
+}

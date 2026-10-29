@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
     inputs:
       module:
-        description: 'Module to test (core | caching | security | totp | localization | jwt | pipeline | persistence | all)'
+        description: 'Informational only: every module in the matrix runs'
         required: false
         default: 'all'
 
@@ -45,6 +45,23 @@ jobs:
             config: stryker-pipeline.json
           - module: persistence
             config: stryker-persistence.json
+          # H20 (2026-10-29): break = unit-test score minus ~5 (ratchet; raise as tests grow).
+          - module: observability
+            config: stryker-observability.json
+          - module: http-resilience
+            config: stryker-http-resilience.json
+          - module: backgroundjobs
+            config: stryker-backgroundjobs.json
+          - module: documents-closedxml
+            config: stryker-documents-closedxml.json
+          - module: documents-imagesharp
+            config: stryker-documents-imagesharp.json
+          - module: filestorage-awss3
+            config: stryker-filestorage-awss3.json
+          - module: filestorage-azureblob
+            config: stryker-filestorage-azureblob.json
+          - module: filestorage-fluentftp
+            config: stryker-filestorage-fluentftp.json
 
     steps:
       - name: Checkout
