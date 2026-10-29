@@ -30,6 +30,7 @@ public interface IWriteRepository<T, TId> where T : Entity<TId>
     Task<T> DeleteAsync(T entity, bool permanent = false, CancellationToken cancellationToken = default); // NOSONAR S4136 - interleaved with RevertSoftDeleteAsync; reordering would move integration-tested overloads into new-code coverage scope
 
     /// <summary>Restores a soft-deleted entity by clearing its deletion marker.</summary>
+    /// <remarks>Only the entity itself: dependents soft-deleted with it stay deleted.</remarks>
     Task<T> RevertSoftDeleteAsync(T entity, CancellationToken cancellationToken = default); // NOSONAR S4136
 
     /// <summary>Deletes the first entity matching the predicate; soft-deletes by default unless <paramref name="permanent"/> is <c>true</c>.</summary>
