@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1793311892752,
+  "lastUpdate": 1793313027325,
   "repoUrl": "https://github.com/omerkck41/OmerkckArchitecture",
   "entries": {
     "Benchmark": [
@@ -11278,6 +11278,102 @@ window.BENCHMARK_DATA = {
             "value": 5.9073843856652575,
             "unit": "ns",
             "range": "± 0.16944755703650086"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "106805727+omerkck41@users.noreply.github.com",
+            "name": "Ömer KÜÇÜK",
+            "username": "omerkck41"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "d0de3a09a35d5aafbf79c9e391c62ce4f79798db",
+          "message": "ci: run the unit tests on the .NET 11 runtime (H19) (#237)\n\n## Summary\nRoadmap **H19**: \"net10 tests on the net11 runtime via roll-forward;\nglobal.json unchanged\". .NET 11 is not GA yet but **RC3 is go-live**\n(2026-10-25, security release), so the smoke runs now; at GA only the\nversion line changes.\n\n- New job `Unit tests on .NET 11 runtime` in `build-test.yml`:\nsetup-dotnet installs SDK 10.0.402 (used, via global.json) and SDK\n11.0.100-rc.3.26522.148 (for its runtime); restore + build on .NET 10;\n`DOTNET_ROLL_FORWARD=LatestMajor` +\n`DOTNET_ROLL_FORWARD_TO_PRERELEASE=1` only on the check and test steps.\n- A check step runs a net10.0 file-based app with the same settings and\nfails unless `Environment.Version.Major == 11` — proof the tests really\nran on 11.\n- `decisions/2026-10-30-net11-runtime-smoke.md` (alternatives: wait for\nGA; multi-target net11.0 — rejected).\n\nNot a required check: merged by hand once green.\n\n## Test plan\n- [ ] CI: new job green; check step prints runtime 11.0.0-rc.3\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-authored-by: Claude Opus 5.5 <noreply@anthropic.com>",
+          "timestamp": "2026-10-30T01:23:31+03:00",
+          "tree_id": "86325f20569544e73d0bf90da0dffac5882dc4f7",
+          "url": "https://github.com/omerkck41/OmerkckArchitecture/commit/d0de3a09a35d5aafbf79c9e391c62ce4f79798db"
+        },
+        "date": 1793313026661,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Success_Factory",
+            "value": 6.367949393391609,
+            "unit": "ns",
+            "range": "± 0.06891975236984371"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Failure_Factory",
+            "value": 14.812254196653763,
+            "unit": "ns",
+            "range": "± 0.45641922205200547"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Success",
+            "value": 1.641621740964743,
+            "unit": "ns",
+            "range": "± 0.004749498994419765"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Failure",
+            "value": 0.5859437048435211,
+            "unit": "ns",
+            "range": "± 0.002758067632052864"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Serialize_Reflection",
+            "value": 470.90253063837685,
+            "unit": "ns",
+            "range": "± 2.4916563429978043"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Deserialize_Reflection",
+            "value": 791.6773087819417,
+            "unit": "ns",
+            "range": "± 7.030673495382185"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 0)",
+            "value": 10.323826467352253,
+            "unit": "ns",
+            "range": "± 0.07351813670844273"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 5)",
+            "value": 10.531969868084964,
+            "unit": "ns",
+            "range": "± 0.2794889007520069"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 0)",
+            "value": 10.33548037012418,
+            "unit": "ns",
+            "range": "± 0.13680390204853815"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 5)",
+            "value": 10.949483421232019,
+            "unit": "ns",
+            "range": "± 0.10269073083781229"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 0)",
+            "value": 10.367721684277058,
+            "unit": "ns",
+            "range": "± 0.13511873471331992"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 5)",
+            "value": 10.247833278562341,
+            "unit": "ns",
+            "range": "± 0.09414050747449551"
           }
         ]
       }
