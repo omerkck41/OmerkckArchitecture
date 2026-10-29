@@ -1,7 +1,7 @@
 """Fail-closed license gate for NuGet dependencies.
 
 Reads every packages.lock.json under the repository (the exact set CI restores with --locked-mode) and the local .NET
-tools of .config/dotnet-tools.json (restored by `dotnet tool restore` into the same folder), looks up each resolved
+tools of every dotnet-tools.json manifest (restored by `dotnet tool restore` into the same folder), looks up each resolved
 package's nuspec in the NuGet global packages folder and checks its declared license against a policy file. A tool is
 checked as a whole package: assemblies it bundles are covered only by the tool's own license.
 Decision record: decisions/2026-10-26-license-gate.md.
@@ -26,7 +26,7 @@ from pathlib import Path
 log = logging.getLogger("license-gate")
 
 SKIPPED_DIRS = {"bin", "obj", "node_modules"}
-TOOL_MANIFEST = Path(".config") / "dotnet-tools.json"
+TOOL_MANIFEST = "dotnet-tools.json"
 TOOLS_LABEL = "dotnet-tools"
 
 
@@ -86,16 +86,25 @@ def _lock_entries(lock: Path) -> Iterator[tuple[str, str]]:
             yield pkg_id, resolved
 
 
-def _tool_entries(repo_root: Path) -> Iterator[tuple[str, str]]:
-    manifest = repo_root / TOOL_MANIFEST
-    if not manifest.is_file():
-        return
-    tools = json.loads(manifest.read_text(encoding="utf-8-sig")).get("tools")
+def _tool_manifests(repo_root: Path) -> list[Path]:
+    # dotnet reads dotnet-tools.json and .config/dotnet-tools.json in every directory up from the working directory, so
+    # a manifest anywhere in the checkout counts; other hidden directories (.git, .claude worktrees) do not.
+    found = []
+    for path in repo_root.rglob(TOOL_MANIFEST):
+        parts = path.relative_to(repo_root).parts[:-1]
+        if not any((part.startswith(".") and part != ".config") or part in SKIPPED_DIRS for part in parts):
+            found.append(path)
+    return found
+
+
+def _tool_entries(manifest: Path) -> Iterator[tuple[str, str]]:
+    data = json.loads(manifest.read_text(encoding="utf-8-sig"))
+    tools = data.get("tools") if isinstance(data, dict) else None
     if not isinstance(tools, dict):
         raise GateError(f"{manifest}: no tools object")
     for tool_id, info in tools.items():
         version = info.get("version") if isinstance(info, dict) else None
-        if not version:
+        if not isinstance(version, str) or not version:
             raise GateError(f"{manifest}: {tool_id} has no version")
         yield tool_id, version
 
@@ -109,8 +118,9 @@ def collect_packages(repo_root: Path) -> dict[tuple[str, str], set[str]]:
     for lock in lock_files:
         for key in _lock_entries(lock):
             packages.setdefault(key, set()).add(lock.parent.name)
-    for key in _tool_entries(repo_root):
-        packages.setdefault(key, set()).add(TOOLS_LABEL)
+    for manifest in _tool_manifests(repo_root):
+        for key in _tool_entries(manifest):
+            packages.setdefault(key, set()).add(TOOLS_LABEL)
     return packages
 
 

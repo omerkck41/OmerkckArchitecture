@@ -255,6 +255,33 @@ class LicenseGateTests(unittest.TestCase):
         with self.assertRaises(license_gate.GateError):
             license_gate.collect_packages(self.fx.repo)
 
+    def test_tool_manifests_anywhere_dotnet_reads_them_are_checked(self) -> None:
+        self.fx.add("Good.Lib", "1.0.0", expression("MIT"))
+        self.fx.write_lock()
+        for manifest, tool in (("dotnet-tools.json", "root-tool"), ("src/x/.config/dotnet-tools.json", "nested-tool")):
+            path = self.fx.repo / manifest
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text(json.dumps({"version": 1, "tools": {tool: {"version": "1.0.0"}}}), encoding="utf-8")
+        stale = self.fx.repo / ".claude" / "worktrees" / "old" / ".config" / "dotnet-tools.json"
+        stale.parent.mkdir(parents=True)
+        stale.write_text(json.dumps({"version": 1, "tools": {"stale-tool": {"version": "1.0.0"}}}), encoding="utf-8")
+
+        packages = license_gate.collect_packages(self.fx.repo)
+
+        self.assertIn(("root-tool", "1.0.0"), packages)
+        self.assertIn(("nested-tool", "1.0.0"), packages)
+        self.assertNotIn(("stale-tool", "1.0.0"), packages)
+
+    def test_malformed_tool_manifest_shapes_are_gate_errors(self) -> None:
+        self.fx.add("Good.Lib", "1.0.0", expression("MIT"))
+        self.fx.write_lock()
+        manifest = self.fx.repo / ".config" / "dotnet-tools.json"
+        manifest.parent.mkdir()
+        for content in ([], {"tools": {"t": {"version": 1}}}):
+            manifest.write_text(json.dumps(content), encoding="utf-8")
+            with self.assertRaises(license_gate.GateError):
+                license_gate.collect_packages(self.fx.repo)
+
     def test_no_lock_files_fails_closed(self) -> None:
         with self.assertRaises(license_gate.GateError):
             license_gate.collect_packages(self.fx.repo)
