@@ -1,0 +1,46 @@
+name: workflow-lint
+
+# actionlint (syntax, expressions, shellcheck of run blocks) and zizmor (security: injection, permissions,
+# credentials, unpinned actions) over every workflow. Tools are pinned and installed without third-party actions.
+# Decision: decisions/2026-10-30-workflow-lint.md
+on:
+  push:
+    branches: [main, develop, 'release/**']
+    paths: ['.github/workflows/**', '.github/workflow-lint/requirements.txt']
+  pull_request:
+    branches: [main, develop, 'release/**']
+    paths: ['.github/workflows/**', '.github/workflow-lint/requirements.txt']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    name: actionlint + zizmor
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      # Official release archive, verified against the SHA-256 published in actionlint_1.7.12_checksums.txt.
+      - name: actionlint
+        env:
+          ACTIONLINT_SHA256: 8aca8db96f1b94770f1b0d72b6dddcb1ebb8123cb3712530b08cc387b349a3d8
+        run: |
+          curl --proto =https --tlsv1.2 -sSfL -o "$RUNNER_TEMP/actionlint.tar.gz" \
+            https://github.com/rhysd/actionlint/releases/download/v1.7.12/actionlint_1.7.12_linux_amd64.tar.gz
+          echo "$ACTIONLINT_SHA256  $RUNNER_TEMP/actionlint.tar.gz" | sha256sum -c -
+          tar -xzf "$RUNNER_TEMP/actionlint.tar.gz" -C "$RUNNER_TEMP" actionlint
+          "$RUNNER_TEMP/actionlint" -color
+
+      # Hash-pinned wheel, no dependencies; offline: no token, no network audits.
+      - name: zizmor
+        run: |
+          python3 -m venv "$RUNNER_TEMP/zizmor"
+          "$RUNNER_TEMP/zizmor/bin/pip" install --quiet --only-binary :all: --require-hashes \
+            -r .github/workflow-lint/requirements.txt
+          "$RUNNER_TEMP/zizmor/bin/zizmor" --offline --format github .github/workflows
