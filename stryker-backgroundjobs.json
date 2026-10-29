@@ -1,0 +1,33 @@
+{
+  "stryker-config": {
+    "project-info": {
+      "name": "Kck Modular Architecture",
+      "module": "BackgroundJobs (Quartz)"
+    },
+    "mutation-level": "Standard",
+    "thresholds": {
+      "high": 80,
+      "low": 70,
+      "break": 34
+    },
+    "project": "src/Providers/Kck.BackgroundJobs.Quartz/Kck.BackgroundJobs.Quartz.csproj",
+    "test-projects": [
+      "tests/Kck.BackgroundJobs.Quartz.Tests/Kck.BackgroundJobs.Quartz.Tests.csproj"
+    ],
+    "reporters": [
+      "html",
+      "progress",
+      "cleartext"
+    ],
+    "since": {
+      "enabled": false
+    },
+    "ignore-mutations": [
+      "string",
+      "logical"
+    ],
+    "ignore-methods": [
+      "ConfigureAwait"
+    ]
+  }
+}

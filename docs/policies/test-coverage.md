@@ -37,7 +37,7 @@ Yol haritasi (her kademe ayri faz, test yazimi gerektirir):
 |---|---|---|---|
 | **0** | 40 | 35 | LS-FAZ-4 — regression onleme |
 | **1** ✅ | 50 | 45 | Faz-B2 — Entity/Paginate/Error/property-based testler |
-| **2** | 65 | 50 | Edge case + boundary testleri yayginlasinca |
+| **2** ✅ | 65 | 50 | H20 — provider ve abstraction birim testleri (2026-10-29, esik 70/67) |
 | **3** | 75 | 60 | Mutation testing (Stryker.NET) ile boslukları doldurarak |
 
 ## Bir Kademeyi Yukseltme Ön Sartlari
