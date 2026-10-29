@@ -111,6 +111,35 @@ public sealed class PooledContextTests : IAsyncLifetime
         entity.DomainEvents.Should().Equal(domainEvent);
     }
 
+    [Fact]
+    public async Task PooledContext_EventsLeftByAPreviousLease_AreNotDispatchedByTheNext()
+    {
+        var stale = new TestDomainEvent();
+        await using (var first = _provider.CreateAsyncScope())
+        {
+            // Committed directly, not through IUnitOfWork: the events wait for the context's next SaveChanges.
+            var ctx = first.ServiceProvider.GetRequiredService<TestDbContext>();
+            await using var transaction = await ctx.Database.BeginTransactionAsync();
+            var entity = new TestEntity { Id = Guid.NewGuid(), Name = "stale" };
+            entity.AddDomainEvent(stale);
+            ctx.TestEntities.Add(entity);
+            await ctx.SaveChangesAsync();
+            await transaction.CommitAsync();
+        }
+
+        var fresh = new TestDomainEvent();
+        await using (var second = _provider.CreateAsyncScope())
+        {
+            var ctx = second.ServiceProvider.GetRequiredService<TestDbContext>();
+            var entity = new TestEntity { Id = Guid.NewGuid(), Name = "fresh" };
+            entity.AddDomainEvent(fresh);
+            ctx.TestEntities.Add(entity);
+            await ctx.SaveChangesAsync();
+        }
+
+        _sink.Received.Should().Equal(fresh);
+    }
+
     internal sealed class EventSink
     {
         public List<IDomainEvent> Received { get; } = [];

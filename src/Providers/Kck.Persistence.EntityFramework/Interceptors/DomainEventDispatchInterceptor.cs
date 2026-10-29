@@ -24,6 +24,7 @@ public sealed partial class DomainEventDispatchInterceptor : SaveChangesIntercep
     private readonly ConditionalWeakTable<DbTransaction, List<EntityEvents>> _parked = new();
     private readonly ConditionalWeakTable<DbContext, List<EntityEvents>> _committed = new();
     private readonly ConditionalWeakTable<DbContext, List<EntityEvents>> _saving = new();
+    private readonly ConditionalWeakTable<DbContext, StrongBox<int>> _leases = new();
 
     /// <summary>Dispatches through <paramref name="dispatcher"/> (a scoped interceptor, one per DbContext scope).</summary>
     public DomainEventDispatchInterceptor(IDomainEventDispatcher dispatcher, ILogger<DomainEventDispatchInterceptor> logger)
@@ -55,6 +56,8 @@ public sealed partial class DomainEventDispatchInterceptor : SaveChangesIntercep
     {
         if (eventData.Context is null)
             return result;
+
+        ForgetPreviousLease(eventData.Context);
 
         // A save that failed before EF reports SaveChangesFailed (an interceptor after this one threw) leaves its
         // events here; put them back so only entities still tracked contribute them again.
@@ -193,6 +196,7 @@ public sealed partial class DomainEventDispatchInterceptor : SaveChangesIntercep
             return;
 
         _parked.Remove(transaction);
+        ForgetPreviousLease(eventData.Context);
         _committed.GetValue(eventData.Context, _ => []).AddRange(parked);
     }
 
@@ -225,14 +229,38 @@ public sealed partial class DomainEventDispatchInterceptor : SaveChangesIntercep
         _parked.Remove(transaction);
 
     /// <summary>Dispatches the events of transactions this context has committed.</summary>
-    internal Task DispatchCommittedAsync(DbContext context, CancellationToken cancellationToken) =>
-        DispatchAsync(Take(_committed, context), cancellationToken);
+    internal Task DispatchCommittedAsync(DbContext context, CancellationToken cancellationToken)
+    {
+        ForgetPreviousLease(context);
+        return DispatchAsync(Take(_committed, context), cancellationToken);
+    }
+
+    // A pooled DbContext serves one request per lease. Events a lease left waiting (a transaction committed directly
+    // with no SaveChanges after it) belong to that request: they end with it, as they would with a non-pooled context
+    // and its scope, instead of being dispatched in the next request. Non-pooled contexts keep lease 0.
+    private void ForgetPreviousLease(DbContext context)
+    {
+        var lease = context.ContextId.Lease;
+        var seen = _leases.GetValue(context, _ => new StrongBox<int>(lease));
+        if (seen.Value == lease)
+            return;
+
+        seen.Value = lease;
+        var dropped = Take(_committed, context).Count + Take(_saving, context).Count;
+        if (dropped > 0)
+            LogPreviousLeaseEventsDropped(logger);
+    }
+
+    [LoggerMessage(Level = LogLevel.Warning, Message = "Domain events left by a previous lease of a pooled DbContext were dropped; commit transactions through IUnitOfWork")]
+    private static partial void LogPreviousLeaseEventsDropped(ILogger logger);
 
     [LoggerMessage(Level = LogLevel.Warning, Message = "Sync SavedChanges triggered domain event dispatch. Prefer SaveChangesAsync to avoid thread pool offloading")]
     private static partial void LogSyncSaveChanges(ILogger logger);
 
     private async Task OnSavedAsync(DbContext context, CancellationToken cancellationToken)
     {
+        ForgetPreviousLease(context);
+
         // Events raised during the save (after this interceptor's SavingChanges) are still on tracked entities.
         var collected = Take(_saving, context);
         collected.AddRange(CollectAndClear(context));
