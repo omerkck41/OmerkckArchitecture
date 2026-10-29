@@ -175,7 +175,8 @@ public sealed class KckObservabilityRegistrationTests
 
         context.Response.ContentType.Should().Be("application/json");
         context.Response.Body.Position = 0;
-        return await new StreamReader(context.Response.Body).ReadToEndAsync();
+        using var reader = new StreamReader(context.Response.Body);
+        return await reader.ReadToEndAsync();
     }
 
     private sealed class StubCheck : Kck.Observability.Abstractions.IHealthCheck

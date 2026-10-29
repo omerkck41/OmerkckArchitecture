@@ -215,15 +215,17 @@ public sealed class SerilogPipelineTests
     [Fact]
     public void AddKckSerilog_WriteToFile_CreatesLogFileWithMessage()
     {
-        var dir = Path.Combine(Path.GetTempPath(), "kck-serilog-" + Guid.NewGuid().ToString("N"));
+        var dir = Path.Join(Path.GetTempPath(), "kck-serilog-" + Guid.NewGuid().ToString("N"));
         try
         {
-            var path = Path.Combine(dir, "app-.log");
+            var path = Path.Join(dir, "app-.log");
             var services = new ServiceCollection();
             services.AddKckSerilog(b => b.WriteToFile(path, RollingInterval.Day).WriteToConsole());
-            var provider = services.BuildServiceProvider();
-            provider.GetRequiredService<ILoggerFactory>().CreateLogger<SerilogPipelineTests>().LogInformation("to file {Value}", 42);
-            provider.Dispose();
+            using (var provider = services.BuildServiceProvider())
+            {
+                // Disposing the provider flushes the file sink before the file is read.
+                provider.GetRequiredService<ILoggerFactory>().CreateLogger<SerilogPipelineTests>().LogInformation("to file {Value}", 42);
+            }
 
             Directory.Exists(dir).Should().BeTrue();
             var file = Directory.GetFiles(dir).Should().ContainSingle().Subject;

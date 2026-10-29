@@ -145,7 +145,7 @@ public sealed class SessionAndCookieTests
     {
         var context = new DefaultHttpContext();
 
-        _cookies.Set(context.Response, "sid", "abc", new CookieOptions { HttpOnly = false, SameSite = SameSiteMode.Lax });
+        _cookies.Set(context.Response, "sid", "abc", new CookieOptions { HttpOnly = false, Secure = true, SameSite = SameSiteMode.Lax });
 
         var header = context.Response.Headers.SetCookie.ToString();
         header.Should().Contain("samesite=lax").And.NotContain("httponly");

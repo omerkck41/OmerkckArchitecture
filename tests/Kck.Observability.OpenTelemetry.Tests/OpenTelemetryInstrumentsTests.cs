@@ -37,7 +37,8 @@ public sealed class OpenTelemetryInstrumentsTests
 
         histogram.Record(12.5, new KeyValuePair<string, object?>("route", "/b"));
 
-        seen.Should().ContainSingle().Which.Should().Be((12.5, (object?)"/b"));
+        (double Value, object? Tag) expected = (12.5, "/b");
+        seen.Should().ContainSingle().Which.Should().Be(expected);
     }
 
     [Fact]
@@ -52,7 +53,8 @@ public sealed class OpenTelemetryInstrumentsTests
         gauge.Set(9, new KeyValuePair<string, object?>("q", "new"));
         listener.RecordObservableInstruments();
 
-        seen.Should().ContainSingle().Which.Should().Be((9d, (object?)"new"));
+        (double Value, object? Tag) expected = (9d, "new");
+        seen.Should().ContainSingle().Which.Should().Be(expected);
     }
 
     [Fact]
@@ -71,7 +73,7 @@ public sealed class OpenTelemetryInstrumentsTests
     [Fact]
     public void Dispose_DisposesMeter_StopsEmission()
     {
-        var sut = new OpenTelemetryMetricsService(_meterName);
+        using var sut = new OpenTelemetryMetricsService(_meterName);
         var counter = sut.CreateCounter("after_dispose");
         var seen = new List<(double Value, object? Tag)>();
         using var listener = CreateListener(seen, "after_dispose");

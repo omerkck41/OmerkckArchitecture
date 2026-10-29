@@ -109,15 +109,13 @@ public sealed class OpenTelemetrySpanTests : IDisposable
     {
         // No listener for this source => StartActivity returns null.
         var sut = new OpenTelemetryTracingService("Kck.Tests.Unlistened." + Guid.NewGuid().ToString("N"));
-        var span = sut.StartSpan("op");
+        using var span = sut.StartSpan("op");
 
         span.SetAttribute("k", "v");
         span.SetStatus(SpanStatus.Ok);
         span.RecordException(new InvalidOperationException("x"));
-        var child = span.StartChild("child");
+        using var child = span.StartChild("child");
         child.SetAttribute("k", "v");
-        child.Dispose();
-        span.Dispose();
 
         child.Should().NotBeNull();
         _stopped.Should().BeEmpty();
