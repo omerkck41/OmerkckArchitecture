@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [4.5.0] — 2026-10-30
+
 ### Added
 - Native AOT: `Kck.Http.Resilience` is `IsAotCompatible`, verified by the CI native AOT smoke (typed HTTP client round
   trip). `Kck.Observability.OpenTelemetry` is not: `OpenTelemetry.Instrumentation.EntityFrameworkCore` (beta) produces
