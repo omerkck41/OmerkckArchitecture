@@ -1,17 +1,28 @@
+using System.Security.Cryptography;
 using System.Text.Json.Serialization;
 using Kck.Caching.Abstractions;
 using Kck.EventBus.Abstractions;
 using Kck.FeatureFlags.Abstractions;
+using Kck.Localization.Abstractions;
 using Kck.Pipeline.Abstractions;
 using Kck.Pipeline.Mediator;
 using Kck.Pipeline.Mediator.Behaviors;
+using Kck.Resilience.Polly;
 using Kck.Security.Abstractions.Hashing;
 using Kck.Security.Abstractions.Mfa;
+using Kck.Security.Abstractions.Token;
 using Mediator;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Polly;
+using Polly.Registry;
+using Polly.Retry;
 
 // Exercises the AOT-compatible providers end to end; exit code 0 means every check passed.
+var workDir = Directory.CreateTempSubdirectory("kck-aot-smoke-");
+File.WriteAllText(Path.Join(workDir.FullName, "en.json"), """{ "greeting": "Hello {0}" }""");
+using var rsa = RSA.Create(2048);
+
 var services = new ServiceCollection()
     .AddLogging(b => b.AddSimpleConsole())
     .AddDistributedMemoryCache()
@@ -23,6 +34,15 @@ var services = new ServiceCollection()
         o.Iterations = 2;
     })
     .AddKckTotp()
+    .AddKckJwt(o =>
+    {
+        o.Issuer = "kck-aot-smoke";
+        o.Audience = "kck-aot-smoke";
+        o.RsaKeyBase64 = Convert.ToBase64String(rsa.ExportRSAPrivateKey());
+    })
+    .AddKckLocalization(o => o.ResourcePath = workDir.FullName)
+    .AddKckLocalizationJson()
+    .AddKckResilience("smoke", b => b.AddRetry(new RetryStrategyOptions { MaxRetryAttempts = 1, Delay = TimeSpan.Zero }))
     .AddKckEventBus(b => b.UseInMemory())
     .AddSingleton<PingHandler>()
     .AddSingleton<IEventHandler<Ping>>(sp => sp.GetRequiredService<PingHandler>());
@@ -67,6 +87,25 @@ Check(setup.ProvisioningUri.StartsWith("otpauth://", StringComparison.Ordinal) &
 await provider.GetRequiredService<IEventBus>().PublishAsync(new Ping());
 Check(provider.GetRequiredService<PingHandler>().Received == 1, "EventBus.InMemory");
 
+var tokens = provider.GetRequiredService<ITokenService>();
+var token = await tokens.CreateAccessTokenAsync(new TokenRequest { UserId = "u1", Email = "smoke@example.test", Roles = ["admin"] });
+var validated = await tokens.ValidateTokenAsync(token.AccessToken);
+Check(validated.IsValid && validated.UserId == "u1" && !(await tokens.ValidateTokenAsync(token.AccessToken + "x")).IsValid, "Security.Jwt");
+
+var localization = provider.GetRequiredService<ILocalizationService>();
+Check(await localization.GetStringAsync("greeting", "en", ["Kck"]) == "Hello Kck", "Localization + Localization.Json");
+
+var attempts = 0;
+var pipeline = provider.GetRequiredService<ResiliencePipelineProvider<string>>().GetPipeline("smoke");
+await pipeline.ExecuteAsync(_ =>
+{
+    if (++attempts == 1)
+        throw new InvalidOperationException("transient");
+    return ValueTask.CompletedTask;
+});
+Check(attempts == 2, "Resilience.Polly");
+
+workDir.Delete(recursive: true);
 return failures.Count == 0 ? 0 : 1;
 
 internal sealed record Count(int Value);
