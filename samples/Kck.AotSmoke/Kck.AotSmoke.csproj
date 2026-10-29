@@ -9,8 +9,11 @@
     <IsPackable>false</IsPackable>
     <PublishAot>true</PublishAot>
     <InvariantGlobalization>true</InvariantGlobalization>
-    <!-- The lock file must cover the RID-specific ILCompiler packages CI restores. -->
+    <!-- The RID is set here, not with `dotnet publish -r`: -r would also restore every referenced project for that RID
+         and break their lock files (NU1004). The lock file covers both RIDs, so restore is the same on either OS. -->
     <RuntimeIdentifiers>linux-x64;win-x64</RuntimeIdentifiers>
+    <RuntimeIdentifier Condition="$([MSBuild]::IsOSPlatform('Windows'))">win-x64</RuntimeIdentifier>
+    <RuntimeIdentifier Condition="!$([MSBuild]::IsOSPlatform('Windows'))">linux-x64</RuntimeIdentifier>
   </PropertyGroup>
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />

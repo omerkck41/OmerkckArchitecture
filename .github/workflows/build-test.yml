@@ -45,7 +45,7 @@ jobs:
       - name: Publish (Native AOT)
         run: >-
           dotnet publish samples/Kck.AotSmoke/Kck.AotSmoke.csproj
-          --configuration Release --runtime linux-x64 --framework net10.0
+          --configuration Release --framework net10.0
           -p:RestoreLockedMode=true --output ./artifacts/aot
 
       - name: Run
