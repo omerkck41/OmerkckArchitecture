@@ -1,6 +1,6 @@
 # Kck.Persistence.EntityFramework
 
-Entity Framework Core integration for Kck applications — registers `IRepository<T>`, `IUnitOfWork`, and dynamic query extensions.
+Entity Framework Core integration for Kck applications — registers `IUnitOfWork` (repositories via `IUnitOfWork.Repository<T, TId>()`), audit / soft-delete and domain event interceptors, and dynamic query extensions.
 
 ## Installation
 
@@ -12,16 +12,20 @@ dotnet add package Kck.Persistence.EntityFramework
 
 ```csharp
 // Program.cs
-builder.Services.AddKckEntityFramework<AppDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("Default")!));
+using Kck.Persistence.EntityFramework.Extensions;
 
-// Use repository
-public class OrderService(IRepository<Order> orders, IUnitOfWork uow)
+builder.Services.AddKckPersistence(p => p
+    .UseEntityFramework<AppDbContext>(options =>
+        options.UseSqlServer(builder.Configuration.GetConnectionString("Default")!))
+    .AddAuditInterceptor());   // CreatedDate / ModifiedDate, DbContext.Remove -> soft delete
+
+// Use a repository through the unit of work
+public class OrderService(IUnitOfWork uow)
 {
     public async Task<Order> CreateAsync(Order order, CancellationToken ct)
     {
-        await orders.AddAsync(order, ct);
-        await uow.SaveChangesAsync(ct);
+        await uow.Repository<Order, Guid>().AddAsync(order, ct);
+        await uow.SaveChangesAsync(cancellationToken: ct);
         return order;
     }
 }
@@ -29,11 +33,11 @@ public class OrderService(IRepository<Order> orders, IUnitOfWork uow)
 
 ## Configuration
 
-| Property | Description | Default |
-|---|---|---|
-| `DbContextOptions` | EF Core `DbContextOptionsBuilder` delegate | required |
-| `EnableSensitiveDataLogging` | Log parameter values (dev only) | `false` |
-| `EnableDetailedErrors` | Include EF error details | `false` |
+| Method | Description |
+|---|---|
+| `UseEntityFramework<TContext>(options)` | Registers the `DbContext` (`AddDbContext`) and `IUnitOfWork` |
+| `AddAuditInterceptor()` | Audit fields and soft delete for `IAuditable` / `ISoftDeletable` entities |
+| `AddDomainEventDispatch<TDispatcher>()` | Dispatches aggregate domain events after `SaveChanges` / commit |
 
 ## Resources
 

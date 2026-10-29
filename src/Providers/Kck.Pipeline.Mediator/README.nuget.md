@@ -1,31 +1,31 @@
 # Kck.Pipeline.Mediator
 
-Source-generator-based CQRS mediator with zero-reflection dispatch, validation, logging, and performance behaviors for Kck applications.
+Pipeline behaviors (validation, logging, caching, authorization, transaction) for the source-generated [Mediator](https://github.com/martinothamar/Mediator) dispatcher in Kck applications.
 
 ## Installation
 
 ```bash
 dotnet add package Kck.Pipeline.Mediator
+dotnet add package Mediator.SourceGenerator    # generates AddMediator() and the dispatcher
 ```
 
 ## Quick Start
 
 ```csharp
 // Program.cs
-builder.Services.AddKckMediator(options =>
-{
-    options.RegisterServicesFromAssembly(typeof(Program).Assembly);
-    options.EnableValidationBehavior = true;
-    options.EnableLoggingBehavior = true;
-    options.EnablePerformanceBehavior = true;
-});
+builder.Services
+    .AddMediator()                       // source-generated dispatcher (Mediator.SourceGenerator)
+    .AddKckMediatorPipeline(p => p
+        .UseValidationBehavior()         // FluentValidation validators from DI
+        .UseLoggingBehavior()            // ILoggableRequest
+        .UseCachingBehavior());          // ICachableRequest, IDistributedCache
 
 // Define a command
 public record CreateOrderCommand(string ProductId, int Quantity)
     : ICommand<OrderResult>;
 
 // Handle it
-public class CreateOrderHandler(IRepository<Order> orders)
+public class CreateOrderHandler(IRepository<Order, Guid> orders)
     : ICommandHandler<CreateOrderCommand, OrderResult>
 {
     public async ValueTask<OrderResult> Handle(
@@ -40,12 +40,13 @@ public class CreateOrderHandler(IRepository<Order> orders)
 
 ## Configuration
 
-| Property | Description | Default |
-|---|---|---|
-| `EnableValidationBehavior` | Run FluentValidation before handlers | `true` |
-| `EnableLoggingBehavior` | Structured request/response logging | `true` |
-| `EnablePerformanceBehavior` | Warn when handler exceeds threshold | `false` |
-| `PerformanceThresholdMs` | Handler duration warning threshold | `500` |
+| Method | Applies to |
+|---|---|
+| `UseValidationBehavior()` | every message (FluentValidation `IValidator<T>` from DI) |
+| `UseLoggingBehavior()` | `ILoggableRequest` |
+| `UseCachingBehavior()` / `UseCachingBehavior(o => o.SerializerOptions = ...)` | `ICachableRequest` (source-generated JSON for Native AOT) |
+| `UseAuthorizationBehavior()` | `ISecuredRequest` |
+| `UseTransactionBehavior()` | `ITransactionalRequest` (`IUnitOfWork`) |
 
 ## Resources
 

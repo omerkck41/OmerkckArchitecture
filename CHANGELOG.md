@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed — documentation
+- README quick starts that did not compile: root README (`AddKckWebApi`, `AddKckExceptions`, `UseKckExceptionHandler`
+  do not exist → `AddKckWebApiDefaults` / `UseKckWebApiDefaults`, `AddKckExceptionHandling` /
+  `UseKckExceptionHandling`), `Kck.Bundle.MinimalApi` (`UseKckMinimalApiDefaults` does not exist),
+  `Kck.Persistence.EntityFramework` (`AddKckEntityFramework` and `IRepository<T>` do not exist; `SaveChangesAsync(ct)`
+  bound the token to `autoCommitTransaction`), `Kck.Pipeline.Mediator` (`AddKckMediator` options and the performance
+  behaviour do not exist), `Kck.Caching.InMemory` (undefined `_db`). These README blocks and those of the three bundles
+  and `Kck.Persistence.Abstractions` are now compiled in CI (`samples/Kck.ReadmeSnippets`).
+
 ### Fixed
 - `Kck.Persistence.EntityFramework` — repository soft delete and `DbContext.Remove` under `AuditInterceptor` now
   follow one rule; before, they gave different rows for the same delete. A soft delete covers the rows a hard delete
