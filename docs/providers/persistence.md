@@ -168,7 +168,7 @@ Commit `try` disindadir: commit'ten sonra dagitim hata verirse veri zaten kalici
   - Kapsam disi: `Database.UseTransaction` ile verilen dis transaction'in dogrudan commit'i (event'ler atilir),
     `TransactionScope`, savepoint'e geri donus (savepoint sonrasi event'ler commit'te yine dagitilir).
   - `SaveChangesAsync` tercih edin; senkron `SaveChanges` dagitim boyunca bir thread-pool thread'ini bloklar.
-    DbContext pooling / `AddDbContextFactory` ile desteklenmez.
+    DbContext pooling `UseEntityFrameworkPool` ile desteklenir (yukarida); `AddDbContextFactory` desteklenmez.
 
 ## Migrasyon
 
