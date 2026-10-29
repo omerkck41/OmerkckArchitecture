@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- `Kck.AspNetCore` — `ApiResponseHelper.CreateSuccess` returned `Success = true` with status 404 for a GET with
+  `null` data. That case is now the same 404 failure as `CreateFail` (`Success = false`, `TraceId` set; the message
+  is kept).
+
+### Changed — behaviour
+- Code that read `Success` to detect "not found" after `CreateSuccess` on a GET now sees `false`; check
+  `StatusCode == 404` or call `CreateFail` directly.
+
 ## [4.3.0] — 2026-10-29
 
 ### Added

@@ -12,7 +12,8 @@ public static class ApiResponseHelper
     /// <summary>
     /// Creates a successful <see cref="ApiResponse{T}"/> whose HTTP status code is inferred from
     /// the current request method (200/201/204).  When <paramref name="resourceId"/> is supplied
-    /// on a POST request the Location URL is also populated.
+    /// on a POST request the Location URL is also populated. A GET with <c>null</c> data is not a success: it returns
+    /// the same 404 failure as <see cref="CreateFail{T}"/>.
     /// </summary>
     public static ApiResponse<T> CreateSuccess<T>(
         T data,
@@ -23,9 +24,12 @@ public static class ApiResponseHelper
         ArgumentNullException.ThrowIfNull(httpContext);
 
         var method = httpContext.Request.Method.ToUpperInvariant();
+        if (method == "GET" && data is null)
+            return CreateFail<T>(message, httpContext);
+
         int statusCode = method switch
         {
-            "GET" => data is not null ? StatusCodes.Status200OK : StatusCodes.Status404NotFound,
+            "GET" => StatusCodes.Status200OK,
             "POST" => resourceId is not null ? StatusCodes.Status201Created : StatusCodes.Status200OK,
             "DELETE" => StatusCodes.Status204NoContent,
             _ => StatusCodes.Status200OK
