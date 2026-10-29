@@ -1,8 +1,11 @@
+using System.Net;
 using System.Security.Cryptography;
 using System.Text.Json.Serialization;
 using Kck.Caching.Abstractions;
 using Kck.EventBus.Abstractions;
 using Kck.FeatureFlags.Abstractions;
+using Kck.Http.Abstractions;
+using Kck.Http.Resilience;
 using Kck.Localization.Abstractions;
 using Kck.Pipeline.Abstractions;
 using Kck.Pipeline.Mediator;
@@ -43,9 +46,11 @@ var services = new ServiceCollection()
     .AddKckLocalization(o => o.ResourcePath = workDir.FullName)
     .AddKckLocalizationJson()
     .AddKckResilience("smoke", b => b.AddRetry(new RetryStrategyOptions { MaxRetryAttempts = 1, Delay = TimeSpan.Zero }))
+    .AddKckHttpResilience(o => o.SerializerOptions = SmokeJsonContext.Default.Options)
     .AddKckEventBus(b => b.UseInMemory())
     .AddSingleton<PingHandler>()
     .AddSingleton<IEventHandler<Ping>>(sp => sp.GetRequiredService<PingHandler>());
+services.AddHttpClient<IApiClient, ResilientApiClient>().ConfigurePrimaryHttpMessageHandler(() => new EchoHandler());
 new KckMediatorPipelineBuilder(services)
     .UseCachingBehavior(o => o.SerializerOptions = SmokeJsonContext.Default.Options);
 
@@ -105,6 +110,10 @@ await pipeline.ExecuteAsync(_ =>
 });
 Check(attempts == 2, "Resilience.Polly");
 
+var api = provider.GetRequiredService<IApiClient>();
+var echoed = await api.PostAsync<Count>("http://smoke.test/echo", new Count(5));
+Check(echoed.IsSuccess && echoed.Data == new Count(5), "Http.Resilience (source-generated JSON)");
+
 workDir.Delete(recursive: true);
 return failures.Count == 0 ? 0 : 1;
 
@@ -129,6 +138,15 @@ internal sealed class PingHandler : IEventHandler<Ping>
         Received++;
         return Task.CompletedTask;
     }
+}
+
+internal sealed class EchoHandler : HttpMessageHandler
+{
+    protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken) =>
+        new(HttpStatusCode.OK)
+        {
+            Content = new StringContent(await request.Content!.ReadAsStringAsync(cancellationToken), System.Text.Encoding.UTF8, "application/json"),
+        };
 }
 
 internal static partial class SmokeLog

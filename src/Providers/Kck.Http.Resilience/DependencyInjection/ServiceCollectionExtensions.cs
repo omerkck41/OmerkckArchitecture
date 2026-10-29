@@ -12,6 +12,8 @@ public static class KckHttpResilienceServiceCollectionExtensions
     {
         var options = new ResilienceOptions();
         configure?.Invoke(options);
+        // The typed client reads SerializerOptions from IOptions<ResilienceOptions>.
+        services.AddOptions<ResilienceOptions>().Configure(o => configure?.Invoke(o));
 
         services.AddHttpClient<IApiClient, ResilientApiClient>()
             .AddStandardResilienceHandler(handler =>

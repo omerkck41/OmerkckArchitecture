@@ -1,5 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
+    <!-- Native AOT: verified by samples/Kck.AotSmoke (CI publishes and runs it). -->
+    <IsAotCompatible>true</IsAotCompatible>
     <!-- Pinned to net10.0; depends on net10-only packages (LS-FAZ-2 ADR-0011) -->
     <TargetFrameworks>net10.0</TargetFrameworks>
     <Title>Kck HTTP Resilience Client</Title>

@@ -8,10 +8,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- Native AOT: `Kck.Http.Resilience` is `IsAotCompatible`, verified by the CI native AOT smoke (typed HTTP client round
+  trip). `Kck.Observability.OpenTelemetry` is not: `OpenTelemetry.Instrumentation.EntityFrameworkCore` (beta) produces
+  trim warnings (IL2104).
+- `Kck.Http.Abstractions` — `ResilienceOptions.SerializerOptions`: JSON options for request bodies and responses of
+  `ResilientApiClient`, e.g. a source-generated `JsonSerializerContext` for Native AOT. `null` keeps the web defaults
+  (camelCase, reflection), as before.
 - `Kck.Persistence.EntityFramework` — `UseEntityFrameworkPool<TContext>(configure, poolSize)`: DbContext pooling with
   the same registrations as `UseEntityFramework`. `AddAuditInterceptor` and `AddDomainEventDispatch` work with it; the
   pooled domain event interceptor resolves the dispatcher from a new scope for each dispatch, and events a lease left
   waiting are dropped when the context is leased again (never dispatched in another request).
+
+### Changed
+- `Kck.Observability.OpenTelemetry` — the health endpoints write their JSON with source-generated metadata; the body
+  is unchanged (`status`, `checks[name, status, description, duration]`, `totalDuration`).
 
 ## [4.4.0] — 2026-10-30
 
