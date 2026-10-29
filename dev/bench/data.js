@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1793293780142,
+  "lastUpdate": 1793294285434,
   "repoUrl": "https://github.com/omerkck41/OmerkckArchitecture",
   "entries": {
     "Benchmark": [
@@ -9838,6 +9838,102 @@ window.BENCHMARK_DATA = {
             "value": 5.55577501244843,
             "unit": "ns",
             "range": "± 0.17252108599966995"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "106805727+omerkck41@users.noreply.github.com",
+            "name": "Ömer KÜÇÜK",
+            "username": "omerkck41"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "b71de8cc6666ba92c24763c466f8d8d4aebdcf33",
+          "message": "fix(persistence): usable Filter/Sort constructors, case-insensitive null ops (#223)\n\n## Summary\nTwo source bugs found by the H20 unit-test subagent, reproduced here\nfirst:\n- `Filter(string, string, …)`, `Filter(string, FilterOperator, …)`,\n`Sort(string, string, int)` set the `required` members but lacked\n`[SetsRequiredMembers]` → every external call failed with CS9035 (public\nctors unusable).\n- `FilterValidator.Validate` matched `isnull`/`isnotnull`\ncase-sensitively while `SupportedOperators` and the query builder\n(`OperatorEnum`) are case-insensitive: `\"IsNull\"` + null was rejected,\n`\"IsNull\"` + value accepted.\n\nNon-breaking (an attribute and a stricter-but-consistent validation);\npack validation vs 4.2.5 passes.\n\n## Test plan\n- [x] `FilterConstructionTests` RED first (CS9035, then 4 validator\ncases), green after; persistence suite 226 green\n- [ ] CI\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\n---------\n\nCo-authored-by: Claude Opus 5.5 <noreply@anthropic.com>",
+          "timestamp": "2026-10-29T17:11:12Z",
+          "tree_id": "ac5eb615983a9a0664c1408c73e41638255a5f71",
+          "url": "https://github.com/omerkck41/OmerkckArchitecture/commit/b71de8cc6666ba92c24763c466f8d8d4aebdcf33"
+        },
+        "date": 1793294284589,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Success_Factory",
+            "value": 5.943755761782328,
+            "unit": "ns",
+            "range": "± 0.04806728501391469"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Failure_Factory",
+            "value": 7.340020515521368,
+            "unit": "ns",
+            "range": "± 0.0504902195707968"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Success",
+            "value": 1.639951108644406,
+            "unit": "ns",
+            "range": "± 0.0023310570683784783"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Failure",
+            "value": 0.5856989909495626,
+            "unit": "ns",
+            "range": "± 0.0035071410591138593"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Serialize_Reflection",
+            "value": 450.1474549929301,
+            "unit": "ns",
+            "range": "± 2.296564678547253"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Deserialize_Reflection",
+            "value": 766.8626978556315,
+            "unit": "ns",
+            "range": "± 3.885085931663014"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 0)",
+            "value": 9.743072088275637,
+            "unit": "ns",
+            "range": "± 0.031132646423393983"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 5)",
+            "value": 9.737137898802757,
+            "unit": "ns",
+            "range": "± 0.16771864929601288"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 0)",
+            "value": 9.516499038537344,
+            "unit": "ns",
+            "range": "± 0.04203665344875776"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 5)",
+            "value": 9.558859201577993,
+            "unit": "ns",
+            "range": "± 0.0342704263221139"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 0)",
+            "value": 9.574258345365525,
+            "unit": "ns",
+            "range": "± 0.10272303070193659"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 5)",
+            "value": 9.467667013406754,
+            "unit": "ns",
+            "range": "± 0.05080419508138747"
           }
         ]
       }
