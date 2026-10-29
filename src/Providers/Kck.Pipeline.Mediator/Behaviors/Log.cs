@@ -27,4 +27,7 @@ internal static partial class Log
 
     [LoggerMessage(Level = LogLevel.Warning, Message = "Transaction rolled back for {MessageName}")]
     public static partial void TransactionRolledBack(ILogger logger, string messageName);
+
+    [LoggerMessage(Level = LogLevel.Error, Message = "Rollback failed for {MessageName}; the handler's error is rethrown")]
+    public static partial void TransactionRollbackFailed(ILogger logger, Exception exception, string messageName);
 }
