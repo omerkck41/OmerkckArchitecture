@@ -10,17 +10,15 @@ ve kademeli yukseltme politikasini tanimlar.
 icinde **kademeli** olarak yukselir; ancak yukseltme **test yazimina**
 baglidir, kararname ile degil.
 
-## Mevcut Esikler (Faz-B2 Kademe 1 — kalibre edildi 2026-05-17)
+## Mevcut Esikler (2026-10-29 circir; build-test.yml)
 
-| Metrik | Esik | Gercek CI olcumu (2026-05-17) | Hedef (Kademe 2) |
-|---|---|---|---|
-| Line | **43%** | 43.4% | 50% |
-| Branch | **38%** | 39.2% | 45% |
+| Metrik | Esik | CI olcumu (3 ardisik yesil build, 2026-10-29) |
+|---|---|---|
+| Line | **70%** | 72.9% / 73.0% / 73.3% |
+| Branch | **67%** | 70.1% / 70.1% / 70.1% |
 
-> **Not:** Faz-B2'de eklenen testler (EntityTests, PaginateTests, ErrorTests, PaginatePropertyTests,
-> PathSanitizerPropertyTests, FilterGetValueTests) coverage'i ~3% artirdi ancak %50/%45 hedefine
-> ulastiramadi. Esik, CI'in kararlı gecmesi icin gercek olcume kalibre edildi.
-> Kademe 2 icin ek testler gerekiyor — onceligli hedef: caching, security, persistence provider'lari.
+> **H20 (2026-10-29, #222):** Observability.OpenTelemetry, Http.Resilience, AspNetCore, Logging.Serilog ve
+> abstraction'lar icin birim testleri. Esik, olcumun ~3 puan altinda (yerel / CI farkini emer). Onceki esik 55/51.
 
 > Yerel olcum: `dotnet test --collect:"XPlat Code Coverage"` +
 > `reportgenerator -reporttypes:TextSummary` ile uretildi (CI ile ayni komut).

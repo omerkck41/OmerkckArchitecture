@@ -182,13 +182,12 @@ jobs:
       - name: Enforce coverage threshold
         if: matrix.os == 'ubuntu-latest'
         env:
-          # Ratchet (2026-10-26): main measured line %56, branch %54.5 (run 38658902306, 2026-10-15).
-          # Threshold sits ~1.5 points below the measurement to absorb noise; raise it as coverage grows.
-          # coverlet.collector 10 (PR #154) counts branches differently: same code measures branch %52.3, line %56,
-          # so the branch threshold follows the new tool's measurement (51), not a test regression.
-          # Next target %65/%60 (docs/plans/2026-10-26-dis-inceleme-yol-haritasi.md H20); see docs/policies/test-coverage.md
-          LINE_THRESHOLD: '55'
-          BRANCH_THRESHOLD: '51'
+          # Ratchet (2026-10-29, H20 #222): unit tests for Observability, Http.Resilience, AspNetCore, Logging.Serilog and the
+          # abstractions. Three consecutive green CI builds measured line %72.9-73.3, branch %70.1 (runs 40916378964,
+          # 40917790145, 40920285742). Threshold sits ~3 points below to absorb noise; raise it as coverage grows.
+          # See docs/policies/test-coverage.md
+          LINE_THRESHOLD: '70'
+          BRANCH_THRESHOLD: '67'
         run: |
           LINE=$(awk '/Line coverage:/ {gsub("%",""); print $3; exit}' ./coverage-report/Summary.txt)
           BRANCH=$(awk '/Branch coverage:/ {gsub("%",""); print $3; exit}' ./coverage-report/Summary.txt)
