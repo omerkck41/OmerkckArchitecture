@@ -63,6 +63,9 @@ IOptionsMonitor<T> instead of IOptions<T>. Migration: see ADR-0004.
 - README code blocks of the files listed in `.github/scripts/readme_snippets.py` are compiled. After editing one, run
   `python .github/scripts/readme_snippets.py` and commit `samples/Kck.ReadmeSnippets/Generated`; types the block uses
   without defining go into `samples/Kck.ReadmeSnippets/Context/ReaderTypes.cs`.
+- `dotnet pack` validates every package against the last release. On a machine with a Turkish (`tr-TR`) culture the
+  SDK lower-cases package ids with the current culture (`kck.caching.ınmemory`) and pack fails with `MSB4018`; run it
+  with `DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=1` (CI is not affected).
 
 ### PR checklist
 
