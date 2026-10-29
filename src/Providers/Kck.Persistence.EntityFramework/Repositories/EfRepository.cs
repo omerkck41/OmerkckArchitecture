@@ -214,13 +214,9 @@ public class EfRepository<T, TId>(
             return Task.FromResult(entity);
         }
 
-        if (entity is ISoftDeletable softDeletable)
+        if (entity is ISoftDeletable)
         {
-            softDeletable.IsDeleted = true;
-            softDeletable.DeletedDate = DateTime.UtcNow;
-            Context.Entry(entity).State = EntityState.Modified;
-
-            SoftDeleteHelper.CascadeSoftDelete(Context, entity);
+            SoftDeleteHelper.SoftDelete(Context, [entity], DateTime.UtcNow);
         }
         else
         {
@@ -310,23 +306,13 @@ public class EfRepository<T, TId>(
             return Task.CompletedTask;
         }
 
-        var now = DateTime.UtcNow;
-        foreach (var entity in entityList)
+        foreach (var entity in entityList.Where(e => e is not ISoftDeletable))
         {
-            if (entity is ISoftDeletable softDeletable)
-            {
-                softDeletable.IsDeleted = true;
-                softDeletable.DeletedDate = now;
-                Context.Entry(entity).State = EntityState.Modified;
-                SoftDeleteHelper.CascadeSoftDelete(Context, entity);
-            }
-            else
-            {
-                EnsureAttached(entity);
-                DbSet.Remove(entity);
-            }
+            EnsureAttached(entity);
+            DbSet.Remove(entity);
         }
 
+        SoftDeleteHelper.SoftDelete(Context, entityList.OfType<ISoftDeletable>(), DateTime.UtcNow);
         return Task.CompletedTask;
     }
 

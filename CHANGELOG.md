@@ -8,6 +8,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Fixed
+- `Kck.Persistence.EntityFramework` — repository soft delete and `DbContext.Remove` under `AuditInterceptor` now
+  follow one rule; before, they gave different rows for the same delete. A soft delete covers the rows a hard delete
+  would remove (EF's cascade on tracked dependents, by `DeleteBehavior`): soft-deletable rows are soft-deleted down
+  the whole chain, the others are kept together with everything below them, and optional foreign keys set to `null`
+  by the cascade are restored. Rows that a hard delete in the same `SaveChanges` cascades to (`Cascade` /
+  `ClientCascade`) are deleted with it. Repository soft delete no longer needs `AuditInterceptor` for this, and also
+  covers the loaded dependents of a detached entity.
+- `AuditInterceptor` — a composite optional foreign key whose nullable part the cascade set to `null` (e.g.
+  `TenantId` kept, `CartId` nulled) lost its link to the soft-deleted owner; the nulled parts are now restored.
 - `Kck.Persistence.EntityFramework` — `EfUnitOfWork.CommitAsync` (and `SaveChangesAsync(autoCommitTransaction: true)`)
   passed the caller's token to the database commit: a request aborted while the commit ran left its outcome unknown
   (the data could be durable while the caller saw a cancellation). The token is now checked before the commit starts
@@ -19,6 +28,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `Kck.Pipeline.Mediator` — `TransactionBehavior` rolled back with the request's token; for a canceled request the
   rollback was canceled too and the transaction was only ended by its disposal. It now rolls back with
   `CancellationToken.None`.
+
+### Changed — behaviour
+- Repository soft delete (`DeleteAsync` / `DeleteRangeAsync` without `permanent`):
+  - optional soft-deletable dependents (`SetNull` / `ClientSetNull`) are no longer soft-deleted; they stay linked to
+    the soft-deleted owner. Configure `DeleteBehavior.Cascade` on relationships whose dependents should go with it;
+  - soft-deletable dependents of dependents are soft-deleted too (before: one level only);
+  - soft-deleting an entity that was added but never saved detaches it instead of failing on `SaveChanges`.
+- `AuditInterceptor`: soft-deletable rows below a kept, non-soft-deletable dependent (e.g. notes of an order line
+  when the order is soft-deleted) are no longer soft-deleted; the line and everything below it stay. A dependent kept
+  only to restore its foreign key is no longer stamped with `ModifiedDate`.
+- `RevertSoftDeleteAsync` restores only the entity itself (documented; unchanged).
 
 ## [4.2.5] — 2026-10-29
 
