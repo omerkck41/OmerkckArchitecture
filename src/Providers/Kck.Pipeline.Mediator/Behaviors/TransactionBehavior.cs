@@ -32,9 +32,7 @@ public sealed class TransactionBehavior<TMessage, TResponse>(
         }
         catch
         {
-            // Not the request's token: a canceled request still has to end its transaction.
-            await unitOfWork.RollbackAsync(CancellationToken.None).ConfigureAwait(false);
-            Log.TransactionRolledBack(logger, messageName);
+            await RollbackAsync(messageName).ConfigureAwait(false);
             throw;
         }
 
@@ -43,5 +41,20 @@ public sealed class TransactionBehavior<TMessage, TResponse>(
         await unitOfWork.CommitAsync(cancellationToken).ConfigureAwait(false);
         Log.TransactionCommitted(logger, messageName);
         return response;
+    }
+
+    // The handler's error is the one the caller needs; a rollback that also fails is logged, not thrown over it.
+    // Not the request's token: a canceled request still has to end its transaction.
+    private async Task RollbackAsync(string messageName)
+    {
+        try
+        {
+            await unitOfWork.RollbackAsync(CancellationToken.None).ConfigureAwait(false);
+            Log.TransactionRolledBack(logger, messageName);
+        }
+        catch (Exception rollbackError) when (rollbackError is not OutOfMemoryException)
+        {
+            Log.TransactionRollbackFailed(logger, rollbackError, messageName);
+        }
     }
 }
