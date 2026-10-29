@@ -134,6 +134,20 @@ public sealed class KckObservabilityRegistrationTests
     }
 
     [Fact]
+    public async Task MapKckHealthChecks_ResponseShape_IsStatusChecksAndTotalDuration()
+    {
+        var json = await CallHealthEndpointAsync("/health/live");
+
+        using var document = System.Text.Json.JsonDocument.Parse(json);
+        var root = document.RootElement;
+        root.EnumerateObject().Select(p => p.Name).Should().Equal("status", "checks", "totalDuration");
+        root.GetProperty("totalDuration").ValueKind.Should().Be(System.Text.Json.JsonValueKind.Number);
+        var check = root.GetProperty("checks").EnumerateArray().First();
+        check.EnumerateObject().Select(p => p.Name).Should().Equal("name", "status", "description", "duration");
+        check.GetProperty("duration").ValueKind.Should().Be(System.Text.Json.JsonValueKind.Number);
+    }
+
+    [Fact]
     public async Task MapKckHealthChecks_AggregateEndpoint_ReturnsAllChecksAsCamelCaseJson()
     {
         var json = await CallHealthEndpointAsync("/health");
