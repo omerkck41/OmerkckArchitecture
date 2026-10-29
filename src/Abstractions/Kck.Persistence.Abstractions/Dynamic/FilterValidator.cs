@@ -26,7 +26,9 @@ public static class FilterValidator
         if (string.IsNullOrWhiteSpace(filter.Operator) || !SupportedOperators.Contains(filter.Operator))
             return false;
 
-        if (filter.Operator is "isnull" or "isnotnull")
+        // Case-insensitive like SupportedOperators and the query builder.
+        if (string.Equals(filter.Operator, "isnull", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(filter.Operator, "isnotnull", StringComparison.OrdinalIgnoreCase))
         {
             if (filter.Value is not null)
                 return false;
