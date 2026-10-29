@@ -26,6 +26,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Mocks (NSubstitute / Moq) set up on the old overload are not hit by calls to the new one; move the setups.
 
 ### Fixed
+- `Kck.Persistence.Abstractions` — the parameterized constructors of `Filter` and `Sort` could not be called
+  (`CS9035`: they set the `required` members but were not marked `[SetsRequiredMembers]`); now they can.
+- `FilterValidator.Validate` compared `isnull` / `isnotnull` case-sensitively while every other operator is
+  case-insensitive: `"IsNull"` with a null value was rejected and `"IsNull"` with a value was accepted.
 - `Kck.Persistence.EntityFramework` — repository soft delete and `DbContext.Remove` under `AuditInterceptor` now
   follow one rule; before, they gave different rows for the same delete. A soft delete covers the rows a hard delete
   would remove (EF's cascade on tracked dependents, by `DeleteBehavior`): soft-deletable rows are soft-deleted down
