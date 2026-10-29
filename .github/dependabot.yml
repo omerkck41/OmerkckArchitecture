@@ -77,7 +77,7 @@ updates:
     commit-message:
       prefix: "chore(ci)"
 
-  # zizmor for workflow-lint.yml (hash-pinned requirements). actionlint (go install) is bumped by hand.
+  # zizmor for workflow-lint.yml (hash-pinned requirements). actionlint (release archive + SHA-256) is bumped by hand.
   - package-ecosystem: pip
     directory: "/.github/workflow-lint"
     schedule:
