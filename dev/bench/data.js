@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1793304589606,
+  "lastUpdate": 1793305575827,
   "repoUrl": "https://github.com/omerkck41/OmerkckArchitecture",
   "entries": {
     "Benchmark": [
@@ -10702,6 +10702,102 @@ window.BENCHMARK_DATA = {
             "value": 10.841312803824742,
             "unit": "ns",
             "range": "± 0.05589082676838359"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "106805727+omerkck41@users.noreply.github.com",
+            "name": "Ömer KÜÇÜK",
+            "username": "omerkck41"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "58b391c8f65d014e1545b2d9be2060b267eb83da",
+          "message": "fix(mediator): keep the handler's error when the rollback also fails (#230)\n\n## Summary\nPre-existing bug noted in the #218 review: in `TransactionBehavior`,\nwhen the handler threw and `RollbackAsync` threw too, the caller\nreceived the rollback error and the handler's error (the actual cause)\nwas lost. The rollback error is now logged at `Error` (`Rollback failed\nfor {MessageName}; the handler's error is rethrown`) and the handler's\nerror is rethrown — the same rule `EfUnitOfWork` uses for a failed\ncommit.\n\n## Test plan\n- [x]\n`Handle_HandlerAndRollbackThrow_SurfacesTheHandlerErrorAndLogsTheRollbackError`\nRED first (InvalidOperationException from rollback surfaced), green\nafter; Mediator tests 32/32\n- [ ] CI\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-authored-by: Claude Opus 5.5 <noreply@anthropic.com>",
+          "timestamp": "2026-10-29T20:19:55Z",
+          "tree_id": "430cdd2c7e5aa1fb23253ebecb875632ae7472e3",
+          "url": "https://github.com/omerkck41/OmerkckArchitecture/commit/58b391c8f65d014e1545b2d9be2060b267eb83da"
+        },
+        "date": 1793305574869,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Success_Factory",
+            "value": 7.277950568993886,
+            "unit": "ns",
+            "range": "± 0.10724885736736156"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Failure_Factory",
+            "value": 8.90037553012371,
+            "unit": "ns",
+            "range": "± 0.03564954073868571"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Success",
+            "value": 1.6718252037962278,
+            "unit": "ns",
+            "range": "± 0.06665098454184303"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Failure",
+            "value": 0.5362884933749835,
+            "unit": "ns",
+            "range": "± 0.013263532647821836"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Serialize_Reflection",
+            "value": 390.61386023248946,
+            "unit": "ns",
+            "range": "± 0.7934836266108916"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Deserialize_Reflection",
+            "value": 711.3449518203736,
+            "unit": "ns",
+            "range": "± 1.6990841236148364"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 0)",
+            "value": 12.44023514787356,
+            "unit": "ns",
+            "range": "± 0.16538370156889062"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 5)",
+            "value": 12.483309386031967,
+            "unit": "ns",
+            "range": "± 0.17180451232542945"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 0)",
+            "value": 11.621648114919662,
+            "unit": "ns",
+            "range": "± 0.14635476155013694"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 5)",
+            "value": 11.679131191968917,
+            "unit": "ns",
+            "range": "± 0.15468923723941772"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 0)",
+            "value": 12.397899744908015,
+            "unit": "ns",
+            "range": "± 0.2611981202982501"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 5)",
+            "value": 12.344431694348653,
+            "unit": "ns",
+            "range": "± 0.2623722495405401"
           }
         ]
       }
