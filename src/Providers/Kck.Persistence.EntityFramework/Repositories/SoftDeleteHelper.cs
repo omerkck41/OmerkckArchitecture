@@ -1,5 +1,6 @@
 using Kck.Core.Abstractions.Entities;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace Kck.Persistence.EntityFramework.Repositories;
 
@@ -13,8 +14,10 @@ internal static class SoftDeleteHelper
     /// </summary>
     public static void CascadeSoftDelete(DbContext context, object entity)
     {
+        // Dependents only: a reference to a principal (which other rows may share) and the other side of a
+        // many-to-many are not part of the entity being deleted.
         var navigations = context.Entry(entity).Navigations
-            .Where(n => n.CurrentValue is not null);
+            .Where(n => n.Metadata is INavigation { IsOnDependent: false } && n.CurrentValue is not null);
 
         foreach (var navigation in navigations) // NOSONAR S3267 - side-effect body; LINQ Select() would obscure intent
         {

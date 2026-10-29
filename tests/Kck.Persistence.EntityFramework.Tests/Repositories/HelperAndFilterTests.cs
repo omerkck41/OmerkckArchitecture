@@ -1,4 +1,5 @@
 using AwesomeAssertions;
+using Kck.Core.Abstractions.Entities;
 using Kck.Persistence.EntityFramework.Paging;
 using Kck.Persistence.EntityFramework.Repositories;
 using Microsoft.EntityFrameworkCore;
@@ -11,7 +12,7 @@ public class HelperAndFilterTests
     // --- SoftDeleteHelper via EfRepository soft-delete cascade ---
 
     [Fact]
-    public async Task SoftDelete_CascadesToCollectionAndReferenceNavigations()
+    public async Task SoftDelete_CascadesToDependentsButNotToTheReferencedPrincipal()
     {
         using var harness = new SqliteHarness<CascadeDbContext>(o => new CascadeDbContext(o));
         var parent = new CascadeParent
@@ -43,7 +44,129 @@ public class HelperAndFilterTests
 
         loaded.IsDeleted.Should().BeTrue();
         children.Should().OnlyContain(c => c.IsDeleted);
-        single.IsDeleted.Should().BeTrue();
+        // Reference is the principal the parent points at, not a dependent of it.
+        single.IsDeleted.Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task SoftDelete_DoesNotDeleteTheOtherSideOfAManyToMany()
+    {
+        using var harness = new SqliteHarness<ArticleDbContext>(o => new ArticleDbContext(o));
+        var article = new Article { Id = Guid.NewGuid(), Labels = [new Label { Id = Guid.NewGuid() }] };
+        harness.Context.Articles.Add(article);
+        await harness.Context.SaveChangesAsync();
+        harness.Context.ChangeTracker.Clear();
+        var loaded = await harness.Context.Articles.Include(a => a.Labels).SingleAsync();
+
+        await new EfRepository<Article, Guid>(harness.Context).DeleteAsync(loaded, permanent: false);
+        await harness.Context.SaveChangesAsync();
+
+        (await harness.Context.Labels.IgnoreQueryFilters().AsNoTracking().SingleAsync()).IsDeleted.Should().BeFalse();
+    }
+
+    public sealed class Article : FullEntity<Guid>
+    {
+        public List<Label> Labels { get; set; } = [];
+    }
+
+    public sealed class Label : FullEntity<Guid>;
+
+    public sealed class Profile : FullEntity<Guid>
+    {
+        public ProfileDetail? Detail { get; set; }
+    }
+
+    public sealed class ProfileDetail : FullEntity<Guid>
+    {
+        public Guid ProfileId { get; set; }
+        public Profile? Profile { get; set; }
+    }
+
+    public sealed class ArticleDbContext(DbContextOptions<ArticleDbContext> options) : DbContext(options)
+    {
+        public DbSet<Article> Articles => Set<Article>();
+        public DbSet<Label> Labels => Set<Label>();
+        public DbSet<Profile> Profiles => Set<Profile>();
+        public DbSet<ProfileDetail> ProfileDetails => Set<ProfileDetail>();
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Article>(b =>
+            {
+                b.Ignore(e => e.RowVersion);
+                b.HasMany(e => e.Labels).WithMany();
+            });
+            modelBuilder.Entity<Label>(b => b.Ignore(e => e.RowVersion));
+            modelBuilder.Entity<Profile>(b =>
+            {
+                b.Ignore(e => e.RowVersion);
+                b.HasOne(p => p.Detail).WithOne(d => d.Profile).HasForeignKey<ProfileDetail>(d => d.ProfileId);
+            });
+            modelBuilder.Entity<ProfileDetail>(b => b.Ignore(e => e.RowVersion));
+        }
+    }
+
+    [Fact]
+    public async Task SoftDelete_DoesNotDeleteASharedPrincipal()
+    {
+        using var harness = new SqliteHarness<CascadeDbContext>(o => new CascadeDbContext(o));
+        var shared = new CascadeSingle { Id = Guid.NewGuid(), Name = "shared" };
+        var deleted = new CascadeParent { Id = Guid.NewGuid(), Name = "deleted", Reference = shared };
+        var other = new CascadeParent { Id = Guid.NewGuid(), Name = "other", Reference = shared };
+        harness.Context.Parents.AddRange(deleted, other);
+        await harness.Context.SaveChangesAsync();
+        harness.Context.ChangeTracker.Clear();
+        var loaded = await harness.Context.Parents.Include(p => p.Reference).SingleAsync(p => p.Id == deleted.Id);
+
+        await new EfRepository<CascadeParent, Guid>(harness.Context).DeleteAsync(loaded, permanent: false);
+        await harness.Context.SaveChangesAsync();
+
+        (await harness.Context.Singles.IgnoreQueryFilters().AsNoTracking().SingleAsync()).IsDeleted.Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task SoftDelete_OneToOnePrincipal_SoftDeletesItsDependent()
+    {
+        using var harness = new SqliteHarness<ArticleDbContext>(o => new ArticleDbContext(o));
+        harness.Context.Profiles.Add(new Profile { Id = Guid.NewGuid(), Detail = new ProfileDetail { Id = Guid.NewGuid() } });
+        await harness.Context.SaveChangesAsync();
+        harness.Context.ChangeTracker.Clear();
+        var loaded = await harness.Context.Profiles.Include(p => p.Detail).SingleAsync();
+
+        await new EfRepository<Profile, Guid>(harness.Context).DeleteAsync(loaded, permanent: false);
+        await harness.Context.SaveChangesAsync();
+
+        (await harness.Context.ProfileDetails.IgnoreQueryFilters().AsNoTracking().SingleAsync()).IsDeleted.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task SoftDelete_OneToOneDependent_LeavesItsPrincipal()
+    {
+        using var harness = new SqliteHarness<ArticleDbContext>(o => new ArticleDbContext(o));
+        harness.Context.Profiles.Add(new Profile { Id = Guid.NewGuid(), Detail = new ProfileDetail { Id = Guid.NewGuid() } });
+        await harness.Context.SaveChangesAsync();
+        harness.Context.ChangeTracker.Clear();
+        var detail = await harness.Context.ProfileDetails.Include(d => d.Profile).SingleAsync();
+
+        await new EfRepository<ProfileDetail, Guid>(harness.Context).DeleteAsync(detail, permanent: false);
+        await harness.Context.SaveChangesAsync();
+
+        (await harness.Context.Profiles.IgnoreQueryFilters().AsNoTracking().SingleAsync()).IsDeleted.Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task SoftDelete_OneToOnePrincipalWithoutDependent_DeletesOnlyItself()
+    {
+        using var harness = new SqliteHarness<ArticleDbContext>(o => new ArticleDbContext(o));
+        harness.Context.Profiles.Add(new Profile { Id = Guid.NewGuid() });
+        await harness.Context.SaveChangesAsync();
+        harness.Context.ChangeTracker.Clear();
+        var loaded = await harness.Context.Profiles.Include(p => p.Detail).SingleAsync();
+
+        await new EfRepository<Profile, Guid>(harness.Context).DeleteAsync(loaded, permanent: false);
+        await harness.Context.SaveChangesAsync();
+
+        (await harness.Context.Profiles.IgnoreQueryFilters().AsNoTracking().SingleAsync()).IsDeleted.Should().BeTrue();
     }
 
     // --- ModelBuilderExtensions: global soft-delete query filter ---
