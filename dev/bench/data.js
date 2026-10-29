@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1793300814303,
+  "lastUpdate": 1793301817008,
   "repoUrl": "https://github.com/omerkck41/OmerkckArchitecture",
   "entries": {
     "Benchmark": [
@@ -10318,6 +10318,102 @@ window.BENCHMARK_DATA = {
             "value": 11.694402826683861,
             "unit": "ns",
             "range": "± 0.058592617862644594"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "106805727+omerkck41@users.noreply.github.com",
+            "name": "Ömer KÜÇÜK",
+            "username": "omerkck41"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "ffa3a2c78e09f2330d72431aec5b12ef71801d2b",
+          "message": "fix(aspnetcore): a GET with null data is a 404 failure, not a success (#226)\n\n## Summary\n`ApiResponseHelper.CreateSuccess` on a GET with `null` data produced a\ncontradictory response: `StatusCode = 404` but `Success = true` (found\nby the H20 tests, todo item). Decision (lead engineer): a 404 is not a\nsuccess — the case now returns exactly what `CreateFail` returns for a\nGET (`Success = false`, 404, `TraceId`, message kept). Alternative\nrejected: 200 with null data (changes the status code clients already\nrely on).\n\nBehaviour change documented under `[Unreleased]` → planned for the next\nrelease.\n\n## Test plan\n- [x] Updated test RED first (`Success` was true), green after;\nAspNetCore tests 78/78\n- [ ] CI\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-authored-by: Claude Opus 5.5 <noreply@anthropic.com>",
+          "timestamp": "2026-10-29T19:15:53Z",
+          "tree_id": "e5bf805430e214c229e3072c1635c8badf45a4d9",
+          "url": "https://github.com/omerkck41/OmerkckArchitecture/commit/ffa3a2c78e09f2330d72431aec5b12ef71801d2b"
+        },
+        "date": 1793301816204,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Success_Factory",
+            "value": 5.224320785087698,
+            "unit": "ns",
+            "range": "± 0.15998397872537443"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Failure_Factory",
+            "value": 8.259814286231995,
+            "unit": "ns",
+            "range": "± 0.19626319314398602"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Success",
+            "value": 0.6982830861147414,
+            "unit": "ns",
+            "range": "± 0.13830122168232134"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Failure",
+            "value": 0.6003435607112589,
+            "unit": "ns",
+            "range": "± 0.12570441715719388"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Serialize_Reflection",
+            "value": 308.9904387678419,
+            "unit": "ns",
+            "range": "± 4.528704857678576"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Deserialize_Reflection",
+            "value": 573.8083213806152,
+            "unit": "ns",
+            "range": "± 5.5448021931119715"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 0)",
+            "value": 8.338866677880286,
+            "unit": "ns",
+            "range": "± 0.039171656335128265"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 5)",
+            "value": 8.238441501344953,
+            "unit": "ns",
+            "range": "± 0.11432756246816185"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 0)",
+            "value": 8.314736379044396,
+            "unit": "ns",
+            "range": "± 0.07412813888582977"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 5)",
+            "value": 9.180924192644083,
+            "unit": "ns",
+            "range": "± 0.09344797350634297"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 0)",
+            "value": 8.011312805689299,
+            "unit": "ns",
+            "range": "± 0.10775671673321681"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 5)",
+            "value": 8.297942835305419,
+            "unit": "ns",
+            "range": "± 0.038552884906290406"
           }
         ]
       }
