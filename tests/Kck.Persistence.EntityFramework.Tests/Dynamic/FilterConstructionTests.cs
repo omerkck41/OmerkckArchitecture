@@ -43,4 +43,12 @@ public sealed class FilterConstructionTests
     {
         FilterValidator.Validate(new Filter("Name", @operator, "x")).Should().BeFalse();
     }
+
+    [Theory]
+    [InlineData("eq", "x", true)]
+    [InlineData("EQ", null, false)]
+    public void Validate_ValueOperator_RequiresAValue(string @operator, string? value, bool expected)
+    {
+        FilterValidator.Validate(new Filter("Name", @operator, value)).Should().Be(expected);
+    }
 }
