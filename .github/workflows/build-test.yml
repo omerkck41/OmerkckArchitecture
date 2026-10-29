@@ -194,11 +194,11 @@ jobs:
           echo "Line:   ${LINE}% (threshold ${LINE_THRESHOLD}%)"
           echo "Branch: ${BRANCH}% (threshold ${BRANCH_THRESHOLD}%)"
           FAIL=0
-          awk "BEGIN { exit !(${LINE:-0} < ${LINE_THRESHOLD}) }" && {
-            echo "::error::Line coverage ${LINE}% below threshold ${LINE_THRESHOLD}%"; FAIL=1;
-          } || true
-          awk "BEGIN { exit !(${BRANCH:-0} < ${BRANCH_THRESHOLD}) }" && {
-            echo "::error::Branch coverage ${BRANCH}% below threshold ${BRANCH_THRESHOLD}%"; FAIL=1;
-          } || true
+          if awk "BEGIN { exit !(${LINE:-0} < ${LINE_THRESHOLD}) }"; then
+            echo "::error::Line coverage ${LINE}% below threshold ${LINE_THRESHOLD}%"; FAIL=1
+          fi
+          if awk "BEGIN { exit !(${BRANCH:-0} < ${BRANCH_THRESHOLD}) }"; then
+            echo "::error::Branch coverage ${BRANCH}% below threshold ${BRANCH_THRESHOLD}%"; FAIL=1
+          fi
           exit $FAIL
         shell: bash
