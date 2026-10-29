@@ -70,6 +70,14 @@
       "url": "https://raw.githubusercontent.com/xunit/xunit/master/license.txt"
     },
     {
+      "id": "dotnet-sonarscanner",
+      "kind": "file",
+      "license": "LGPL-3.0",
+      "status": "exception",
+      "reason": "CI-only analysis tool (sonar.yml); never shipped in or linked into Kck packages. Free under LGPL-3.0. Decision: decisions/2026-10-29-ci-tools-pinned.md.",
+      "sha256": ["7b3ee35820a089523b4d31482806e1a0c3db035f7ab1856d167d61d89876b480"]
+    },
+    {
       "id": "Hangfire*",
       "kind": "file",
       "license": "LGPL-3.0-or-later OR Hangfire commercial",
