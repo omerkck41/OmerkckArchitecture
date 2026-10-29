@@ -1,5 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
+    <!-- Native AOT: verified by samples/Kck.AotSmoke (CI publishes and runs it). -->
+    <IsAotCompatible>true</IsAotCompatible>
     <Title>Kck In-Memory Feature Flags</Title>
     <Description>Dictionary-backed IFeatureFlagService for development and testing. Feature states defined via InMemoryFeatureFlagOptions at startup. Registered via AddKckFeatureFlagsInMemory().</Description>
     <PackageTags>dotnet;kck;feature-flags;in-memory;feature-toggles;testing</PackageTags>

@@ -1,5 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
+    <!-- Native AOT: verified by samples/Kck.AotSmoke (CI publishes and runs it). -->
+    <IsAotCompatible>true</IsAotCompatible>
     <Title>Kck Password Hashing (Argon2id)</Title>
     <Description>Argon2id-backed IHashingService using Konscious.Security.Cryptography. OWASP-recommended defaults (MemorySize=65536KB, Iterations=3). Timing-safe verification via CryptographicOperations.FixedTimeEquals. Registered via AddKckArgon2().</Description>
     <PackageTags>dotnet;kck;security;argon2;password-hashing;owasp;cryptography</PackageTags>
