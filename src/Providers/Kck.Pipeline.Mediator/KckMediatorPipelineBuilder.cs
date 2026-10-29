@@ -33,6 +33,16 @@ public sealed class KckMediatorPipelineBuilder(IServiceCollection services)
         return this;
     }
 
+    /// <summary>
+    /// Registers <see cref="CachingBehavior{TMessage,TResponse}"/> with options, e.g. source-generated JSON metadata
+    /// for Native AOT (<see cref="CachingBehaviorOptions.SerializerOptions"/>).
+    /// </summary>
+    public KckMediatorPipelineBuilder UseCachingBehavior(Action<CachingBehaviorOptions> configure)
+    {
+        Services.Configure(configure);
+        return UseCachingBehavior();
+    }
+
     /// <summary>Registers <see cref="AuthorizationBehavior{TMessage,TResponse}"/> for <c>ISecuredRequest</c> messages.</summary>
     public KckMediatorPipelineBuilder UseAuthorizationBehavior()
     {
