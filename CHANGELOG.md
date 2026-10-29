@@ -26,6 +26,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   covers the loaded dependents of a detached entity.
 - `AuditInterceptor` — a composite optional foreign key whose nullable part the cascade set to `null` (e.g.
   `TenantId` kept, `CartId` nulled) lost its link to the soft-deleted owner; the nulled parts are now restored.
+- `Kck.Persistence.EntityFramework` — `EfUnitOfWork.CommitAsync` (and `SaveChangesAsync(autoCommitTransaction: true)`)
+  passed the caller's token to the database commit: a request aborted while the commit ran left its outcome unknown
+  (the data could be durable while the caller saw a cancellation). The token is now checked before the commit starts
+  (canceled → rollback and `OperationCanceledException`); the commit itself runs to completion. Domain event dispatch
+  after the commit still observes the token: canceled there, the data is durable and the caller sees the
+  cancellation; the events go back on their entities (as for a failing dispatcher).
+- `EfUnitOfWork` — when the commit failed and disposing the transaction also threw, the dispose error hid the commit
+  error. The commit error is rethrown.
+- `Kck.Pipeline.Mediator` — `TransactionBehavior` rolled back with the request's token; for a canceled request the
+  rollback was canceled too and the transaction was only ended by its disposal. It now rolls back with
+  `CancellationToken.None`.
 
 ### Changed — behaviour
 - Repository soft delete (`DeleteAsync` / `DeleteRangeAsync` without `permanent`):
