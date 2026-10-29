@@ -43,6 +43,11 @@ public sealed class OrderService(IUnitOfWork uow)
 }
 ```
 
+`DeleteAsync` / `DeleteRangeAsync` varsayilan olarak soft-delete yapar (`ISoftDeletable` entity'lerde) ve bunu
+entity'nin yuklu, soft-delete olan bagimli kayitlarina (alt kayitlarina, tek seviye) da uygular; iliskinin
+`DeleteBehavior`'i dikkate alinmaz. Entity'nin isaret ettigi ust kayitlar ve many-to-many karsi tarafi silinmez
+(4.2.5+). `RevertSoftDeleteAsync` yalniz kaydin kendisini geri alir. `permanent: true` kalici siler.
+
 ## QueryOptions
 
 `QueryOptions` soft-delete edilmis satirlari ve change tracking'i kontrol eder. Okuma metotlari `QueryOptions?` alir;

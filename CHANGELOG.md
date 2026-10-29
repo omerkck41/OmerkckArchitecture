@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- `Kck.Persistence.EntityFramework` — repository soft delete (`DeleteAsync` / `DeleteRangeAsync` without `permanent`)
+  also soft-deleted every loaded soft-deletable entity the deleted entity pointed at: the principal it references
+  (which other rows may share) and the other side of a many-to-many (e.g. shared tags). It now cascades only to the
+  entity's dependents, as its internal helper described.
+
+### Changed — behaviour
+- A loaded principal referenced by a soft-deleted entity stays active. Code that relied on the old cascade must
+  delete the principal itself. This includes one-to-one relationships whose foreign key sits on the deleted entity
+  (e.g. `Order.ShippingAddressId`): the referenced row is no longer soft-deleted — delete it explicitly, or put the
+  foreign key on the other side.
+
 ## [4.2.4] — 2026-10-29
 
 ### Fixed
