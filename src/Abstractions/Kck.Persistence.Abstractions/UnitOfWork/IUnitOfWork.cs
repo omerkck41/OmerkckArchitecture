@@ -42,7 +42,10 @@ public interface IUnitOfWork : IAsyncDisposable
     /// </remarks>
     /// <param name="cancellationToken">
     /// Observed before the database commit starts (a canceled token rolls back and throws) and by the work that follows
-    /// a successful commit, such as domain event dispatch; the database commit itself is not canceled once started.
+    /// a successful commit, such as domain event dispatch; the database commit itself is not canceled once started
+    /// (a dead connection is bounded by the provider's own timeouts). Canceled after the commit, the changes are
+    /// durable and dispatch may be canceled: its events go back on their entities, so only a later save through the
+    /// same context dispatches them — use an outbox when every event must be delivered.
     /// </param>
     /// <exception cref="InvalidOperationException">
     /// No transaction is active, or the provider reports the transaction unusable.
