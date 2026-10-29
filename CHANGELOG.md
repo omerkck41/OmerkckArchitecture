@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Native AOT: `Kck.Pipeline.Mediator`, `Kck.Caching.InMemory`, `Kck.EventBus.InMemory`, `Kck.FeatureFlags.InMemory`,
+  `Kck.Security.Argon2` and `Kck.Security.Totp` are marked `IsAotCompatible` (trim/AOT analyzers on, 0 warnings).
+  CI publishes and runs `samples/Kck.AotSmoke` with `PublishAot` on every build.
+- `Kck.Pipeline.Mediator` — `UseCachingBehavior(Action<CachingBehaviorOptions>)`: `CachingBehaviorOptions.SerializerOptions`
+  takes JSON options with a source-generated `JsonSerializerContext` for cached responses (required under Native AOT;
+  without it the behavior throws `InvalidOperationException` on the first cacheable request). Default behaviour
+  (reflection, `JsonSerializerOptions.Default` settings) is unchanged.
+
 ### Fixed
 - `Kck.Persistence.EntityFramework` — repository soft delete and `DbContext.Remove` under `AuditInterceptor` now
   follow one rule; before, they gave different rows for the same delete. A soft delete covers the rows a hard delete

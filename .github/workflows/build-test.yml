@@ -22,6 +22,35 @@ env:
   DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
 
 jobs:
+  # Native AOT smoke (F3 H22): publishes samples/Kck.AotSmoke, which exercises every provider marked
+  # IsAotCompatible, and runs the binary. Trim/AOT warnings fail the publish (warnings are errors).
+  aot-smoke:
+    name: Native AOT smoke
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          fetch-depth: 0  # MinVer needs full history for tag resolution
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+        with:
+          dotnet-version: '10.0.402'
+
+      - name: Install native toolchain
+        run: sudo apt-get install -y --no-install-recommends clang zlib1g-dev
+
+      - name: Publish (Native AOT)
+        run: >-
+          dotnet publish samples/Kck.AotSmoke/Kck.AotSmoke.csproj
+          --configuration Release --runtime linux-x64 --framework net10.0
+          -p:RestoreLockedMode=true --output ./artifacts/aot
+
+      - name: Run
+        run: ./artifacts/aot/Kck.AotSmoke
+
   build:
     name: Build & Test (${{ matrix.os }})
     runs-on: ${{ matrix.os }}

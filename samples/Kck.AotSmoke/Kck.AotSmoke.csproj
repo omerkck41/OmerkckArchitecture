@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!--
+    Native AOT smoke test (F3 H22): CI publishes this app with PublishAot and runs it. Every provider marked
+    IsAotCompatible is referenced and exercised here; a trim/AOT warning fails the publish (warnings are errors).
+  -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFrameworks>net10.0</TargetFrameworks>
+    <IsPackable>false</IsPackable>
+    <PublishAot>true</PublishAot>
+    <InvariantGlobalization>true</InvariantGlobalization>
+    <!-- The lock file must cover the RID-specific ILCompiler packages CI restores. -->
+    <RuntimeIdentifiers>linux-x64;win-x64</RuntimeIdentifiers>
+  </PropertyGroup>
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="../../src/Providers/Kck.Pipeline.Mediator/Kck.Pipeline.Mediator.csproj" />
+    <ProjectReference Include="../../src/Providers/Kck.Caching.InMemory/Kck.Caching.InMemory.csproj" />
+    <ProjectReference Include="../../src/Providers/Kck.EventBus.InMemory/Kck.EventBus.InMemory.csproj" />
+    <ProjectReference Include="../../src/Providers/Kck.FeatureFlags.InMemory/Kck.FeatureFlags.InMemory.csproj" />
+    <ProjectReference Include="../../src/Providers/Kck.Security.Argon2/Kck.Security.Argon2.csproj" />
+    <ProjectReference Include="../../src/Providers/Kck.Security.Totp/Kck.Security.Totp.csproj" />
+  </ItemGroup>
+</Project>
