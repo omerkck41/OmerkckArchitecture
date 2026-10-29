@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1793302251942,
+  "lastUpdate": 1793303395550,
   "repoUrl": "https://github.com/omerkck41/OmerkckArchitecture",
   "entries": {
     "Benchmark": [
@@ -10510,6 +10510,102 @@ window.BENCHMARK_DATA = {
             "value": 9.401152325528008,
             "unit": "ns",
             "range": "± 0.06835016547412712"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "106805727+omerkck41@users.noreply.github.com",
+            "name": "Ömer KÜÇÜK",
+            "username": "omerkck41"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "1932c4cb767808aa44c09f7aa800720450ca23e2",
+          "message": "docs(persistence): state what sync SaveChanges does with domain events (#227)\n\n## Summary\nTodo item \"DomainEventDispatchInterceptor.SavedChanges (sync)\nsync-over-async\". Decision (lead engineer): keep the behaviour —\n`Task.Run(...).GetAwaiter().GetResult()` cannot deadlock and already\nlogs a warning on every call; throwing for sync `SaveChanges` would\nbreak callers, and a sync `IDomainEventDispatcher` member would add API\nfor a path we discourage. What was missing is documentation:\n`docs/providers/persistence.md` now says the calling thread blocks until\ndispatch ends and to use `SaveChangesAsync`.\n\nDocs only.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-authored-by: Claude Opus 5.5 <noreply@anthropic.com>",
+          "timestamp": "2026-10-29T19:42:50Z",
+          "tree_id": "b2b4efc18ac65134519b5bb65425b5de8aeb3845",
+          "url": "https://github.com/omerkck41/OmerkckArchitecture/commit/1932c4cb767808aa44c09f7aa800720450ca23e2"
+        },
+        "date": 1793303394541,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Success_Factory",
+            "value": 5.0109013807442455,
+            "unit": "ns",
+            "range": "± 0.16780932885006683"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Failure_Factory",
+            "value": 6.929168703464361,
+            "unit": "ns",
+            "range": "± 0.26123871063732296"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Success",
+            "value": 0.9774993235038386,
+            "unit": "ns",
+            "range": "± 0.13585624546109476"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Failure",
+            "value": 0.5150983122487863,
+            "unit": "ns",
+            "range": "± 0.0020244537850120097"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Serialize_Reflection",
+            "value": 320.63325518369675,
+            "unit": "ns",
+            "range": "± 6.004738811470675"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Deserialize_Reflection",
+            "value": 568.0992718424116,
+            "unit": "ns",
+            "range": "± 2.986339197496983"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 0)",
+            "value": 8.047748696345549,
+            "unit": "ns",
+            "range": "± 0.06758877307319572"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 5)",
+            "value": 7.774114653468132,
+            "unit": "ns",
+            "range": "± 0.043779894968908405"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 0)",
+            "value": 9.070063980562347,
+            "unit": "ns",
+            "range": "± 0.022863887913639747"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 5)",
+            "value": 8.027151750830503,
+            "unit": "ns",
+            "range": "± 0.04621642976193192"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 0)",
+            "value": 8.107779903213183,
+            "unit": "ns",
+            "range": "± 0.08476650679629916"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 5)",
+            "value": 8.693146727406061,
+            "unit": "ns",
+            "range": "± 0.05391166539847995"
           }
         ]
       }
