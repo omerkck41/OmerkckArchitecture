@@ -24,9 +24,14 @@ internal static class SoftDeleteHelper
     public static void SoftDelete(DbContext context, IEnumerable<object> entities, DateTime now)
     {
         var owners = new HashSet<object>(entities, ReferenceEqualityComparer.Instance);
-        foreach (var entry in owners.Select(context.Entry))
+        foreach (var owner in owners)
         {
-            // As DbContext.Remove: a row that was never inserted is just not inserted.
+            // As DbContext.Remove: a detached graph is tracked first, so the cascade reaches its loaded dependents; a
+            // row that was never inserted is just not inserted.
+            var entry = context.Entry(owner);
+            if (entry.State == EntityState.Detached)
+                context.Attach(owner);
+
             entry.State = entry.State == EntityState.Added ? EntityState.Detached : EntityState.Deleted;
         }
 
@@ -45,12 +50,15 @@ internal static class SoftDeleteHelper
         var softDeleted = new HashSet<object>(ReferenceEqualityComparer.Instance);
         var entries = context.ChangeTracker.Entries().ToList();
         var deleted = entries.Where(e => e.State == EntityState.Deleted).ToList();
-        if (deleted.Count == 0)
+
+        // Only hard deletes: nothing to decide.
+        if (owners is null && !deleted.Any(e => e.Entity is ISoftDeletable && !PermanentDeletes.IsMarked(context, e.Entity)))
             return softDeleted;
 
-        var outcomes = new Dictionary<object, Outcome>(ReferenceEqualityComparer.Instance);
+        var resolver = new Resolver(context, deleted, owners);
         foreach (var entry in deleted)
-            Resolve(context, entry, deleted, owners, outcomes);
+            resolver.Resolve(entry);
+        var outcomes = resolver.Outcomes;
 
         var kept = new List<EntityEntry>();
         foreach (var entry in deleted)
@@ -76,56 +84,60 @@ internal static class SoftDeleteHelper
         return softDeleted;
     }
 
-    private static Outcome Resolve(
-        DbContext context,
-        EntityEntry entry,
-        List<EntityEntry> deleted,
-        HashSet<object>? owners,
-        Dictionary<object, Outcome> outcomes)
+    private sealed class Resolver(DbContext context, List<EntityEntry> deleted, HashSet<object>? owners)
     {
-        if (outcomes.TryGetValue(entry.Entity, out var known))
-            return known;
+        private readonly HashSet<object> _resolving = new(ReferenceEqualityComparer.Instance);
 
-        outcomes[entry.Entity] = Outcome.Delete; // a cycle of deletes stays deleted
-        var outcome = Decide(context, entry, deleted, owners, outcomes);
-        outcomes[entry.Entity] = outcome;
-        return outcome;
+        public Dictionary<object, Outcome> Outcomes { get; } = new(ReferenceEqualityComparer.Instance);
+
+        // Null while the entry is being decided: a principal reached again through a cascade cycle does not count.
+        public Outcome? Resolve(EntityEntry entry)
+        {
+            if (Outcomes.TryGetValue(entry.Entity, out var known))
+                return known;
+
+            if (!_resolving.Add(entry.Entity))
+                return null;
+
+            var outcome = Decide(entry);
+            _resolving.Remove(entry.Entity);
+            Outcomes[entry.Entity] = outcome;
+            return outcome;
+        }
+
+        private Outcome Decide(EntityEntry entry)
+        {
+            if (owners?.Contains(entry.Entity) == true)
+                return Outcome.SoftDelete;
+
+            if (PermanentDeletes.IsMarked(context, entry.Entity))
+                return Outcome.Delete;
+
+            var principals = CascadingPrincipals(entry)
+                .Select(Resolve)
+                .OfType<Outcome>()
+                .ToList();
+
+            if (principals.Count == 0)
+                return owners is null && entry.Entity is ISoftDeletable ? Outcome.SoftDelete : Outcome.Delete;
+
+            // A row that stays deleted takes its dependents with it; a kept row keeps them.
+            if (principals.Contains(Outcome.Delete))
+                return Outcome.Delete;
+
+            return entry.Entity is ISoftDeletable && principals.Contains(Outcome.SoftDelete)
+                ? Outcome.SoftDelete
+                : Outcome.Keep;
+        }
+
+        // Only relationships whose delete removes the dependent: a SetNull or Restrict principal does not take it along.
+        private IEnumerable<EntityEntry> CascadingPrincipals(EntityEntry dependent) =>
+            dependent.Metadata.GetForeignKeys()
+                .Where(foreignKey => foreignKey.DeleteBehavior is DeleteBehavior.Cascade or DeleteBehavior.ClientCascade)
+                .SelectMany(foreignKey => deleted.Where(principal =>
+                    foreignKey.PrincipalEntityType.IsAssignableFrom(principal.Metadata)
+                    && ReferencesPrincipal(dependent, principal, foreignKey)));
     }
-
-    private static Outcome Decide(
-        DbContext context,
-        EntityEntry entry,
-        List<EntityEntry> deleted,
-        HashSet<object>? owners,
-        Dictionary<object, Outcome> outcomes)
-    {
-        if (owners?.Contains(entry.Entity) == true)
-            return Outcome.SoftDelete;
-
-        if (PermanentDeletes.IsMarked(context, entry.Entity))
-            return Outcome.Delete;
-
-        var principals = DeletedPrincipals(entry, deleted)
-            .Select(p => Resolve(context, p, deleted, owners, outcomes))
-            .ToList();
-
-        if (principals.Count == 0)
-            return owners is null && entry.Entity is ISoftDeletable ? Outcome.SoftDelete : Outcome.Delete;
-
-        // A row that stays deleted takes its dependents with it; a kept row keeps them.
-        if (principals.Contains(Outcome.Delete))
-            return Outcome.Delete;
-
-        return entry.Entity is ISoftDeletable && principals.Contains(Outcome.SoftDelete)
-            ? Outcome.SoftDelete
-            : Outcome.Keep;
-    }
-
-    private static IEnumerable<EntityEntry> DeletedPrincipals(EntityEntry dependent, List<EntityEntry> deleted) =>
-        dependent.Metadata.GetForeignKeys().SelectMany(foreignKey => deleted.Where(principal =>
-            principal != dependent
-            && foreignKey.PrincipalEntityType.IsAssignableFrom(principal.Metadata)
-            && ReferencesPrincipal(dependent, principal, foreignKey)));
 
     // The cascade set an optional foreign key to null on dependents of a row that stays: link them to it again.
     private static void RestoreNulledForeignKeys(List<EntityEntry> entries, List<EntityEntry> kept)

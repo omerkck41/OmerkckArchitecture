@@ -60,8 +60,10 @@ modeldeki `DeleteBehavior`'a gore. Bu satirlardan:
   degerine geri yazilir (bilesik anahtarda yalniz NULL'a cekilen parcalar).
 
 Entity'nin isaret ettigi ust kayitlar ve many-to-many karsi tarafi silinmez. Ayni `SaveChanges`'te kalici silinen
-(`permanent: true` ya da soft-delete olmayan) bir kayda bagli satir, soft-delete olsa da onunla birlikte kalici
-silinir.
+(`permanent: true` ya da soft-delete olmayan) bir kayda cascade eden iliskiyle (`Cascade` / `ClientCascade`) bagli
+satir, soft-delete olsa da onunla birlikte kalici silinir; `SetNull` / `Restrict` iliskisi bunu yapmaz. Bilinen
+sinir: soft-delete edilen kayda ayni anda eklenen (`Added`, henuz kaydedilmemis) zorunlu bagimli kayitlar EF'in
+cascade'i ile izlemeden cikar ve eklenmez.
 
 ## QueryOptions
 

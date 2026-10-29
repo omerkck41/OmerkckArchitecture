@@ -12,7 +12,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   follow one rule; before, they gave different rows for the same delete. A soft delete covers the rows a hard delete
   would remove (EF's cascade on tracked dependents, by `DeleteBehavior`): soft-deletable rows are soft-deleted down
   the whole chain, the others are kept together with everything below them, and optional foreign keys set to `null`
-  by the cascade are restored. Repository soft delete no longer needs `AuditInterceptor` for this.
+  by the cascade are restored. Rows that a hard delete in the same `SaveChanges` cascades to (`Cascade` /
+  `ClientCascade`) are deleted with it. Repository soft delete no longer needs `AuditInterceptor` for this, and also
+  covers the loaded dependents of a detached entity.
 - `AuditInterceptor` — a composite optional foreign key whose nullable part the cascade set to `null` (e.g.
   `TenantId` kept, `CartId` nulled) lost its link to the soft-deleted owner; the nulled parts are now restored.
 

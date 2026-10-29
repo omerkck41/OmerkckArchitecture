@@ -317,6 +317,73 @@ public sealed class SoftDeleteRelationshipTests : IAsyncLifetime
         (await check.Shipments.IgnoreQueryFilters().SingleAsync(s => s.Id == shipmentId)).IsDeleted.Should().BeTrue();
     }
 
+    [Theory]
+    [MemberData(nameof(Paths))]
+    public async Task SoftDelete_IsNotTurnedIntoAHardDeleteByARemovedPrincipalThatDoesNotCascade(DeletePath path)
+    {
+        var tagId = Guid.NewGuid();
+        await SeedAsync(new Tag { Id = tagId }, new Post { Id = Guid.NewGuid(), FeaturedTagId = tagId });
+
+        await using (var ctx = NewContext(path))
+        {
+            ctx.Remove(await ctx.Set<Tag>().SingleAsync());
+            await SoftDeleteAsync(ctx, await ctx.Posts.SingleAsync(), path);
+            await ctx.SaveChangesAsync();
+        }
+
+        await using var check = NewContext();
+        var post = await check.Posts.IgnoreQueryFilters().SingleAsync();
+        post.IsDeleted.Should().BeTrue();
+        post.FeaturedTagId.Should().BeNull();
+    }
+
+    [Theory]
+    [MemberData(nameof(Paths))]
+    public async Task SoftDelete_OwnerReferencingItsOwnDependent_KeepsBoth(DeletePath path)
+    {
+        var orderId = Guid.NewGuid();
+        var lineId = Guid.NewGuid();
+        await SeedAsync(new Order { Id = orderId, Lines = [new OrderLine { Id = lineId }] });
+        await using (var link = NewContext())
+        {
+            (await link.Orders.SingleAsync()).PrimaryLineId = lineId;
+            await link.SaveChangesAsync();
+        }
+
+        await using (var ctx = NewContext(path))
+        {
+            var order = await ctx.Orders.Include(o => o.Lines).SingleAsync();
+            await SoftDeleteAsync(ctx, order, path);
+            await ctx.SaveChangesAsync();
+        }
+
+        await using var check = NewContext();
+        var stored = await check.Orders.IgnoreQueryFilters().SingleAsync();
+        stored.IsDeleted.Should().BeTrue();
+        stored.PrimaryLineId.Should().Be(lineId);
+        (await check.OrderLines.CountAsync()).Should().Be(1);
+    }
+
+    [Fact]
+    public async Task RepositorySoftDelete_OfADetachedGraph_SoftDeletesItsSoftDeletableDependents()
+    {
+        var orderId = Guid.NewGuid();
+        await SeedAsync(new Order { Id = orderId, Notes = [new OrderNote { Id = Guid.NewGuid() }] });
+        Order detached;
+        await using (var load = NewContext())
+            detached = await load.Orders.AsNoTracking().Include(o => o.Notes).SingleAsync();
+
+        await using (var ctx = NewContext(DeletePath.Repository))
+        {
+            await new EfRepository<Order, Guid>(ctx).DeleteAsync(detached);
+            await ctx.SaveChangesAsync();
+        }
+
+        await using var check = NewContext();
+        (await check.Orders.IgnoreQueryFilters().SingleAsync()).IsDeleted.Should().BeTrue();
+        (await check.OrderNotes.IgnoreQueryFilters().SingleAsync()).IsDeleted.Should().BeTrue();
+    }
+
     [Fact]
     public async Task PermanentDelete_OfSoftDeletableOwner_StillCascadesToDependents()
     {
@@ -399,6 +466,7 @@ public sealed class SoftDeleteRelationshipTests : IAsyncLifetime
 
     private sealed class Order : FullEntity<Guid>
     {
+        public Guid? PrimaryLineId { get; set; }
         public List<OrderLine> Lines { get; set; } = [];
         public List<OrderNote> Notes { get; set; } = [];
     }
@@ -468,6 +536,7 @@ public sealed class SoftDeleteRelationshipTests : IAsyncLifetime
 
     private sealed class Post : FullEntity<Guid>
     {
+        public Guid? FeaturedTagId { get; set; }
         public List<Tag> Tags { get; set; } = [];
     }
 
@@ -539,6 +608,7 @@ public sealed class SoftDeleteRelationshipTests : IAsyncLifetime
             {
                 b.HasMany(e => e.Lines).WithOne().HasForeignKey(l => l.OrderId).OnDelete(DeleteBehavior.Cascade);
                 b.HasMany(e => e.Notes).WithOne().HasForeignKey(n => n.OrderId).OnDelete(DeleteBehavior.Cascade);
+                b.HasOne<OrderLine>().WithMany().HasForeignKey(e => e.PrimaryLineId).OnDelete(DeleteBehavior.ClientSetNull);
             });
             modelBuilder.Entity<OrderLine>(b =>
             {
@@ -572,7 +642,11 @@ public sealed class SoftDeleteRelationshipTests : IAsyncLifetime
                 b.HasMany<Parcel>().WithOne().HasForeignKey(p => p.CarrierId).OnDelete(DeleteBehavior.ClientCascade);
                 b.HasMany(c => c.Notes).WithOne().HasForeignKey(n => n.CarrierId).OnDelete(DeleteBehavior.ClientCascade);
             });
-            modelBuilder.Entity<Post>(b => b.HasMany(e => e.Tags).WithMany());
+            modelBuilder.Entity<Post>(b =>
+            {
+                b.HasMany(e => e.Tags).WithMany();
+                b.HasOne<Tag>().WithMany().HasForeignKey(e => e.FeaturedTagId).OnDelete(DeleteBehavior.ClientSetNull);
+            });
             modelBuilder.Entity<Customer>(b => b.OwnsOne(e => e.Address));
 
             // SQLite has no row version column type.
