@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1793315834862,
+  "lastUpdate": 1793316273232,
   "repoUrl": "https://github.com/omerkck41/OmerkckArchitecture",
   "entries": {
     "Benchmark": [
@@ -11758,6 +11758,102 @@ window.BENCHMARK_DATA = {
             "value": 11.168163707623115,
             "unit": "ns",
             "range": "± 0.1791987438549646"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "106805727+omerkck41@users.noreply.github.com",
+            "name": "Ömer KÜÇÜK",
+            "username": "omerkck41"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "8b0b3141ed026d9a5d52e28937eff1c1b0b69e4c",
+          "message": "feat(aot): Http.Resilience is AOT-compatible; source-generated health JSON (#238)\n\n## Summary\nLast AOT todo (\"Http.Resilience ve Observability.OpenTelemetry\nAOT-uyumsuz → v5\") — done without an API break:\n\n- **Http.Resilience**: `ResilientApiClient` serializes bodies with\n`JsonContent.Create(body, JsonTypeInfo)` and reads responses with\n`ReadFromJsonAsync(JsonTypeInfo<T>)`; metadata comes from the new\n`ResilienceOptions.SerializerOptions` (additive). `null` →\n`JsonSerializerOptions.Web` — the same defaults\n`JsonContent`/`ReadFromJsonAsync` used before — reached only when\n`JsonSerializer.IsReflectionEnabledByDefault` (justified suppression;\nunder AOT a clear error asks for a context). New constructor marked\n`[ActivatorUtilitiesConstructor]`; `AddKckHttpResilience` registers\n`IOptions<ResilienceOptions>`.\n- **Observability.OpenTelemetry**: health response written from internal\nrecords + `JsonSerializerContext`; a new test pins the JSON shape (it\npassed on the old code first).\n- Both `IsAotCompatible`; smoke adds a typed-client round trip and\n`/health/live` on Kestrel.\n\n## Test plan\n- [x] Serializer tests RED (compile) first; Http.Resilience 20/20,\nObservability 41/41; AOT analyzer 0 warnings in both\n- [x] JIT smoke 11/11; locked restore clean; Release build 0 errors\n- [ ] CI **Native AOT smoke** — dependency trim warnings (e.g. OTel\ninstrumentation) would show here; merged by hand only if green\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\n---------\n\nCo-authored-by: Claude Opus 5.5 <noreply@anthropic.com>",
+          "timestamp": "2026-10-30T02:17:42+03:00",
+          "tree_id": "f69dc59038698b07045d80ad37171ab74f44e23b",
+          "url": "https://github.com/omerkck41/OmerkckArchitecture/commit/8b0b3141ed026d9a5d52e28937eff1c1b0b69e4c"
+        },
+        "date": 1793316272095,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Success_Factory",
+            "value": 6.13703192571799,
+            "unit": "ns",
+            "range": "± 0.11392514383814853"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Failure_Factory",
+            "value": 7.510894441604615,
+            "unit": "ns",
+            "range": "± 0.12539144454806403"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Success",
+            "value": 1.6387250668236188,
+            "unit": "ns",
+            "range": "± 0.003971106491047362"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Failure",
+            "value": 0.5832487705808419,
+            "unit": "ns",
+            "range": "± 0.0032595190929599394"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Serialize_Reflection",
+            "value": 464.12191988627114,
+            "unit": "ns",
+            "range": "± 2.382777886589276"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Deserialize_Reflection",
+            "value": 779.4825216929117,
+            "unit": "ns",
+            "range": "± 6.391416600740429"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 0)",
+            "value": 10.360520785053572,
+            "unit": "ns",
+            "range": "± 0.13868668046804075"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 5)",
+            "value": 10.39503378768762,
+            "unit": "ns",
+            "range": "± 0.22117431265133639"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 0)",
+            "value": 10.079241182941656,
+            "unit": "ns",
+            "range": "± 0.1195071172976739"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 5)",
+            "value": 10.266589762767156,
+            "unit": "ns",
+            "range": "± 0.14284192550388033"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 0)",
+            "value": 10.21851388613383,
+            "unit": "ns",
+            "range": "± 0.20453448574046812"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 5)",
+            "value": 10.460946066180865,
+            "unit": "ns",
+            "range": "± 0.24995554371930148"
           }
         ]
       }
