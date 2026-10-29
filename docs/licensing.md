@@ -8,12 +8,13 @@ request and weekly schedule. Decision record: [decisions/2026-10-26-license-gate
 
 `.github/scripts/license_gate.py` reads every `packages.lock.json` (the exact dependency set CI restores with
 `--locked-mode`) and the local .NET tools of every `dotnet-tools.json` manifest (today `.config/dotnet-tools.json`:
-MinVer, ReportGenerator, dotnet-ef, Stryker, CycloneDX — restored by `dotnet tool restore`), opens each package's nuspec in the NuGet global packages folder and
-compares its declared license with [`.github/license-policy.json`](../.github/license-policy.json). The gate is
-**fail-closed**: an unknown license, an unreadable nuspec (including a tool that was not restored), a missing lock file,
-a tool without a version or an expired exception fails the job. A tool is checked as one package: assemblies it bundles
-are covered by the tool's own license only (accepted risk: CI tools are not shipped to consumers). Global tools that
-workflows install with `dotnet tool install --global` (docfx, dotnet-sonarscanner) are not checked yet.
+MinVer, ReportGenerator, dotnet-ef, Stryker, CycloneDX, docfx, dotnet-sonarscanner — restored by `dotnet tool restore`),
+opens each package's nuspec in the NuGet global packages folder and compares its declared license with
+[`.github/license-policy.json`](../.github/license-policy.json). The gate is **fail-closed**: an unknown license, an
+unreadable nuspec (including a tool that was not restored), a missing lock file, a tool without a version or an expired
+exception fails the job. A tool is checked as one package: assemblies it bundles are covered by the tool's own license
+only (accepted risk: CI tools are not shipped to consumers). Workflows use pinned local tools, not
+`dotnet tool install --global` (decisions/2026-10-29-ci-tools-pinned.md).
 
 | Declared license | Result |
 |---|---|
