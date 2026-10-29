@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1793292938047,
+  "lastUpdate": 1793293780142,
   "repoUrl": "https://github.com/omerkck41/OmerkckArchitecture",
   "entries": {
     "Benchmark": [
@@ -9742,6 +9742,102 @@ window.BENCHMARK_DATA = {
             "value": 8.14093630867345,
             "unit": "ns",
             "range": "± 0.07377381195387583"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "106805727+omerkck41@users.noreply.github.com",
+            "name": "Ömer KÜÇÜK",
+            "username": "omerkck41"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "2dbea5541f77e5632e1ad3cd5f7164ee8eef9f1c",
+          "message": "feat(aot): native AOT smoke and AOT-compatible providers (#220)\n\n## Summary\nF3 **H22** (roadmap\n`docs/plans/2026-10-26-dis-inceleme-yol-haritasi.md`): `IsAotCompatible`\n+ Native AOT publish smoke.\n\n- Survey with trim/AOT analyzers on every candidate provider: all\nAbstractions (already `IsAotCompatible`) and most\nproviders 0 warnings; `Pipeline.Mediator` (CachingBehavior JSON),\n`Http.Resilience` (`JsonContent.Create(object)`,\n`ReadFromJsonAsync<T>`) and `Observability.OpenTelemetry` (health JSON)\nwarn.\n- `Pipeline.Mediator`: `CachingBehavior` serializes through\n`JsonTypeInfo<T>` from configurable options —\n`UseCachingBehavior(o => o.SerializerOptions =\nMyJsonContext.Default.Options)`. Default path unchanged\n(`JsonSerializerOptions.Default`), reached only when\n`JsonSerializer.IsReflectionEnabledByDefault` (trimmer\nconstant; justified suppression); under AOT without options → clear\n`InvalidOperationException`. New ctor overload,\n  old ctor kept (package validation vs 4.2.5 passes).\n- Marked `IsAotCompatible` only where exercised by the smoke app:\nPipeline.Mediator, Caching.InMemory,\nEventBus.InMemory, FeatureFlags.InMemory, Security.Argon2,\nSecurity.Totp.\n- `samples/Kck.AotSmoke` + CI job `aot-smoke` (ubuntu, clang):\n`PublishAot`, warnings are errors, runs the binary.\n- Not in scope (API change needed → v5 todo): Http.Resilience,\nObservability.OpenTelemetry. Analyzer-clean but not\nsmoke-tested (not marked): Security.Jwt, Localization(.Json),\nResilience.Polly, Logging.Serilog.\n\n## Test plan\n- [x] `CachingBehaviorSerializerTests` RED (compile) before; green\nafter; Mediator tests 30 green\n- [x] JIT run of the smoke app: 6/6 PASS\n- [x] Local `dotnet publish -r win-x64` (Native AOT): ILC 0 trim/AOT\nwarnings; link step needs MSVC (not installed\n      locally) → binary run verified only in CI\n- [x] `dotnet restore --force-evaluate` + `--locked-mode` clean (only\n`Microsoft.NET.ILLink.Tasks` added to 6 locks)\n- [ ] CI: `Native AOT smoke` job green (first real native run),\nbuild/test, Sonar, CodeQL\n- [ ] actionlint/zizmor not run locally (tools not installed) — CI\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\n---------\n\nCo-authored-by: Claude Opus 5.5 <noreply@anthropic.com>",
+          "timestamp": "2026-10-29T20:01:55+03:00",
+          "tree_id": "341a0c8fa38e0a9f57bd4cfd149d2b0af60f18ce",
+          "url": "https://github.com/omerkck41/OmerkckArchitecture/commit/2dbea5541f77e5632e1ad3cd5f7164ee8eef9f1c"
+        },
+        "date": 1793293778236,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Success_Factory",
+            "value": 3.5514754601396046,
+            "unit": "ns",
+            "range": "± 0.15030741502683953"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Failure_Factory",
+            "value": 4.9088912114501,
+            "unit": "ns",
+            "range": "± 0.1829727996656372"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Success",
+            "value": 0.5722970406391791,
+            "unit": "ns",
+            "range": "± 0.019165630171791508"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Failure",
+            "value": 0.15815584951390824,
+            "unit": "ns",
+            "range": "± 0.0029838018205551277"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Serialize_Reflection",
+            "value": 227.7784830115058,
+            "unit": "ns",
+            "range": "± 4.702462864379092"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Deserialize_Reflection",
+            "value": 401.97291807027966,
+            "unit": "ns",
+            "range": "± 3.0131789090225176"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 0)",
+            "value": 5.217132333666086,
+            "unit": "ns",
+            "range": "± 0.05536960182474697"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 5)",
+            "value": 5.239992874860763,
+            "unit": "ns",
+            "range": "± 0.07876072274863409"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 0)",
+            "value": 5.317877614968701,
+            "unit": "ns",
+            "range": "± 0.08548946557108225"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 5)",
+            "value": 5.323429839575992,
+            "unit": "ns",
+            "range": "± 0.141707894141136"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 0)",
+            "value": 5.741307932883501,
+            "unit": "ns",
+            "range": "± 0.25169939273424136"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 5)",
+            "value": 5.55577501244843,
+            "unit": "ns",
+            "range": "± 0.17252108599966995"
           }
         ]
       }
