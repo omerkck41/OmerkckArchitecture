@@ -112,11 +112,14 @@ public sealed class ResponseTests
     }
 
     [Fact]
-    public void CreateSuccess_GetWithNullData_Returns404()
+    public void CreateSuccess_GetWithNullData_ReturnsA404Failure()
     {
-        var result = ApiResponseHelper.CreateSuccess<string?>(null, CreateContext("GET"));
+        var result = ApiResponseHelper.CreateSuccess<string?>(null, CreateContext("GET"), "order 7");
 
         result.StatusCode.Should().Be(404);
+        result.Success.Should().BeFalse();
+        result.Message.Should().Be("order 7");
+        result.TraceId.Should().Be("trace-1");
     }
 
     [Fact]
