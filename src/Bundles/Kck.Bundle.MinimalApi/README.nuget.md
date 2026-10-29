@@ -12,13 +12,15 @@ dotnet add package Kck.Bundle.MinimalApi
 
 ```csharp
 // Program.cs
+using Kck.Exceptions.AspNetCore.Extensions;
+
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddKckMinimalApiDefaults(builder.Configuration);
 
 var app = builder.Build();
 
-app.UseKckMinimalApiDefaults();
+app.UseKckExceptionHandling();   // RFC 7807 problem details for unhandled exceptions
 
 // Map your minimal API endpoints
 app.MapGet("/products/{id:int}", async (int id, IProductService svc, CancellationToken ct)

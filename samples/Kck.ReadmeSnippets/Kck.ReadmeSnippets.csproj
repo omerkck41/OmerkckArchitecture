@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!--
+    README code blocks compiled in CI (F3 H21). Generated/ is written by .github/scripts/readme_snippets.py from the
+    README files it lists; Context/ holds the reader's own types a block uses without defining. Only compiler errors
+    matter here: a README block is an excerpt, so analyzer and style warnings are off.
+  -->
+  <PropertyGroup>
+    <TargetFrameworks>net10.0</TargetFrameworks>
+    <IsPackable>false</IsPackable>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <RunAnalyzers>false</RunAnalyzers>
+    <NoWarn>$(NoWarn);CS1998;CS8618;CS8602;CS8604</NoWarn>
+  </PropertyGroup>
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="../../src/Bundles/Kck.Bundle.WebApi/Kck.Bundle.WebApi.csproj" />
+    <ProjectReference Include="../../src/Bundles/Kck.Bundle.MinimalApi/Kck.Bundle.MinimalApi.csproj" />
+    <ProjectReference Include="../../src/Bundles/Kck.Bundle.WorkerService/Kck.Bundle.WorkerService.csproj" />
+    <ProjectReference Include="../../src/Providers/Kck.Persistence.EntityFramework/Kck.Persistence.EntityFramework.csproj" />
+    <ProjectReference Include="../../src/Providers/Kck.Pipeline.Mediator/Kck.Pipeline.Mediator.csproj" />
+    <ProjectReference Include="../../src/Providers/Kck.Caching.InMemory/Kck.Caching.InMemory.csproj" />
+    <ProjectReference Include="../../src/Providers/Kck.Messaging.MailKit/Kck.Messaging.MailKit.csproj" />
+    <ProjectReference Include="../../src/Providers/Kck.Exceptions.AspNetCore/Kck.Exceptions.AspNetCore.csproj" />
+  </ItemGroup>
+</Project>

@@ -1,0 +1,74 @@
+"""Tests for readme_snippets.py. Run: python -I -m unittest discover -s .github/scripts -p "test_*.py"."""
+import sys
+import unittest
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+
+import readme_snippets as rs  # noqa: E402
+
+README = """# Title
+
+```csharp
+using Kck.Caching.Abstractions;
+
+// Program.cs
+builder.Services.AddThing();
+
+// Usage
+public class Service(ICacheService cache);
+```
+
+```bash
+dotnet add package X
+```
+
+```csharp
+var builder = WebApplication.CreateBuilder(args);
+var app = builder.Build();
+```
+"""
+
+
+class ExtractBlocksTests(unittest.TestCase):
+    def test_extract_blocks_only_csharp_with_readme_line(self) -> None:
+        blocks = rs.extract_blocks("src/Providers/Kck.Caching.InMemory/README.nuget.md", README)
+
+        self.assertEqual([b.index for b in blocks], [1, 2])
+        self.assertEqual(blocks[0].first_line, 4)
+        self.assertEqual(blocks[0].name, "CachingInMemory_1")
+        self.assertEqual(rs.extract_blocks("README.md", README)[1].name, "Readme_2")
+
+    def test_extract_blocks_unterminated_raises(self) -> None:
+        with self.assertRaises(ValueError):
+            rs.extract_blocks("README.md", "```csharp\nvar x = 1;\n")
+
+
+class RenderTests(unittest.TestCase):
+    def test_render_splits_usings_statements_and_declarations(self) -> None:
+        block = rs.extract_blocks("README.md", README)[0]
+
+        source = rs.render(block)
+
+        self.assertTrue(source.index("using Kck.Caching.Abstractions;") < source.index("namespace ReadmeSnippets.Readme_1;"))
+        self.assertIn("internal static async Task RunAsync(WebApplicationBuilder builder)", source)
+        self.assertIn('#line 5 "README.md"', source)
+        self.assertIn('#line 10 "README.md"\npublic class Service(ICacheService cache);', source)
+        self.assertLess(source.index("await Task.CompletedTask;"), source.index("public class Service"))
+
+    def test_render_does_not_pass_variables_the_block_declares(self) -> None:
+        block = rs.extract_blocks("README.md", README)[1]
+
+        self.assertIn("RunAsync(string[] args)", rs.render(block))
+
+    def test_render_declarations_only_has_no_wrapper(self) -> None:
+        block = rs.Block("README.md", 1, 1, ["public sealed record Order(int Id);"])
+
+        source = rs.render(block)
+
+        self.assertNotIn("RunAsync", source)
+        self.assertIn("public sealed record Order(int Id);", source)
+
+
+if __name__ == "__main__":
+    unittest.main()

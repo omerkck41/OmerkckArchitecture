@@ -25,6 +25,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `repo.Query(default)` is now ambiguous (CS0121); write `repo.Query(QueryOptions.None)`.
   - Mocks (NSubstitute / Moq) set up on the old overload are not hit by calls to the new one; move the setups.
 
+### Fixed — documentation
+- README quick starts that did not compile: root README (`AddKckWebApi`, `AddKckExceptions`, `UseKckExceptionHandler`
+  do not exist → `AddKckWebApiDefaults` / `UseKckWebApiDefaults`, `AddKckExceptionHandling` /
+  `UseKckExceptionHandling`), `Kck.Bundle.MinimalApi` (`UseKckMinimalApiDefaults` does not exist),
+  `Kck.Persistence.EntityFramework` (`AddKckEntityFramework` and `IRepository<T>` do not exist; `SaveChangesAsync(ct)`
+  bound the token to `autoCommitTransaction`), `Kck.Pipeline.Mediator` (`AddKckMediator` options and the performance
+  behaviour do not exist), `Kck.Caching.InMemory` (undefined `_db`). These README blocks and those of the three bundles
+  and `Kck.Persistence.Abstractions` are now compiled in CI (`samples/Kck.ReadmeSnippets`).
+
 ### Fixed
 - `Kck.Persistence.Abstractions` — the parameterized constructors of `Filter` and `Sort` could not be called
   (`CS9035`: they set the `required` members but were not marked `[SetsRequiredMembers]`); now they can.
