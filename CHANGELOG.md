@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [4.4.0] — 2026-10-29
+## [4.4.0] — 2026-10-30
 
 ### Added
 - Native AOT: `Kck.Security.Jwt`, `Kck.Localization`, `Kck.Localization.Json` and `Kck.Resilience.Polly` are marked
