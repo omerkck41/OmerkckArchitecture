@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1793279787725,
+  "lastUpdate": 1793280374575,
   "repoUrl": "https://github.com/omerkck41/OmerkckArchitecture",
   "entries": {
     "Benchmark": [
@@ -8974,6 +8974,102 @@ window.BENCHMARK_DATA = {
             "value": 11.361797041694324,
             "unit": "ns",
             "range": "± 0.21853897118513346"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "106805727+omerkck41@users.noreply.github.com",
+            "name": "Ömer KÜÇÜK",
+            "username": "omerkck41"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "c6b74129dbdd7bb319b1d37b9da819bc6b8cbd0c",
+          "message": "docs(changelog): 4.2.4 release notes (#212)\n\nMoves the soft-delete dependents fix from #211 under a dated \\[4.2.4]\\\nheading ahead of the \\ 4.2.4\\ tag.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-authored-by: Claude Opus 5.5 <noreply@anthropic.com>",
+          "timestamp": "2026-10-29T16:18:21+03:00",
+          "tree_id": "397b90021290e407cfc3b0788ed195d264d0d1c6",
+          "url": "https://github.com/omerkck41/OmerkckArchitecture/commit/c6b74129dbdd7bb319b1d37b9da819bc6b8cbd0c"
+        },
+        "date": 1793280373782,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Success_Factory",
+            "value": 6.585747580726942,
+            "unit": "ns",
+            "range": "± 0.17675896274215194"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Failure_Factory",
+            "value": 10.818811224214732,
+            "unit": "ns",
+            "range": "± 0.7303979669555216"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Success",
+            "value": 1.6400305633743604,
+            "unit": "ns",
+            "range": "± 0.0034329135143891937"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Failure",
+            "value": 0.5819931497176488,
+            "unit": "ns",
+            "range": "± 0.003188274319556982"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Serialize_Reflection",
+            "value": 478.1735103607178,
+            "unit": "ns",
+            "range": "± 5.904743704349365"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Deserialize_Reflection",
+            "value": 795.9343055089315,
+            "unit": "ns",
+            "range": "± 3.4969590173157954"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 0)",
+            "value": 10.358410019959722,
+            "unit": "ns",
+            "range": "± 0.11401411177064287"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 5)",
+            "value": 11.364627118905386,
+            "unit": "ns",
+            "range": "± 0.18811251466381873"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 0)",
+            "value": 10.251623529195786,
+            "unit": "ns",
+            "range": "± 0.1357226309116484"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 5)",
+            "value": 10.708948849638302,
+            "unit": "ns",
+            "range": "± 0.2331500272525554"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 0)",
+            "value": 11.360540235042572,
+            "unit": "ns",
+            "range": "± 0.19466280524892185"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 5)",
+            "value": 13.426686652004719,
+            "unit": "ns",
+            "range": "± 0.36793521868085916"
           }
         ]
       }
