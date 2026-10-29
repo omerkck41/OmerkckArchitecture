@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1793295677576,
+  "lastUpdate": 1793297017051,
   "repoUrl": "https://github.com/omerkck41/OmerkckArchitecture",
   "entries": {
     "Benchmark": [
@@ -10030,6 +10030,102 @@ window.BENCHMARK_DATA = {
             "value": 11.44668657630682,
             "unit": "ns",
             "range": "± 1.0926878227757597"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "106805727+omerkck41@users.noreply.github.com",
+            "name": "Ömer KÜÇÜK",
+            "username": "omerkck41"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "162890c649eb3e60bfb44a38ad7c50cc32cf4f2f",
+          "message": "test: H20 mutation matrix and provider unit coverage (#222)\n\n## Summary\nF3 **H20** (roadmap): mutation matrix for the modules outside it +\ncoverage toward 65/60.\n\n**Unit tests** (written by three Sonnet subagents in isolated worktrees,\ntests only — no `src/` change; each commit\nre-verified here: scope, build, tests green):\n| Project | Tests before → after |\n|---|---|\n| Kck.Http.Resilience.Tests | 4 → 17 |\n| Kck.Observability.OpenTelemetry.Tests | 10 → 40 |\n| Kck.AspNetCore.Tests | 19 → 78 |\n| Kck.Logging.Serilog.Tests | 16 → 32 (assembly-level parallelization\noff: `AddKckSerilog` touches static `Log.Logger`) |\n| Kck.Core.Abstractions.Tests | 55 → 88 |\n| Persistence (Abstractions folder), EventBus.InMemory, Security.Jwt | +\ndynamic query/validator/specification, event bus abstractions, security\nrecords |\n\n**Coverage** (unit tests, local `reportgenerator`): line 59.4 →\n**72.9%**, branch 56.8 → **70.1%** (target 65/60).\nThe gate stays 55/51 here: `docs/policies/test-coverage.md` requires 3\nconsecutive green CI builds before a raise →\nseparate PR (~70/67).\n\n**Mutation** (Stryker, unit tests, before → after this PR):\nHttp.Resilience 28.6 → 78.6, Observability 14.6 → 74.6;\nbaselines Quartz 39.1, ClosedXml 48.6, ImageSharp 45.5, AwsS3 40.0,\nAzureBlob 35.5, FluentFtp 15.0. Eight configs\nadded to the weekly matrix, `break` ≈ score − 5 (ratchet). Not added:\nHangfire (6.7%, Hangfire left the\nWorkerService bundle in v4), Authorization (no provider/test project;\n`AuthorizationBehavior` is in the pipeline config).\n\n**Source findings (not fixed here):** `Filter`/`Sort` parameterized\nctors lack `[SetsRequiredMembers]` (CS9035 for\ncallers), `FilterValidator` null operators case-sensitive → separate fix\nPR; `ApiResponseHelper.CreateSuccess` GET +\nnull → 404 with `Success = true` → todo (behaviour decision).\n\n## Test plan\n- [x] Full unit suite (39 projects) green locally with coverage\n- [x] Stryker re-run for the two modules with new tests\n- [ ] CI\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\n---------\n\nCo-authored-by: Claude Sonnet 5.5 <noreply@anthropic.com>",
+          "timestamp": "2026-10-29T17:56:46Z",
+          "tree_id": "9348b9624d0520eec07e38bfdf72bd59f3624e1d",
+          "url": "https://github.com/omerkck41/OmerkckArchitecture/commit/162890c649eb3e60bfb44a38ad7c50cc32cf4f2f"
+        },
+        "date": 1793297016498,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Success_Factory",
+            "value": 6.363238584536773,
+            "unit": "ns",
+            "range": "± 0.08959408397881735"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Failure_Factory",
+            "value": 9.341544343034426,
+            "unit": "ns",
+            "range": "± 0.19957109487738456"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Success",
+            "value": 1.6413990567837442,
+            "unit": "ns",
+            "range": "± 0.0069307518919724505"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Failure",
+            "value": 0.5832148051510254,
+            "unit": "ns",
+            "range": "± 0.002744235506998828"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Serialize_Reflection",
+            "value": 478.1097039540609,
+            "unit": "ns",
+            "range": "± 3.3734649193255253"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Deserialize_Reflection",
+            "value": 808.5257415771484,
+            "unit": "ns",
+            "range": "± 3.2424864825293356"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 0)",
+            "value": 10.09774584110294,
+            "unit": "ns",
+            "range": "± 0.10633468962823683"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 5)",
+            "value": 10.233755557487408,
+            "unit": "ns",
+            "range": "± 0.054324038967341816"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 0)",
+            "value": 10.239179347242628,
+            "unit": "ns",
+            "range": "± 0.0823170179847765"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 5)",
+            "value": 10.292095586657524,
+            "unit": "ns",
+            "range": "± 0.11691672995885287"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 0)",
+            "value": 10.20166974228162,
+            "unit": "ns",
+            "range": "± 0.1239750057207951"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 5)",
+            "value": 10.42951906898192,
+            "unit": "ns",
+            "range": "± 0.12399195635462998"
           }
         ]
       }
