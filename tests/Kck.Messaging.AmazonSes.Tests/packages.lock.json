@@ -140,23 +140,23 @@
       "kck.messaging.amazonses": {
         "type": "Project",
         "dependencies": {
-          "AWSSDK.SimpleEmailV2": "[4.0.14, )",
+          "AWSSDK.SimpleEmailV2": "[4.0.106.7, )",
           "Kck.Messaging.Abstractions": "[1.0.0, )"
         }
       },
       "AWSSDK.Core": {
         "type": "CentralTransitive",
         "requested": "[4.0.7.4, )",
-        "resolved": "4.0.7.4",
-        "contentHash": "qNlzH2ygJ6JG8uefpvws782PnJlkVEwqRD5vz4fR8wFfwWU3ttyAjiwEOPEYcxl84mhQdYGI9gR+kroGFI2+wA=="
+        "resolved": "4.0.102.14",
+        "contentHash": "pRYOOIyj40UdQ6G9iq8AOU30sFPqWS/umM/sFTmAl4n1S6AVbVa67DJpJTxD+9qJFqweHPcyVW7Qb4BbUBLJdg=="
       },
       "AWSSDK.SimpleEmailV2": {
         "type": "CentralTransitive",
-        "requested": "[4.0.14, )",
-        "resolved": "4.0.14",
-        "contentHash": "mDqNuWtORH/zr/XsmYiqaLHDOxbpvTbcBq2ATqzAVHwJq9zxrczMZVoYOy5fceGK8bb5FXFU3/zOq+nc2rms/Q==",
+        "requested": "[4.0.106.7, )",
+        "resolved": "4.0.106.7",
+        "contentHash": "1q0dHI9mPfxiE1T28q1EVWHhGlvYCMryOhKVH5TRDj66kLYTaJpOVJAs2pmyAKelFKI7fJZS02XC1FSM+Eo6HA==",
         "dependencies": {
-          "AWSSDK.Core": "[4.0.7.4, 5.0.0)"
+          "AWSSDK.Core": "[4.0.102.14, 5.0.0)"
         }
       }
     }
