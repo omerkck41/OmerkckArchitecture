@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1793286710518,
+  "lastUpdate": 1793290091327,
   "repoUrl": "https://github.com/omerkck41/OmerkckArchitecture",
   "entries": {
     "Benchmark": [
@@ -9454,6 +9454,102 @@ window.BENCHMARK_DATA = {
             "value": 5.939010052262126,
             "unit": "ns",
             "range": "± 0.25557320364714736"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "106805727+omerkck41@users.noreply.github.com",
+            "name": "Ömer KÜÇÜK",
+            "username": "omerkck41"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "4d78fffe2d4104c7fc79995dfe6e465ef5e1d194",
+          "message": "fix(persistence): one soft-delete cascade for repository and Remove (#217)\n\n## Summary\nRepository soft delete (`DeleteAsync` / `DeleteRangeAsync` without\n`permanent`) and `DbContext.Remove` under\n`AuditInterceptor` gave different rows for the same delete (todo: \"silme\nyollarını hizalama\"). Both now go through\n`SoftDeleteHelper` with one rule — **a soft delete covers the rows a\nhard delete would remove** (EF's cascade on\ntracked dependents, by `DeleteBehavior`):\n\n| Row | Before (repository) | Before (Remove + interceptor) | After\n(both) |\n|---|---|---|---|\n| Required soft-deletable dependent | soft-deleted (1 level) |\nsoft-deleted (whole chain) | soft-deleted, whole chain |\n| Optional (`SetNull`) soft-deletable dependent | soft-deleted | kept,\nFK restored | kept, FK restored |\n| Non-soft-deletable dependent / owned / M2M link | untouched | kept |\nkept |\n| Soft-deletable row below a kept dependent | untouched | soft-deleted |\nkept |\n| Composite FK, only nullable part nulled | — | link lost | nulled part\nrestored |\n| Row cascaded from a hard delete in the same save | — | hard-deleted\n(EF re-cascade) | hard-deleted (explicit) |\n\nMaintainer decision (lead engineer, unattended session): align on the\n`DeleteBehavior`-based rule; revert stays\nnon-cascading (documented). Planned for the next release (behaviour\nchange → 4.3.0); no tag in this session.\n\nTodo items closed: path alignment, composite FK partial null, kept\nintermediate's soft-deletable children,\n\"shared dependent returns to Unchanged\" (hard delete wins). `permanent:\ntrue` + soft-deletable dependents could not\nbe reproduced (EF re-runs the cascade for deleted principals in\n`SaveChanges`); guard tests added.\n\n## Review\nAdversarial review round 1: KRITIK — a principal removed in the same\nsave turned a soft delete into a hard delete\nthrough an optional `ClientSetNull` key; YUKSEK — FK cycle\n(`Order.PrimaryLineId`) made both rows hard deletes;\nYUKSEK — detached graph lost dependents. Fixed in 313301c (only\n`Cascade`/`ClientCascade` keys propagate, cycle\nre-entry ignored, detached owner attached as a graph) with regression\ntests. Known limit documented: `Added`\nrequired dependents of a soft-deleted owner are detached by EF's\ncascade.\n\n## Test plan\n- [x] `SoftDeleteRelationshipTests`: every scenario as a theory over\nRemove / repository / repository + interceptor\n- [x] New tests RED before the fix (6 + 3 review regressions); mutation\nprobes (Keep→SoftDelete, composite\n      restore) each turn tests RED\n- [x] Release build 0 errors / 0 warnings in the project; persistence\ntests 211 green\n- [ ] CI + Sonar + CodeQL\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\n---------\n\nCo-authored-by: Claude Opus 5.5 <noreply@anthropic.com>",
+          "timestamp": "2026-10-29T19:00:50+03:00",
+          "tree_id": "9bce30df03429ad94ed3ef999220d36fdc39d42d",
+          "url": "https://github.com/omerkck41/OmerkckArchitecture/commit/4d78fffe2d4104c7fc79995dfe6e465ef5e1d194"
+        },
+        "date": 1793290090434,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Success_Factory",
+            "value": 6.5229717137352115,
+            "unit": "ns",
+            "range": "± 0.2976474442493177"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Failure_Factory",
+            "value": 8.233187303692102,
+            "unit": "ns",
+            "range": "± 0.26435061994684544"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Success",
+            "value": 0.9631562575089688,
+            "unit": "ns",
+            "range": "± 0.18528675754014018"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Failure",
+            "value": 0.3145524590061261,
+            "unit": "ns",
+            "range": "± 0.009271692084737996"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Serialize_Reflection",
+            "value": 405.0239176750183,
+            "unit": "ns",
+            "range": "± 3.019612902598619"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Deserialize_Reflection",
+            "value": 744.2999721935818,
+            "unit": "ns",
+            "range": "± 1.8692738909378745"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 0)",
+            "value": 10.778965309262276,
+            "unit": "ns",
+            "range": "± 0.22352706569368788"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 5)",
+            "value": 10.272664723793666,
+            "unit": "ns",
+            "range": "± 0.10196745220107012"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 0)",
+            "value": 10.477999284863472,
+            "unit": "ns",
+            "range": "± 0.07632829472831996"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 5)",
+            "value": 10.34625389598883,
+            "unit": "ns",
+            "range": "± 0.11112560194698502"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 0)",
+            "value": 10.750211433722423,
+            "unit": "ns",
+            "range": "± 0.1148401386668865"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 5)",
+            "value": 10.533309859037399,
+            "unit": "ns",
+            "range": "± 0.20189766588870697"
           }
         ]
       }
