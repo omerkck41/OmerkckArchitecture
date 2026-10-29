@@ -37,6 +37,10 @@ jobs:
       - name: Restore
         run: dotnet restore --locked-mode
 
+      # Local tools (.config/dotnet-tools.json) are checked too; an unrestored tool fails the gate (fail-closed).
+      - name: Restore local tools
+        run: dotnet tool restore
+
       # Fail-closed gate over every packages.lock.json (decisions/2026-10-26-license-gate.md, docs/licensing.md).
       # Unknown, unreviewed, changed-text or expired-exception licenses fail the job; so does any gate error.
       - name: Test license gate
