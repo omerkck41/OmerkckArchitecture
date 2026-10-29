@@ -98,12 +98,10 @@ public sealed class AuditInterceptor : SaveChangesInterceptor
             var principal = principals.Pop();
             foreach (var foreignKey in principal.Metadata.GetReferencingForeignKeys())
             {
-                foreach (var dependent in candidates)
+                var dependents = candidates.Where(d => foreignKey.DeclaringEntityType.IsAssignableFrom(d.Metadata)
+                                                       && ReferencesPrincipal(d, principal, foreignKey));
+                foreach (var dependent in dependents)
                 {
-                    if (!foreignKey.DeclaringEntityType.IsAssignableFrom(dependent.Metadata)
-                        || !ReferencesPrincipal(dependent, principal, foreignKey))
-                        continue;
-
                     if (dependent.State == EntityState.Deleted && dependent.Entity is not ISoftDeletable)
                     {
                         dependent.State = EntityState.Unchanged;
