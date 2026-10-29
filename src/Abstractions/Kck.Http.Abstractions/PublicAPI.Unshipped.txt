@@ -1,1 +1,3 @@
 #nullable enable
+Kck.Http.Abstractions.ResilienceOptions.SerializerOptions.get -> System.Text.Json.JsonSerializerOptions?
+Kck.Http.Abstractions.ResilienceOptions.SerializerOptions.set -> void

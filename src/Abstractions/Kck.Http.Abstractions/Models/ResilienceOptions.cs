@@ -19,4 +19,11 @@ public sealed class ResilienceOptions
 
     /// <summary>Gets or sets the maximum time allowed for a single HTTP request before it is cancelled. Defaults to 30 seconds.</summary>
     public TimeSpan Timeout { get; set; } = TimeSpan.FromSeconds(30);
+
+    /// <summary>
+    /// Gets or sets the JSON options for request bodies and responses. Native AOT apps set options whose
+    /// <c>TypeInfoResolver</c> is a source-generated <c>JsonSerializerContext</c> covering every body and response type.
+    /// <c>null</c> uses the web defaults (camelCase) with reflection-based metadata.
+    /// </summary>
+    public System.Text.Json.JsonSerializerOptions? SerializerOptions { get; set; }
 }

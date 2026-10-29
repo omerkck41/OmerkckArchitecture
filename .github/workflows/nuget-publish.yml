@@ -113,7 +113,7 @@ jobs:
         with:
           name: nupkgs
           path: ./artifacts/*.nupkg
-          retention-days: 30
+          retention-days: 90  # the unlist mode reads it; 90 is the maximum for this repository
           if-no-files-found: error
 
   # Pushes the packages built above. Runs no repository code. Waits for maintainer approval in the
@@ -184,6 +184,18 @@ jobs:
               return [v for v in listed
                       if not is_prerelease(v) and key(v)[0] == key(version)[0] and key(v) < key(version)]
 
+          def describe_failure(returncode, output, secret):
+              """One log line for a failed `dotnet nuget delete`: exit code and output tail, API key masked first."""
+              text = " ".join((output or "").split())
+              if secret:
+                  text = text.replace(secret, "***")
+              text = text[-400:]
+              return f"exit {returncode}: {text}" if text else f"exit {returncode}"
+
+          def is_permanent(output):
+              """Key/permission (401, 403) and missing (404) errors do not get better with a retry."""
+              return re.search(r"\b(401|403|404)\b", output or "") is not None
+
           # --- main ---
           version = os.environ["VERSION"]
           if is_prerelease(version):
@@ -233,8 +245,13 @@ jobs:
                           done += 1
                           print(f"unlisted {pid} {v}")
                           break
+                      output = f"{r.stdout} {r.stderr}"
+                      print(f"::warning::{pid} {v} attempt {attempt + 1}: "
+                            f"{describe_failure(r.returncode, output, os.environ['NUGET_API_KEY'])}")
+                      if is_permanent(output):
+                          break
                       time.sleep(5 * (attempt + 1))
-                  else:
+                  if r.returncode != 0:
                       failures.append(f"{pid} {v}")
                       print(f"::warning::could not unlist {pid} {v}")
                   time.sleep(0.3)
@@ -242,19 +259,18 @@ jobs:
           if failures:
               sys.exit(f"{len(failures)} version(s) could not be unlisted: {', '.join(failures[:10])}")
 
-  # Manual unlist of one released version (workflow_dispatch, mode: unlist). Same protections as publish:
-  # waits for approval in the protected `nuget` environment, gets a short-lived key through Trusted
-  # Publishing and runs no repository code. The package ids come from the `nupkgs` artifact of the tag's
-  # successful tag-push publish run (kept 30 days), not from nuget.org search, whose index can lag.
-  # Unlisting only hides the version; it still restores by exact version and can be relisted on nuget.org.
-  unlist:
-    name: Unlist on NuGet
+  # Manual unlist of one released version (workflow_dispatch, mode: unlist). The input is checked and the publish run
+  # picked here, without the environment, so a wrong tag fails before anyone is asked to approve. Read-only: no OIDC.
+  resolve-unlist:
+    name: Resolve the version to unlist
     if: github.event_name == 'workflow_dispatch' && github.event.inputs.mode == 'unlist'
     runs-on: ubuntu-latest
-    environment: nuget
     permissions:
-      id-token: write   # GitHub OIDC token for NuGet Trusted Publishing
-      actions: read     # find the tag's publish run and download its package artifact
+      contents: read    # resolve the tag to a commit
+      actions: read     # find the tag's publish run
+    outputs:
+      version: ${{ steps.source.outputs.version }}
+      run_id: ${{ steps.source.outputs.run_id }}
 
     steps:
       - name: Resolve version and publish run
@@ -270,30 +286,64 @@ jobs:
             exit 1
           fi
           # The run must have built the commit the tag points at; a branch with the tag's name, or a tag
-          # pushed again to another commit, must not pick the package set.
-          tag_sha=$(gh api "repos/$REPO/commits/$TAG_INPUT" --jq .sha)
+          # pushed again to another commit, must not pick the package set. git/ref/tags matches tags only;
+          # an annotated tag points at a tag object, which points at the commit.
+          read -r obj_type obj_sha < <(gh api "repos/$REPO/git/ref/tags/$TAG_INPUT" \
+            --jq '"\(.object.type) \(.object.sha)"')
+          if [[ "$obj_type" == "tag" ]]; then
+            tag_sha=$(gh api "repos/$REPO/git/tags/$obj_sha" --jq .object.sha)
+          else
+            tag_sha="$obj_sha"
+          fi
           if [[ ! "$tag_sha" =~ ^[0-9a-f]{40}$ ]]; then
             echo "::error::Could not resolve the tag to a commit"
             exit 1
           fi
-          run_ids=$(gh run list --repo "$REPO" --workflow nuget-publish.yml --branch "$TAG_INPUT" \
-            --event push --status success --limit 20 --json databaseId,headSha \
+          # Picked by its "Push to NuGet" step, not the run's conclusion: a run whose push succeeded but whose
+          # "Unlist older versions" step failed still pushed exactly these packages.
+          candidates=$(gh run list --repo "$REPO" --workflow nuget-publish.yml --branch "$TAG_INPUT" \
+            --event push --status completed --limit 20 --json databaseId,headSha \
             --jq "[.[] | select(.headSha == \"$tag_sha\") | .databaseId | tostring] | join(\" \")")
-          read -r -a runs <<< "$run_ids"
+          runs=()
+          for id in $candidates; do
+            pushed=$(gh api "repos/$REPO/actions/runs/$id/jobs?filter=all" --jq '[.jobs[] | select(.name == "Push to NuGet")
+              | .steps[] | select(.name == "Push to NuGet" and .conclusion == "success")] | length')
+            if [[ "$pushed" == "1" ]]; then
+              runs+=("$id")
+            fi
+          done
           if [[ ${#runs[@]} -ne 1 ]]; then
-            echo "::error::Expected exactly one successful tag-push publish run for this tag's commit, found ${#runs[@]}"
+            echo "::error::Expected exactly one tag-push publish run that pushed this tag's commit, found ${#runs[@]}"
             exit 1
           fi
-          run_id="${runs[0]}"
           echo "version=${TAG_INPUT#v}" >> "$GITHUB_OUTPUT"
-          echo "run_id=$run_id" >> "$GITHUB_OUTPUT"
+          echo "run_id=${runs[0]}" >> "$GITHUB_OUTPUT"
 
+  # Same protections as publish: waits for approval in the protected `nuget` environment, gets a short-lived key
+  # through Trusted Publishing and runs no repository code. The package ids come from the `nupkgs` artifact of the
+  # resolved publish run (kept 90 days; older versions: unlist on nuget.org), not from nuget.org search, whose index
+  # can lag. Unlisting only hides the version; it still restores by exact version and can be relisted on nuget.org.
+  unlist:
+    name: Unlist on NuGet
+    needs: resolve-unlist
+    if: github.event_name == 'workflow_dispatch' && github.event.inputs.mode == 'unlist'
+    runs-on: ubuntu-latest
+    environment: nuget
+    concurrency:
+      # One unlist at a time; GitHub keeps one pending run per group, so a third dispatch replaces a waiting second.
+      group: nuget-unlist
+      cancel-in-progress: false
+    permissions:
+      id-token: write   # GitHub OIDC token for NuGet Trusted Publishing
+      actions: read     # download the package artifact of the resolved publish run
+
+    steps:
       - name: Download the packages that publish pushed
         uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: nupkgs
           path: ./artifacts
-          run-id: ${{ steps.source.outputs.run_id }}
+          run-id: ${{ needs.resolve-unlist.outputs.run_id }}
           github-token: ${{ github.token }}
 
       - name: Setup .NET
@@ -310,7 +360,7 @@ jobs:
       - name: Unlist the version
         env:
           NUGET_API_KEY: ${{ steps.nuget-login.outputs.NUGET_API_KEY }}
-          VERSION: ${{ steps.source.outputs.version }}
+          VERSION: ${{ needs.resolve-unlist.outputs.version }}
         shell: python
         run: |
           import glob, gzip, json, os, re, subprocess, sys, time, urllib.error, urllib.request, zipfile
@@ -321,6 +371,18 @@ jobs:
               if not states:
                   return "missing"
               return "delete" if any(states) else "skip"
+
+          def describe_failure(returncode, output, secret):
+              """One log line for a failed `dotnet nuget delete`: exit code and output tail, API key masked first."""
+              text = " ".join((output or "").split())
+              if secret:
+                  text = text.replace(secret, "***")
+              text = text[-400:]
+              return f"exit {returncode}: {text}" if text else f"exit {returncode}"
+
+          def is_permanent(output):
+              """Key/permission (401, 403) and missing (404) errors do not get better with a retry."""
+              return re.search(r"\b(401|403|404)\b", output or "") is not None
 
           # --- main ---
           version = os.environ["VERSION"]
@@ -374,8 +436,13 @@ jobs:
                       done += 1
                       print(f"unlisted {pid} {version}")
                       break
+                  output = f"{r.stdout} {r.stderr}"
+                  print(f"::warning::{pid} {version} attempt {attempt + 1}: "
+                        f"{describe_failure(r.returncode, output, os.environ['NUGET_API_KEY'])}")
+                  if is_permanent(output):
+                      break
                   time.sleep(5 * (attempt + 1))
-              else:
+              if r.returncode != 0:
                   failures.append(f"{pid} {version}")
                   print(f"::warning::could not unlist {pid} {version}")
               time.sleep(0.3)

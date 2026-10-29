@@ -18,6 +18,7 @@ public sealed class DomainEventDispatchSemanticsTests : IAsyncLifetime
 {
     private readonly SqliteConnection _connection = new("DataSource=:memory:");
     private readonly ToggleDispatcher _dispatcher = new();
+    private readonly FailCommitInterceptor _commitFailures = new();
     private TestDbContext _ctx = null!;
     private EfUnitOfWork _uow = null!;
 
@@ -27,7 +28,7 @@ public sealed class DomainEventDispatchSemanticsTests : IAsyncLifetime
         var options = new DbContextOptionsBuilder<TestDbContext>()
             .UseSqlite(_connection)
             .AddInterceptors(new DomainEventDispatchInterceptor(
-                _dispatcher, NullLogger<DomainEventDispatchInterceptor>.Instance))
+                _dispatcher, NullLogger<DomainEventDispatchInterceptor>.Instance), _commitFailures)
             .Options;
         _ctx = new TestDbContext(options);
         await _ctx.Database.EnsureCreatedAsync();
@@ -447,6 +448,109 @@ public sealed class DomainEventDispatchSemanticsTests : IAsyncLifetime
         await _ctx.SaveChangesAsync();
 
         _dispatcher.Received.Should().Equal(kept);
+    }
+
+    [Fact]
+    public async Task UnitOfWorkCommitFails_EventsAreNotDispatchedByALaterCommit()
+    {
+        await _uow.BeginTransactionAsync();
+        AddWithEvent(out _);
+        await _uow.SaveChangesAsync();
+        _commitFailures.FailNext = true;
+        var failed = () => _uow.CommitAsync();
+        await failed.Should().ThrowAsync<InvalidOperationException>().WithMessage("commit failed");
+        _ctx.ChangeTracker.Clear();
+
+        await _uow.BeginTransactionAsync();
+        AddWithEvent(out var kept);
+        await _uow.SaveChangesAsync();
+        await _uow.CommitAsync();
+
+        _dispatcher.Received.Should().Equal(kept);
+    }
+
+    [Fact]
+    public void SyncTransaction_Commit_EventsWaitForTheNextSaveChanges()
+    {
+        using var transaction = _ctx.Database.BeginTransaction();
+        AddWithEvent(out var domainEvent);
+        _ctx.SaveChanges();
+
+        transaction.Commit();
+        _dispatcher.CallCount.Should().Be(0);
+
+        _ctx.SaveChanges();
+        _dispatcher.Received.Should().Equal(domainEvent);
+    }
+
+    [Fact]
+    public void SyncTransaction_RolledBackEvents_AreNotDispatchedByALaterCommit()
+    {
+        using (var rolledBack = _ctx.Database.BeginTransaction())
+        {
+            AddWithEvent(out _);
+            _ctx.SaveChanges();
+            rolledBack.Rollback();
+        }
+
+        _ctx.ChangeTracker.Clear();
+        CommitOneSync(out var kept);
+
+        _dispatcher.Received.Should().Equal(kept);
+    }
+
+    [Fact]
+    public void SyncTransaction_CommitFails_EventsAreNotDispatchedByALaterCommit()
+    {
+        using (var failedTransaction = _ctx.Database.BeginTransaction())
+        {
+            AddWithEvent(out _);
+            _ctx.SaveChanges();
+            _commitFailures.FailNext = true;
+            var commit = () => failedTransaction.Commit();
+            commit.Should().Throw<InvalidOperationException>().WithMessage("commit failed");
+        }
+
+        _ctx.ChangeTracker.Clear();
+        CommitOneSync(out var kept);
+
+        _dispatcher.Received.Should().Equal(kept);
+    }
+
+    private void CommitOneSync(out TestDomainEvent domainEvent)
+    {
+        using var transaction = _ctx.Database.BeginTransaction();
+        AddWithEvent(out domainEvent);
+        _ctx.SaveChanges();
+        transaction.Commit();
+        _ctx.SaveChanges();
+    }
+
+    private sealed class FailCommitInterceptor : DbTransactionInterceptor
+    {
+        public bool FailNext { get; set; }
+
+        public override InterceptionResult TransactionCommitting(
+            System.Data.Common.DbTransaction transaction,
+            TransactionEventData eventData,
+            InterceptionResult result) =>
+            Fail(result);
+
+        public override ValueTask<InterceptionResult> TransactionCommittingAsync(
+            System.Data.Common.DbTransaction transaction,
+            TransactionEventData eventData,
+            InterceptionResult result,
+            CancellationToken cancellationToken = default) =>
+            ValueTask.FromResult(Fail(result));
+
+        private InterceptionResult Fail(InterceptionResult result)
+        {
+            if (!FailNext)
+                return result;
+
+            FailNext = false;
+            throw new InvalidOperationException("commit failed");
+        }
     }
 
     private sealed class ThrowOnSavingInterceptor : SaveChangesInterceptor
