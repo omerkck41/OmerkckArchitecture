@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [4.2.4] — 2026-10-29
+
 ### Fixed
 - `Kck.Persistence.EntityFramework` — `AuditInterceptor`: `DbContext.Remove` on a soft-deletable entity kept the entity
   (soft delete) but EF's cascade still hit its tracked dependents: required ones that are not soft-deletable were
