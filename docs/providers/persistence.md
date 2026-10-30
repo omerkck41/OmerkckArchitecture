@@ -80,6 +80,22 @@ committed directly (below) end with the request, as without pooling: when the co
 leased again they are dropped (a warning is logged), never dispatched in another request. Commit transactions through
 `IUnitOfWork`.
 
+### DbContext factory
+
+`UseEntityFramework<TContext>` cannot be combined with a singleton `AddDbContextFactory<TContext>` (the default
+lifetime) or `AddPooledDbContextFactory<TContext>` for the same context: they register `DbContextOptions<TContext>`
+with different lifetimes (per scope and singleton). A factory registered with `ServiceLifetime.Scoped`, or a keyed one,
+is fine. From 4.7.0 Kck reports this
+with an `InvalidOperationException` that names both calls. With container validation on (ASP.NET Core does it in
+Development), a factory registered after `UseEntityFramework` is reported by the container first, as
+"Cannot consume scoped service 'DbContextOptions`1[...]' from singleton 'IDbContextFactory`1[...]'".
+
+Instead:
+
+- outside a request (background services, jobs), create a scope with `IServiceScopeFactory` and resolve `IUnitOfWork`
+  in it, so audit fields, soft delete and domain events still apply;
+- to reuse context instances, use `UseEntityFrameworkPool` (above).
+
 ## Using repositories
 
 Repositories come from `IUnitOfWork`:

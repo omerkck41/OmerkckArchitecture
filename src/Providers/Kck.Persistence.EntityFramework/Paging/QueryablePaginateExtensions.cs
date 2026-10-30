@@ -21,7 +21,9 @@ public static class QueryablePaginateExtensions
         ArgumentOutOfRangeException.ThrowIfNegative(from);
         ArgumentOutOfRangeException.ThrowIfNegative(size);
         if (from > index)
-            throw new ArgumentException($"From ({from}) > Index ({index}), must From <= Index");
+            throw new ArgumentException(
+                $"Index ({index}) is lower than From ({from}): pages are counted from From, so pass an index of at least {from}.",
+                nameof(index));
 
         // (index - from) * size used to overflow into a negative OFFSET for a large client-supplied index.
         var offset = (long)(index - from) * size;

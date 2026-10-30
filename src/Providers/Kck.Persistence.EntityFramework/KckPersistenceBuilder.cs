@@ -30,11 +30,20 @@ public sealed class KckPersistenceBuilder(IServiceCollection services)
     /// <see cref="AddAuditInterceptor"/> or <see cref="AddDomainEventDispatch{TDispatcher}"/>
     /// are added to the context options unless <paramref name="configure"/> already added one of the same type.
     /// </summary>
+    /// <exception cref="InvalidOperationException"><c>AddDbContextFactory</c> is registered for <typeparamref name="TContext"/>.</exception>
     public KckPersistenceBuilder UseEntityFramework<TContext>(
         Action<DbContextOptionsBuilder> configure) where TContext : DbContext
     {
+        ThrowIfDbContextFactoryRegistered<TContext>();
+        var factoryChecked = false; // the options are built per scope; the collection no longer changes after the first
         Services.AddDbContext<TContext>((sp, options) =>
         {
+            if (!factoryChecked)
+            {
+                ThrowIfDbContextFactoryRegistered<TContext>(); // a factory registered after this call
+                factoryChecked = true;
+            }
+
             configure(options);
             AddRegisteredInterceptor<AuditInterceptor>(sp, options);
             AddRegisteredInterceptor<DomainEventDispatchInterceptor>(sp, options);
@@ -173,6 +182,27 @@ public sealed class KckPersistenceBuilder(IServiceCollection services)
         {
             return ex.Types.OfType<Type>();
         }
+    }
+
+    // AddDbContext registers the context's options per scope, AddDbContextFactory (default lifetime) and
+    // AddPooledDbContextFactory as a singleton: together they fail with container errors that do not name the cause
+    // (factory first: the scoped context cannot be resolved; factory after: a singleton consumes scoped options). A
+    // scoped factory or a keyed one does not conflict. The collection, not the provider: registration is complete here.
+    private void ThrowIfDbContextFactoryRegistered<TContext>() where TContext : DbContext
+    {
+        if (!Services.Any(d => d.ServiceType == typeof(IDbContextFactory<TContext>)
+                               && d.Lifetime == ServiceLifetime.Singleton
+                               && !d.IsKeyedService))
+            return;
+
+        var name = typeof(TContext).Name;
+        throw new InvalidOperationException(
+            $"UseEntityFramework<{name}> cannot be combined with AddDbContextFactory<{name}> (or AddPooledDbContextFactory) " +
+            "registered as a singleton: they register " +
+            $"DbContextOptions<{name}> with different lifetimes. To work outside a request (background services, jobs), " +
+            "create a scope with IServiceScopeFactory and resolve IUnitOfWork in it; to reuse context instances, use " +
+            $"UseEntityFrameworkPool<{name}> instead of UseEntityFramework. " +
+            "See https://github.com/omerkck41/OmerkckArchitecture/blob/main/docs/providers/persistence.md#dbcontext-factory");
     }
 
     private static void AddRegisteredInterceptor<TInterceptor>(

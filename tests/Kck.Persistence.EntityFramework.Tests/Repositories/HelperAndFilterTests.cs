@@ -196,7 +196,8 @@ public class HelperAndFilterTests
 
         var act = () => harness.Context.TestEntities.ToPaginateAsync(index: 0, size: 10, from: 1);
 
-        await act.Should().ThrowAsync<ArgumentException>().WithMessage("*From*");
+        (await act.Should().ThrowAsync<ArgumentException>().WithMessage("Index (0) is lower than From (1)*at least 1*"))
+            .Which.ParamName.Should().Be("index");
     }
 
     [Fact]
