@@ -48,9 +48,10 @@ public class FilterPropertyWhitelist<[DynamicallyAccessedMembers(DynamicallyAcce
             _allowed.Add(prop.Name);
     }
 
-    private static string GetMemberName(Expression<Func<T, object>> expression)
+    // Named like the parameter of Allow / Deny, so the exception's ParamName is the one callers see.
+    private static string GetMemberName(Expression<Func<T, object>> property)
     {
-        var body = expression.Body;
+        var body = property.Body;
 
         if (body is UnaryExpression { Operand: MemberExpression unaryMember })
             return unaryMember.Member.Name;
@@ -58,6 +59,8 @@ public class FilterPropertyWhitelist<[DynamicallyAccessedMembers(DynamicallyAcce
         if (body is MemberExpression member)
             return member.Member.Name;
 
-        throw new ArgumentException("Expression must be a property access expression.");
+        throw new ArgumentException(
+            "Allow and Deny take a property access, for example Allow(e => e.Name); this expression is not one.",
+            nameof(property));
     }
 }

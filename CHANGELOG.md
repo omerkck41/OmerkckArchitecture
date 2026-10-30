@@ -57,6 +57,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `Kck.Persistence.EntityFramework` — KCK1001 is a warning: a project that treats warnings as errors and commits a
   transaction directly while using domain events fails its build after the upgrade. Commit through `IUnitOfWork`, or
   turn the rule off (`dotnet_diagnostic.KCK1001.severity = none`).
+- `Kck.Persistence.EntityFramework` — `UseEntityFramework<TContext>` together with a singleton
+  `AddDbContextFactory<TContext>` (the default lifetime) or `AddPooledDbContextFactory<TContext>` now throws an
+  `InvalidOperationException` that names both calls and the alternatives (a scope per unit of work,
+  `UseEntityFrameworkPool`): at registration when the factory comes first, when the first context is created when it
+  comes after. Before, the combination failed later with container errors that did not name the cause.
 - `Kck.EventBus.InMemory` — `PublishAsync` runs every registered `IEventHandler<TEvent>` plus each subscribed handler
   not among them, once. Before, a single `Subscribe<TEvent, THandler>()` call replaced the registered handlers for that
   event, and a subscribed handler registered only as `IEventHandler<TEvent>` was skipped without a log entry.
@@ -77,6 +82,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   logged every exception at `Error`.
 
 ### Changed
+- `Kck.Persistence.EntityFramework` / `Kck.Persistence.Abstractions` — error messages say what to do: deleting or
+  restoring a row that does not exist (entity type, id, how to check first), "No active transaction" (why: `CommitAsync`
+  ends the transaction, do not roll back after it), `ToPaginateAsync` with an index below `from`, and a
+  `FilterPropertyWhitelist.Allow` / `Deny` expression that is not a property access.
 - Package READMEs (nuget.org pages) and bundle package descriptions rewritten against the API: their quick starts used
   methods and options that do not exist (for example `AddKckHangfire`, `AddKckInMemoryEventBus`, `IJob`,
   `MapDefaultEndpoints`) and their configuration tables listed invented options and wrong defaults. Every package

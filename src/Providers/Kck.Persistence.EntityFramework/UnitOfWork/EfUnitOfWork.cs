@@ -15,6 +15,11 @@ namespace Kck.Persistence.EntityFramework.UnitOfWork;
 /// </summary>
 public sealed class EfUnitOfWork(DbContext context, IEfRepositoryFactory repositoryFactory) : IUnitOfWork
 {
+    // The second sentence answers the usual cause: a RollbackAsync in a catch block after CommitAsync.
+    private const string NoActiveTransaction =
+        "No active transaction: call BeginTransactionAsync first. CommitAsync ends the transaction whether it succeeds " +
+        "or fails, so do not call RollbackAsync after it.";
+
     private readonly ConcurrentDictionary<string, object> _repositories = new();
     private IDbContextTransaction? _transaction;
     private bool _disposed;
@@ -42,7 +47,7 @@ public sealed class EfUnitOfWork(DbContext context, IEfRepositoryFactory reposit
     public async Task CommitAsync(CancellationToken cancellationToken = default)
     {
         if (_transaction is null)
-            throw new InvalidOperationException("No active transaction. Call BeginTransactionAsync first.");
+            throw new InvalidOperationException(NoActiveTransaction);
 
         await CommitCurrentAsync(_transaction, cancellationToken);
     }
@@ -113,7 +118,7 @@ public sealed class EfUnitOfWork(DbContext context, IEfRepositoryFactory reposit
     public async Task RollbackAsync(CancellationToken cancellationToken = default)
     {
         if (_transaction is null)
-            throw new InvalidOperationException("No active transaction. Call BeginTransactionAsync first.");
+            throw new InvalidOperationException(NoActiveTransaction);
 
         try
         {

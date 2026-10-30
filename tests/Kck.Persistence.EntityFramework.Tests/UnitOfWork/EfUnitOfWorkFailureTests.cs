@@ -91,7 +91,9 @@ public sealed class EfUnitOfWorkFailureTests : IAsyncLifetime
 
         var rollback = () => _sut.RollbackAsync();
 
-        await rollback.Should().ThrowAsync<InvalidOperationException>().WithMessage("*No active transaction*");
+        // The message says why: CommitAsync already ended the transaction (KCK1001 docs, "Rollback in catch").
+        await rollback.Should().ThrowAsync<InvalidOperationException>()
+            .WithMessage("*No active transaction*CommitAsync ends the transaction whether it succeeds or fails*");
     }
 
     [Fact]

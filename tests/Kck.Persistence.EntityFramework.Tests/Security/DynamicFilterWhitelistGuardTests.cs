@@ -111,4 +111,18 @@ public class DynamicFilterWhitelistGuardTests
 
         act.Should().Throw<ArgumentException>().WithMessage("*Secret*");
     }
+
+    [Fact]
+    public void FilterPropertyWhitelist_AllowWithoutPropertyAccess_ThrowsWithExample()
+    {
+        var act = () => new MethodCallWhitelist();
+
+        act.Should().Throw<ArgumentException>().WithMessage("*property access*Allow(e => e.Name)*")
+            .Which.ParamName.Should().Be("property");
+    }
+
+    private sealed class MethodCallWhitelist : Kck.Persistence.Abstractions.Security.FilterPropertyWhitelist<TestEntity>
+    {
+        public MethodCallWhitelist() => Allow(e => e.Name.Trim()); // a method call, not a property access
+    }
 }

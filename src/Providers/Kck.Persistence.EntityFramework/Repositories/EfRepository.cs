@@ -261,7 +261,9 @@ public class EfRepository<T, TId>(
             .FirstOrDefaultAsync(cancellationToken);
 
         if (entity is null)
-            throw new InvalidOperationException("Entity not found for deletion.");
+            throw new InvalidOperationException(
+                $"No {typeof(T).Name} matches the predicate (soft-deleted rows included), so nothing was deleted. " +
+                "Check with GetAsync(predicate, QueryOptions.WithDeleted) first, or treat this as not found (for example a 404).");
 
         return await DeleteAsync(entity, permanent, cancellationToken);
     }
@@ -276,7 +278,9 @@ public class EfRepository<T, TId>(
             .FirstOrDefaultAsync(e => e.Id!.Equals(id), cancellationToken);
 
         if (entity is null)
-            throw new InvalidOperationException($"Entity with id '{id}' not found for deletion.");
+            throw new InvalidOperationException(
+                $"{typeof(T).Name} with id '{id}' not found (soft-deleted rows included), so nothing was deleted. " +
+                "Check with GetByIdAsync(id, QueryOptions.WithDeleted) first, or treat this as not found (for example a 404).");
 
         return await DeleteAsync(entity, permanent, cancellationToken);
     }
@@ -288,7 +292,9 @@ public class EfRepository<T, TId>(
             .FirstOrDefaultAsync(e => e.Id!.Equals(id), cancellationToken);
 
         if (entity is null)
-            throw new InvalidOperationException($"Entity with id '{id}' not found for soft-delete revert.");
+            throw new InvalidOperationException(
+                $"{typeof(T).Name} with id '{id}' not found, so there is nothing to restore. " +
+                "Check with GetByIdAsync(id, QueryOptions.WithDeleted) first.");
 
         return await RevertSoftDeleteAsync(entity, cancellationToken);
     }
