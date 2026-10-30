@@ -1,6 +1,8 @@
 # Kck.Bundle.WebApi
 
-One-line ASP.NET Core WebAPI setup — registers Serilog, JWT auth, Argon2 hashing, in-memory caching, Mediator pipeline, InMemory event bus, OpenTelemetry, rate limiting, security headers, CORS, and global exception handling in a single call.
+One-line ASP.NET Core Web API setup: registers Serilog, Argon2 hashing, the in-memory cache, the in-memory event bus, exception handling, health check services, and rate limiting with security headers and CORS from the `Kck` configuration section. With `Kck:Security:Jwt:Issuer` set it also registers the JWT token service; ASP.NET Core authentication, persistence, the Mediator pipeline and OpenTelemetry are configured separately.
+
+New to Kck? [Your first Kck API in five minutes](https://github.com/omerkck41/OmerkckArchitecture/blob/main/docs/getting-started/README.md) creates a working API with this package: `dotnet new install Kck.Templates`, then `dotnet new kck-webapi`.
 
 ## Installation
 

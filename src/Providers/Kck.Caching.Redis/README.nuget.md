@@ -12,31 +12,32 @@ dotnet add package Kck.Caching.Redis
 
 ```csharp
 // Program.cs
-builder.Services.AddKckCachingRedis(options =>
-{
-    options.Configuration = "localhost:6379";
-    options.KeyPrefix = "myapp";
-    options.DefaultExpiration = TimeSpan.FromMinutes(30);
-});
+builder.Services.AddKckCachingRedis(
+    redis => redis.Configuration = "localhost:6379",   // or ConfigurationOptions / ConnectionMultiplexerFactory
+    cache =>
+    {
+        cache.KeyPrefix = "myapp:";
+        cache.DefaultExpiration = TimeSpan.FromMinutes(30);
+    });
 
 // Usage
-public class OrderService(ICacheService cache)
+public class ProductService(ICacheService cache, IProductRepository products)
 {
-    public async Task<Order?> GetAsync(Guid id, CancellationToken ct)
-        => await cache.GetOrSetAsync($"order:{id}",
-               () => _db.Orders.FindAsync(id, ct).AsTask(),
-               ct: ct);
+    public Task<Product?> GetAsync(int id, CancellationToken ct) =>
+        cache.GetOrSetAsync($"product:{id}", () => products.FindAsync(id, ct), TimeSpan.FromMinutes(10), ct);
+
+    public Task InvalidateAllAsync(CancellationToken ct) => cache.RemoveByPrefixAsync("product:", ct);
 }
 ```
 
 ## Configuration
 
+First callback: `RedisCacheOptions` (Microsoft.Extensions.Caching.StackExchangeRedis); set `Configuration`, `ConfigurationOptions` or `ConnectionMultiplexerFactory`. Second callback:
+
 | Property | Description | Default |
 |---|---|---|
-| `Configuration` | Redis connection string or `ConfigurationOptions` | `"localhost:6379"` |
-| `KeyPrefix` | Namespace prefix for all cache keys | `""` |
-| `DefaultExpiration` | Default entry time-to-live | `TimeSpan.FromMinutes(30)` |
-| `Database` | Redis database index | `0` |
+| `KeyPrefix` | Prefix prepended to every cache key | `null` |
+| `DefaultExpiration` | Expiration when a call passes none | 5 minutes |
 
 ## Resources
 

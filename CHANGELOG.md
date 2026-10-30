@@ -34,6 +34,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   scanning an assembly twice no longer runs its handlers twice.
 
 ### Changed
+- Package READMEs (nuget.org pages) and bundle package descriptions rewritten against the API: their quick starts used
+  methods and options that do not exist (for example `AddKckHangfire`, `AddKckInMemoryEventBus`, `IJob`,
+  `MapDefaultEndpoints`) and their configuration tables listed invented options and wrong defaults. Every package
+  README code block is now compiled in CI.
 - `schemas/appsettings.kck.schema.json` lists only the keys the bundles read (`Kck:Security:Jwt:Issuer`/`Audience`,
   `Kck:AspNetCore:*`, `Kck:BackgroundJobs:Provider`). The removed sections (`Caching`, `EventBus`, `Messaging`,
   `Security:Argon2`) were never read; providers are configured in code.
@@ -273,7 +277,7 @@ Changes when and how domain events are dispatched for apps that call `AddDomainE
   dropped), `TransactionScope`, and rolling back to a savepoint.
 - `Kck.Persistence.EntityFramework` now depends on `Microsoft.EntityFrameworkCore.Relational` (same version as EF
   Core) for the transaction interceptor. Relational providers already reference it.
-  Decision: [decisions/2026-10-28-efcore-relational-dependency.md](decisions/2026-10-28-efcore-relational-dependency.md).
+  Decision: [decisions/2026-10-28-efcore-relational-dependency.md](https://github.com/omerkck41/OmerkckArchitecture/blob/main/decisions/2026-10-28-efcore-relational-dependency.md).
 
 ## [4.1.0] — 2026-10-28
 

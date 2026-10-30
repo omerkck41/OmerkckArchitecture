@@ -8,7 +8,7 @@ internal static class Snippet
 {
     internal static async Task RunAsync(WebApplicationBuilder builder, CancellationToken ct)
     {
-#line 16 "src/Providers/Kck.Persistence.EntityFramework/README.nuget.md"
+#line 18 "src/Providers/Kck.Persistence.EntityFramework/README.nuget.md"
 
 builder.Services.AddKckPersistence(p => p
     .UseEntityFramework<AppDbContext>(options =>
@@ -21,7 +21,7 @@ builder.Services.AddKckPersistence(p => p
     }
 }
 
-#line 23 "src/Providers/Kck.Persistence.EntityFramework/README.nuget.md"
+#line 25 "src/Providers/Kck.Persistence.EntityFramework/README.nuget.md"
 public class OrderService(IUnitOfWork uow)
 {
     public async Task<Order> CreateAsync(Order order, CancellationToken ct)

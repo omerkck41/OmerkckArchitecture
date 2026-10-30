@@ -11,6 +11,8 @@ dotnet add package Kck.FeatureFlags.InMemory
 ## Quick Start
 
 ```csharp
+using Kck.FeatureFlags.Abstractions;
+
 // Program.cs
 builder.Services.AddKckFeatureFlagsInMemory(options =>
 {

@@ -11,33 +11,32 @@ dotnet add package Kck.Localization.Json
 ## Quick Start
 
 ```csharp
-// Program.cs
-builder.Services.AddKckLocalizationJson(options =>
+using Kck.Localization.Abstractions;
+
+// Program.cs — the localization service plus this resource provider
+builder.Services.AddKckLocalization(options =>
 {
     options.ResourcePath = "Resources";
     options.DefaultCulture = "en";
 });
+builder.Services.AddKckLocalizationJson();
 
 // Resources/en.json
-// { "Greeting": "Hello, {0}!" }
+// { "greeting": "Hello, {0}!" }
 // Resources/tr.json
-// { "Greeting": "Merhaba, {0}!" }
+// { "greeting": "Merhaba, {0}!" }
 
-// Usage in controller
-public class HomeController(IStringLocalizer<HomeController> localizer)
+// Usage
+public class WelcomeService(ILocalizationService localizer)
 {
-    [HttpGet]
-    public string Hello() => localizer["Greeting", "World"];
+    public Task<string> GreetAsync(string name, string culture, CancellationToken ct) =>
+        localizer.GetStringAsync("greeting", culture, [name], ct);
 }
 ```
 
 ## Configuration
 
-| Property | Description | Default |
-|---|---|---|
-| `ResourcePath` | Folder containing JSON locale files | `"Resources"` |
-| `DefaultCulture` | Fallback culture when translation is missing | `"en"` |
-| `CacheDuration` | How long parsed locale files are cached | `TimeSpan.FromHours(1)` |
+No options of its own: it reads `LocalizationOptions` (`ResourcePath`, caching) set with `AddKckLocalization(...)`. Files are `{ResourcePath}/{culture}.json`; nested objects become dotted keys.
 
 ## Resources
 

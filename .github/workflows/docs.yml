@@ -11,10 +11,23 @@ on:
       - 'CONTRIBUTING.md'
       - 'docfx.json'
       - 'toc.yml'
+      - 'api/index.md'
+  # Pull requests build the site too, so a broken link fails before merge (plan G2.1 c); only main deploys.
+  pull_request:
+    paths:
+      - 'src/**'
+      - 'docs/**'
+      - 'api/index.md'
+      - 'README.md'
+      - 'CHANGELOG.md'
+      - 'CONTRIBUTING.md'
+      - 'docfx.json'
+      - 'toc.yml'
+      - '.github/workflows/docs.yml'
   workflow_dispatch:
 
 concurrency:
-  group: github-pages
+  group: ${{ github.event_name == 'pull_request' && format('docs-pr-{0}', github.ref) || 'github-pages' }}
   cancel-in-progress: true
 
 permissions:
@@ -28,11 +41,11 @@ env:
 
 jobs:
   build-docs:
-    name: Build & Deploy DocFX
+    name: Build DocFX
     runs-on: ubuntu-latest
+    # Read-only: it also runs for pull requests; publishing needs pages/id-token only in deploy-pages.
     permissions:
-      contents: write
-      pages: write
+      contents: read
 
     steps:
       - name: Checkout
@@ -59,10 +72,13 @@ jobs:
       - name: Generate API metadata
         run: dotnet docfx metadata docfx.json --logLevel verbose
 
+      # Warnings fail the build: broken file links and bookmarks in the published pages. API metadata warnings (crefs
+      # inherited from EF Core's XML docs) come from the step above and are not gated (plan R7).
       - name: Build static site
-        run: dotnet docfx build docfx.json
+        run: dotnet docfx build docfx.json --warningsAsErrors
 
       - name: Upload Pages artifact
+        if: github.event_name != 'pull_request'
         uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
         with:
           path: _site
@@ -70,6 +86,7 @@ jobs:
   deploy-pages:
     name: Deploy to GitHub Pages
     needs: build-docs
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     permissions:
       id-token: write

@@ -11,32 +11,29 @@ dotnet add package Kck.FileStorage.Abstractions
 ## Quick Start
 
 ```csharp
-// Program.cs — register a concrete provider (e.g. Kck.FileStorage.FluentFtp)
-builder.Services.AddKckFluentFtpStorage(builder.Configuration);
+using Kck.FileStorage.Abstractions;
+
+// Program.cs — a provider (FluentFtp, AzureBlob or AwsS3)
+builder.Services.AddKckFileStorageAzureBlob(opt =>
+{
+    opt.ConnectionString = builder.Configuration["Storage:ConnectionString"];
+    opt.ContainerName = "documents";
+});
 
 // Use IFileStorageService in a handler
-public class DocumentUploadHandler(IFileStorageService storage)
+public class DocumentHandler(IFileStorageService storage)
 {
-    public async Task<string> UploadAsync(
-        Stream fileStream, string fileName, string contentType, CancellationToken ct)
-    {
-        var request = new FileUploadRequest
+    public Task UploadAsync(Stream content, string fileName, CancellationToken ct) =>
+        storage.UploadAsync(new FileUploadRequest
         {
-            FileName  = fileName,
-            Content   = fileStream,
-            ContentType = contentType,
-            Path      = "documents/"
-        };
+            Content = content,
+            FileName = Path.GetFileName(fileName), // never trust a client-supplied path
+            DestinationPath = "documents"
+        }, ct);
 
-        var metadata = await storage.UploadAsync(request, ct);
-        return metadata.Url;
-    }
+    public Task<Stream> DownloadAsync(string path, CancellationToken ct) => storage.DownloadAsync(path, ct);
 
-    public async Task<Stream> DownloadAsync(string filePath, CancellationToken ct)
-        => await storage.DownloadAsync(filePath, ct);
-
-    public async Task DeleteAsync(string filePath, CancellationToken ct)
-        => await storage.DeleteAsync(filePath, ct);
+    public Task DeleteAsync(string path, CancellationToken ct) => storage.DeleteAsync(path, ct);
 }
 ```
 

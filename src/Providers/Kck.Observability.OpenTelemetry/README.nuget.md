@@ -11,32 +11,34 @@ dotnet add package Kck.Observability.OpenTelemetry
 ## Quick Start
 
 ```csharp
-// Program.cs
-builder.Services.AddKckObservability(obs =>
-{
-    obs.ServiceName = "order-service";
-    obs.OtlpEndpoint = new Uri("http://otel-collector:4317");
+using Kck.Observability.Abstractions;
 
-    obs.UseHealthChecks(hc =>
+// Program.cs
+builder.Services.AddKckObservability(obs => obs
+    .UseOpenTelemetry(otel =>
     {
-        hc.AddDbContextCheck<AppDbContext>();
-        hc.AddRedis("localhost:6379");
-    });
-});
+        otel.ServiceName = "order-service";
+        otel.EnableTracing()
+            .EnableMetrics()
+            .UseOtlpExporter("http://otel-collector:4317");
+    })
+    .UseHealthChecks(health => health
+        .AddReadinessCheck("database", async ct => new HealthCheckResult(HealthStatus.Healthy))));
 
 var app = builder.Build();
-app.MapHealthChecks("/health");
+app.MapKckHealthChecks();   // /health, /health/live, /health/ready, /health/startup
 ```
 
 ## Configuration
 
-| Property | Description | Default |
-|---|---|---|
-| `ServiceName` | OTEL service name | assembly name |
-| `OtlpEndpoint` | OTLP gRPC/HTTP collector endpoint | `null` (console exporter) |
-| `EnableTracing` | Register distributed tracing | `true` |
-| `EnableMetrics` | Register runtime and HTTP metrics | `true` |
-| `HealthCheckPath` | Health endpoint route | `"/health"` |
+| Builder member | Effect |
+|---|---|
+| `UseOpenTelemetry(o => ...)`: `ServiceName` | Resource service name (default `"KckApp"`) |
+| `EnableTracing()` | ASP.NET Core, `HttpClient` and EF Core tracing, `Kck.Application` source |
+| `EnableMetrics()` | ASP.NET Core metrics and the `Kck.Application` meter |
+| `UseOtlpExporter(endpoint)` | OTLP export; without it nothing is exported |
+| `UseHealthChecks(h => ...)` | `AddLivenessCheck` / `AddReadinessCheck` / `AddStartupCheck` / `AddCheck` |
+| `app.MapKckHealthChecks(basePath)` | `/health`, `/health/live`, `/health/ready`, `/health/startup` |
 
 ## Resources
 

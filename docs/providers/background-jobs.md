@@ -71,6 +71,7 @@ public class CheckoutHandler(IJobScheduler scheduler)
     {
         await scheduler.EnqueueAsync<EmailCleanupJob>(ct);
         await scheduler.ScheduleAsync<EmailCleanupJob>(TimeSpan.FromMinutes(5), ct);
+        // Hangfire: a 5-field crontab constant. Quartz: its own format, seconds first ("0 0 0 * * ?").
         await scheduler.AddOrUpdateRecurringAsync<EmailCleanupJob>("daily-cleanup", CronExpressions.EveryDay, ct);
     }
 }
@@ -78,7 +79,9 @@ public class CheckoutHandler(IJobScheduler scheduler)
 
 ## Cron Constants
 
-`CronExpressions` provides ready-made constants:
+`CronExpressions` provides ready-made constants in the 5-field crontab format, which Hangfire accepts. Quartz expects
+its own format with a seconds field first (for example `0 0 0 * * ?` for every day at midnight): passing a
+`CronExpressions` constant to the Quartz scheduler fails with a `FormatException`.
 
 | Constant | Expression |
 |---|---|

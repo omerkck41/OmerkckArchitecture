@@ -1,7 +1,7 @@
 # Kck.Bundle.WorkerService
 
-Worker Service setup in a single call: Serilog, OpenTelemetry, the InMemory event bus and the Quartz.NET background job
-scheduler.
+Worker Service setup in a single call: Serilog, health check services, the InMemory event bus and the Quartz.NET
+background job scheduler. OpenTelemetry is configured separately (Kck.Observability.OpenTelemetry).
 
 ## Installation
 

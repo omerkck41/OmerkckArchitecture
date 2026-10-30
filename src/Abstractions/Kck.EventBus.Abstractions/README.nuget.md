@@ -11,36 +11,31 @@ dotnet add package Kck.EventBus.Abstractions
 ## Quick Start
 
 ```csharp
-// 1. Define an integration event
-public record OrderPlacedEvent(Guid OrderId, string CustomerEmail) : IntegrationEvent;
+using Kck.EventBus.Abstractions;
 
-// 2. Implement a handler
-public class SendOrderConfirmationHandler(IEmailService email)
-    : IEventHandler<OrderPlacedEvent>
+// Program.cs — a provider (InMemory, RabbitMq, AzureServiceBus) and the handlers of this assembly
+builder.Services.AddKckEventBus(bus => bus
+    .UseInMemory()
+    .RegisterHandlersFromAssembly(typeof(OrderPlacedHandler).Assembly));
+
+// 1. An integration event
+public sealed record OrderPlacedEvent(Guid OrderId, string CustomerEmail) : IntegrationEvent;
+
+// 2. A handler
+public class OrderPlacedHandler(ILogger<OrderPlacedHandler> logger) : IEventHandler<OrderPlacedEvent>
 {
-    public async Task HandleAsync(OrderPlacedEvent @event, CancellationToken ct)
-        => await email.SendAsync(new EmailMessage
-        {
-            To = @event.CustomerEmail,
-            Subject = "Order confirmed",
-            Body = $"Your order {@event.OrderId} has been placed."
-        }, ct);
+    public Task HandleAsync(OrderPlacedEvent eventData, CancellationToken ct = default)
+    {
+        logger.LogInformation("Order {OrderId} placed", eventData.OrderId);
+        return Task.CompletedTask;
+    }
 }
 
-// Program.cs — register provider + subscribe handlers
-builder.Services.AddKckInMemoryEventBus(bus =>
+// 3. Publish after the data is saved
+public class PlaceOrderService(IEventBus eventBus)
 {
-    bus.Subscribe<OrderPlacedEvent, SendOrderConfirmationHandler>();
-});
-
-// Publish from a handler/service
-public class PlaceOrderHandler(IEventBus eventBus)
-{
-    public async Task HandleAsync(PlaceOrderCommand cmd, CancellationToken ct)
-    {
-        // ... save order ...
-        await eventBus.PublishAsync(new OrderPlacedEvent(order.Id, cmd.CustomerEmail), ct);
-    }
+    public Task PlacedAsync(Guid orderId, string customerEmail, CancellationToken ct) =>
+        eventBus.PublishAsync(new OrderPlacedEvent(orderId, customerEmail), ct);
 }
 ```
 

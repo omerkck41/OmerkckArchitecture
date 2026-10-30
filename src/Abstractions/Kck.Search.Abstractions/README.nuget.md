@@ -11,35 +11,31 @@ dotnet add package Kck.Search.Abstractions
 ## Quick Start
 
 ```csharp
-// Program.cs — register a concrete provider (e.g. Kck.Search.Elasticsearch)
-builder.Services.AddKckElasticsearch(builder.Configuration);
+using Kck.Search.Abstractions;
+
+// Program.cs — the provider (Kck.Search.Elasticsearch), one registration per document type
+builder.Services.AddKckSearchElasticsearch<ProductDocument>(opt =>
+{
+    opt.ConnectionString = builder.Configuration["Elasticsearch:Uri"]!;
+    opt.DefaultIndex = "products";
+});
+
+public sealed record ProductDocument(string Id, string Name, string Description);
 
 // Use ISearchService<T> in a service
 public class ProductSearchService(ISearchService<ProductDocument> search)
 {
-    public async Task IndexProductAsync(Product product, CancellationToken ct)
-    {
-        var doc = new ProductDocument(product.Id, product.Name, product.Description);
-        await search.IndexAsync(doc, indexName: "products", ct);
-    }
+    public Task IndexAsync(ProductDocument doc, CancellationToken ct) =>
+        search.IndexDocumentAsync("products", doc.Id, doc, ct);
 
-    public async Task<IReadOnlyList<ProductDocument>> SearchAsync(
-        string query, CancellationToken ct)
+    public async Task<IReadOnlyList<ProductDocument>> SearchAsync(string query, CancellationToken ct)
     {
-        var request = new SearchRequest
-        {
-            Query     = query,
-            IndexName = "products",
-            PageSize  = 20,
-            PageIndex = 1
-        };
-        var result = await search.SearchAsync(request, ct);
+        var result = await search.SearchAsync(new SearchRequest { Query = query, From = 0, Size = 20 }, ct);
         return result.Items;
     }
 
-    public async Task BulkIndexAsync(
-        IEnumerable<ProductDocument> docs, CancellationToken ct)
-        => await search.BulkIndexAsync(docs, indexName: "products", ct);
+    public Task BulkIndexAsync(IEnumerable<ProductDocument> docs, CancellationToken ct) =>
+        search.BulkIndexAsync("products", docs, ct);
 }
 ```
 

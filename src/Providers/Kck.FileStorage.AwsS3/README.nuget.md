@@ -11,30 +11,28 @@ dotnet add package Kck.FileStorage.AwsS3
 ## Quick Start
 
 ```csharp
+using Kck.FileStorage.Abstractions;
+
 // Program.cs
 builder.Services.AddKckFileStorageAwsS3(options =>
 {
     options.Region = "eu-central-1";
     options.BucketName = "my-bucket";
-    options.AccessKey = Environment.GetEnvironmentVariable("AWS_ACCESS_KEY")!;
-    options.SecretKey = Environment.GetEnvironmentVariable("AWS_SECRET_KEY")!;
+    // Leave AccessKey/SecretKey unset to use the default AWS credential chain (IAM role, profile, env).
 });
 
-// Upload a file
-public class UploadController(IFileStorageService storage)
+// Upload a file (Minimal API)
+app.MapPost("/upload", async (IFormFile file, IFileStorageService storage, CancellationToken ct) =>
 {
-    [HttpPost("upload")]
-    public async Task Upload(IFormFile file, CancellationToken ct)
+    await using var stream = file.OpenReadStream();
+    await storage.UploadAsync(new FileUploadRequest
     {
-        await using var stream = file.OpenReadStream();
-        await storage.UploadAsync(new FileUploadRequest
-        {
-            Content = stream,
-            FileName = file.FileName,
-            DestinationPath = "uploads"
-        }, ct);
-    }
-}
+        Content = stream,
+        FileName = Path.GetFileName(file.FileName), // never trust a client-supplied path
+        DestinationPath = "uploads"
+    }, ct);
+    return Results.Ok();
+}).DisableAntiforgery();
 ```
 
 ## S3-compatible services (MinIO, Cloudflare R2, Wasabi)

@@ -17,7 +17,7 @@
     "content": [
       { "files": ["api/**.yml", "api/index.md"] },
       {
-        "files": ["docs/**/*.md"],
+        "files": ["docs/**/*.md", "docs/toc.yml"],
         "exclude": ["docs/plans/**", "docs/archive/**", "docs/memory/**"],
         "dest": "docs"
       },

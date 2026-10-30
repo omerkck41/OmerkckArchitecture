@@ -11,22 +11,24 @@ dotnet add package Kck.Security.Argon2
 ## Quick Start
 
 ```csharp
+using Kck.Security.Abstractions.Hashing;
+
 // Program.cs
 builder.Services.AddKckArgon2(options =>
 {
     options.Iterations = 3;
-    options.MemorySize = 65536; // 64 MB
+    options.MemorySize = 65536; // KiB = 64 MiB
     options.DegreeOfParallelism = 1;
 });
 
 // Hash and verify passwords
-public class UserService(IPasswordHasher hasher)
+public class UserService(IHashingService hasher)
 {
-    public string HashPassword(string plaintext)
-        => hasher.Hash(plaintext);
+    public Task<string> HashPasswordAsync(string password, CancellationToken ct) => hasher.HashAsync(password, ct);
 
-    public bool Verify(string plaintext, string hash)
-        => hasher.Verify(plaintext, hash);
+    // Password first, then the stored hash
+    public Task<bool> VerifyAsync(string password, string storedHash, CancellationToken ct) =>
+        hasher.VerifyAsync(password, storedHash, ct);
 }
 ```
 

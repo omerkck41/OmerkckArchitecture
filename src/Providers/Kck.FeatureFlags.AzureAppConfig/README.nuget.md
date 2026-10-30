@@ -11,34 +11,34 @@ dotnet add package Kck.FeatureFlags.AzureAppConfig
 ## Quick Start
 
 ```csharp
+using Kck.FeatureFlags.Abstractions;
+
 // Program.cs
 builder.Services.AddKckFeatureFlagsAzureAppConfig(options =>
 {
-    options.ConnectionString = Environment.GetEnvironmentVariable("AZURE_APP_CONFIG")!;
+    options.Endpoint = builder.Configuration["AppConfig:Endpoint"]; // Managed Identity (DefaultAzureCredential)
+    // or: options.ConnectionString = Environment.GetEnvironmentVariable("AZURE_APP_CONFIG");
     options.RefreshInterval = TimeSpan.FromMinutes(5);
 });
 
 // Usage
-public class BillingController(IFeatureFlagService flags)
-{
-    [HttpPost("pay")]
-    public async Task<IActionResult> Pay(CancellationToken ct)
-    {
-        if (!await flags.IsEnabledAsync("NewBillingFlow", ct))
-            return BadRequest("Feature not available.");
-        // ...
-    }
-}
+app.MapPost("/pay", async (IFeatureFlagService flags, CancellationToken ct) =>
+    await flags.IsEnabledAsync("NewBillingFlow", ct)
+        ? Results.Ok("new billing flow")
+        : Results.BadRequest("Feature not available."));
 ```
 
 ## Configuration
 
 | Property | Description | Default |
 |---|---|---|
-| `ConnectionString` | Azure App Configuration connection string | required (or `Endpoint`) |
-| `Endpoint` | Azure App Configuration endpoint URI (Managed Identity) | `null` |
-| `RefreshInterval` | How often feature flags are refreshed | `TimeSpan.FromMinutes(5)` |
-| `LabelFilter` | App Configuration label filter | `null` |
+| `ConnectionString` | App Configuration connection string | `null` (set this or `Endpoint`) |
+| `Endpoint` | App Configuration endpoint, with `DefaultAzureCredential` | `null` |
+| `KeyPrefix` | Prefix of the feature flag keys | `".appconfig.featureflag/"` |
+| `Label` | Label filter | `null` |
+| `RefreshInterval` | How long the flags are cached before they are read again | 30 s |
+
+The request context passed to `IsEnabledAsync(name, context)` is not evaluated: targeting and time-window filters are read but not applied.
 
 ## Resources
 

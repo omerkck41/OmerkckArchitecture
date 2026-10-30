@@ -11,27 +11,22 @@ dotnet add package Kck.Security.Totp
 ## Quick Start
 
 ```csharp
-// Program.cs
+using Kck.Security.Abstractions.Mfa;
+
+// Program.cs - replay protection needs IMemoryCache
+builder.Services.AddMemoryCache();
 builder.Services.AddKckTotp();
 
-// Generate MFA setup for a user
-public class MfaController(IMfaProvider mfa)
+// MFA setup and verification
+public class MfaService(IMfaProvider mfa)
 {
-    [HttpPost("setup")]
-    public async Task<SetupResult> Setup(string userId, CancellationToken ct)
-    {
-        var setup = await mfa.GenerateSetupAsync(userId, ct);
-        // setup.QrCodeUri → render as QR code for the user's authenticator app
-        // setup.SecretKey → store encrypted in the database
-        return setup;
-    }
+    // Show ProvisioningUri as a QR code; store SecretKey encrypted with the user
+    public Task<MfaSetupResult> BeginSetupAsync(string email, CancellationToken ct) =>
+        mfa.GenerateSetupAsync(email, issuer: "MyApp", ct);
 
-    [HttpPost("verify")]
-    public async Task<IActionResult> Verify(string userId, string code, CancellationToken ct)
-    {
-        var valid = await mfa.VerifyAsync(userId, code, ct);
-        return valid ? Ok() : Unauthorized();
-    }
+    // Rate-limit the endpoint that calls this: 6-digit codes can be guessed
+    public Task<bool> VerifyAsync(string storedSecretKey, string code, CancellationToken ct) =>
+        mfa.ValidateCodeAsync(storedSecretKey, code, ct);
 }
 ```
 
@@ -39,10 +34,11 @@ public class MfaController(IMfaProvider mfa)
 
 | Property | Description | Default |
 |---|---|---|
-| `Issuer` | App name shown in authenticator apps | assembly name |
-| `StepSeconds` | TOTP time-step in seconds | `30` |
-| `Digits` | OTP digit count | `6` |
-| `AllowedClockDriftSteps` | Clock skew tolerance (steps) | `1` |
+| `CodeLength` | Digits in a code | `6` |
+| `StepSeconds` | Time step in seconds | `30` |
+| `VerificationWindow` | Steps accepted before and after the current one | `1` |
+
+The issuer is passed to `GenerateSetupAsync`. Replay protection needs `services.AddMemoryCache()`.
 
 ## Resources
 

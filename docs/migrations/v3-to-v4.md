@@ -118,7 +118,7 @@ The bundle uses only Quartz, and Quartz is the default. The 3.x default was Hang
 changes: cron triggers without a time zone use `DefaultTimeZone`, the misfire default is `DefaultMisfireHandling`,
 jobs/triggers without an identity raise warning 4030, and a canceled run is recorded as `Cancelled`.
 Details: [Quartz 4 migration guide](https://www.quartz-scheduler.net/documentation/quartz-4.x/migration-guide.html),
-[decisions/2026-10-27-quartz-4.md](../../decisions/2026-10-27-quartz-4.md).
+[decisions/2026-10-27-quartz-4.md](https://github.com/omerkck41/OmerkckArchitecture/blob/main/decisions/2026-10-27-quartz-4.md).
 
 ## 8. StackExchange.Redis 3 and OpenTelemetry 1.20
 

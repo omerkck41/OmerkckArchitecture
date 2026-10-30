@@ -11,17 +11,23 @@ dotnet add package Kck.BackgroundJobs.Quartz
 ## Quick Start
 
 ```csharp
+using Kck.BackgroundJobs.Abstractions;
+
 // Program.cs
 builder.Services.AddKckBackgroundJobsQuartz();   // in-memory store, hosted service waits for running jobs on shutdown
 builder.Services.AddKckJob<DailyReportJob>();     // jobs are resolved from DI in a new scope per execution
 
 // Define a job
-public sealed class DailyReportJob(IReportService reports) : IBackgroundJob
+public sealed class DailyReportJob(ILogger<DailyReportJob> logger) : IBackgroundJob
 {
-    public Task ExecuteAsync(CancellationToken ct = default) => reports.GenerateDailyAsync(ct);
+    public Task ExecuteAsync(CancellationToken ct = default)
+    {
+        logger.LogInformation("Daily report");
+        return Task.CompletedTask;
+    }
 }
 
-// Schedule it
+// Schedule it — Quartz cron format, seconds first (the 5-field CronExpressions constants are for Hangfire)
 public sealed class ReportSetup(IJobScheduler scheduler)
 {
     public Task StartAsync(CancellationToken ct) =>

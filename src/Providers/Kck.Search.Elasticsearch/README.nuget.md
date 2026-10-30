@@ -11,24 +11,27 @@ dotnet add package Kck.Search.Elasticsearch
 ## Quick Start
 
 ```csharp
-// Program.cs
+using Kck.Search.Abstractions;
+
+// Program.cs - one registration per document type
 builder.Services.AddKckSearchElasticsearch<ProductDocument>(options =>
 {
     options.ConnectionString = "https://localhost:9200";
     options.Username = "elastic";
-    options.Password = Environment.GetEnvironmentVariable("ES_PASSWORD")!;
+    options.Password = Environment.GetEnvironmentVariable("ES_PASSWORD");
     options.DefaultIndex = "products";
 });
 
-// Index and search
+public sealed record ProductDocument(string Id, string Name);
+
+// Index and search (query-string syntax, e.g. "name:phone")
 public class ProductSearchService(ISearchService<ProductDocument> search)
 {
-    public async Task IndexAsync(ProductDocument doc, CancellationToken ct)
-        => await search.IndexAsync(doc, ct);
+    public Task IndexAsync(ProductDocument doc, CancellationToken ct) =>
+        search.IndexDocumentAsync("products", doc.Id, doc, ct);
 
-    public async Task<IReadOnlyList<ProductDocument>> SearchAsync(
-        string query, CancellationToken ct)
-        => await search.SearchAsync(q => q.Match(m => m.Field(f => f.Name).Query(query)), ct);
+    public async Task<IReadOnlyList<ProductDocument>> SearchAsync(string query, CancellationToken ct) =>
+        (await search.SearchAsync(new SearchRequest { Query = query }, ct)).Items;
 }
 ```
 
@@ -37,10 +40,14 @@ public class ProductSearchService(ISearchService<ProductDocument> search)
 | Property | Description | Default |
 |---|---|---|
 | `ConnectionString` | Elasticsearch node URL | required |
-| `Username` | Elasticsearch username | `"elastic"` |
-| `Password` | Elasticsearch password | required |
-| `DefaultIndex` | Default index for the document type | required |
-| `NumberOfShards` | Index shard count | `1` |
+| `DefaultIndex` | Index used when `SearchRequest.IndexName` is not set | `null` |
+| `Username` | Basic authentication user | `null` |
+| `Password` | Basic authentication password | `null` |
+| `NumberOfShards` | Shards of an index created by `CreateIndexAsync` | `1` |
+| `NumberOfReplicas` | Replicas of an index created by `CreateIndexAsync` | `1` |
+| `DisableSslVerification` | Skip certificate validation (local clusters only, never production) | `false` |
+
+The options are validated at startup.
 
 ## Resources
 

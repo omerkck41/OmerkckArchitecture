@@ -11,30 +11,34 @@ dotnet add package Kck.Observability.Abstractions
 ## Quick Start
 
 ```csharp
-// Program.cs — register a concrete provider (Kck.Observability.OpenTelemetry)
-builder.Services.AddKckOpenTelemetry(builder.Configuration);
+using Kck.Observability.Abstractions;
 
-// Tracing — wrap operations in spans
+// Program.cs — the provider (Kck.Observability.OpenTelemetry)
+builder.Services.AddKckObservability(obs => obs.UseOpenTelemetry(otel =>
+{
+    otel.ServiceName = "orders-api";
+    otel.EnableTracing().EnableMetrics();
+}));
+
+// Tracing and metrics in your code
 public class OrderService(ITracingService tracer, IMetricsService metrics)
 {
-    private readonly ICounter _ordersCreated =
-        metrics.CreateCounter("orders.created", "Number of orders placed");
+    private readonly ICounter _ordersCreated = metrics.CreateCounter("orders.created", "Number of orders placed");
 
-    public async Task<Order> CreateOrderAsync(CreateOrderCommand cmd, CancellationToken ct)
+    public async Task CreateOrderAsync(Guid customerId, CancellationToken ct)
     {
         using var span = tracer.StartSpan("order.create");
-        span.SetTag("customer.id", cmd.CustomerId.ToString());
+        span.SetAttribute("customer.id", customerId.ToString());
         try
         {
-            var order = await _repo.AddAsync(Order.Create(cmd), ct);
+            await Task.Delay(10, ct); // save the order
             _ordersCreated.Increment();
             span.SetStatus(SpanStatus.Ok);
-            return order;
         }
         catch (Exception ex)
         {
             span.RecordException(ex);
-            span.SetStatus(SpanStatus.Error);
+            span.SetStatus(SpanStatus.Error, ex.Message);
             throw;
         }
     }

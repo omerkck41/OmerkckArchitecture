@@ -11,28 +11,17 @@ dotnet add package Kck.Caching.Abstractions
 ## Quick Start
 
 ```csharp
-// Program.cs — register a concrete provider (e.g. Kck.Caching.InMemory or Kck.Caching.Redis)
-builder.Services.AddKckInMemoryCache();
-// or: builder.Services.AddKckRedisCache(builder.Configuration);
+// Program.cs - a provider: Kck.Caching.InMemory, Kck.Caching.Redis or Kck.Caching.Hybrid
+builder.Services.AddKckCachingInMemory(opt => opt.KeyPrefix = "myapp:");
+// or: builder.Services.AddKckCachingRedis(redis => redis.Configuration = "localhost:6379");
 
-// Use ICacheService in a service/handler
-public class ProductService(ICacheService cache)
+// Usage
+public class ProductService(ICacheService cache, IProductRepository products)
 {
-    public async Task<Product?> GetProductAsync(int id, CancellationToken ct)
-    {
-        // Fetches from cache; on miss calls the factory and stores the result
-        return await cache.GetOrSetAsync(
-            key: $"product:{id}",
-            factory: async () => await _db.Products.FindAsync(id, ct),
-            ttl: TimeSpan.FromMinutes(10),
-            ct: ct);
-    }
+    public Task<Product?> GetAsync(int id, CancellationToken ct) =>
+        cache.GetOrSetAsync($"product:{id}", () => products.FindAsync(id, ct), TimeSpan.FromMinutes(10), ct);
 
-    public async Task InvalidateCategoryAsync(int categoryId, CancellationToken ct)
-    {
-        // Remove all keys sharing the "category:{categoryId}" prefix
-        await cache.RemoveByPrefixAsync($"category:{categoryId}", ct);
-    }
+    public Task InvalidateAllAsync(CancellationToken ct) => cache.RemoveByPrefixAsync("product:", ct);
 }
 ```
 

@@ -11,7 +11,11 @@ dotnet add package Kck.Core.Abstractions
 ## Quick Start
 
 ```csharp
-// 1. Define a domain entity
+using Kck.Core.Abstractions.Entities;
+using Kck.Core.Abstractions.Paging;
+using Kck.Core.Abstractions.Results;
+
+// 1. Define a domain entity that raises a domain event
 public class Order : FullEntity<Guid>
 {
     public string CustomerName { get; private set; } = string.Empty;
@@ -19,25 +23,30 @@ public class Order : FullEntity<Guid>
 
     public static Order Create(string customerName, decimal total)
     {
-        var order = new Order { CustomerName = customerName, Total = total };
-        order.AddDomainEvent(new OrderCreatedEvent(order.Id));
+        var order = new Order { Id = Guid.CreateVersion7(), CustomerName = customerName, Total = total };
+        order.AddDomainEvent(new OrderCreated(order.Id));
         return order;
     }
 }
 
-// 2. Use the Result pattern in handlers
-public async Task<Result<Order>> CreateOrderAsync(CreateOrderCommand cmd, CancellationToken ct)
+public sealed record OrderCreated(Guid OrderId) : IDomainEvent
 {
-    if (cmd.Total <= 0)
-        return Result<Order>.Failure(Error.Validation("Total must be positive."));
-
-    var order = Order.Create(cmd.CustomerName, cmd.Total);
-    await _repo.AddAsync(order, ct);
-    return Result<Order>.Success(order);
+    public Guid EventId { get; } = Guid.CreateVersion7();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
 }
 
-// 3. Return paginated results
-var page = new Paginate<Order>(items, totalCount, pageIndex: 1, pageSize: 20);
+public class OrderFactory
+{
+    // 2. Return a Result instead of throwing for expected failures
+    public Result<Order> Create(string customerName, decimal total) =>
+        total <= 0
+            ? Result<Order>.Failure(new Error("order.total", "Total must be positive.", ErrorType.Validation))
+            : Result<Order>.Success(Order.Create(customerName, total));
+
+    // 3. Build a page from data you already loaded (repositories return IPaginate<T> for you)
+    public IPaginate<Order> FirstPage(IReadOnlyList<Order> items, int totalCount) =>
+        Paginate<Order>.Create(items, totalCount, index: 0, size: 20);
+}
 ```
 
 ## Configuration

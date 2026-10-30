@@ -11,25 +11,27 @@ dotnet add package Kck.Exceptions.AspNetCore
 ## Quick Start
 
 ```csharp
+using Kck.Exceptions;
+using Kck.Exceptions.AspNetCore.Extensions;
+
 // Program.cs
 builder.Services.AddKckExceptionHandling();
 
 var app = builder.Build();
-app.UseKckExceptionHandling();
+app.UseKckExceptionHandling();   // first in the pipeline
 
-// Throw domain exceptions anywhere — they are mapped automatically
-throw new NotFoundException($"Order {id} not found.");
-throw new ValidationException("Name is required.");
-throw new ForbiddenException("Access denied.");
+// Throw domain exceptions anywhere: they become problem+json responses
+app.MapGet("/orders/{id:guid}", (Guid id) =>
+{
+    throw new NotFoundException($"Order {id} not found.");   // 404
+});
+// BadRequestException 400, ForbiddenException 403, ConflictException 409, ValidationException 422,
+// any other exception 500 with a generic detail.
 ```
 
 ## Configuration
 
-| Property | Description | Default |
-|---|---|---|
-| `IncludeStackTrace` | Include stack trace in development responses | `false` |
-| `LogLevel` | Minimum log level for unhandled exceptions | `Error` |
-| `ExposeExceptionMessage` | Expose raw exception message in production | `false` |
+No options. Status codes come from the exception type (`[HttpStatusCode]`) or its `explicitStatusCode`; other exceptions become a 500 with a generic detail, so internal messages are not exposed.
 
 ## Resources
 

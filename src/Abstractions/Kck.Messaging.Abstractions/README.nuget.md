@@ -11,34 +11,35 @@ dotnet add package Kck.Messaging.Abstractions
 ## Quick Start
 
 ```csharp
-// Program.cs — register a concrete provider (e.g. Kck.Messaging.MailKit)
-builder.Services.AddKckMailKitEmail(builder.Configuration);
+using Kck.Messaging.Abstractions;
 
-// Use IEmailService in a handler
-public class OrderConfirmationHandler(IEmailService email)
+// Program.cs — a provider (MailKit, SendGrid or AmazonSes); each registers IEmailProvider
+builder.Services.AddKckMessagingMailKit(opt =>
 {
-    public async Task SendConfirmationAsync(Order order, CancellationToken ct)
-    {
-        var message = new EmailMessage
+    opt.Host = builder.Configuration["Smtp:Host"]!;
+    opt.UserName = builder.Configuration["Smtp:User"];
+    opt.Password = builder.Configuration["Smtp:Password"];
+});
+
+// Send through IEmailProvider
+public class OrderConfirmationHandler(IEmailProvider email)
+{
+    public Task SendConfirmationAsync(Order order, Stream invoicePdf, CancellationToken ct) =>
+        email.SendAsync(new EmailMessage
         {
-            To      = [new EmailRecipient(order.CustomerEmail, order.CustomerName)],
-            Subject = $"Order #{order.Id} Confirmed",
-            Body    = $"<h1>Thank you!</h1><p>Your order total: {order.Total:C}</p>",
-            IsHtml  = true,
+            From = "shop@example.com",
+            Recipients = [new EmailRecipient(order.CustomerEmail)],
+            Subject = $"Order #{order.Id} confirmed",
+            Body = $"<h1>Thank you!</h1><p>Your order total: {order.Total:C}</p>",
+            IsHtml = true,
             Attachments =
             [
-                new EmailAttachment
-                {
-                    FileName    = "invoice.pdf",
-                    Content     = await GenerateInvoiceAsync(order, ct),
-                    ContentType = "application/pdf"
-                }
+                new EmailAttachment { FileName = "invoice.pdf", Content = invoicePdf, ContentType = "application/pdf" }
             ]
-        };
-
-        await email.SendAsync(message, ct);
-    }
+        }, ct);
 }
+
+// IEmailService has the same SendAsync shape but no built-in implementation.
 ```
 
 ## Configuration

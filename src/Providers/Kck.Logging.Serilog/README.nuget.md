@@ -11,17 +11,18 @@ dotnet add package Kck.Logging.Serilog
 ## Quick Start
 
 ```csharp
+using Serilog;
+
 // Program.cs
-builder.AddKckSerilog();
+builder.Services.AddKckSerilog(log => log
+    .WithApplicationName("OrderService")
+    .WriteToCompactJson()        // JSON to the console; WriteToConsole() for text (the default)
+    .UsePiiMasking());           // masks password, token, email... properties
 
 var app = builder.Build();
 app.UseSerilogRequestLogging(options =>
-{
-    options.EnrichDiagnosticContext = (ctx, httpContext) =>
-    {
-        ctx.Set("UserId", httpContext.User?.Identity?.Name ?? "anonymous");
-    };
-});
+    options.EnrichDiagnosticContext = (ctx, http) =>
+        ctx.Set("UserId", http.User.Identity?.Name ?? "anonymous"));
 ```
 
 ```json

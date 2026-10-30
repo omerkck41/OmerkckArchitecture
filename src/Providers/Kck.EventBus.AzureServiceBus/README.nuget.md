@@ -11,34 +11,43 @@ dotnet add package Kck.EventBus.AzureServiceBus
 ## Quick Start
 
 ```csharp
+using Kck.EventBus.Abstractions;
+
 // Program.cs
-builder.Services.AddKckEventBus(eb =>
-    eb.UseAzureServiceBus(options =>
+builder.Services.AddKckEventBus(eb => eb
+    .UseAzureServiceBus(options =>
     {
         options.ConnectionString = Environment.GetEnvironmentVariable("ASB_CONNECTION")!;
         options.TopicName = "domain-events";
         options.SubscriptionName = "my-service";
-    }));
+    })
+    .RegisterHandlersFromAssembly(typeof(OrderPlacedHandler).Assembly));
 
-// Publish an event
-public class OrderService(IEventBus bus)
+var app = builder.Build();
+
+// Consumers start with the host: subscribe before Run().
+app.Services.GetRequiredService<IEventBus>().Subscribe<OrderPlacedEvent, OrderPlacedHandler>();
+
+public sealed record OrderPlacedEvent(Guid OrderId) : IntegrationEvent;
+
+public sealed class OrderPlacedHandler : IEventHandler<OrderPlacedEvent>
 {
-    public async Task PlaceOrderAsync(Order order, CancellationToken ct)
-    {
-        await _db.SaveChangesAsync(ct);
-        await bus.PublishAsync(new OrderPlacedEvent(order.Id), ct);
-    }
+    public Task HandleAsync(OrderPlacedEvent eventData, CancellationToken ct = default) => Task.CompletedTask;
 }
+
+// Publish after the data is saved: bus.PublishAsync(new OrderPlacedEvent(order.Id), ct)
 ```
 
 ## Configuration
 
 | Property | Description | Default |
 |---|---|---|
-| `ConnectionString` | Azure Service Bus namespace connection string | required |
-| `TopicName` | Topic name for publishing events | `"events"` |
-| `SubscriptionName` | Subscription name for consuming events | required |
-| `MaxConcurrentMessages` | Parallel message processing limit | `1` |
+| `ConnectionString` | Service Bus namespace connection string | required |
+| `TopicName` | Topic the events are published to | `"kck-eventbus"` |
+| `SubscriptionName` | Subscription the consumer reads | `"default"` |
+| `MaxConcurrentCalls` | Messages processed in parallel | `10` |
+| `MaxAutoLockRenewalDuration` | Lock renewal limit for a message | 5 minutes |
+| `RetryCount` | Client retry count | `3` |
 
 ## Resources
 

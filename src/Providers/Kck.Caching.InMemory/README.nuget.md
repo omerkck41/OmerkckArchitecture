@@ -32,9 +32,8 @@ public class CatalogService(ICacheService cache, AppDbContext db)
 
 | Property | Description | Default |
 |---|---|---|
-| `KeyPrefix` | Namespace prefix prepended to every cache key | `""` |
-| `DefaultExpiration` | Default absolute expiration for cached entries | `TimeSpan.FromMinutes(10)` |
-| `SizeLimit` | Maximum number of cache entries (0 = unlimited) | `0` |
+| `KeyPrefix` | Prefix prepended to every cache key | `null` |
+| `DefaultExpiration` | Expiration when a call passes none | 5 minutes |
 
 ## Resources
 

@@ -138,3 +138,8 @@ sixlabors.lic
 
 ## Python bytecode (CI helper scripts under .github/scripts)
 __pycache__/
+
+## DocFX output (docs.yml builds it; api/index.md is the only hand-written file there)
+_site/
+api/*.yml
+api/.manifest

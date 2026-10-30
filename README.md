@@ -2,7 +2,7 @@
 
 [![Build](https://img.shields.io/github/actions/workflow/status/omerkck41/OmerkckArchitecture/build-test.yml?branch=main)](https://github.com/omerkck41/OmerkckArchitecture/actions/workflows/build-test.yml)
 [![NuGet](https://img.shields.io/nuget/v/Kck.Core.Abstractions.svg)](https://www.nuget.org/packages/Kck.Core.Abstractions/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/omerkck41/OmerkckArchitecture/blob/main/LICENSE)
 [![.NET](https://img.shields.io/badge/.NET-10.0-512BD4.svg)](https://dotnet.microsoft.com/)
 
 Modular, extensible .NET framework organized around an **Abstractions → Providers → Bundles** pattern. Abstractions declare contracts; providers implement them against concrete technologies; bundles compose opinionated defaults for specific hosting models (WebApi, WorkerService, etc.).
@@ -20,7 +20,7 @@ dotnet test
 
 A solution on SQLite with nothing to set up: EF Core persistence with soft delete, audit fields and domain events
 dispatched after commit, an order sample, JWT bearer authentication and integration tests
-([what's inside](src/Kck.Templates/README.md)).
+([what's inside](https://github.com/omerkck41/OmerkckArchitecture/blob/main/src/Kck.Templates/README.md)).
 
 ### Web API (ASP.NET Core, full Bundle)
 
@@ -47,7 +47,7 @@ app.MapGet("/", () => Results.Ok("Hello from Kck!"));
 app.Run();
 ```
 
-> Full sample: [`samples/Kck.Sample.WebApi`](samples/Kck.Sample.WebApi)
+> Full sample: [`samples/Kck.Sample.WebApi`](https://github.com/omerkck41/OmerkckArchitecture/tree/main/samples/Kck.Sample.WebApi)
 
 ### Minimal API (Slim, only what you need)
 
@@ -78,7 +78,7 @@ app.MapPost("/users", async (CreateUserCommand cmd, IMediator mediator) =>
 app.Run();
 ```
 
-> Full sample: [`samples/Kck.Sample.MinimalApi`](samples/Kck.Sample.MinimalApi)
+> Full sample: [`samples/Kck.Sample.MinimalApi`](https://github.com/omerkck41/OmerkckArchitecture/tree/main/samples/Kck.Sample.MinimalApi)
 
 ### Worker Service (background jobs, no HTTP)
 
@@ -99,7 +99,7 @@ await host.Services.GetRequiredService<IJobScheduler>()
 await host.RunAsync();
 ```
 
-> Full sample: [`samples/Kck.Sample.WorkerService`](samples/Kck.Sample.WorkerService)
+> Full sample: [`samples/Kck.Sample.WorkerService`](https://github.com/omerkck41/OmerkckArchitecture/tree/main/samples/Kck.Sample.WorkerService)
 
 ### Target Frameworks
 
@@ -200,10 +200,10 @@ Kck aims to be **lighter** than ABP, **broader** than FastEndpoints, and **compa
 ## Samples
 
 - `dotnet new kck-webapi` — the fastest start: an API solution with persistence, domain events, JWT and tests
-  ([Kck.Templates](src/Kck.Templates/README.md))
-- [`samples/Kck.Sample.WebApi`](samples/Kck.Sample.WebApi) — WebApi sample with RabbitMQ, Redis, EF Core
-- [`samples/Kck.Sample.MinimalApi`](samples/Kck.Sample.MinimalApi) — Minimal API sample
-- [`samples/Kck.Sample.WorkerService`](samples/Kck.Sample.WorkerService) — Quartz hosted jobs
+  ([Kck.Templates](https://github.com/omerkck41/OmerkckArchitecture/blob/main/src/Kck.Templates/README.md))
+- [`samples/Kck.Sample.WebApi`](https://github.com/omerkck41/OmerkckArchitecture/tree/main/samples/Kck.Sample.WebApi) — WebApi sample with RabbitMQ, Redis, EF Core
+- [`samples/Kck.Sample.MinimalApi`](https://github.com/omerkck41/OmerkckArchitecture/tree/main/samples/Kck.Sample.MinimalApi) — Minimal API sample
+- [`samples/Kck.Sample.WorkerService`](https://github.com/omerkck41/OmerkckArchitecture/tree/main/samples/Kck.Sample.WorkerService) — Quartz hosted jobs
 
 ## Testing
 
@@ -253,4 +253,4 @@ See [CONTRIBUTING.md](CONTRIBUTING.md). Issues and PRs are welcome.
 
 ## License
 
-[MIT](LICENSE) © Omerkck
+[MIT](https://github.com/omerkck41/OmerkckArchitecture/blob/main/LICENSE) © Omerkck

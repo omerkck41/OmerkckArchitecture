@@ -11,21 +11,29 @@ dotnet add package Kck.FileStorage.FluentFtp
 ## Quick Start
 
 ```csharp
+using Kck.FileStorage.Abstractions;
+
 // Program.cs
 builder.Services.AddKckFileStorageFluentFtp(options =>
 {
     options.Host = "ftp.example.com";
     options.Port = 21;
-    options.Username = Environment.GetEnvironmentVariable("FTP_USER")!;
-    options.Password = Environment.GetEnvironmentVariable("FTP_PASSWORD")!;
-    options.UseSsl = true;
+    options.Username = Environment.GetEnvironmentVariable("FTP_USER");
+    options.Password = Environment.GetEnvironmentVariable("FTP_PASSWORD");
+    options.UseSsl = true; // FTPS; plain FTP sends credentials in clear text
 });
 
-// Upload a file
+// Upload a file (IFtpService adds directory and move operations)
 public class BackupService(IFileStorageService storage)
 {
-    public async Task BackupAsync(Stream data, string path, CancellationToken ct)
-        => await storage.UploadAsync(data, path, "application/octet-stream", ct);
+    public Task BackupAsync(Stream data, string fileName, CancellationToken ct) =>
+        storage.UploadAsync(new FileUploadRequest
+        {
+            Content = data,
+            FileName = fileName,
+            DestinationPath = "backups",
+            Overwrite = true
+        }, ct);
 }
 ```
 
@@ -33,12 +41,14 @@ public class BackupService(IFileStorageService storage)
 
 | Property | Description | Default |
 |---|---|---|
-| `Host` | FTP server hostname | required |
-| `Port` | FTP server port | `21` |
-| `Username` | FTP account username | required |
-| `Password` | FTP account password | required |
-| `UseSsl` | Enable FTPS (implicit TLS) | `false` |
-| `PoolSize` | FTP connection pool size | `4` |
+| `Host` | FTP server | required |
+| `Port` | FTP port | `21` |
+| `Username` | FTP user | `null` |
+| `Password` | FTP password | `null` |
+| `UseSsl` | FTPS (use it in production; plain FTP sends credentials in clear text) | `false` |
+| `PoolSize` | FTP connections kept in the pool | `5` |
+
+The options are validated at startup.
 
 ## Resources
 

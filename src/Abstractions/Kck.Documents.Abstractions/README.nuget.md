@@ -11,22 +11,24 @@ dotnet add package Kck.Documents.Abstractions
 ## Quick Start
 
 ```csharp
+using Kck.Documents.Abstractions;
+
 // Program.cs — register concrete providers
 builder.Services.AddKckDocumentsClosedXml();   // IExcelService + ICsvExporter
 builder.Services.AddKckDocumentsImageSharp();  // IImageProcessor
 
+public sealed record OrderRow(Guid Id, string Customer, decimal Total);
+
 // Generate Excel / CSV files from a list
 public class ReportHandler(IExcelService excel, ICsvExporter csv)
 {
-    public async Task<byte[]> ExportOrdersExcelAsync(
-        IReadOnlyList<OrderRow> rows, CancellationToken ct)
+    public async Task<byte[]> ExportOrdersExcelAsync(IReadOnlyList<OrderRow> rows, CancellationToken ct)
     {
         DocumentResult result = await excel.CreateFromDataAsync(rows, worksheetName: "Orders", ct: ct);
-        return result.Content; // also: result.ContentType, result.FileName ("Orders.xlsx")
+        return result.Content; // also: result.ContentType, result.FileName
     }
 
-    public async Task<byte[]> ExportOrdersCsvAsync(
-        IReadOnlyList<OrderRow> rows, CancellationToken ct)
+    public async Task<byte[]> ExportOrdersCsvAsync(IReadOnlyList<OrderRow> rows, CancellationToken ct)
     {
         DocumentResult result = await csv.ExportAsync(rows, fileName: "orders.csv", ct: ct);
         return result.Content;
@@ -34,11 +36,10 @@ public class ReportHandler(IExcelService excel, ICsvExporter csv)
 }
 
 // Resize an uploaded image
-public async Task<byte[]> ThumbnailAsync(
-    Stream imageStream, IImageProcessor processor, CancellationToken ct)
+public class AvatarService(IImageProcessor processor)
 {
-    var options = new ImageProcessingOptions { Width = 200, Height = 200, OutputFormat = "webp" };
-    return await processor.ResizeAsync(imageStream, options, ct);
+    public Task<byte[]> ThumbnailAsync(Stream imageStream, CancellationToken ct) =>
+        processor.ResizeAsync(imageStream, new ImageProcessingOptions { Width = 200, Height = 200, OutputFormat = "webp" }, ct);
 }
 ```
 

@@ -11,38 +11,32 @@ dotnet add package Kck.Security.Abstractions
 ## Quick Start
 
 ```csharp
-// Program.cs — register concrete providers
-builder.Services.AddKckArgon2Hashing();
-builder.Services.AddKckJwtTokens(builder.Configuration);
+using Kck.Security.Abstractions.Hashing;
+using Kck.Security.Abstractions.Token;
 
-// Password hashing
+// Program.cs — the providers (Kck.Security.Argon2, Kck.Security.Jwt)
+builder.Services.AddKckArgon2();
+builder.Services.AddKckJwt(opt =>
+{
+    opt.Issuer = "https://auth.example.com";
+    opt.Audience = "orders-api";
+    opt.RsaKeyBase64 = builder.Configuration["Jwt:RsaKeyBase64"]; // PKCS#1 private key, from a secret store
+});
+
 public class AuthService(IHashingService hasher, ITokenService tokens)
 {
-    public async Task<string> RegisterAsync(string password, CancellationToken ct)
-    {
-        // Hash before storing
-        return await hasher.HashAsync(password, ct);
-    }
+    public Task<string> HashAsync(string password, CancellationToken ct) => hasher.HashAsync(password, ct);
 
-    public async Task<bool> VerifyPasswordAsync(
-        string password, string storedHash, CancellationToken ct)
-    {
-        return await hasher.VerifyAsync(password, storedHash, ct);
-    }
+    // Password first, then the stored hash
+    public Task<bool> VerifyAsync(string password, string storedHash, CancellationToken ct) =>
+        hasher.VerifyAsync(password, storedHash, ct);
 
-    public async Task<TokenResult> IssueTokenAsync(
-        ClaimsPrincipal principal, CancellationToken ct)
-    {
-        return await tokens.GenerateAsync(principal, ct);
-    }
+    public Task<TokenResult> IssueTokenAsync(string userId, string email, CancellationToken ct) =>
+        tokens.CreateAccessTokenAsync(new TokenRequest { UserId = userId, Email = email }, ct);
 }
 
-// Encrypt / decrypt sensitive data
-public class SecureDataService(IEncryptionService encryption)
-{
-    public async Task<string> StoreSecretAsync(string plainText, CancellationToken ct)
-        => await encryption.EncryptAsync(plainText, ct);
-}
+// IEncryptionService, ISecretsManager and ITokenBlacklistService are implemented by
+// Kck.Security.Secrets.* and Kck.Security.TokenBlacklist.Redis; IEncryptionService has no built-in implementation.
 ```
 
 ## Configuration

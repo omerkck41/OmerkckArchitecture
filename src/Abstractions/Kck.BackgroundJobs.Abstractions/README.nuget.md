@@ -11,32 +11,32 @@ dotnet add package Kck.BackgroundJobs.Abstractions
 ## Quick Start
 
 ```csharp
-// Program.cs — register a concrete provider (e.g. Kck.BackgroundJobs.Hangfire)
-builder.Services.AddKckHangfireJobs(builder.Configuration);
+using Kck.BackgroundJobs.Abstractions;
 
-// Define a job
-public class SendWelcomeEmailJob(IEmailService email) : IJob
+// Program.cs — a provider (Kck.BackgroundJobs.Quartz or .Hangfire) and your jobs
+builder.Services.AddKckBackgroundJobsQuartz();
+builder.Services.AddKckJob<DailyReportJob>();
+
+// A job: resolved from DI, so it can take dependencies
+public class DailyReportJob(ILogger<DailyReportJob> logger) : IBackgroundJob
 {
-    public async Task ExecuteAsync(JobContext context, CancellationToken ct)
-        => await email.SendAsync(new EmailMessage { To = context.GetArg<string>("email") }, ct);
+    public Task ExecuteAsync(CancellationToken ct = default)
+    {
+        logger.LogInformation("Building the daily report");
+        return Task.CompletedTask;
+    }
 }
 
-// Enqueue from anywhere
-public class UserRegistrationHandler(IJobScheduler scheduler)
+// Schedule from anywhere
+public class ReportScheduler(IJobScheduler scheduler)
 {
-    public async Task HandleAsync(string userEmail, CancellationToken ct)
+    public async Task ScheduleAsync(CancellationToken ct)
     {
-        // Fire-and-forget
-        await scheduler.EnqueueAsync<SendWelcomeEmailJob>(
-            args => args.Set("email", userEmail), ct);
-
-        // Recurring (cron)
-        await scheduler.AddRecurringAsync<SendWelcomeEmailJob>(
-            "daily-report", "0 8 * * *", ct);
-
-        // Delayed
-        await scheduler.ScheduleAsync<SendWelcomeEmailJob>(
-            args => args.Set("email", userEmail), TimeSpan.FromMinutes(5), ct);
+        await scheduler.EnqueueAsync<DailyReportJob>(ct);                                    // now
+        await scheduler.ScheduleAsync<DailyReportJob>(TimeSpan.FromMinutes(5), ct);          // delayed
+        // The cron format is the provider's: Quartz needs seconds first ("0 0 8 * * ?" = 08:00 daily);
+        // the CronExpressions constants are 5-field crontab expressions for Hangfire.
+        await scheduler.AddOrUpdateRecurringAsync<DailyReportJob>("daily-report", "0 0 8 * * ?", ct);
     }
 }
 ```
