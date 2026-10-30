@@ -144,7 +144,20 @@ class Segment:
     declaration: bool
 
 
-STRING_OR_COMMENT = re.compile(r'"(?:\\.|[^"\\])*"|\'(?:\\.|[^\'\\])\'|//.*$')
+# A string literal, a char literal, or a line comment (`.` stops at the line end).
+STRING_OR_COMMENT = re.compile(r'"(?:\\.|[^"\\])*"|\'(?:\\.|[^\'\\])\'|//.*')
+
+
+@dataclass
+class _DeclarationEnd:
+    """Tracks the braces of one type declaration to find the line where it ends."""
+    depth: int = 0
+    braced: bool = False
+
+    def ends_at(self, code: str) -> bool:
+        self.depth += code.count("{") - code.count("}")
+        self.braced = self.braced or "{" in code
+        return self.depth <= 0 and ((self.braced and "}" in code) or code.endswith(";"))
 
 
 def split_segments(body: list[str]) -> list[Segment]:
@@ -155,24 +168,27 @@ def split_segments(body: list[str]) -> list[Segment]:
     lines stay with the run they follow.
     """
     segments: list[Segment] = []
-    start, declaration, depth, inside, braced = 0, False, 0, False, False
+    start, declaration = 0, False
+    current: _DeclarationEnd | None = None  # set while inside a declaration
     for index, line in enumerate(body):
         code = STRING_OR_COMMENT.sub("", line).strip()
-        if not inside and code:
-            starts = bool(DECLARATION.match(line)) or (code.startswith("[") and _next_is_declaration(body, index))
+        if current is None and code:
+            starts = _starts_declaration(body, index, code)
             if starts != declaration:
                 if index > start:
                     segments.append(Segment(start, body[start:index], declaration))
                 start, declaration = index, starts
-            inside, depth, braced = starts, 0, False
-        if inside:
-            depth += code.count("{") - code.count("}")
-            braced = braced or "{" in code
-            if depth <= 0 and (braced and "}" in code or code.endswith(";")):
-                inside = False
+            current = _DeclarationEnd() if starts else None
+        if current is not None and current.ends_at(code):
+            current = None
     if start < len(body):
         segments.append(Segment(start, body[start:], declaration))
     return segments
+
+
+def _starts_declaration(body: list[str], index: int, code: str) -> bool:
+    """True when the line at index starts a type declaration, or an attribute that belongs to one."""
+    return bool(DECLARATION.match(body[index])) or (code.startswith("[") and _next_is_declaration(body, index))
 
 
 def _next_is_declaration(body: list[str], index: int) -> bool:
