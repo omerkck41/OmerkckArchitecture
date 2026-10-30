@@ -1,26 +1,26 @@
 ---
 name: Feature Request
-about: Yeni bir özellik önerin
+about: Suggest a new feature
 title: 'feat: '
 labels: feat
 assignees: omerkck41
 ---
 
-## Özet
-Önerilen özelliğin kısa açıklaması.
+## Summary
+A short description of the feature.
 
-## Motivasyon
-Bu özelliğe neden ihtiyaç var? Hangi sorunu çözüyor?
+## Motivation
+Why is it needed? Which problem does it solve?
 
-## Önerilen Çözüm
-Nasıl çalışmasını bekliyorsunuz?
+## Proposed solution
+How would you expect it to work?
 
 ```csharp
-// Örnek kullanım
+// Example usage
 ```
 
-## Alternatifler
-Değerlendirdiğiniz alternatif çözümler var mı?
+## Alternatives
+Which other solutions have you considered?
 
-## Ek Bilgi
-Referans linkler, ilgili PR/issue vb.
+## Additional information
+Reference links, related pull requests or issues.
