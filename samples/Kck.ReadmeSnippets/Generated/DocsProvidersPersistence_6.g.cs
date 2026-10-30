@@ -4,7 +4,7 @@
 namespace ReadmeSnippets.DocsProvidersPersistence_6;
 using Kck.Persistence.EntityFramework.Extensions;
 
-#line 184 "docs/providers/persistence.md"
+#line 196 "docs/providers/persistence.md"
 public sealed class ShopDbContext(DbContextOptions<ShopDbContext> options, ITenantProvider tenants) : DbContext(options)
 {
     private readonly string _tenantId = tenants.TenantId;

@@ -109,6 +109,10 @@ public class OrderService(IEventBus bus)
 }
 ```
 
+Publishing from a domain event handler waits for the commit, so a rolled-back order is never announced; see
+[`OrderPlacedHandler.cs`](https://github.com/omerkck41/OmerkckArchitecture/blob/main/samples/Kck.Sample.Orders/Features/Orders/OrderPlacedHandler.cs)
+in the reference app.
+
 ## At-Least-Once Semantics
 
 - RabbitMq and AzureServiceBus: technically at-least-once

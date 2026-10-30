@@ -20,7 +20,8 @@
     <ProjectReference Include="../../Abstractions/Kck.Observability.Abstractions/Kck.Observability.Abstractions.csproj" />
   </ItemGroup>
   <ItemGroup Label="Default Providers">
-    <ProjectReference Include="../../Providers/Kck.Persistence.EntityFramework/Kck.Persistence.EntityFramework.csproj" />
+    <!-- PrivateAssets none: the persistence analyzers (ADR-0031) reach applications that install only the bundle. -->
+    <ProjectReference Include="../../Providers/Kck.Persistence.EntityFramework/Kck.Persistence.EntityFramework.csproj" PrivateAssets="none" />
     <ProjectReference Include="../../Providers/Kck.Caching.InMemory/Kck.Caching.InMemory.csproj" />
     <ProjectReference Include="../../Providers/Kck.Security.Jwt/Kck.Security.Jwt.csproj" />
     <ProjectReference Include="../../Providers/Kck.Security.Argon2/Kck.Security.Argon2.csproj" />

@@ -1,0 +1,10 @@
+<Project>
+  <Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))" />
+
+  <!-- Precision gate for the persistence analyzers (ADR-0031, D7): every sample builds with them, as an application
+       that installs Kck.Persistence.EntityFramework does. Warnings are errors, so a KCK1001 here fails the build. -->
+  <ItemGroup>
+    <ProjectReference Include="$(MSBuildThisFileDirectory)../src/Analyzers/Kck.Persistence.EntityFramework.Analyzers/Kck.Persistence.EntityFramework.Analyzers.csproj"
+                      OutputItemType="Analyzer" ReferenceOutputAssembly="false" PrivateAssets="all" />
+  </ItemGroup>
+</Project>

@@ -32,7 +32,8 @@ app.MapKckHealthChecks(); // /health, /health/live, /health/ready, /health/start
 ```
 
 `UseOpenTelemetry` registers `ITracingService` and `IMetricsService` for the service name. Without
-`UseOtlpExporter` nothing is exported.
+`UseOtlpExporter` nothing is exported. The reference app exports only when `OTEL_EXPORTER_OTLP_ENDPOINT` is set:
+[`Program.cs`](https://github.com/omerkck41/OmerkckArchitecture/blob/main/samples/Kck.Sample.Orders/Program.cs).
 
 ## Auto-Instrumentation
 
