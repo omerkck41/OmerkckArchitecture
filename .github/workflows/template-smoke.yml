@@ -1,8 +1,8 @@
 name: template-smoke
 
-# Packs every package of this commit, generates a project from Kck.Templates and builds it against them
-# (plan docs/plans/2026-10-30-dx-hero-module-plan.md, G0.3). The template references the Kck packages of the
-# same commit, whose prerelease versions exist only in the local feed built here.
+# Packs every package of this commit once, then generates kck-webapi variants from Kck.Templates and builds / tests /
+# runs them against those packages (plan docs/plans/2026-10-30-dx-hero-module-plan.md, G0.3, G1.1, G1.6, G1.9). The
+# template references the Kck packages of the same commit, whose prerelease versions exist only in this feed.
 on:
   push:
     branches: [main, develop, 'release/**']
@@ -18,16 +18,17 @@ permissions:
   contents: read
 
 env:
-  # ImageSharp 4 validates a Six Labors license at Release build time; see decisions/2026-10-14-sdk-10.0.402-imagesharp-4.md
-  SixLaborsLicenseKey: ${{ secrets.SIXLABORS_LICENSE_KEY }}
   DOTNET_NOLOGO: true
   DOTNET_CLI_TELEMETRY_OPTOUT: true
   DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
 
 jobs:
-  smoke:
-    name: Template smoke (kck-webapi)
+  pack:
+    name: Pack packages
     runs-on: ubuntu-latest
+    env:
+      # ImageSharp 4 validates a Six Labors license at Release build time; see decisions/2026-10-14-sdk-10.0.402-imagesharp-4.md
+      SixLaborsLicenseKey: ${{ secrets.SIXLABORS_LICENSE_KEY }}
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -47,8 +48,97 @@ jobs:
         run: dotnet build --configuration Release --no-restore
 
       - name: Pack every package into a local feed
-        run: dotnet pack --configuration Release --no-build --output "$RUNNER_TEMP/feed"
+        run: dotnet pack --configuration Release --no-build --output ./feed
 
-      # Outside the repository so the generated project does not inherit Directory.*.props or global.json.
-      - name: Generate and build kck-webapi
-        run: bash .github/scripts/template-smoke.sh "$RUNNER_TEMP/feed" "$RUNNER_TEMP/smoke"
+      - name: Upload feed
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: template-smoke-feed
+          path: ./feed/*.nupkg
+          retention-days: 1
+
+  smoke:
+    name: kck-webapi ${{ matrix.variant }} (${{ matrix.os }})
+    needs: pack
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # Default output: build, tests, and dotnet new -> /health/ready timing (target 60 s, warning only).
+          - { variant: sqlite, os: ubuntu-latest, name: Smoke, options: '', run_app: '1', run_tests: '1' }
+          - { variant: sqlite, os: windows-latest, name: Smoke, options: '', run_app: '0', run_tests: '1' }
+          # Needs a server to test; the postgres job below runs its tests.
+          - { variant: sqlserver, os: ubuntu-latest, name: Smoke, options: '--database sqlserver', run_app: '0', run_tests: '0' }
+          - { variant: no-tests, os: ubuntu-latest, name: Smoke, options: '--include-tests false', run_app: '0', run_tests: '0' }
+          - { variant: no-sample, os: ubuntu-latest, name: Smoke, options: '--include-sample false', run_app: '0', run_tests: '1' }
+          # File names keep the raw name, namespaces get a safe one (my_shop).
+          - { variant: dashed-name, os: ubuntu-latest, name: my-shop, options: '', run_app: '0', run_tests: '1' }
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+        with:
+          dotnet-version: '10.0.402'
+
+      - name: Download feed
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: template-smoke-feed
+          path: ${{ runner.temp }}/feed
+
+      # Outside the repository so the generated solution does not inherit Directory.*.props or global.json.
+      - name: Generate, build and test
+        shell: bash
+        env:
+          SMOKE_RUN_APP: ${{ matrix.run_app }}
+          SMOKE_RUN_TESTS: ${{ matrix.run_tests }}
+          SMOKE_NAME: ${{ matrix.name }}
+          SMOKE_OPTIONS: ${{ matrix.options }}
+        run: |
+          # shellcheck disable=SC2086 # SMOKE_OPTIONS holds several dotnet new options
+          bash .github/scripts/template-smoke.sh "$RUNNER_TEMP/feed" "$RUNNER_TEMP/smoke" "$SMOKE_NAME" $SMOKE_OPTIONS
+
+  smoke-postgres:
+    name: kck-webapi postgres (ubuntu-latest)
+    needs: pack
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        # PostgreSQL 17 (supported until 2029-11); pinned by digest, Dependabot does not update service images.
+        image: postgres:17-alpine@sha256:266d3c257594e195b309ae9d1805e54c788f1d7b375f56bf6c367aac6c917e7b
+        env:
+          POSTGRES_HOST_AUTH_METHOD: trust  # throw-away CI database, no credentials
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+        with:
+          dotnet-version: '10.0.402'
+
+      - name: Download feed
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: template-smoke-feed
+          path: ${{ runner.temp }}/feed
+
+      # Each test factory creates and drops its own database derived from this one.
+      - name: Generate, build and test against PostgreSQL
+        env:
+          ConnectionStrings__Default: Host=localhost;Port=5432;Username=postgres;Database=smoke
+        run: bash .github/scripts/template-smoke.sh "$RUNNER_TEMP/feed" "$RUNNER_TEMP/smoke" Smoke --database postgres

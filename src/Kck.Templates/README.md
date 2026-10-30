@@ -8,34 +8,36 @@
 dotnet new install Kck.Templates
 ```
 
-## Templates
+## `kck-webapi` — Kck Web API
 
-### `kck-webapi` — Kck WebAPI
+A solution (`.slnx`) with an ASP.NET Core API and an integration test project:
 
-Scaffolds a WebAPI project pre-wired with `Kck.Bundle.WebApi`:
-
-| Feature | Default Provider |
+| Area | What you get |
 |---|---|
-| Logging | Serilog (structured JSON) |
-| Caching | In-memory (swap for Redis/Hybrid) |
-| Security | JWT RS256 + Argon2 hashing |
-| Pipeline | Mediator 3.x behaviors |
-| Event Bus | In-memory (swap for RabbitMQ/Azure) |
-| Observability | OpenTelemetry (traces + metrics) |
-| ASP.NET Core | Rate limiting + security headers + CORS + exception handling |
-
-### Usage
+| Persistence | `Kck.Persistence.EntityFramework`: repositories, `IUnitOfWork`, audit fields, soft delete that follows your delete rules, domain events dispatched after commit (`IDomainEventHandler<T>`) |
+| Database | SQLite by default (no setup); `--database postgres` or `--database sqlserver` |
+| Sample | Order management: place (stock reserved in the same transaction), get, list (paged), cancel (soft delete) |
+| API | Minimal APIs, ProblemDetails, rate limiting, security headers, CORS from configuration, OpenAPI + Scalar UI in development |
+| Security | JWT bearer authentication on `/orders`; local tokens with `dotnet user-jwts`; no secrets in the generated files |
+| Health | `/health`, `/health/live`, `/health/ready` (database check), `/health/startup` |
+| Tests | xUnit, `WebApplicationFactory`, in-memory SQLite (or a per-test database for PostgreSQL / SQL Server) |
 
 ```bash
-# Create with sample WeatherForecast feature (default)
-dotnet new kck-webapi -n MyApp
-
-# Create without the sample feature
-dotnet new kck-webapi -n MyApp --IncludeSample false
-
-# List all options
-dotnet new kck-webapi --help
+dotnet new kck-webapi -n Shop
+cd Shop
+dotnet run --project src/Shop.Api        # opens the API reference at /scalar
+dotnet test
 ```
+
+| Option | Default | Description |
+|---|---|---|
+| `--database sqlite\|postgres\|sqlserver` | `sqlite` | Database provider |
+| `--include-tests` | `true` | Add the integration test project |
+| `--include-sample` | `true` | Add the order management sample |
+| `-f, --framework` | `net10.0` | Target framework |
+
+Since 4.6.0 the output is a solution with `src/` and `tests/` instead of a single controller project; to keep the old
+output, install an earlier version: `dotnet new install Kck.Templates::4.5.0`.
 
 ## Uninstall
 
