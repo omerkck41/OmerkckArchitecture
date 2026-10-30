@@ -8,6 +8,8 @@
       href: providers/README.md
     - name: Persistence
       href: providers/persistence.md
+    - name: Persistence compared
+      href: persistence-comparison.md
     - name: Web (ASP.NET Core)
       href: providers/aspnetcore.md
     - name: Background jobs

@@ -4,7 +4,7 @@
 namespace ReadmeSnippets.DocsProvidersObservability_2;
 using Kck.Observability.Abstractions;
 
-#line 49 "docs/providers/observability.md"
+#line 50 "docs/providers/observability.md"
 public class OrderMetrics(IMetricsService metrics)
 {
     private readonly ICounter _created = metrics.CreateCounter("orders.created", "Orders created");

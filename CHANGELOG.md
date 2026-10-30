@@ -16,6 +16,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   committed directly with `IDbContextTransaction.Commit` / `CommitAsync` in a project that uses domain events;
   **KCK1002** (suggestion) for synchronous `SaveChanges`. `Kck.Bundle.WebApi` passes them on.
   See `docs/reference/diagnostics/`.
+- `samples/Kck.Sample.Orders` — reference application (orders, stock, status changes, soft delete by delete rules,
+  domain and integration events, dynamic search, caching, OpenTelemetry) with tests on SQLite and PostgreSQL. It
+  replaces `samples/Kck.Sample.WebApi`. Not a package.
 
 ### Deprecated
 - `ResilienceOptions.CircuitBreakerFailureThreshold` (KCK0900) — never applied; use the two options above.
@@ -26,6 +29,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   Configure those providers in code. Each of these deprecations is removed in v5.0 at the earliest.
 
 ### Fixed
+- `Kck.Persistence.Abstractions` — dynamic queries (`ToDynamic`, `GetListByDynamicAsync`) failed with
+  `InvalidOperationException` ("The binary operator Equal is not defined…") for any filter read from JSON, the way an
+  API receives it: the value stayed a `JsonElement`. Values are now converted to the property's type (enum by name or
+  number, Guid, numbers, bool, dates as UTC, nullable types; also from query-string text). A value that does not fit,
+  or an operator the property's type does not support (`gt` on an enum), throws `ArgumentException` like an unknown
+  field or operator.
+- `Kck.Persistence.EntityFramework` — `GetListByDynamicAsync` rejected every group filter (`and` / `or` over child
+  filters): the whitelist check also tested the group node's own field, which is empty and never used. Only the child
+  filters are checked now.
 - `Kck.EventBus.Abstractions` (RabbitMQ, Azure Service Bus) — a handler subscribed with `Subscribe<TEvent, THandler>()`
   but registered through `RegisterHandlersFromAssembly` (as `IEventHandler<TEvent>`) was not found, and its messages
   were skipped with only a log entry. `RegisterHandlersFromAssembly` now also registers each handler class, and a

@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <!-- Pinned to net10.0; depends on net10-only packages (LS-FAZ-2 ADR-0011) -->
+    <TargetFrameworks>net10.0</TargetFrameworks>
+    <IsPackable>false</IsPackable>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    <!-- Holds the JWT signing key created by `dotnet user-jwts` and, for PostgreSQL, the connection string. -->
+    <UserSecretsId>3f6d2a91-7c4e-4b0a-9e15-6a8c2d7f0b34</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- The sample references the projects; an application references the Kck.Bundle.WebApi package instead. -->
+    <ProjectReference Include="../../src/Bundles/Kck.Bundle.WebApi/Kck.Bundle.WebApi.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" />
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
+    <PackageReference Include="Scalar.AspNetCore" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" />
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" />
+  </ItemGroup>
+
+</Project>
