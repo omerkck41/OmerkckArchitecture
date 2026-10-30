@@ -86,6 +86,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   restoring a row that does not exist (entity type, id, how to check first), "No active transaction" (why: `CommitAsync`
   ends the transaction, do not roll back after it), `ToPaginateAsync` with an index below `from`, and a
   `FilterPropertyWhitelist.Allow` / `Deny` expression that is not a property access.
+- Documentation site — "Edit this page" opened the `docs` folder instead of the page's file; it now links to the
+  file. Every page links to a new "Docs feedback" issue form; a "Template problem" form covers `dotnet new kck-webapi`.
 - Package READMEs (nuget.org pages) and bundle package descriptions rewritten against the API: their quick starts used
   methods and options that do not exist (for example `AddKckHangfire`, `AddKckInMemoryEventBus`, `IJob`,
   `MapDefaultEndpoints`) and their configuration tables listed invented options and wrong defaults. Every package

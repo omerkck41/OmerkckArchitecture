@@ -1,34 +1,34 @@
 ---
 name: Bug Report
-about: Bir hata bildirin
+about: Report a bug in a Kck package
 title: 'fix: '
 labels: fix
 assignees: omerkck41
 ---
 
-## Özet
-Hatanın kısa ve net açıklaması.
+## Summary
+A short, clear description of the bug.
 
-## Yeniden Üretme Adımları
+## Steps to reproduce
 1. ...
 2. ...
-3. Hata oluşuyor
+3. The bug occurs
 
-## Beklenen Davranış
-Ne olması gerekiyordu?
+## Expected behaviour
+What should have happened?
 
-## Gerçekleşen Davranış
-Ne oldu?
+## Actual behaviour
+What happened?
 
-## Ortam
-- Paket adı ve versiyonu: `Kck.Xxx x.x.x`
-- .NET versiyonu: `dotnet --version`
-- İşletim sistemi:
+## Environment
+- Package and version: `Kck.Xxx x.y.z`
+- .NET version: `dotnet --version`
+- Operating system:
 
-## Minimal Repro (varsa)
+## Minimal repro (if possible)
 ```csharp
-// Hatayı gösteren minimal kod
+// The smallest code that shows the bug
 ```
 
-## Ek Bilgi
-Log çıktısı, stack trace, ekran görüntüsü vb.
+## Additional information
+Log output, stack trace, screenshots.

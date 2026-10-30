@@ -11,9 +11,11 @@ caches), so the trend matters more than the absolute value.
 | Total downloads per package | nuget.org search API, `q=packageid:<id>`, field `totalDownloads` (all versions) | Monthly downloads = difference between two dated snapshots |
 | Stars, forks, watchers | GitHub REST API `repos/omerkck41/OmerkckArchitecture` | |
 | Issues opened by people outside the project | GitHub search: `type:issue -author:omerkck41 -author:app/dependabot` | The best single signal of real use |
+| Docs and template feedback | Issues from the "Docs feedback" (label `docs`) and "Template problem" (title `template:`) forms, and the "Report a problem with the docs" link on every docs page | Counted within external issues; read each one |
 
 Snapshots are taken at the baseline, 30 days after 4.6.0 (template) and 30 days after 4.7.0 (analyzers), and added
-below as new rows; earlier rows are never edited.
+below as new rows; earlier rows are never edited. Next: **2026-11-29** (4.6.0, released 2026-10-30, + 30 days); then
+30 days after 4.7.0 is published.
 
 ## Snapshots
 

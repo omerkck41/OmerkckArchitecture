@@ -1,8 +1,8 @@
 blank_issues_enabled: false
 contact_links:
-  - name: Guvenlik Acigi Bildirimi
+  - name: Security vulnerability
     url: https://github.com/omerkck41/OmerkckArchitecture/security/advisories/new
-    about: Guvenlik aciklari icin lutfen GitHub Private Vulnerability Reporting kullanin (SECURITY.md).
-  - name: Soru / Tartisma
+    about: Report security vulnerabilities privately through GitHub Private Vulnerability Reporting (SECURITY.md).
+  - name: Question / discussion
     url: https://github.com/omerkck41/OmerkckArchitecture/discussions
-    about: Genel sorular icin Discussions bolumunu kullanin.
+    about: Ask general questions in Discussions.

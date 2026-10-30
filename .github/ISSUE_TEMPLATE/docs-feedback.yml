@@ -1,0 +1,43 @@
+name: Docs feedback
+description: Something in the documentation is wrong, unclear or missing.
+title: "docs: "
+labels: ["docs"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for helping improve the docs. Small fixes are welcome as pull requests too: every page has an
+        "Edit this page" link at the bottom.
+  - type: input
+    id: page
+    attributes:
+      label: Page
+      description: The page's URL or its path in the repository.
+      placeholder: https://github.com/omerkck41/OmerkckArchitecture/blob/main/docs/providers/persistence.md
+    validations:
+      required: true
+  - type: dropdown
+    id: kind
+    attributes:
+      label: What is the problem?
+      options:
+        - The code does not compile or does not work
+        - The text is wrong (it does not match the library's behaviour)
+        - It is unclear or hard to follow
+        - Something is missing
+        - A broken link
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: details
+    attributes:
+      label: Details
+      description: What did you read, what did you expect, and what happened? Quote the sentence or code block.
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Package and version
+      description: If it concerns a package, which one (for example Kck.Persistence.EntityFramework 4.6.0).
