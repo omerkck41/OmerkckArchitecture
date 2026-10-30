@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1793352876725,
+  "lastUpdate": 1793364703951,
   "repoUrl": "https://github.com/omerkck41/OmerkckArchitecture",
   "entries": {
     "Benchmark": [
@@ -12430,6 +12430,102 @@ window.BENCHMARK_DATA = {
             "value": 8.165873633821805,
             "unit": "ns",
             "range": "± 0.1225564051161378"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "106805727+omerkck41@users.noreply.github.com",
+            "name": "Ömer KÜÇÜK",
+            "username": "omerkck41"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "543f266364d6ed7ce0a607653d9815bd47502f1a",
+          "message": "feat(templates): kck-webapi showcase solution (plan F1) (#258)\n\n## Summary\nPlan F1 (`docs/plans/2026-10-30-dx-hero-module-plan.md`): `dotnet new\nkck-webapi` becomes the showcase of\n`Kck.Persistence.EntityFramework`.\n\n```bash\ndotnet new kck-webapi -n Shop && cd Shop\ndotnet run --project src/Shop.Api   # /scalar, /health/ready\ndotnet test\n```\n\n| Area | Output |\n|---|---|\n| Structure | `Shop.slnx`, `src/Shop.Api`, `tests/Shop.Api.Tests`,\n`Shop.http`, README |\n| Persistence | `AddKckPersistence` + audit + `AddDomainEventHandlers`;\nglobal soft-delete filter (needs #257, merged) |\n| Sample | Orders: place (stock reserved in the same transaction;\nshortage → 409, order and `OrderPlaced` rolled back), get\n(`?includeDeleted=true`), list (paged), cancel (soft delete of order and\nlines) |\n| Security | JWT bearer on `/orders` (`dotnet user-jwts`), no secrets,\nCORS from config, Scalar/OpenAPI and `EnsureCreated` only in\nDevelopment, request limits |\n| Options | `--database sqlite\\|postgres\\|sqlserver`, `--include-tests`,\n`--include-sample` |\n\n### Acceptance examples (plan §4)\n- Ö1: `dotnet new` → `/health/ready` 200 Healthy — **7.0 s locally**\n(target 60 s), measured in CI per phase.\n- Ö2/Ö3/Ö4: covered by the generated tests (201 + event after commit\nchecked from another connection; 409 with stock\nrestored; soft delete with `includeDeleted`; second page of 25 orders).\n- Ö5: generated `dotnet test` 7/7 green; Ö6: PostgreSQL / SQL Server\noutputs build with `-warnaserror`; Ö7: no secrets.\n\n### Decisions recorded during execution (plan + `tasks/checkpoint.md`)\n- Endpoints use `IUnitOfWork` directly instead of Mediator (the bundle\nreferences but does not register Mediator).\n- Bundle's `AddKckJwt` does not set up ASP.NET Core authentication →\nstandard `AddJwtBearer` + `dotnet user-jwts`.\n- SQL Server output pins `System.Security.Cryptography.Pkcs` to the\nrepo's security floor (SqlClient brings 9.0.11:\n  GHSA-846f-f764-76mx high, GHSA-2fmv-rv2c-59x7 medium).\n- `FullEntity.RowVersion` is generated only by SQL Server; other\nproviders do not map it (documented).\n\n## Verification\n- Local smoke of every variant: sqlite (build, 7 tests, run → healthy),\npostgres and sqlserver (build), no tests,\nno sample (tests), dashed name `my-shop` (raw names for files, `my_shop`\nnamespaces).\n- Adversarial review (fresh reviewer) of the template: the critical\nfinding — the PostgreSQL / SQL Server test factory\ncould have run against and dropped the developer's own database — is\nfixed (suffix via `UseSetting`, drop only a\ndatabase whose name ends with the factory's suffix); medium/low findings\nfixed (deadlock-safe reservation order,\nline/quantity limits, page index overflow, development-only SQLite\nfallback, null lines, health ahead of the rate\nlimiter). Ownership/authorization is documented as a production step\n(out of the plan's scope).\n- Repo: Release build 0 errors, unit tests 39/39 projects, package\nvalidation vs 4.5.0, README snippets up to date.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-authored-by: Claude Opus 5.5 <noreply@anthropic.com>",
+          "timestamp": "2026-10-30T15:44:23+03:00",
+          "tree_id": "51f433c8dd0198462388cfbcd34dec3472bd9a65",
+          "url": "https://github.com/omerkck41/OmerkckArchitecture/commit/543f266364d6ed7ce0a607653d9815bd47502f1a"
+        },
+        "date": 1793364703365,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Success_Factory",
+            "value": 6.8513674159844715,
+            "unit": "ns",
+            "range": "± 0.18901124204207084"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Failure_Factory",
+            "value": 11.55073204934597,
+            "unit": "ns",
+            "range": "± 0.3927835304608146"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Success",
+            "value": 1.6362010190884273,
+            "unit": "ns",
+            "range": "± 0.0048777122546142145"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Failure",
+            "value": 0.5889066189527512,
+            "unit": "ns",
+            "range": "± 0.008175904947060901"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Serialize_Reflection",
+            "value": 496.477544931265,
+            "unit": "ns",
+            "range": "± 2.636333229909751"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Deserialize_Reflection",
+            "value": 820.9886341776166,
+            "unit": "ns",
+            "range": "± 4.1915105465800115"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 0)",
+            "value": 10.933903963367145,
+            "unit": "ns",
+            "range": "± 0.25094187761074727"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 5)",
+            "value": 11.019944436351459,
+            "unit": "ns",
+            "range": "± 0.2493335408173993"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 0)",
+            "value": 10.988912790185875,
+            "unit": "ns",
+            "range": "± 0.30164520867774164"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 5)",
+            "value": 11.472762962182363,
+            "unit": "ns",
+            "range": "± 0.3071161548646748"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 0)",
+            "value": 11.203848326335782,
+            "unit": "ns",
+            "range": "± 0.3516360914035819"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 5)",
+            "value": 11.344436021645864,
+            "unit": "ns",
+            "range": "± 0.2565125697417732"
           }
         ]
       }
