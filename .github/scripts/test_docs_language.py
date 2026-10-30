@@ -53,6 +53,23 @@ class CheckFilesTests(unittest.TestCase):
 
         self.assertEqual(sorted(p.split(":")[0] for p in problems), ["a.md", "missing.md"])
 
+    def test_entries_outside_the_root_are_rejected(self):
+        with tempfile.TemporaryDirectory() as root:
+            Path(root, "inner").mkdir()
+
+            problems = dl.check_files(Path(root, "inner"), ["../outside.md"])
+
+        self.assertEqual(len(problems), 1)
+        self.assertIn("outside the repository", problems[0])
+
+    def test_list_file_outside_the_root_is_rejected(self):
+        with tempfile.TemporaryDirectory() as root, tempfile.TemporaryDirectory() as other:
+            listing = Path(other, "english.txt")
+            listing.write_text("a.md\n", encoding="utf-8")
+
+            with self.assertRaises(ValueError):
+                dl.inside(Path(root), listing)
+
     def test_read_list_skips_comments_and_blank_lines(self):
         with tempfile.TemporaryDirectory() as root:
             listing = Path(root, "english.txt")

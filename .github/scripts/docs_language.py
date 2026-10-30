@@ -64,6 +64,14 @@ def find_turkish(text: str, allowed_words: frozenset[str] | set[str] = frozenset
     return findings
 
 
+def inside(root: Path, path: Path) -> Path:
+    """Returns path resolved, or raises ValueError when it is outside root (paths come from the command line)."""
+    resolved = path.resolve()
+    if not resolved.is_relative_to(root.resolve()):
+        raise ValueError(f"{path} is outside the repository root {root}")
+    return resolved
+
+
 def read_list(path: Path) -> list[str]:
     """Reads the repository-relative paths of the files that must be English."""
     entries = (line.strip() for line in path.read_text(encoding="utf-8").splitlines())
@@ -74,7 +82,11 @@ def check_files(root: Path, files: list[str], allowed_words: frozenset[str] | se
     """Returns one problem per Turkish line or missing file, as 'path:line: text'."""
     problems: list[str] = []
     for relative in files:
-        path = root / relative
+        try:
+            path = inside(root, root / relative)
+        except ValueError:
+            problems.append(f"{relative}: outside the repository root")
+            continue
         if not path.is_file():
             problems.append(f"{relative}: listed in the English documentation list but not found")
             continue
@@ -95,8 +107,9 @@ def main(argv: list[str] | None = None) -> int:
     sys.stdout.reconfigure(encoding="utf-8")  # Windows consoles default to a code page that cannot print every line
     logging.basicConfig(level=logging.INFO, format="%(message)s", stream=sys.stdout)
 
-    files = read_list(args.list)
-    problems = check_files(args.root, files, ALLOWED_WORDS)
+    root = args.root.resolve()
+    files = read_list(inside(root, args.list))
+    problems = check_files(root, files, ALLOWED_WORDS)
     for problem in problems:
         path, _, rest = problem.partition(":")
         line, _, text = rest.partition(":")
