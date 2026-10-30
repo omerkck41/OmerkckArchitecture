@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1793378221736,
+  "lastUpdate": 1793382764868,
   "repoUrl": "https://github.com/omerkck41/OmerkckArchitecture",
   "entries": {
     "Benchmark": [
@@ -13294,6 +13294,102 @@ window.BENCHMARK_DATA = {
             "value": 8.724385108266558,
             "unit": "ns",
             "range": "± 0.06856533398907814"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "106805727+omerkck41@users.noreply.github.com",
+            "name": "Ömer KÜÇÜK",
+            "username": "omerkck41"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "c96428530f82e1db2196b967cc33db1845e5da4b",
+          "message": "fix: apply or retire options that had no effect (#267)\n\n## What\n\nPR-B of the library-defect plan (4.7.0, no breaking change): options\nthat were declared but had no effect are either\napplied or marked `[Obsolete]` with a DiagnosticId (removal in v5.0 at\nthe earliest, per the deprecation policy).\n\n| # | Before | Now |\n|---|---|---|\n| B1 `Kck.Http.Resilience` | `CircuitBreakerFailureThreshold` never\napplied; `CircuitBreakerDuration` set the sampling window (2x), the\nbreak stayed at 5 s | `CircuitBreakerDuration` = break duration; new\n`CircuitBreakerFailureRatio` (0.1) / `CircuitBreakerMinimumThroughput`\n(100); sampling window 2 x `Timeout`, 30 s floor; threshold obsolete\n(KCK0900) |\n| B2 `Kck.BackgroundJobs.Hangfire` | only in-memory storage;\n`ConnectionString` never read | `HangfireOptions.ConfigureStorage` plugs\nin any Hangfire storage; `ConnectionString` obsolete (KCK0700) |\n| B3 `Kck.Security.Jwt` | `RsaKeySource.SecretsManager` threw at the\nfirst token, pointing to a non-existent overload | obsolete (KCK0300)\nand rejected by options validation at startup; README key format (PKCS#1\nDER, not PEM) fixed |\n| B4 bundles | `Persistence`, `Caching`, `Observability`,\n`Jwt:Algorithm`, `Hashing` declared but never read | obsolete (KCK0002)\nwith guidance to configure in code |\n| B5 `Kck.Localization.Json` / `.Yaml` | `CacheExpiration` ignored\n(cache until `ReloadAsync`) | applied |\n| B6 `Kck.Exceptions.AspNetCore` | middleware logged every exception at\nError, handler logged it again | logged once: Warning for 4xx, Error for\n5xx |\n\nDocs (http, background jobs, security, localization, exceptions,\nconfiguration page), the deprecation table (KCK0002,\nKCK0300, KCK0700, KCK0900) and CHANGELOG `[Unreleased]` (Added /\nDeprecated / Changed — behaviour) are updated.\n\n## Verification\n\n- Test first for each item (RED seen, then GREEN).\n- `dotnet build -c Release`: 0 warnings, 0 errors. All non-Docker tests\npass; the 20 Testcontainers integration tests\n  run in CI.\n- Independent Opus review: no critical/high findings. Medium: the\nsampling-window floor (fixed); startup validation of\ninvalid circuit-breaker values (already done by\nMicrosoft.Extensions.Http.Resilience — covered by a test). Low ones\n  fixed in docs/descriptions; the rest is tracked separately.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\n---------\n\nCo-authored-by: Claude Opus 5.5 <noreply@anthropic.com>",
+          "timestamp": "2026-10-30T20:45:42+03:00",
+          "tree_id": "04b7b92a69c8b6f282adc6ecd3fa9e03369c2676",
+          "url": "https://github.com/omerkck41/OmerkckArchitecture/commit/c96428530f82e1db2196b967cc33db1845e5da4b"
+        },
+        "date": 1793382763791,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Success_Factory",
+            "value": 6.008747041225433,
+            "unit": "ns",
+            "range": "± 0.014997039059806714"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Failure_Factory",
+            "value": 9.558293599103179,
+            "unit": "ns",
+            "range": "± 0.36377080576309423"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Success",
+            "value": 1.6366962482531866,
+            "unit": "ns",
+            "range": "± 0.0025749023709852625"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Failure",
+            "value": 0.5844708367117813,
+            "unit": "ns",
+            "range": "± 0.004213125874606882"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Serialize_Reflection",
+            "value": 480.4765671730041,
+            "unit": "ns",
+            "range": "± 5.451469386368808"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Deserialize_Reflection",
+            "value": 757.3197714260647,
+            "unit": "ns",
+            "range": "± 2.616148152543817"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 0)",
+            "value": 9.730985756963491,
+            "unit": "ns",
+            "range": "± 0.07215705894616654"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 5)",
+            "value": 9.86252020696799,
+            "unit": "ns",
+            "range": "± 0.229146095800013"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 0)",
+            "value": 9.959819329636437,
+            "unit": "ns",
+            "range": "± 0.15623964657294648"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 5)",
+            "value": 9.845075528536524,
+            "unit": "ns",
+            "range": "± 0.08838502220986987"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 0)",
+            "value": 9.83440594871839,
+            "unit": "ns",
+            "range": "± 0.04042114348210409"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 5)",
+            "value": 9.84820659359296,
+            "unit": "ns",
+            "range": "± 0.046310903862369864"
           }
         ]
       }
