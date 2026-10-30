@@ -66,3 +66,5 @@ src/Providers/Kck.Security.Secrets.AzureKeyVault/README.nuget.md
 src/Providers/Kck.Security.Secrets.UserSecrets/README.nuget.md
 src/Providers/Kck.Security.TokenBlacklist.Redis/README.nuget.md
 src/Providers/Kck.Security.Totp/README.nuget.md
+docs/README.md
+docs/getting-started/README.md
