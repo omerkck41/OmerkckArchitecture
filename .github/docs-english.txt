@@ -68,3 +68,4 @@ src/Providers/Kck.Security.TokenBlacklist.Redis/README.nuget.md
 src/Providers/Kck.Security.Totp/README.nuget.md
 docs/README.md
 docs/getting-started/README.md
+docs/providers/persistence.md

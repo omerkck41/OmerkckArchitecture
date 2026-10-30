@@ -1,14 +1,15 @@
 # Persistence
 
-Entity Framework Core tabanli repository + Unit of Work. Soft-delete filtresi repository sorgularinda uygulanir; audit
-ve domain event dispatch icin EF Core interceptor'lari vardir.
+Repositories and a unit of work over Entity Framework Core 10, plus the parts teams usually write by hand around it:
+soft delete that follows the model's delete rules, audit fields, and domain events dispatched after the transaction
+commits. New to Kck? Start with [your first Kck API in five minutes](../getting-started/README.md).
 
-## Paketler
+## Packages
 
-| Paket | Hedef |
+| Package | Contents |
 |---|---|
 | `Kck.Persistence.Abstractions` | `IRepository<T, TId>` (`IReadRepository` + `IWriteRepository`), `IUnitOfWork`, `QueryOptions` |
-| `Kck.Persistence.EntityFramework` | EF Core 10: `EfRepository<T, TId>`, `EfUnitOfWork`, `IEfRepositoryFactory`, interceptor'lar, `ToPaginateAsync` |
+| `Kck.Persistence.EntityFramework` | EF Core 10: `EfRepository<T, TId>`, `EfUnitOfWork`, `IEfRepositoryFactory`, interceptors, `ToPaginateAsync` |
 
 ## Setup
 
@@ -16,13 +17,13 @@ ve domain event dispatch icin EF Core interceptor'lari vardir.
 services.AddKckPersistence(p => p
     .UseEntityFramework<AppDbContext>(o => o
         .UseSqlServer(builder.Configuration.GetConnectionString("Default")))
-    .AddAuditInterceptor());   // CreatedDate / ModifiedDate / soft-delete alanlari
+    .AddAuditInterceptor());   // CreatedDate / ModifiedDate / soft-delete fields
 ```
 
-`UseEntityFramework` DbContext'i, `IUnitOfWork`'u (scoped) ve `IEfRepositoryFactory`'yi kaydeder. `AddAuditInterceptor()`
-ve `AddDomainEventDispatch<TDispatcher>()` ile kaydedilen interceptor'lar DbContext'e otomatik baglanir (4.1.0+);
-ayni tipte bir interceptor `configure` icinde `AddInterceptors(...)` ile zaten eklenmisse ikinci kez eklenmez
-(`OnConfiguring`'de eklenen gorulmez).
+`UseEntityFramework` registers the DbContext, `IUnitOfWork` (scoped) and `IEfRepositoryFactory`. Interceptors registered
+with `AddAuditInterceptor()` and `AddDomainEventDispatch<TDispatcher>()` / `AddDomainEventHandlers(...)` are attached to
+the DbContext automatically (4.1.0+); an interceptor of the same type already added with `AddInterceptors(...)` inside
+`configure` is not added twice (one added in `OnConfiguring` is not seen).
 
 ### Domain event handlers (4.6.0+)
 
@@ -47,12 +48,12 @@ services.AddKckPersistence(p => p
     .AddDomainEventHandlers(typeof(Program).Assembly));
 ```
 
-`AddDomainEventHandlers` verilen derlemelerdeki her somut `IDomainEventHandler<TEvent>` uygulamasini scoped kaydeder ve
-event'leri onlara dagitir (ADR-0030). Bir handler yalniz tam olarak kendi event tipini alir (turetilmis tipleri degil);
-ayni event icin birden fazla handler'in sirasi tanimsizdir; handler'i olmayan event hata degildir. Handler hata verirse
-asagidaki "Interceptor'lar" kurali gecerlidir (veri kaydedilmis kalir, event'ler entity'ye geri eklenir, sonraki
-`SaveChanges` yeniden dagitir) — handler'lar idempotent olmalidir. Kendi `IDomainEventDispatcher`'inizi
-`AddDomainEventDispatch<T>()` ile kaydettiyseniz ikisi birlikte kullanilamaz (`InvalidOperationException`).
+`AddDomainEventHandlers` registers every concrete `IDomainEventHandler<TEvent>` in the given assemblies as a scoped
+service and dispatches events to them (ADR-0030). A handler receives events of exactly its event type, not derived
+types; the order of several handlers for one event is not defined; an event with no handler is not an error. When a
+handler fails, the rules under [Interceptors](#interceptors) apply (the data stays saved, the events go back onto the
+entity, the next `SaveChanges` dispatches them again), so handlers must be idempotent. It cannot be combined with your
+own `IDomainEventDispatcher` registered through `AddDomainEventDispatch<T>()` (`InvalidOperationException`).
 
 ### DbContext pooling (4.5.0+)
 
@@ -63,17 +64,18 @@ services.AddKckPersistence(p => p
     .AddDomainEventHandlers(typeof(Program).Assembly));
 ```
 
-`UseEntityFrameworkPool` `AddDbContextPool` kullanir; kayitlar `UseEntityFramework` ile aynidir. Havuzdaki context'ler tek
-bir options ornegini paylasir: `configure` bir kez, root servis saglayicisindan calisir. Domain event dispatcher'i her
-dagitimda yeni bir scope'tan cozulur — handler'in kaydettigi DbContext, event'i ureten context degil, kendi scope'unun
-context'idir; istegin scoped durumunu (tenant, gecerli kullanici, korelasyon tutuculari) da gormez — gerekenleri event'e
-koyun. `Database.BeginTransaction` ile acilip dogrudan commit edilen bir transaction'in bekleyen event'leri
-(asagida) havuzsuz kullanimda oldugu gibi istekle biter: context havuza donup yeniden kiralaninca atilir (uyari loglanir),
-baska bir istekte dagitilmaz. Transaction'lari `IUnitOfWork` ile commit edin.
+`UseEntityFrameworkPool` uses `AddDbContextPool`; the registrations are the same as `UseEntityFramework`. Pooled
+contexts share one options instance: `configure` runs once, from the root service provider. The domain event dispatcher
+is resolved from a new scope for each dispatch — a handler that saves through a DbContext gets its own scope's context,
+not the one that raised the event, and does not see the request's scoped state (tenant, current user, correlation
+holders); put what it needs into the event. Pending events of a transaction opened with `Database.BeginTransaction` and
+committed directly (below) end with the request, as without pooling: when the context goes back to the pool and is
+leased again they are dropped (a warning is logged), never dispatched in another request. Commit transactions through
+`IUnitOfWork`.
 
-## Repository kullanimi
+## Using repositories
 
-Repository'ler `IUnitOfWork` uzerinden alinir:
+Repositories come from `IUnitOfWork`:
 
 ```csharp
 public sealed class OrderService(IUnitOfWork uow)
@@ -90,33 +92,33 @@ public sealed class OrderService(IUnitOfWork uow)
 }
 ```
 
-`DeleteAsync` / `DeleteRangeAsync` varsayilan olarak soft-delete yapar (`ISoftDeletable` entity'lerde);
-`permanent: true` kalici siler. Soft-delete, `DbContext.Remove` + `AuditInterceptor` ile ayni kurali izler (asagida,
-"Soft-delete kapsami"); interceptor kayitli olmasa da. `RevertSoftDeleteAsync` yalniz kaydin kendisini geri alir;
-onunla birlikte soft-delete edilen bagimli kayitlar silinmis kalir.
+`DeleteAsync` / `DeleteRangeAsync` soft-delete by default (entities implementing `ISoftDeletable`); `permanent: true`
+deletes rows. A soft delete follows the same rule as `DbContext.Remove` with the `AuditInterceptor` (below, *What a
+soft delete covers*), even when the interceptor is not registered. `RevertSoftDeleteAsync` restores only the row
+itself; dependants soft-deleted with it stay deleted.
 
-### Soft-delete kapsami (4.3.0+)
+### What a soft delete covers (4.3.0+)
 
-Soft-delete, kalici silmenin silecegi satirlari kapsar: EF'in izlenen (yuklu) bagimli kayitlara uyguladigi cascade,
-modeldeki `DeleteBehavior`'a gore. Bu satirlardan:
+A soft delete covers the rows a permanent delete would delete: EF's cascade over tracked (loaded) dependants, according
+to the model's `DeleteBehavior`. Of those rows:
 
-- soft-delete olanlar soft-delete edilir, zincir boyunca (alt kaydin alt kaydi da);
-- soft-delete olmayanlar, owned degerler ve many-to-many baglantilari korunur; korunan bir kaydin altindaki her sey
-  de korunur (soft-delete olsa bile);
-- istege bagli iliskide (`SetNull` / `ClientSetNull`) bagimli kayit silinmez; NULL'a cekilen yabanci anahtar eski
-  degerine geri yazilir (bilesik anahtarda yalniz NULL'a cekilen parcalar).
+- soft-deletable ones are soft-deleted, down the whole chain (children of children too);
+- rows that are not soft-deletable, owned values and many-to-many links are kept, and so is everything below a kept row
+  (even when soft-deletable);
+- on an optional relationship (`SetNull` / `ClientSetNull`) the dependant is not deleted; a foreign key set to NULL is
+  written back to its original value (for a composite key, only the parts set to NULL).
 
-Entity'nin isaret ettigi ust kayitlar ve many-to-many karsi tarafi silinmez. Ayni `SaveChanges`'te kalici silinen
-(`permanent: true` ya da soft-delete olmayan) bir kayda cascade eden iliskiyle (`Cascade` / `ClientCascade`) bagli
-satir, soft-delete olsa da onunla birlikte kalici silinir; `SetNull` / `Restrict` iliskisi bunu yapmaz. Bilinen
-sinir: soft-delete edilen kayda ayni anda eklenen (`Added`, henuz kaydedilmemis) zorunlu bagimli kayitlar EF'in
-cascade'i ile izlemeden cikar ve eklenmez.
+Principals the entity points to and the other side of a many-to-many relationship are never deleted. A row linked
+through a cascading relationship (`Cascade` / `ClientCascade`) to a row deleted permanently in the same `SaveChanges`
+(`permanent: true`, or not soft-deletable) is deleted permanently with it, even when soft-deletable; `SetNull` /
+`Restrict` relationships do not do that. Known limit: required dependants added (`Added`, not saved yet) to a row
+soft-deleted at the same time leave the change tracker through EF's cascade and are not inserted.
 
 ## QueryOptions
 
-`QueryOptions` soft-delete edilmis satirlari ve change tracking'i kontrol eder. Okuma metotlari `QueryOptions?` alir;
-verilmezse `GetAsync`, `GetListAsync`, `GetListByDynamicAsync` tracking yapar, `AnyAsync`, `GetByIdAsync`, `CountAsync`
-yapmaz. Hazir degerler: `QueryOptions.None`, `QueryOptions.Tracking`, `QueryOptions.WithDeleted`.
+`QueryOptions` controls soft-deleted rows and change tracking. Read methods take `QueryOptions?`; without it,
+`GetAsync`, `GetListAsync` and `GetListByDynamicAsync` track, `AnyAsync`, `GetByIdAsync` and `CountAsync` do not.
+Presets: `QueryOptions.None`, `QueryOptions.Tracking`, `QueryOptions.WithDeleted`.
 
 ```csharp
 var repo = uow.Repository<Order, Guid>();
@@ -125,68 +127,67 @@ var page     = await repo.GetListAsync(QueryOptions.None, predicate: o => o.Tota
 var archived = await repo.GetListAsync(QueryOptions.WithDeleted, predicate: o => o.IsDeleted);
 var exists   = await repo.AnyAsync(predicate: o => o.CustomerId == customerId);
 
-// Soft-delete edilmis bir kaydi yukleyip degistirmek (tracking acik olmali):
+// Load a soft-deleted row and change it (tracking must be on):
 var order = await repo.GetAsync(o => o.Id == id, new QueryOptions(IncludeDeleted: true, AsTracking: true));
 ```
 
-> `QueryOptions.WithDeleted` tracking yapmaz. Yukle-degistir-`SaveChanges` akisinda
-> `new QueryOptions(IncludeDeleted: true, AsTracking: true)` kullanin.
+> `QueryOptions.WithDeleted` does not track. For load–change–`SaveChanges`, use
+> `new QueryOptions(IncludeDeleted: true, AsTracking: true)`.
 
-### Global soft-delete filtresi (4.6.0+)
+### Global soft-delete filter (4.6.0+)
 
-`modelBuilder.ApplyGlobalSoftDeleteQueryFilter()` soft-delete edilmis satirlari context'in her sorgusundan (repository
-disindaki `db.Orders...` dahil) gizleyen **adlandirilmis** bir EF Core filtresi ekler:
-`ModelBuilderExtensions.SoftDeleteQueryFilterName` (`"KckSoftDelete"`). `IncludeDeleted` iceren repository sorgulari
-yalniz bu filtreyi kaldirir; kendi sorgularinizda `IgnoreQueryFilters([ModelBuilderExtensions.SoftDeleteQueryFilterName])`.
+`modelBuilder.ApplyGlobalSoftDeleteQueryFilter()` adds a **named** EF Core query filter that hides soft-deleted rows from
+every query of the context, including `db.Orders...` outside repositories:
+`ModelBuilderExtensions.SoftDeleteQueryFilterName` (`"KckSoftDelete"`). Repository queries with `IncludeDeleted` lift only
+this filter; in your own queries use `IgnoreQueryFilters([ModelBuilderExtensions.SoftDeleteQueryFilterName])`.
 
 ```csharp
 protected override void OnModelCreating(ModelBuilder modelBuilder)
 {
-    modelBuilder.Entity<Order>().HasQueryFilter("Tenant", o => o.TenantId == _tenantId); // adlandirilmis olmali
+    modelBuilder.Entity<Order>().HasQueryFilter("Tenant", o => o.TenantId == _tenantId); // must be named
     modelBuilder.ApplyGlobalSoftDeleteQueryFilter();
 }
 ```
 
-- `ApplyGlobalSoftDeleteQueryFilter()`'i `OnModelCreating`'in **en sonunda** cagirin: yalniz o anda modelde olan
-  entity'lere filtre ekler (sonra `ApplyConfigurationsFromAssembly` ile eklenenler filtresiz kalir).
-- EF Core adsiz ve adlandirilmis filtreleri ayni entity'de birlestiremez. Soft-delete olan bir entity'de **onceden**
-  adsiz `HasQueryFilter(...)` varsa `ApplyGlobalSoftDeleteQueryFilter` filtrenize ad vermenizi isteyen
-  `InvalidOperationException` firlatir; **sonradan** eklenen adsiz filtrede EF'in kendi hatasi ("Both anonymous and named
-  query filters...") model kurulurken gelir. Iki durumda da filtrenize ad verin.
-- Tek bir entity'yi global filtreden cikarmak icin:
+- Call `ApplyGlobalSoftDeleteQueryFilter()` **last** in `OnModelCreating`: it covers the entity types in the model at that
+  point (types added later, for example with `ApplyConfigurationsFromAssembly`, stay unfiltered).
+- EF Core cannot combine unnamed and named filters on one entity type. If a soft-deletable entity type already has an
+  unnamed `HasQueryFilter(...)`, `ApplyGlobalSoftDeleteQueryFilter` throws `InvalidOperationException` asking you to
+  name it; an unnamed filter added **afterwards** fails at model build with EF Core's own error ("Both anonymous and
+  named query filters..."). Name your filter in both cases.
+- To keep one entity type out of the global filter:
   `modelBuilder.Entity<Log>().HasQueryFilter(ModelBuilderExtensions.SoftDeleteQueryFilterName, null);`
-- `IncludeDeleted`, soft-delete filtresini sorgunun tamaminda kaldirir: `includes` ile yuklenen ve predicate'te
-  gezilen soft-delete'li alt kayitlar da silinmisler dahil gelir. Diger adlandirilmis/adsiz filtreler (tenant) kalir.
-- Global filtre varken zaten soft-delete edilmis bir kaydi `DeleteAsync` ile tekrar silmek kaydi bulur ve yeniden
-  soft-delete eder (`DeletedDate` guncellenir) — global filtresiz context'lerdeki davranisla ayni; 4.6.0 oncesi
-  "bulunamadi" hatasi veriyordu.
+- `IncludeDeleted` lifts the soft-delete filter for the whole query: soft-deleted children loaded through `includes` or
+  reached in the predicate are returned too. Other filters, named or unnamed (tenant), keep applying.
+- With the global filter, `DeleteAsync` on a row that is already soft-deleted finds it and soft-deletes it again
+  (`DeletedDate` is updated), as contexts without the filter already did; before 4.6.0 it threw "not found".
 
-4.6.0 oncesi: soft-delete olan bir entity'deki adsiz filtre (orn. tenant filtresi) iz birakmadan soft-delete
-filtresiyle degistiriliyordu; `IncludeDeleted` global filtre varken silinmis satirlari hic getirmiyordu.
+Before 4.6.0: an unnamed filter on a soft-deletable type (for example a tenant filter) was replaced by the soft-delete
+filter without a trace, and `IncludeDeleted` returned no soft-deleted rows when the global filter was applied.
 
 ## Paging
 
-`GetListAsync` / `GetListByDynamicAsync` `IPaginate<T>` doner (`Items`, `Index`, `Size`, `Count`, `Pages`). Kendi
-sorgularinizda `IQueryable<T>.ToPaginateAsync(index, size)` kullanin:
+`GetListAsync` / `GetListByDynamicAsync` return `IPaginate<T>` (`Items`, `Index`, `Size`, `Count`, `Pages`). In your own
+queries use `IQueryable<T>.ToPaginateAsync(index, size)`:
 
 ```csharp
-IPaginate<Order> page = await repo.Query(QueryOptions.None)   // soft-delete filtreli, tracking kapali
+IPaginate<Order> page = await repo.Query(QueryOptions.None)   // soft-delete filtered, no tracking
     .OrderByDescending(o => o.CreatedDate)
     .ToPaginateAsync(index: 0, size: 20, cancellationToken: ct);
 ```
 
-## Dinamik sorgu
+## Dynamic queries
 
-`GetListByDynamicAsync(DynamicQuery)` yalniz `IFilterPropertyWhitelist<T>` kayitli entity'ler icin calisir; izin
-listesinde olmayan alana filtre `ArgumentException` firlatir.
+`GetListByDynamicAsync(DynamicQuery)` works only for entity types with an `IFilterPropertyWhitelist<T>` registration; a
+filter on a property outside the whitelist throws `ArgumentException`.
 
-## Transaction
+## Transactions
 
 ```csharp
 await uow.BeginTransactionAsync(ct);
 try
 {
-    // ... birden cok repository uzerinden islem
+    // ... work across several repositories
     await uow.SaveChangesAsync(cancellationToken: ct);
 }
 catch
@@ -195,48 +196,53 @@ catch
     throw;
 }
 
-await uow.CommitAsync(ct); // commit, ardindan transaction icinde kaydedilen domain event'leri dagitilir
+await uow.CommitAsync(ct); // commits, then dispatches the domain events saved inside the transaction
 ```
 
-Commit `try` disindadir: commit'ten sonra dagitim hata verirse veri zaten kalicidir, `RollbackAsync` cagrilmamalidir.
+The commit is outside the `try`: if dispatching fails after the commit, the data is already durable and `RollbackAsync`
+must not be called.
 
-## Interceptor'lar
+## Interceptors
 
-- `AuditInterceptor` — `IAuditable` entity'lerde `CreatedDate` / `ModifiedDate`; `ISoftDeletable` silmelerini
-  `IsDeleted = true` + `DeletedDate`'e cevirir. Repository'de `permanent: true` ile yapilan silmeler kalici kalir.
-  Soft-delete edilen satirlar yalniz repository sorgularindan ve soft-delete query filter'i uygulanan context'lerden
-  gizlenir; unique index'ler silinmis satirlari disarida birakmiyorsa yeniden ekleme reddedilebilir.
-  Soft-delete edilen bir kaydin izlenen (yuklu) bagimli kayitlari "Soft-delete kapsami" kuralini izler (navigasyon
-  olmasa da). Ayni `SaveChanges`'te acikca
-  `Remove` edilen soft-delete olmayan bir bagimli kayit da korunur, acikca NULL'a cekilen yabanci anahtar ya da
-  koleksiyondan cikarilan many-to-many baglantisi da geri alinir — bunlari ayri bir `SaveChanges` ile yapin.
-  Kapsam disi: `ChangeTracker.CascadeDeleteTiming = OnSaveChanges` (cascade interceptor'dan sonra calisir, soft-delete
-  olan bagimlilar soft-delete edilmez).
-- `DomainEventDispatchInterceptor` — `AddDomainEventDispatch<TDispatcher>()` ile kaydedilir; aggregate'lerin domain
-  event'lerini `SaveChanges` sonrasi dagitir. 4.2.0+ davranisi:
-  - EF'in `BeginTransaction`'i ile acilan bir transaction icinde kaydedilen event'ler o transaction'a baglanir;
-    rollback, hata veya commit edilmeden dispose edilirse atilir. Commit'ten sonra `IUnitOfWork.CommitAsync` /
-    `SaveChangesAsync(autoCommitTransaction: true)` onlari commit tamamlaninca dagitir; handler ayni DbContext ile
-    kaydedebilir. Transaction `Database.BeginTransaction` ile acilip dogrudan commit edildiyse event'ler context'in
-    sonraki `SaveChanges`'inde dagitilir; o context'te baska `SaveChanges` cagrilmazsa event'ler sessizce kaybolur —
-    transaction'lari `IUnitOfWork` ile commit edin.
-  - Dispatcher hata verirse veri kaydedilmis olur, hata cagirana doner ve event'ler entity'lere geri eklenir; ayni
-    context'teki sonraki `SaveChanges` onlari yeniden dagitir. Teslim en-az-bir-kezdir: kismen basarili bir dagitim
-    tekrarlanabilir, handler'lar idempotent olmalidir. Hata istegin/scope'un sonunu getirirse (web istegi, Mediator
-    pipeline) ya da uygulama coker ise event'ler kaybolur — dayanikli teslim icin outbox gerekir.
-  - Senkron `SaveChanges()`: dispatcher asenkron oldugu icin dagitim bir thread-pool is parcaciginda calisir ve
-    cagiran is parcacigi dagitim bitene kadar bloklanir (deadlock olmaz; her seferinde uyari loglanir). Domain event
-    kullanan kodda `SaveChangesAsync` kullanin.
-  - Kapsam disi: `Database.UseTransaction` ile verilen dis transaction'in dogrudan commit'i (event'ler atilir),
-    `TransactionScope`, savepoint'e geri donus (savepoint sonrasi event'ler commit'te yine dagitilir).
-  - `SaveChangesAsync` tercih edin; senkron `SaveChanges` dagitim boyunca bir thread-pool thread'ini bloklar.
-    DbContext pooling `UseEntityFrameworkPool` ile desteklenir (yukarida); `AddDbContextFactory` desteklenmez.
+- `AuditInterceptor` — sets `CreatedDate` / `ModifiedDate` on `IAuditable` entities and turns deletes of
+  `ISoftDeletable` entities into `IsDeleted = true` + `DeletedDate`. Deletes made through the repository with
+  `permanent: true` stay permanent. Soft-deleted rows are hidden only from repository queries and from contexts that
+  apply a soft-delete query filter; unique indexes that do not exclude deleted rows can reject re-inserting the same
+  key. Tracked (loaded) dependants of a soft-deleted row follow *What a soft delete covers*, even without a navigation.
+  In the same `SaveChanges`, a dependant that is not soft-deletable and removed explicitly is kept as well, and a foreign
+  key set to NULL explicitly or a many-to-many link removed from a collection is restored — make those changes in a
+  separate `SaveChanges`. Out of scope: `ChangeTracker.CascadeDeleteTiming = OnSaveChanges` (the cascade runs after the
+  interceptor, so soft-deletable dependants are not soft-deleted).
+- `DomainEventDispatchInterceptor` — registered by `AddDomainEventHandlers(...)` or `AddDomainEventDispatch<TDispatcher>()`;
+  dispatches aggregates' domain events after `SaveChanges`. Behaviour since 4.2.0:
+  - Events saved inside a transaction opened with EF's `BeginTransaction` belong to that transaction; they are dropped on
+    rollback, on failure, or when it is disposed without a commit. After the commit, `IUnitOfWork.CommitAsync` /
+    `SaveChangesAsync(autoCommitTransaction: true)` dispatches them once the commit has completed; a handler can save
+    through the same DbContext. If the transaction was opened with `Database.BeginTransaction` and committed directly,
+    the events are dispatched by the context's next `SaveChanges`; if no further `SaveChanges` happens on that context
+    they are lost without a trace — commit transactions through `IUnitOfWork`.
+  - If the dispatcher fails, the data is saved, the error goes to the caller and the events go back onto the entities;
+    the next `SaveChanges` on the same context dispatches them again. Delivery is at least once: a partly successful
+    dispatch can repeat, so handlers must be idempotent. If the error ends the request or scope (a web request, a
+    Mediator pipeline) or the process crashes, the events are lost — durable delivery needs an outbox.
+  - Synchronous `SaveChanges()`: the dispatcher is asynchronous, so dispatch runs on a thread-pool thread and the calling
+    thread blocks until it finishes (no deadlock; a warning is logged each time). Use `SaveChangesAsync` in code that
+    raises domain events.
+  - Out of scope: a direct commit of an external transaction passed with `Database.UseTransaction` (events are dropped),
+    `TransactionScope`, rolling back to a savepoint (events raised after the savepoint are still dispatched on commit).
+  - DbContext pooling is supported through `UseEntityFrameworkPool` (above); `AddDbContextFactory` is not.
 
-## Migrasyon
+## Concurrency
+
+`FullEntity<TId>.RowVersion` is a `[Timestamp]` column, which only SQL Server generates. With SQLite or PostgreSQL the
+column is never set, so do not map it there (`Ignore(e => e.RowVersion)`) and rely on another concurrency token (for
+PostgreSQL, the `xmin` system column). The `kck-webapi` template does this for its non-SQL Server outputs.
+
+## Migrations
 
 ```bash
 dotnet ef migrations add InitialCreate --project src/YourApp.Infrastructure
 dotnet ef database update
 ```
 
-`.config/dotnet-tools.json` dosyasinda `dotnet-ef` araci mevcut.
+The `dotnet-ef` tool is in `.config/dotnet-tools.json`.
