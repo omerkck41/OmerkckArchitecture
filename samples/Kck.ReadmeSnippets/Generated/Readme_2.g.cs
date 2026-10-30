@@ -8,7 +8,7 @@ internal static class Snippet
 {
     internal static async Task RunAsync(string[] args)
     {
-#line 50 "README.md"
+#line 63 "README.md"
 
 var builder = WebApplication.CreateBuilder(args);
 
