@@ -1,1 +1,3 @@
 #nullable enable
+Kck.Core.Abstractions.Entities.IDomainEventHandler<TEvent>
+Kck.Core.Abstractions.Entities.IDomainEventHandler<TEvent>.HandleAsync(TEvent domainEvent, System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task!

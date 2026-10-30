@@ -1,3 +1,5 @@
+using System.Reflection;
+using Kck.Core.Abstractions.Entities;
 using Kck.Persistence.Abstractions.UnitOfWork;
 using Kck.Persistence.EntityFramework.Interceptors;
 using Kck.Persistence.EntityFramework.Repositories;
@@ -85,12 +87,92 @@ public sealed class KckPersistenceBuilder(IServiceCollection services)
     /// Registers the <see cref="IDomainEventDispatcher"/> implementation
     /// and the <see cref="DomainEventDispatchInterceptor"/>.
     /// </summary>
+    /// <exception cref="InvalidOperationException"><see cref="AddDomainEventHandlers"/> was called before.</exception>
     public KckPersistenceBuilder AddDomainEventDispatch<TDispatcher>()
         where TDispatcher : class, IDomainEventDispatcher
     {
+        if (RegisteredDispatcher() is { } existing && IsHandlerDispatcher(existing))
+        {
+            throw new InvalidOperationException(
+                $"AddDomainEventDispatch<{typeof(TDispatcher).Name}>() cannot be combined with AddDomainEventHandlers(...): " +
+                "dispatch domain events either through IDomainEventHandler<T> handlers or through a custom IDomainEventDispatcher.");
+        }
+
+        AddDispatcher<TDispatcher>();
+        return this;
+    }
+
+    /// <summary>
+    /// Registers every concrete, non-generic <see cref="IDomainEventHandler{TEvent}"/> implementation in
+    /// <paramref name="assemblies"/> as a scoped service and dispatches domain events to them (ADR-0030). A handler
+    /// receives events of exactly its event type; the order of several handlers for one event is not defined.
+    /// </summary>
+    /// <param name="assemblies">Assemblies to scan; a handler type found twice is registered once.</param>
+    /// <exception cref="ArgumentException"><paramref name="assemblies"/> is empty or contains <see langword="null"/>.</exception>
+    /// <exception cref="InvalidOperationException">
+    /// Another <see cref="IDomainEventDispatcher"/> is registered (for example with
+    /// <see cref="AddDomainEventDispatch{TDispatcher}"/>).
+    /// </exception>
+    public KckPersistenceBuilder AddDomainEventHandlers(params Assembly[] assemblies)
+    {
+        ArgumentNullException.ThrowIfNull(assemblies);
+        if (assemblies.Length == 0)
+            throw new ArgumentException("Pass at least one assembly to scan for IDomainEventHandler<T> implementations.", nameof(assemblies));
+        if (Array.Exists(assemblies, a => a is null))
+            throw new ArgumentException("The assemblies to scan must not contain null.", nameof(assemblies));
+
+        var dispatcher = RegisteredDispatcher();
+        if (dispatcher is not null && !IsHandlerDispatcher(dispatcher))
+        {
+            throw new InvalidOperationException(
+                $"AddDomainEventHandlers(...) cannot be combined with the IDomainEventDispatcher already registered " +
+                $"({Describe(dispatcher)}, for example by AddDomainEventDispatch<T>()): dispatch domain events either through " +
+                "IDomainEventHandler<T> handlers or through a custom IDomainEventDispatcher.");
+        }
+
+        var handlerTypes = assemblies.SelectMany(LoadableTypes)
+            .Where(type => type.IsClass && !type.IsAbstract && !type.ContainsGenericParameters);
+        foreach (var type in handlerTypes)
+        {
+            foreach (var handlerInterface in type.GetInterfaces().Where(IsDomainEventHandlerInterface))
+                Services.TryAddEnumerable(ServiceDescriptor.Scoped(handlerInterface, type));
+        }
+
+        if (dispatcher is null)
+            AddDispatcher<ServiceProviderDomainEventDispatcher>();
+        return this;
+    }
+
+    private void AddDispatcher<TDispatcher>() where TDispatcher : class, IDomainEventDispatcher
+    {
         Services.AddScoped<IDomainEventDispatcher, TDispatcher>();
         Services.AddScoped<DomainEventDispatchInterceptor>();
-        return this;
+    }
+
+    // Keyed registrations are not used by the interceptor, so they neither conflict nor count.
+    private ServiceDescriptor? RegisteredDispatcher() =>
+        Services.LastOrDefault(d => d.ServiceType == typeof(IDomainEventDispatcher) && !d.IsKeyedService);
+
+    private static bool IsDomainEventHandlerInterface(Type type) =>
+        type.IsGenericType && type.GetGenericTypeDefinition() == typeof(IDomainEventHandler<>);
+
+    private static bool IsHandlerDispatcher(ServiceDescriptor descriptor) =>
+        descriptor.ImplementationType == typeof(ServiceProviderDomainEventDispatcher);
+
+    private static string Describe(ServiceDescriptor descriptor) =>
+        (descriptor.ImplementationType ?? descriptor.ImplementationInstance?.GetType())?.Name ?? "registered through a factory";
+
+    // A type that cannot be loaded (e.g. it references an assembly that is not deployed) must not stop the scan.
+    private static IEnumerable<Type> LoadableTypes(Assembly assembly)
+    {
+        try
+        {
+            return assembly.GetTypes();
+        }
+        catch (ReflectionTypeLoadException ex)
+        {
+            return ex.Types.OfType<Type>();
+        }
     }
 
     private static void AddRegisteredInterceptor<TInterceptor>(
