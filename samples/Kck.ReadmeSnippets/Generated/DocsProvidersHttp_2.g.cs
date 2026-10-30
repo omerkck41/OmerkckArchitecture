@@ -4,7 +4,7 @@
 namespace ReadmeSnippets.DocsProvidersHttp_2;
 using Kck.Http.Abstractions;
 
-#line 34 "docs/providers/http.md"
+#line 36 "docs/providers/http.md"
 public class UpstreamService(IApiClient client)
 {
     public Task<ApiResponse<Product>> GetProductAsync(int id, CancellationToken ct) =>

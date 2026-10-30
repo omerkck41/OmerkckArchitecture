@@ -2,15 +2,15 @@
 #nullable enable
 
 namespace ReadmeSnippets.DocsProvidersBackgroundJobs_3;
-using Kck.BackgroundJobs.Abstractions;
 
-#line 49 "docs/providers/background-jobs.md"
-public class EmailCleanupJob : IBackgroundJob
+internal static class Snippet
 {
-    public Task ExecuteAsync(CancellationToken ct = default)
+    internal static async Task RunAsync(IServiceCollection services)
     {
-        // ...
-        return Task.CompletedTask;
+#line 43 "docs/providers/background-jobs.md"
+services.AddKckBackgroundJobsQuartz();                         // defaults: in-memory store
+services.AddKckBackgroundJobsQuartz(q => q.UseDefaultThreadPool(tp => tp.MaxConcurrency = 10)); // Quartz.NET 4 IQuartzBuilder
+#line default
+        await Task.CompletedTask;
     }
 }
-#line default

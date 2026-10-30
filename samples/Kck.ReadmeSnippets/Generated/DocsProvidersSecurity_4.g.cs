@@ -4,7 +4,7 @@
 namespace ReadmeSnippets.DocsProvidersSecurity_4;
 using Kck.Security.Abstractions.Token;
 
-#line 73 "docs/providers/security.md"
+#line 74 "docs/providers/security.md"
 public class AuthService(ITokenService tokens)
 {
     public async Task<string> SignInAsync(User user, CancellationToken ct)

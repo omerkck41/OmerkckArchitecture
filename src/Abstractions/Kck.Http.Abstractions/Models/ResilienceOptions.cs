@@ -14,8 +14,25 @@ public sealed class ResilienceOptions
     /// <summary>Gets or sets how long the circuit breaker remains open after tripping. Defaults to 30 seconds.</summary>
     public TimeSpan CircuitBreakerDuration { get; set; } = TimeSpan.FromSeconds(30);
 
-    /// <summary>Gets or sets the number of consecutive failures required to trip the circuit breaker. Defaults to 5.</summary>
+    /// <summary>Never applied: the circuit opens on a failure ratio, see <see cref="CircuitBreakerFailureRatio"/>.</summary>
+    [Obsolete(
+        "Never applied: the standard resilience handler opens the circuit on a failure ratio. Use " +
+        "CircuitBreakerFailureRatio and CircuitBreakerMinimumThroughput. Removed in v5.0.",
+        DiagnosticId = "KCK0900",
+        UrlFormat = "https://github.com/omerkck41/OmerkckArchitecture/blob/main/docs/policies/deprecation.md#{0}")]
     public int CircuitBreakerFailureThreshold { get; set; } = 5;
+
+    /// <summary>
+    /// Gets or sets the share of failed requests in the sampling window that opens the circuit (0 to 1). Defaults to 0.1,
+    /// the standard resilience handler's default.
+    /// </summary>
+    public double CircuitBreakerFailureRatio { get; set; } = 0.1;
+
+    /// <summary>
+    /// Gets or sets the minimum number of requests in the sampling window before the circuit can open. Defaults to 100,
+    /// the standard resilience handler's default.
+    /// </summary>
+    public int CircuitBreakerMinimumThroughput { get; set; } = 100;
 
     /// <summary>Gets or sets the maximum time allowed for a single HTTP request before it is cancelled. Defaults to 30 seconds.</summary>
     public TimeSpan Timeout { get; set; } = TimeSpan.FromSeconds(30);

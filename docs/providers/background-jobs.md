@@ -20,10 +20,19 @@ services.AddKckBackgroundJobsHangfire(options =>
 });
 ```
 
-`AddKckBackgroundJobsHangfire` adds the Hangfire server and `IJobScheduler`. The only supported `StorageType` is
-`InMemory` (the default): jobs do not survive a restart and are not shared between instances; any other value throws
-`NotSupportedException`. `ConnectionString` is not used yet. For durable jobs, use Quartz with a persistent job store or
-configure Hangfire storage yourself. ADR-0002 removed `Hangfire.MySqlStorage` (abandoned package).
+`AddKckBackgroundJobsHangfire` adds the Hangfire server and `IJobScheduler`. Without further configuration the storage
+is in memory: jobs do not survive a restart and are not shared between instances. For durable jobs, add a Hangfire
+storage package and plug it in with `ConfigureStorage` (4.7.0):
+
+```csharp
+using Hangfire;
+
+services.AddKckBackgroundJobsHangfire(options =>
+    options.ConfigureStorage = config => config.UseInMemoryStorage()); // e.g. config.UseSqlServerStorage(connectionString)
+```
+
+When `ConfigureStorage` is set, `StorageType` is ignored; otherwise only `InMemory` is accepted. `ConnectionString` is
+obsolete (KCK0700): it was never read. ADR-0002 removed `Hangfire.MySqlStorage` (abandoned package).
 
 The Hangfire dashboard is in the `Hangfire.AspNetCore` package, which this package does not reference; add it and call
 `app.UseHangfireDashboard("/jobs")` with an authorization filter.

@@ -20,6 +20,11 @@ public enum RsaKeySource
     Configuration,
     /// <summary>PEM file on disk.</summary>
     File,
-    /// <summary>Key loaded via ISecretsManager.</summary>
+    /// <summary>Never implemented: options validation rejects it. Load the key yourself and set <c>RsaKeyBase64</c>.</summary>
+    [Obsolete(
+        "Never implemented: the key is not loaded from ISecretsManager. Read the key yourself (for example from " +
+        "ISecretsManager or Key Vault) and set RsaKeyBase64 with RsaKeySource.Configuration. Removed in v5.0.",
+        DiagnosticId = "KCK0300",
+        UrlFormat = "https://github.com/omerkck41/OmerkckArchitecture/blob/main/docs/policies/deprecation.md#{0}")]
     SecretsManager
 }

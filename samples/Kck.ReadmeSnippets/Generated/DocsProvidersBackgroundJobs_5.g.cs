@@ -3,15 +3,13 @@
 
 namespace ReadmeSnippets.DocsProvidersBackgroundJobs_5;
 
-#line 68 "docs/providers/background-jobs.md"
-public class CheckoutHandler(IJobScheduler scheduler)
+internal static class Snippet
 {
-    public async Task HandleAsync(CancellationToken ct)
+    internal static async Task RunAsync(IServiceCollection services)
     {
-        await scheduler.EnqueueAsync<EmailCleanupJob>(ct);
-        await scheduler.ScheduleAsync<EmailCleanupJob>(TimeSpan.FromMinutes(5), ct);
-        // Hangfire: a 5-field crontab constant. Quartz: its own format, seconds first ("0 0 0 * * ?").
-        await scheduler.AddOrUpdateRecurringAsync<EmailCleanupJob>("daily-cleanup", CronExpressions.EveryDay, ct);
+#line 71 "docs/providers/background-jobs.md"
+services.AddKckJob<EmailCleanupJob>();
+#line default
+        await Task.CompletedTask;
     }
 }
-#line default

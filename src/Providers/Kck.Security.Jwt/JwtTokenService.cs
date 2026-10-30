@@ -164,13 +164,9 @@ public sealed partial class JwtTokenService : ITokenService, IDisposable
                     rsa.ImportFromPem(pem);
                     break;
 
-                case RsaKeySource.SecretsManager:
+                default: // includes the obsolete RsaKeySource.SecretsManager, which options validation rejects
                     throw new InvalidOperationException(
-                        "RsaKeySource.SecretsManager requires manual key loading via ISecretsManager. " +
-                        "Use the AddKckJwt overload that accepts a key provider delegate.");
-
-                default:
-                    throw new InvalidOperationException($"Unsupported RsaKeySource: {_options.KeySource}");
+                        $"Unsupported RsaKeySource: {_options.KeySource}. Use Configuration (RsaKeyBase64) or File (RsaKeyPath).");
             }
 
             LogSigningKeyLoaded(_logger, _options.KeySource);

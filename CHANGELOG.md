@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- `Kck.Http.Abstractions` — `ResilienceOptions.CircuitBreakerFailureRatio` (default 0.1) and
+  `CircuitBreakerMinimumThroughput` (default 100), applied to the standard resilience handler's circuit breaker.
+- `Kck.BackgroundJobs.Hangfire` — `HangfireOptions.ConfigureStorage`: plug in a durable Hangfire storage (for example
+  `c => c.UseSqlServerStorage(...)` from Hangfire.SqlServer) instead of the in-memory one.
+
+### Deprecated
+- `ResilienceOptions.CircuitBreakerFailureThreshold` (KCK0900) — never applied; use the two options above.
+- `HangfireOptions.ConnectionString` (KCK0700) — never read; use `ConfigureStorage`.
+- `RsaKeySource.SecretsManager` (KCK0300) — never implemented; set `RsaKeyBase64` with the key you read yourself.
+- Bundle settings that were never read (KCK0002): `KckWebApiDefaults.Persistence`, `.Caching`, `.Observability`,
+  `SecurityDefaults.Hashing`, `JwtDefaults.Algorithm` (WebApi and MinimalApi), `KckWorkerServiceDefaults.Observability`.
+  Configure those providers in code. Each of these deprecations is removed in v5.0 at the earliest.
+
 ### Fixed
 - `Kck.EventBus.Abstractions` (RabbitMQ, Azure Service Bus) — a handler subscribed with `Subscribe<TEvent, THandler>()`
   but registered through `RegisterHandlersFromAssembly` (as `IEventHandler<TEvent>`) was not found, and its messages
@@ -32,6 +46,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `DeleteAsync` detached is not trusted: its `DeletedDate` is always stamped.
 - `Kck.EventBus.Abstractions` — `RegisterHandlersFromAssembly` registers each handler once (`TryAddEnumerable`), so
   scanning an assembly twice no longer runs its handlers twice.
+- `Kck.Http.Resilience` — `CircuitBreakerDuration` is now the circuit breaker's break duration (how long the circuit
+  stays open). Before, it set the sampling window (2 x the value) and the break duration stayed at the handler's 5 s
+  default. The sampling window is now 2 x `Timeout` with a 30 s floor, so a short break with a long timeout is valid.
+- `Kck.Security.Jwt` — `RsaKeySource.SecretsManager` fails options validation at startup instead of throwing at the
+  first token.
+- `Kck.Localization.Json` / `.Yaml` — `LocalizationOptions.CacheExpiration` (default 30 minutes) is applied: a cached
+  resource file is read again after it expires. Before, it was cached until `ReloadAsync`.
+- `Kck.Exceptions.AspNetCore` — each handled exception is logged once: `Warning` for a 4xx, `Error` for a 5xx
+  (including a `CustomException` without a status code, logged at `Warning` before). Before, the middleware also
+  logged every exception at `Error`.
 
 ### Changed
 - Package READMEs (nuget.org pages) and bundle package descriptions rewritten against the API: their quick starts used

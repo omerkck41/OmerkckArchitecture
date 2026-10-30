@@ -1,4 +1,5 @@
 using System.Collections.Concurrent;
+using System.Diagnostics;
 using System.Text.Json;
 using Kck.Localization.Abstractions;
 using Microsoft.Extensions.Logging;
@@ -14,7 +15,7 @@ public sealed partial class JsonResourceProvider(
     ILogger<JsonResourceProvider> logger,
     int priority = 100) : IResourceProvider
 {
-    private readonly ConcurrentDictionary<string, IReadOnlyDictionary<string, string>> _cache = new();
+    private readonly ConcurrentDictionary<string, CacheEntry> _cache = new();
     private readonly LocalizationOptions _options = options.CurrentValue;
 
     /// <summary>Gets the priority of this provider relative to others; lower values are evaluated first.</summary>
@@ -54,8 +55,10 @@ public sealed partial class JsonResourceProvider(
 
     private async Task<IReadOnlyDictionary<string, string>> LoadResourcesAsync(string culture, CancellationToken ct)
     {
-        if (_options.EnableCaching && _cache.TryGetValue(culture, out var cached))
-            return cached;
+        // CacheExpiration bounds how long a loaded file is served from the cache (before 4.7 it lived until ReloadAsync).
+        if (_options.EnableCaching && _cache.TryGetValue(culture, out var cached)
+            && Stopwatch.GetElapsedTime(cached.LoadedAt) < _options.CacheExpiration)
+            return cached.Resources;
 
         if (!IsValidCulture(culture))
             return new Dictionary<string, string>();
@@ -71,7 +74,7 @@ public sealed partial class JsonResourceProvider(
         var dict = FlattenJson(json);
 
         if (_options.EnableCaching)
-            _cache[culture] = dict;
+            _cache[culture] = new CacheEntry(dict, Stopwatch.GetTimestamp());
 
         return dict;
     }
@@ -111,4 +114,6 @@ public sealed partial class JsonResourceProvider(
                 break;
         }
     }
+
+    private readonly record struct CacheEntry(IReadOnlyDictionary<string, string> Resources, long LoadedAt);
 }
