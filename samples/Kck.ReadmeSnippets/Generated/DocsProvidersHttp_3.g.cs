@@ -3,7 +3,7 @@
 
 namespace ReadmeSnippets.DocsProvidersHttp_3;
 
-#line 64 "docs/providers/http.md"
+#line 68 "docs/providers/http.md"
 public sealed class ApiResponse<T>
 {
     public bool IsSuccess { get; init; }

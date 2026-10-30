@@ -132,6 +132,28 @@ public sealed class JsonResourceProviderTests : IDisposable
         result.Should().BeNull();
     }
 
+    [Theory]
+    [InlineData(0, "after")]      // expired at once: the changed file is read again
+    [InlineData(30, "before")]    // 30 minutes: the cached value is kept
+    public async Task GetStringAsync_CacheExpiration_DecidesWhenTheFileIsReadAgain(int minutes, string expected)
+    {
+        // CacheExpiration was declared but never applied before 4.7: the cache lived until ReloadAsync.
+        var options = new StaticOptionsMonitor<LocalizationOptions>(new LocalizationOptions
+        {
+            ResourcePath = _tempDir,
+            EnableCaching = true,
+            CacheExpiration = TimeSpan.FromMinutes(minutes)
+        });
+        var sut = new JsonResourceProvider(options, NullLogger<JsonResourceProvider>.Instance);
+        var file = Path.Join(_tempDir, "en.json");
+        await File.WriteAllTextAsync(file, """{"greeting": "before"}""");
+        (await sut.GetStringAsync("greeting", "en")).Should().Be("before");
+
+        await File.WriteAllTextAsync(file, """{"greeting": "after"}""");
+
+        (await sut.GetStringAsync("greeting", "en")).Should().Be(expected);
+    }
+
     public void Dispose()
     {
         if (Directory.Exists(_tempDir))

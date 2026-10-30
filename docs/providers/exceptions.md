@@ -84,5 +84,7 @@ custom response, put your own middleware or ASP.NET Core `IExceptionHandler` (wi
 
 ## Logging
 
-Every caught exception is logged at `Error` with the request's TraceId (`TraceIdentifier`). The handler then logs it
-once more: a `CustomException` at `Warning` with its type name, any other exception at `Error`.
+Every caught exception is logged once, with the request's TraceId (`TraceIdentifier`): at `Warning` when it maps to a
+4xx status (a `CustomException` or `ValidationException`), at `Error` for a 5xx (any other exception, or a
+`CustomException` without a status code). Before 4.7.0 the middleware also logged every exception at `Error`. If the
+response has already started, the middleware logs the exception at `Error` and rethrows it (the host logs it too).

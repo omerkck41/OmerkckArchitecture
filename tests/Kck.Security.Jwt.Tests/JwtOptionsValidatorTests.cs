@@ -16,6 +16,20 @@ public sealed class JwtOptionsValidatorTests
     }
 
     [Fact]
+    public void Validate_SecretsManagerSource_FailsAtStartupWithGuidance()
+    {
+        // RsaKeySource.SecretsManager was never implemented and only threw at the first token; fail at validation.
+#pragma warning disable KCK0300
+        var opts = Valid(KeySource: RsaKeySource.SecretsManager);
+#pragma warning restore KCK0300
+
+        var result = _sut.Validate(null, opts);
+
+        result.Succeeded.Should().BeFalse();
+        result.FailureMessage.Should().Contain("SecretsManager").And.Contain("RsaKeyBase64");
+    }
+
+    [Fact]
     public void Validate_FileSource_ValidPath_ReturnsSuccess()
     {
         var opts = Valid(KeySource: RsaKeySource.File, RsaKeyPath: "/secrets/rsa.pem");

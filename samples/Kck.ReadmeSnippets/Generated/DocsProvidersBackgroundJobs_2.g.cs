@@ -2,14 +2,16 @@
 #nullable enable
 
 namespace ReadmeSnippets.DocsProvidersBackgroundJobs_2;
+using Hangfire;
 
 internal static class Snippet
 {
-    internal static async Task RunAsync(IServiceCollection services)
+    internal static async Task RunAsync(IServiceCollection services, string connectionString)
     {
-#line 34 "docs/providers/background-jobs.md"
-services.AddKckBackgroundJobsQuartz();                         // defaults: in-memory store
-services.AddKckBackgroundJobsQuartz(q => q.UseDefaultThreadPool(tp => tp.MaxConcurrency = 10)); // Quartz.NET 4 IQuartzBuilder
+#line 29 "docs/providers/background-jobs.md"
+
+services.AddKckBackgroundJobsHangfire(options =>
+    options.ConfigureStorage = config => config.UseInMemoryStorage()); // e.g. config.UseSqlServerStorage(connectionString)
 #line default
         await Task.CompletedTask;
     }

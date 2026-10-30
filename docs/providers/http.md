@@ -18,7 +18,9 @@ services.AddKckHttpResilience(opt =>
     opt.Timeout = TimeSpan.FromSeconds(30);                    // per attempt; the whole call gets 3x
     opt.MaxRetryAttempts = 3;
     opt.MedianFirstRetryDelay = TimeSpan.FromSeconds(1);
-    opt.CircuitBreakerDuration = TimeSpan.FromSeconds(30);
+    opt.CircuitBreakerDuration = TimeSpan.FromSeconds(30);         // how long the circuit stays open
+    opt.CircuitBreakerFailureRatio = 0.1;                          // share of failures that opens it
+    opt.CircuitBreakerMinimumThroughput = 100;                     // requests needed before it can open
 });
 ```
 
@@ -51,12 +53,14 @@ public class UpstreamService(IApiClient client)
 | `Timeout` (30 s) | attempt timeout; the total request timeout is 3 x `Timeout` |
 | `MaxRetryAttempts` (3) | retries on transient failures (5xx, 408, 429, network errors) with exponential backoff |
 | `MedianFirstRetryDelay` (1 s) | the base retry delay |
-| `CircuitBreakerDuration` (30 s) | the circuit breaker's sampling window is 2 x this value; the break duration is the standard handler's default |
+| `CircuitBreakerDuration` (30 s) | the break duration: how long the circuit stays open |
+| `CircuitBreakerFailureRatio` (0.1) | share of failed requests in the sampling window that opens the circuit |
+| `CircuitBreakerMinimumThroughput` (100) | requests in the sampling window before the circuit can open |
 
-`CircuitBreakerFailureThreshold` is declared but not applied in this version: the standard handler's failure-ratio
-defaults decide when the circuit opens. Keep `CircuitBreakerDuration` at least as long as `Timeout`: the standard
-handler requires the sampling window (2 x `CircuitBreakerDuration`) to be at least twice the attempt timeout and
-rejects the configuration otherwise.
+The sampling window is 2 x `Timeout`, at least 30 s (the standard handler requires at least twice the attempt timeout).
+Invalid values (for example a failure ratio above 1) fail the standard handler's options validation at startup.
+`CircuitBreakerFailureThreshold` is obsolete (KCK0900): it was never applied. Before 4.7.0, `CircuitBreakerDuration`
+set the sampling window (2 x the value) and the break duration was the handler's default (5 s).
 
 ## ApiResponse\<T>
 

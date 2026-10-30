@@ -93,5 +93,7 @@ The default implementation uses the target culture instead of the invariant cult
 
 ## Cache
 
-Resource files are loaded once and cached per process (`EnableCaching`; `CacheExpiration` is not applied yet). After changing files at
-runtime, call `ILocalizationService.ReloadAsync()`: it reloads the JSON and YAML providers.
+Resource files are cached per process (`EnableCaching`) for `CacheExpiration` (30 minutes by default; before 4.7.0 it
+was not applied and the cache lived until a reload). A zero or negative `CacheExpiration` reads the file on every
+lookup; to turn caching off, set `EnableCaching = false`. To pick up changed files at once, call
+`ILocalizationService.ReloadAsync()`: it clears the JSON and YAML providers' caches.

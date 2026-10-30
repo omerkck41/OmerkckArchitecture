@@ -2,9 +2,24 @@ namespace Kck.Bundle.WebApi;
 
 public sealed class KckWebApiDefaults
 {
+    [Obsolete(
+        "Not read by AddKckWebApiDefaults: " +
+        "register persistence in code with AddKckPersistence(...). Removed in v5.0.",
+        DiagnosticId = "KCK0002",
+        UrlFormat = "https://github.com/omerkck41/OmerkckArchitecture/blob/main/docs/policies/deprecation.md#{0}")]
     public PersistenceDefaults Persistence { get; set; } = new();
+    [Obsolete(
+        "Not read by AddKckWebApiDefaults: " +
+        "the bundle always registers the in-memory cache; register another provider in code. Removed in v5.0.",
+        DiagnosticId = "KCK0002",
+        UrlFormat = "https://github.com/omerkck41/OmerkckArchitecture/blob/main/docs/policies/deprecation.md#{0}")]
     public CachingDefaults Caching { get; set; } = new();
     public SecurityDefaults Security { get; set; } = new();
+    [Obsolete(
+        "Not read by AddKckWebApiDefaults: " +
+        "configure OpenTelemetry in code with AddKckObservability(o => o.UseOpenTelemetry(...)). Removed in v5.0.",
+        DiagnosticId = "KCK0002",
+        UrlFormat = "https://github.com/omerkck41/OmerkckArchitecture/blob/main/docs/policies/deprecation.md#{0}")]
     public ObservabilityDefaults Observability { get; set; } = new();
     public AspNetCoreDefaults AspNetCore { get; set; } = new();
 }
@@ -24,6 +39,11 @@ public sealed class CachingDefaults
 public sealed class SecurityDefaults
 {
     public JwtDefaults Jwt { get; set; } = new();
+    [Obsolete(
+        "Not read by AddKckWebApiDefaults: " +
+        "the bundle always registers Argon2. Removed in v5.0.",
+        DiagnosticId = "KCK0002",
+        UrlFormat = "https://github.com/omerkck41/OmerkckArchitecture/blob/main/docs/policies/deprecation.md#{0}")]
     public string Hashing { get; set; } = "Argon2";
 }
 
@@ -31,6 +51,11 @@ public sealed class JwtDefaults
 {
     public string? Issuer { get; set; }
     public string? Audience { get; set; }
+    [Obsolete(
+        "Not read by AddKckWebApiDefaults: " +
+        "Kck.Security.Jwt always signs with RS256. Removed in v5.0.",
+        DiagnosticId = "KCK0002",
+        UrlFormat = "https://github.com/omerkck41/OmerkckArchitecture/blob/main/docs/policies/deprecation.md#{0}")]
     public string Algorithm { get; set; } = "RS256";
 }
 

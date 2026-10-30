@@ -46,6 +46,15 @@ public sealed class JwtOptionsValidator : IValidateOptions<JwtOptions>
                         → Fix: opt.RsaKeyPath = "/secrets/rsa-private.pem"
                     """);
                 break;
+#pragma warning disable KCK0300 // rejecting the obsolete value is the point
+            case RsaKeySource.SecretsManager:
+#pragma warning restore KCK0300
+                errors.Add(
+                    """
+                      • KeySource: RsaKeySource.SecretsManager is not supported (the key is never loaded)
+                        → Fix: read the key yourself and set opt.KeySource = RsaKeySource.Configuration, opt.RsaKeyBase64 = key
+                    """);
+                break;
             case RsaKeySource.Configuration when string.IsNullOrWhiteSpace(options.RsaKeyBase64):
                 errors.Add(
                     """

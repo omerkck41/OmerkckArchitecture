@@ -2,14 +2,15 @@
 #nullable enable
 
 namespace ReadmeSnippets.DocsProvidersBackgroundJobs_4;
+using Kck.BackgroundJobs.Abstractions;
 
-internal static class Snippet
+#line 58 "docs/providers/background-jobs.md"
+public class EmailCleanupJob : IBackgroundJob
 {
-    internal static async Task RunAsync(IServiceCollection services)
+    public Task ExecuteAsync(CancellationToken ct = default)
     {
-#line 62 "docs/providers/background-jobs.md"
-services.AddKckJob<EmailCleanupJob>();
-#line default
-        await Task.CompletedTask;
+        // ...
+        return Task.CompletedTask;
     }
 }
+#line default

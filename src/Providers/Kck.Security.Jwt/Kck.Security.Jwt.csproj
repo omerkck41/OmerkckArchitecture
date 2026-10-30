@@ -5,7 +5,7 @@
     <!-- Pinned to net10.0; depends on net10-only packages (LS-FAZ-2 ADR-0011) -->
     <TargetFrameworks>net10.0</TargetFrameworks>
     <Title>Kck JWT Token Service</Title>
-    <Description>RS256-signed JWT ITokenService using Microsoft.IdentityModel.JsonWebTokens. Supports RSA key loading from file, base64-encoded configuration, or ISecretsManager. Generates and validates access tokens with configurable expiry. Registered via AddKckJwt().</Description>
+    <Description>RS256-signed JWT ITokenService using Microsoft.IdentityModel.JsonWebTokens. Loads the RSA key from a PEM file or base64-encoded configuration. Generates and validates access tokens with configurable expiry. Registered via AddKckJwt().</Description>
     <PackageTags>dotnet;kck;security;jwt;authentication;rs256;tokens</PackageTags>
     <PackageReadmeFile>README.nuget.md</PackageReadmeFile>
   </PropertyGroup>
