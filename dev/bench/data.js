@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1793396966299,
+  "lastUpdate": 1793397646049,
   "repoUrl": "https://github.com/omerkck41/OmerkckArchitecture",
   "entries": {
     "Benchmark": [
@@ -13582,6 +13582,102 @@ window.BENCHMARK_DATA = {
             "value": 10.342342297945704,
             "unit": "ns",
             "range": "± 0.10276386749380999"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "106805727+omerkck41@users.noreply.github.com",
+            "name": "Ömer KÜÇÜK",
+            "username": "omerkck41"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "0ef0502dc0db904c1eaf2c73a20ec8ef112cd462",
+          "message": "feat: persistence analyzers KCK1001 and KCK1002 (F4, ADR-0031) (#271)\n\n## Summary\n\nPlan step F4 PR-1 (G4.1–G4.4, G4.6 of\n`docs/plans/2026-10-30-dx-hero-module-plan.md`), decided in\n[ADR-0031](docs/adr/0031-persistence-analyzers.md).\n\n- **KCK1001** (warning): a transaction committed directly with\n`IDbContextTransaction.Commit` / `CommitAsync` in a\nproject that uses domain events (implements `IDomainEventHandler<T>` or\n`IDomainEventDispatcher`, or calls\n`AddDomainEventHandlers` / `AddDomainEventDispatch`). Those events wait\nfor a later `SaveChanges` and are lost if none\nfollows. Projects without domain events get no warning. Compilation-end\nanalysis (build, not live).\n- **KCK1002** (info): synchronous `DbContext.SaveChanges()` /\n`SaveChanges(bool)`.\n- **Packaging:** the analyzer ships inside\n`Kck.Persistence.EntityFramework` (`analyzers/dotnet/cs`), built against\nRoslyn 5.0.0 so every .NET 10 SDK loads it (no CS8032).\n`Kck.Bundle.WebApi` now passes it on (`include=\"All\"`), so\n  the template output gets it too.\n- **No code fix.** One was built and removed after an adversarial\nreview: moving a transaction to `IUnitOfWork` can\nchange what is committed (dropped implicit rollback on early exits,\nrollback in `catch` throwing \"No active\ntransaction\", a transaction on another `DbContext`). The diagnostic page\nshows the manual change and its pitfalls.\n- **Tests** drive Roslyn directly (`CSharpCompilation.WithAnalyzers`):\n`Microsoft.CodeAnalysis.CSharp.Analyzer.Testing`\n1.1.4 pulls `System.Security.Cryptography.Pkcs` 9.0.6\n(GHSA-846f-f764-76mx high), rejected per the pre-committed\n  criterion (`decisions/2026-10-30-roslyn-analyzer-packages.md`).\n- **Precision gate:** `samples/Directory.Build.props` builds every\nsample with the analyzer (warnings are errors).\n- **Docs:** `docs/reference/diagnostics/` (KCK1001, KCK1002, \"Available\nfrom 4.7.0\"), persistence guide, package README.\n- **Licence gate:** the implicit netstandard2.0 packages\n`NETStandard.Library` 2.0.3 and `Microsoft.NETCore.Platforms`\n  1.1.0 reviewed as MIT (build-time only, not in the package).\n- CHANGELOG `[Unreleased]`: Added, Changed — behaviour (KCK1001 can fail\nbuilds that treat warnings as errors). No\n  version bump.\n\n## Test plan\n\n- [x] `dotnet build -c Release` — 0 errors (5 pre-existing CA1716\nwarnings)\n- [x] `dotnet test -c Release --filter \"Category!=Integration\"` — all 40\ntest projects pass (analyzer tests 10/10)\n- [x] Mutation probes: each negative analyzer test fails when its guard\nis removed\n- [x] Real SDK 10.0.402 build of a sample with a deliberate direct\ncommit → `error KCK1001` (analyzer loaded, no CS8032)\n- [x] `dotnet pack` — only\n`analyzers/dotnet/cs/Kck.Persistence.EntityFramework.Analyzers.dll`\nadded; package validation passes\n- [x] Licence gate 243 packages, 0 violations; docs language 0 problems;\n157 docs code blocks compile\n- [ ] Template smoke (template output with the analyzer from the packed\npackages) — CI\n- [ ] Integration tests (Docker) — CI\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\n---------\n\nCo-authored-by: Claude Opus 5.5 <noreply@anthropic.com>",
+          "timestamp": "2026-10-30T21:54:45Z",
+          "tree_id": "ef7a064f832687b3e1724269c3bfa881e5008482",
+          "url": "https://github.com/omerkck41/OmerkckArchitecture/commit/0ef0502dc0db904c1eaf2c73a20ec8ef112cd462"
+        },
+        "date": 1793397645131,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Success_Factory",
+            "value": 3.85425401913623,
+            "unit": "ns",
+            "range": "± 0.04231557140373535"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Failure_Factory",
+            "value": 5.114334961865097,
+            "unit": "ns",
+            "range": "± 0.13709209945294684"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Success",
+            "value": 0.5137808680534363,
+            "unit": "ns",
+            "range": "± 0.048468919091663724"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Failure",
+            "value": 0.3212226250996956,
+            "unit": "ns",
+            "range": "± 0.01877828048678653"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Serialize_Reflection",
+            "value": 264.6945420900981,
+            "unit": "ns",
+            "range": "± 2.9314719991715075"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Deserialize_Reflection",
+            "value": 470.5365389310397,
+            "unit": "ns",
+            "range": "± 5.190775833250779"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 0)",
+            "value": 5.946599710200514,
+            "unit": "ns",
+            "range": "± 0.05268344496224175"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 5)",
+            "value": 6.783415888037,
+            "unit": "ns",
+            "range": "± 0.06802137103620161"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 0)",
+            "value": 5.939790442585945,
+            "unit": "ns",
+            "range": "± 0.08106497853220193"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 5)",
+            "value": 5.901449464261532,
+            "unit": "ns",
+            "range": "± 0.052140900400220486"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 0)",
+            "value": 5.99320333131722,
+            "unit": "ns",
+            "range": "± 0.09237102322512108"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 5)",
+            "value": 5.948435693979263,
+            "unit": "ns",
+            "range": "± 0.07350060306177036"
           }
         ]
       }
