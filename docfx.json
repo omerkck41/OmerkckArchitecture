@@ -30,12 +30,11 @@
     "globalMetadata": {
       "_appName": "Kck Architecture Framework",
       "_appTitle": "Kck Architecture Framework",
-      "_appFooter": "MIT Licensed — <a href=\"https://github.com/omerkck41/OmerkckArchitecture\">GitHub</a>",
+      "_appFooter": "MIT Licensed — <a href=\"https://github.com/omerkck41/OmerkckArchitecture\">GitHub</a> · <a href=\"https://github.com/omerkck41/OmerkckArchitecture/issues/new?template=docs-feedback.yml\">Report a problem with the docs</a>",
       "_enableSearch": true,
       "_gitContribute": {
         "repo": "https://github.com/omerkck41/OmerkckArchitecture",
-        "branch": "main",
-        "path": "docs"
+        "branch": "main"
       }
     },
     "sitemap": {
