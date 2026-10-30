@@ -33,6 +33,8 @@ README_FILES = [
     "src/Providers/Kck.Persistence.EntityFramework/README.nuget.md",
     "src/Providers/Kck.Pipeline.Mediator/README.nuget.md",
     "src/Providers/Kck.Caching.InMemory/README.nuget.md",
+    "src/Providers/Kck.EventBus.InMemory/README.nuget.md",
+    "src/Providers/Kck.EventBus.RabbitMq/README.nuget.md",
 ]
 
 # Published guides (plan G2.1 b). ADRs are immutable records of the API at decision time and are not compiled.

@@ -11,29 +11,33 @@ dotnet add package Kck.EventBus.InMemory
 ## Quick Start
 
 ```csharp
-// Program.cs
-builder.Services.AddKckEventBus(eb => eb.UseInMemory());
+using Kck.EventBus.Abstractions;
 
-// Subscribe to an event
-builder.Services.AddKckEventHandler<OrderPlacedEvent, OrderPlacedHandler>();
+builder.Services.AddKckEventBus(eb => eb
+    .UseInMemory()
+    .RegisterHandlersFromAssembly(typeof(OrderPlacedHandler).Assembly));
 
-// Publish an event
+public sealed record OrderPlacedEvent(Guid OrderId) : IntegrationEvent;
+
+public sealed class OrderPlacedHandler(ILogger<OrderPlacedHandler> logger) : IEventHandler<OrderPlacedEvent>
+{
+    public Task HandleAsync(OrderPlacedEvent eventData, CancellationToken ct = default)
+    {
+        logger.LogInformation("Order {OrderId} placed", eventData.OrderId);
+        return Task.CompletedTask;
+    }
+}
+
+// Publish after the data is saved
 public class OrderService(IEventBus bus)
 {
-    public async Task PlaceOrderAsync(Order order, CancellationToken ct)
-    {
-        await _db.SaveChangesAsync(ct);
-        await bus.PublishAsync(new OrderPlacedEvent(order.Id), ct);
-    }
+    public Task PlaceAsync(Guid orderId, CancellationToken ct) => bus.PublishAsync(new OrderPlacedEvent(orderId), ct);
 }
 ```
 
-## Configuration
-
-| Property | Description | Default |
-|---|---|---|
-| `ThrowOnHandlerError` | Re-throw exceptions from event handlers | `false` |
-| `MaxConcurrentHandlers` | Maximum parallel handler invocations | `Environment.ProcessorCount` |
+`PublishAsync` runs every registered handler in the caller's flow, in one DI scope; a handler exception is logged and
+not rethrown. Nothing is persisted: use a broker provider when events must survive a restart or cross processes. The
+bus has no options.
 
 ## Resources
 

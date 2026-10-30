@@ -193,6 +193,97 @@ public sealed class EventBusAbstractionsTests
     }
 
     [Fact]
+    public async Task ProcessAsync_HandlerRegisteredOnlyAsInterface_IsResolvedByItsClass()
+    {
+        // RegisterHandlersFromAssembly registers IEventHandler<T> only; Subscribe<TEvent, THandler>() stores the class.
+        var handler = new PingHandler();
+        var services = new ServiceCollection().AddSingleton<IEventHandler<PingEvent>>(handler).BuildServiceProvider();
+        var sut = new EventProcessor(services, Substitute.For<ILogger>());
+        var types = new ConcurrentDictionary<string, Type> { ["Ping"] = typeof(PingEvent) };
+        var handlers = new ConcurrentDictionary<string, ConcurrentBag<Type>> { ["Ping"] = [typeof(PingHandler)] };
+
+        await sut.ProcessAsync("Ping", Json("via interface"), types, handlers);
+
+        handler.Seen.Should().Equal("via interface");
+    }
+
+    [Fact]
+    public async Task ProcessAsync_ScannedHandler_IsResolvedByItsClassEvenWhenAnotherHandlerIsBroken()
+    {
+        // The scan registers the class too, so a subscription resolves just that handler; a broken handler of the same
+        // event (UnconstructibleHandler, also in this assembly) does not fail the message.
+        var services = new ServiceCollection();
+        new KckEventBusBuilder(services).RegisterHandlersFromAssembly(typeof(EventBusAbstractionsTests).Assembly);
+        var sut = new EventProcessor(services.BuildServiceProvider(), Substitute.For<ILogger>());
+        var types = new ConcurrentDictionary<string, Type> { ["Scanned"] = typeof(ScannedEvent) };
+        var handlers = new ConcurrentDictionary<string, ConcurrentBag<Type>> { ["Scanned"] = [typeof(ScannedHandler)] };
+
+        await sut.ProcessAsync("Scanned", Json("scanned"), types, handlers);
+
+        ScannedHandler.Seen.Should().Contain("scanned");
+    }
+
+    public sealed record ScannedEvent : IntegrationEvent
+    {
+        public string Text { get; init; } = string.Empty;
+    }
+
+    public sealed class ScannedHandler : IEventHandler<ScannedEvent>
+    {
+        public static ConcurrentQueue<string> Seen { get; } = new();
+
+        public Task HandleAsync(ScannedEvent eventData, CancellationToken ct = default)
+        {
+            Seen.Enqueue(eventData.Text);
+            return Task.CompletedTask;
+        }
+    }
+
+    public sealed class UnconstructibleScannedHandler(INotRegistered dependency) : IEventHandler<ScannedEvent>
+    {
+        public Task HandleAsync(ScannedEvent eventData, CancellationToken ct = default) => Task.FromResult(dependency);
+    }
+
+    public interface INotRegistered;
+
+    public sealed class UnconstructibleHandler(INotRegistered dependency) : IEventHandler<PingEvent>
+    {
+        public Task HandleAsync(PingEvent eventData, CancellationToken ct = default) =>
+            Task.FromResult(dependency);
+    }
+
+    [Fact]
+    public void RegisterHandlersFromAssembly_CalledTwice_RegistersEachHandlerOnce()
+    {
+        var services = new ServiceCollection();
+
+        new KckEventBusBuilder(services)
+            .RegisterHandlersFromAssembly(typeof(EventBusAbstractionsTests).Assembly)
+            .RegisterHandlersFromAssembly(typeof(EventBusAbstractionsTests).Assembly);
+
+        services.Count(d => d.ServiceType == typeof(IEventHandler<PingEvent>) && d.ImplementationType == typeof(PingHandler))
+            .Should().Be(1);
+    }
+
+    [Fact]
+    public async Task ProcessAsync_InterfaceRegistrationOfAnotherClass_IsNotUsedForTheSubscribedClass()
+    {
+        var other = new PingHandler();
+        var services = new ServiceCollection()
+            .AddSingleton<IEventHandler<PingEvent>>(new SecondPingHandler())
+            .AddSingleton(other)
+            .BuildServiceProvider();
+        var sut = new EventProcessor(services, Substitute.For<ILogger>());
+        var types = new ConcurrentDictionary<string, Type> { ["Ping"] = typeof(PingEvent) };
+        var handlers = new ConcurrentDictionary<string, ConcurrentBag<Type>> { ["Ping"] = [typeof(MultiHandler)] };
+
+        var act = () => sut.ProcessAsync("Ping", Json("x"), types, handlers);
+
+        await act.Should().NotThrowAsync();
+        other.Seen.Should().BeEmpty();
+    }
+
+    [Fact]
     public void AddKckEventBus_InvokesConfigureWithBuilderOverSameCollection()
     {
         var services = new ServiceCollection();

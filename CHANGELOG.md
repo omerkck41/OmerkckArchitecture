@@ -7,6 +7,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- `Kck.EventBus.Abstractions` (RabbitMQ, Azure Service Bus) — a handler subscribed with `Subscribe<TEvent, THandler>()`
+  but registered through `RegisterHandlersFromAssembly` (as `IEventHandler<TEvent>`) was not found, and its messages
+  were skipped with only a log entry. `RegisterHandlersFromAssembly` now also registers each handler class, and a
+  subscribed handler is otherwise looked up among the `IEventHandler<TEvent>` registrations.
+- `Kck.Persistence.EntityFramework` — `ApplyGlobalSoftDeleteQueryFilter()` failed to build models with an inheritance
+  hierarchy (TPH, TPT, TPC). The filter is now added to root types only; derived types inherit it. A soft-deletable
+  owned type, or a soft-deletable derived type whose root is not soft-deletable, now fails with an
+  `InvalidOperationException` that names the type (no filter could hide its deleted rows) instead of EF Core's
+  configuration error.
+- `Kck.Persistence.EntityFramework` — `ToPaginateAsync` (and the repository's paged reads) computed the offset
+  `(index - from) * size` unchecked, so a large client-supplied page index became a negative offset and a database
+  error. A negative `size` or `from`, or an offset beyond `int.MaxValue`, now throws `ArgumentOutOfRangeException`
+  before querying (`index < from` still throws `ArgumentException`). Validate client-supplied page values: the
+  exception handler maps both to 500.
+
+### Changed — behaviour
+- `Kck.EventBus.InMemory` — `PublishAsync` runs every registered `IEventHandler<TEvent>` plus each subscribed handler
+  not among them, once. Before, a single `Subscribe<TEvent, THandler>()` call replaced the registered handlers for that
+  event, and a subscribed handler registered only as `IEventHandler<TEvent>` was skipped without a log entry.
+- `Kck.Persistence.EntityFramework` — deleting a row that is already soft-deleted (repository `DeleteAsync` or
+  `DbContext.Remove` with the audit interceptor) keeps its `DeletedDate` instead of overwriting it. An entity passed to
+  `DeleteAsync` detached is not trusted: its `DeletedDate` is always stamped.
+- `Kck.EventBus.Abstractions` — `RegisterHandlersFromAssembly` registers each handler once (`TryAddEnumerable`), so
+  scanning an assembly twice no longer runs its handlers twice.
+
 ### Changed
 - `schemas/appsettings.kck.schema.json` lists only the keys the bundles read (`Kck:Security:Jwt:Issuer`/`Audience`,
   `Kck:AspNetCore:*`, `Kck:BackgroundJobs:Provider`). The removed sections (`Caching`, `EventBus`, `Messaging`,

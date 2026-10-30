@@ -103,11 +103,11 @@ share the same Redis instance. Recommendation: use the `"{appname}:{env}:"` form
 
 ### My IntegrationEvent was published but the handler did not run
 
-- InMemory: the handler must be registered, usually with `RegisterHandlersFromAssembly(...)` on the
-  `AddKckEventBus()` builder, and `Subscribe<TEvent, THandler>()` must not be called for that event (it switches the
-  event to handlers resolved by class). A handler exception is logged, not thrown.
-- RabbitMQ / Azure Service Bus: call `bus.Subscribe<TEvent, THandler>()` after `Build()` and before `Run()`, and
-  register the handler class itself (`services.AddTransient<THandler>()`). See
+- The handler must be registered, usually with `RegisterHandlersFromAssembly(...)` on the `AddKckEventBus()` builder.
+  On the in-memory bus a handler exception is logged, not thrown.
+- RabbitMQ / Azure Service Bus: also call `bus.Subscribe<TEvent, THandler>()` after `Build()` and before `Run()`. On
+  4.6 and earlier, a handler registered only through `RegisterHandlersFromAssembly` was not found by a subscription;
+  register the class itself (`services.AddTransient<THandler>()`) or upgrade. See
   [Event Bus](providers/event-bus.md#subscribing-rabbitmq-azure-service-bus).
 - Check that the exchange, topic and subscription names match between publisher and consumer.
 

@@ -18,28 +18,16 @@ public sealed class InMemoryEventBus(
     public async Task PublishAsync<TEvent>(TEvent eventData, CancellationToken ct = default)
         where TEvent : IntegrationEvent
     {
-        var eventType = typeof(TEvent);
-
-        if (!_handlers.TryGetValue(eventType, out var handlerTypes))
-        {
-            await DispatchViaDi(eventData, ct).ConfigureAwait(false);
-            return;
-        }
-
         using var scope = serviceProvider.CreateScope();
-        var handlers = handlerTypes.Keys
-            .Select(t => (HandlerType: t, Handler: scope.ServiceProvider.GetService(t) as IEventHandler<TEvent>))
-            .Where(x => x.Handler is not null);
-
-        foreach (var (handlerType, handler) in handlers)
+        foreach (var handler in ResolveHandlers<TEvent>(scope.ServiceProvider))
         {
             try
             {
-                await handler!.HandleAsync(eventData, ct).ConfigureAwait(false);
+                await handler.HandleAsync(eventData, ct).ConfigureAwait(false);
             }
             catch (Exception ex) when (ex is not OperationCanceledException)
             {
-                Log.HandlerError(logger, ex, eventType.Name, handlerType.Name);
+                Log.HandlerError(logger, ex, typeof(TEvent).Name, handler.GetType().Name);
             }
         }
     }
@@ -53,21 +41,24 @@ public sealed class InMemoryEventBus(
         handlerTypes.TryAdd(typeof(THandler), 0);
     }
 
-    private async Task DispatchViaDi<TEvent>(TEvent eventData, CancellationToken ct)
+    // Every registered IEventHandler<TEvent>, plus each subscribed handler class that is not among them (resolved by its
+    // class). Before 4.7 a subscription replaced the registered handlers and looked only for the class, so handlers
+    // registered through RegisterHandlersFromAssembly were silently skipped.
+    private List<IEventHandler<TEvent>> ResolveHandlers<TEvent>(IServiceProvider services)
         where TEvent : IntegrationEvent
     {
-        using var scope = serviceProvider.CreateScope();
-        var handlers = scope.ServiceProvider.GetServices<IEventHandler<TEvent>>();
-        foreach (var handler in handlers)
+        var handlers = services.GetServices<IEventHandler<TEvent>>().ToList();
+        if (!_handlers.TryGetValue(typeof(TEvent), out var subscribed))
+            return handlers;
+
+        foreach (var handlerType in subscribed.Keys.Where(t => handlers.TrueForAll(h => h.GetType() != t)))
         {
-            try
-            {
-                await handler.HandleAsync(eventData, ct).ConfigureAwait(false);
-            }
-            catch (Exception ex) when (ex is not OperationCanceledException)
-            {
-                Log.DispatchError(logger, ex, typeof(TEvent).Name);
-            }
+            if (services.GetService(handlerType) is IEventHandler<TEvent> handler)
+                handlers.Add(handler);
+            else
+                Log.SubscribedHandlerNotRegistered(logger, handlerType.Name, typeof(TEvent).Name);
         }
+
+        return handlers;
     }
 }

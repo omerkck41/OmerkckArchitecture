@@ -183,12 +183,16 @@ public sealed class ShopDbContext(DbContextOptions<ShopDbContext> options, ITena
   unnamed `HasQueryFilter(...)`, `ApplyGlobalSoftDeleteQueryFilter` throws `InvalidOperationException` asking you to
   name it; an unnamed filter added **afterwards** fails at model build with EF Core's own error ("Both anonymous and
   named query filters..."). Name your filter in both cases.
+- Inheritance (TPH/TPT/TPC): the filter is added to the root type and applies to its derived types; a soft-deletable
+  derived type whose root is not soft-deletable, and a soft-deletable owned type, cannot be filtered: the method
+  throws `InvalidOperationException` naming the type. Before 4.7.0 hierarchies failed to build with EF Core's error.
 - To keep one entity type out of the global filter:
   `modelBuilder.Entity<Log>().HasQueryFilter(ModelBuilderExtensions.SoftDeleteQueryFilterName, null);`
 - `IncludeDeleted` lifts the soft-delete filter for the whole query: soft-deleted children loaded through `includes` or
   reached in the predicate are returned too. Other filters, named or unnamed (tenant), keep applying.
-- With the global filter, `DeleteAsync` on a row that is already soft-deleted finds it and soft-deletes it again
-  (`DeletedDate` is updated), as contexts without the filter already did; before 4.6.0 it threw "not found".
+- With the global filter, `DeleteAsync` on a row that is already soft-deleted finds it (before 4.6.0 it threw "not
+  found"). Deleting it again keeps its original `DeletedDate` (4.7.0; before, the date was overwritten). An entity
+  passed to `DeleteAsync` detached is not trusted: its `DeletedDate` is always stamped.
 
 Before 4.6.0: an unnamed filter on a soft-deletable type (for example a tenant filter) was replaced by the soft-delete
 filter without a trace, and `IncludeDeleted` returned no soft-deleted rows when the global filter was applied.
@@ -196,7 +200,10 @@ filter without a trace, and `IncludeDeleted` returned no soft-deleted rows when 
 ## Paging
 
 `GetListAsync` / `GetListByDynamicAsync` return `IPaginate<T>` (`Items`, `Index`, `Size`, `Count`, `Pages`). In your own
-queries use `IQueryable<T>.ToPaginateAsync(index, size)`:
+queries use `IQueryable<T>.ToPaginateAsync(index, size)`. A negative `size` or `from`, or a page whose offset
+(`(index - from) * size`) exceeds `int.MaxValue`, throws `ArgumentOutOfRangeException` before querying (4.7.0; before,
+the offset could overflow into a database error). `ArgumentOutOfRangeException` is not mapped to 400 by the exception
+handler, so validate page values that come from a client:
 
 ```csharp
 using Kck.Persistence.Abstractions.Repositories;
@@ -250,7 +257,8 @@ must not be called.
 ## Interceptors
 
 - `AuditInterceptor` — sets `CreatedDate` / `ModifiedDate` on `IAuditable` entities and turns deletes of
-  `ISoftDeletable` entities into `IsDeleted = true` + `DeletedDate`. Deletes made through the repository with
+  `ISoftDeletable` entities into `IsDeleted = true` + `DeletedDate` (a row that is already soft-deleted keeps its
+  `DeletedDate`). Deletes made through the repository with
   `permanent: true` stay permanent. Soft-deleted rows are hidden only from repository queries and from contexts that
   apply a soft-delete query filter; unique indexes that do not exclude deleted rows can reject re-inserting the same
   key. Tracked (loaded) dependants of a soft-deleted row follow *What a soft delete covers*, even without a navigation.

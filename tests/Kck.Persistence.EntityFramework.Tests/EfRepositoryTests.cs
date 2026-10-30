@@ -68,6 +68,39 @@ public class EfRepositoryTests : IDisposable
     }
 
     [Fact]
+    public async Task DeleteAsync_AlreadySoftDeleted_KeepsOriginalDeletedDate()
+    {
+        // Deleting again used to stamp a new DeletedDate, which erased when the row was really deleted.
+        var deletedAt = new DateTime(2026, 1, 2, 3, 4, 5, DateTimeKind.Utc);
+        var entity = new TestEntity { Id = Guid.NewGuid(), Name = "Gone", IsDeleted = true, DeletedDate = deletedAt };
+        _context.TestEntities.Add(entity);
+        await _context.SaveChangesAsync();
+
+        await _sut.DeleteAsync(entity, permanent: false);
+        await _context.SaveChangesAsync();
+
+        entity.IsDeleted.Should().BeTrue();
+        entity.DeletedDate.Should().Be(deletedAt);
+    }
+
+    [Fact]
+    public async Task DeleteAsync_DetachedEntityClaimingToBeDeleted_StampsDeletedDate()
+    {
+        // A detached entity (for example mapped from a request) is not trusted: its own DeletedDate is not kept.
+        var id = Guid.NewGuid();
+        _context.TestEntities.Add(new TestEntity { Id = id, Name = "Live" });
+        await _context.SaveChangesAsync();
+        _context.ChangeTracker.Clear();
+        var forged = new DateTime(2000, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+        var detached = new TestEntity { Id = id, Name = "Live", IsDeleted = true, DeletedDate = forged };
+
+        await _sut.DeleteAsync(detached, permanent: false);
+        await _context.SaveChangesAsync();
+
+        detached.DeletedDate.Should().NotBe(forged);
+    }
+
+    [Fact]
     public async Task DeleteAsync_Permanent_ShouldRemoveEntity()
     {
         var entity = new TestEntity { Id = Guid.NewGuid(), Name = "ToRemove" };

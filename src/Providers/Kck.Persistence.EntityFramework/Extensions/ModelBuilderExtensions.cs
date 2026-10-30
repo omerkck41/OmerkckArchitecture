@@ -29,7 +29,8 @@ public static class ModelBuilderExtensions
     /// applying when a query includes deleted rows. Call it last in <c>OnModelCreating</c>: it covers the entity types
     /// in the model at that point.
     /// </summary>
-    /// <exception cref="InvalidOperationException">A soft-deletable entity type already has an unnamed query filter.</exception>
+    /// <exception cref="InvalidOperationException">A soft-deletable entity type already has an unnamed query filter, is
+    /// owned, or derives from a root type that is not soft-deletable (no filter could hide its deleted rows).</exception>
     public static ModelBuilder ApplyGlobalSoftDeleteQueryFilter(this ModelBuilder modelBuilder)
     {
         var softDeletables = modelBuilder.Model.GetEntityTypes()
@@ -46,7 +47,27 @@ public static class ModelBuilderExtensions
                 "Give your filter a name, for example HasQueryFilter(\"Tenant\", e => ...).");
         }
 
-        foreach (var entityType in softDeletables)
+        // EF Core accepts query filters only on the root of a hierarchy (derived types inherit it) and not on owned types.
+        // Where no filter can hide the soft-deleted rows, fail instead of leaving them visible.
+        var owned = softDeletables.FirstOrDefault(et => et.IsOwned());
+        if (owned is not null)
+        {
+            throw new InvalidOperationException(
+                $"Entity type '{owned.DisplayName()}' is owned and implements ISoftDeletable. EF Core cannot filter owned " +
+                "types, so its soft-deleted rows would stay visible. Map it as a regular entity, or remove ISoftDeletable.");
+        }
+
+        var unfilterable = softDeletables.FirstOrDefault(et => et.BaseType is not null
+            && !typeof(ISoftDeletable).IsAssignableFrom(et.GetRootType().ClrType));
+        if (unfilterable is not null)
+        {
+            throw new InvalidOperationException(
+                $"Entity type '{unfilterable.DisplayName()}' implements ISoftDeletable but the root of its hierarchy, " +
+                $"'{unfilterable.GetRootType().DisplayName()}', does not. EF Core filters only root types, so its " +
+                "soft-deleted rows would stay visible. Implement ISoftDeletable on the root type.");
+        }
+
+        foreach (var entityType in softDeletables.Where(et => et.BaseType is null))
         {
             var method = ApplyFilterMethod.MakeGenericMethod(entityType.ClrType);
             method.Invoke(null, [modelBuilder]);
