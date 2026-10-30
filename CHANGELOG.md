@@ -31,6 +31,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   number, Guid, numbers, bool, dates as UTC, nullable types; also from query-string text). A value that does not fit,
   or an operator the property's type does not support (`gt` on an enum), throws `ArgumentException` like an unknown
   field or operator.
+- `Kck.Persistence.EntityFramework` — `GetListByDynamicAsync` rejected every group filter (`and` / `or` over child
+  filters): the whitelist check also tested the group node's own field, which is empty and never used. Only the child
+  filters are checked now.
 - `Kck.EventBus.Abstractions` (RabbitMQ, Azure Service Bus) — a handler subscribed with `Subscribe<TEvent, THandler>()`
   but registered through `RegisterHandlersFromAssembly` (as `IEventHandler<TEvent>`) was not found, and its messages
   were skipped with only a log entry. `RegisterHandlersFromAssembly` now also registers each handler class, and a

@@ -27,7 +27,7 @@ public static class DatabaseExtensions
 
         options.UseSqlite(connectionString
             ?? (environment.IsDevelopment()
-                ? $"Data Source={Path.Combine(environment.ContentRootPath, "orders.db")}"
+                ? $"Data Source={Path.Join(environment.ContentRootPath, "orders.db")}"
                 : throw new InvalidOperationException("Connection string 'Orders' is not configured.")));
     }
 

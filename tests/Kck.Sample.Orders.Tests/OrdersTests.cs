@@ -230,6 +230,24 @@ public sealed class OrdersTests : IAsyncLifetime
     }
 
     [Fact]
+    public async Task SearchOrders_GroupFilter_ReturnsMatchingOrders()
+    {
+        var paid = await _client.PlaceOrderAndReadAsync(("A-1", 1));
+        await _client.PlaceOrderAndReadAsync(("A-1", 1));
+        (await _client.PostAsync($"/orders/{paid.Id}/pay", null)).EnsureSuccessStatusCode();
+
+        var response = await _client.PostAsJsonAsync("/orders/search", new DynamicQuery([], new Filter("", "eq", null, "and",
+        [
+            new Filter("Status", "eq", nameof(OrderStatus.Paid)),
+            new Filter("CustomerId", "eq", SampleData.DemoCustomerId),
+        ])));
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var page = await response.Content.ReadFromJsonAsync<Paginate<OrderSummary>>();
+        page!.Items.Should().ContainSingle().Which.Id.Should().Be(paid.Id);
+    }
+
+    [Fact]
     public async Task SearchOrders_FieldOutsideWhitelist_Returns400()
     {
         var response = await _client.PostAsJsonAsync("/orders/search",
