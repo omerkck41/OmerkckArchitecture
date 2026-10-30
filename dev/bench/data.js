@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1793374133219,
+  "lastUpdate": 1793375941191,
   "repoUrl": "https://github.com/omerkck41/OmerkckArchitecture",
   "entries": {
     "Benchmark": [
@@ -13102,6 +13102,102 @@ window.BENCHMARK_DATA = {
             "value": 10.094268199801444,
             "unit": "ns",
             "range": "± 0.16147309452773698"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "106805727+omerkck41@users.noreply.github.com",
+            "name": "Ömer KÜÇÜK",
+            "username": "omerkck41"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "0d721b9c37c2487d7897276ce2a808951f8cbe32",
+          "message": "docs: align policies and configuration page with the code (F2) (#265)\n\n## What\n\nPlan F2, G2.1(b) follow-up: the pages without code blocks are checked\nagainst the code and dated sources.\n\n- `docs/policies/support.md` — .NET 10 is LTS, end of support 2028-11-14\n([endoflife.date](https://endoflife.date/dotnet), accessed 2026-10-30);\nthe page said STS / 2027-11-09. STS is 24 months.\n- `SECURITY.md` — supported versions: 4.x; 3.x security and critical\nfixes only (`release/3.x`, ADR-0028 K9);\n  < 3.0 unsupported. It still listed 3.x as latest.\n- `docs/policies/versioning.md` — the post-1.0 rules are current (it\nsaid \"0.x period (current)\"); 6 CHANGELOG headings;\n  BREAKING markers as used in `CHANGELOG.md`.\n- `docs/test-strategy.md` — AwesomeAssertions (not FluentAssertions),\nxUnit v2, thresholds 70/67 (not 40/35);\n  Stryker.NET (weekly `mutation.yml`) and CsCheck property tests exist.\n- `docs/policies/test-coverage.md` — the next stage's branch target (60)\nwas below today's threshold (67): now 70.\n- `docs/policies/deprecation.md` — `KCK0200` (MediatR, ADR-0021) noted\nas an exception to the ID ranges.\n- `docs/providers/README.md` — not every option is reloadable (Hangfire\nworker count, HTTP resilience policy).\n- `docs/configuration-schema.md` + `schemas/appsettings.kck.schema.json`\n— the page and the IDE schema described\n`Kck:Caching`, `Kck:EventBus`, `Kck:Messaging`, `Kck:Security:Argon2`\nsections that no code reads. Providers are\nconfigured in code; only the bundles read the `Kck` section (7 keys).\nPage and schema now list exactly those keys;\n  CHANGELOG `[Unreleased]` notes the schema change.\n\n## Verification\n\n- `dotnet build OmerkckArchitecture.sln -c Release`: 0 warnings, 0\nerrors; 100 README/docs code blocks compile\n  (the configuration page's new block included).\n- Script tests pass; `docs_language.py` 100 files, 0 problems; the\nschema parses as JSON.\n- Keys checked in\n`src/Bundles/*/DependencyInjection/ServiceCollectionExtensions.cs`\n(`GetSection(\"Kck\")` is the only\n  configuration read in `src/`).\n\nNo library code changes.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-authored-by: Claude Opus 5.5 <noreply@anthropic.com>",
+          "timestamp": "2026-10-30T18:52:42+03:00",
+          "tree_id": "b4a78e00aab0a38f413562c8afdf41f3fce1efe9",
+          "url": "https://github.com/omerkck41/OmerkckArchitecture/commit/0d721b9c37c2487d7897276ce2a808951f8cbe32"
+        },
+        "date": 1793375939833,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Success_Factory",
+            "value": 7.282523983946214,
+            "unit": "ns",
+            "range": "± 0.07118934315331339"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Failure_Factory",
+            "value": 8.683076219757398,
+            "unit": "ns",
+            "range": "± 0.0619081868044533"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Success",
+            "value": 1.4933768277366957,
+            "unit": "ns",
+            "range": "± 0.08556449165524768"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Failure",
+            "value": 0.4784490609398255,
+            "unit": "ns",
+            "range": "± 0.03457290378611798"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Serialize_Reflection",
+            "value": 383.8014849424362,
+            "unit": "ns",
+            "range": "± 0.7604741383339615"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Deserialize_Reflection",
+            "value": 681.2848918621356,
+            "unit": "ns",
+            "range": "± 1.517398704200115"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 0)",
+            "value": 12.494099746147791,
+            "unit": "ns",
+            "range": "± 0.1864806504881502"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 5)",
+            "value": 11.800185384353002,
+            "unit": "ns",
+            "range": "± 0.13068968147719745"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 0)",
+            "value": 11.80358410278956,
+            "unit": "ns",
+            "range": "± 0.1957458611638925"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 5)",
+            "value": 12.753924590349197,
+            "unit": "ns",
+            "range": "± 0.1217260331477555"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 0)",
+            "value": 11.796317521731059,
+            "unit": "ns",
+            "range": "± 0.09852306505938307"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 5)",
+            "value": 12.665285370747249,
+            "unit": "ns",
+            "range": "± 0.058671157593271295"
           }
         ]
       }
