@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1793350652216,
+  "lastUpdate": 1793352876725,
   "repoUrl": "https://github.com/omerkck41/OmerkckArchitecture",
   "entries": {
     "Benchmark": [
@@ -12334,6 +12334,102 @@ window.BENCHMARK_DATA = {
             "value": 13.109573682149252,
             "unit": "ns",
             "range": "± 0.07278787921339114"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "106805727+omerkck41@users.noreply.github.com",
+            "name": "Ömer KÜÇÜK",
+            "username": "omerkck41"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "677e0a294857fe9d4420e8ebf046d5fbbc10f99e",
+          "message": "fix(persistence): IncludeDeleted lifts the global soft-delete filter (#257)\n\n## Summary\nFound while building the template showcase (plan F1): with\n`modelBuilder.ApplyGlobalSoftDeleteQueryFilter()`,\n`QueryOptions.WithDeleted` and `RevertSoftDeleteAsync` found **no**\nsoft-deleted rows — the repository lifted only its\nown `IsDeleted` filter, never the model's global filter.\n\n**Fix:** the global filter is an EF Core 10 **named** filter\n(`ModelBuilderExtensions.SoftDeleteQueryFilterName` =\n`\"KckSoftDelete\"`), and `IncludeDeleted` calls\n`IgnoreQueryFilters([\"KckSoftDelete\"])` — only that filter. Lifting all\nfilters would have been simpler and would leak other tenants' rows.\n\n**Also fixed — silent tenant-filter loss:** EF allowed one unnamed\nfilter per entity, so an unnamed tenant filter\nfollowed by `ApplyGlobalSoftDeleteQueryFilter()` was replaced without a\ntrace. It now throws, asking to name the filter\n(EF Core 10 cannot combine unnamed and named filters).\n\n### Behaviour changes (contexts that use the global filter; others\nunchanged) — in CHANGELOG and persistence.md\n- An unnamed filter on a soft-deletable type (before or after the call)\nfails at model build; name it.\n- `IncludeDeleted` lifts soft-delete for the whole query (included /\nnavigated children too).\n- `DeleteAsync` on an already soft-deleted row re-deletes it (as\ncontexts without the global filter already did).\n- Opt one entity out:\n`HasQueryFilter(ModelBuilderExtensions.SoftDeleteQueryFilterName,\nnull)`.\n\n## Verification\n- 10 tests in `GlobalSoftDeleteFilterTests`; RED first (WithDeleted,\ncount/list, revert, named tenant filter).\n- Tenant isolation: named tenant filter, unnamed tenant filter without\nthe global filter, unnamed filter on an included\n  dependent — mutation \"lift all filters\" fails all three.\n- Adversarial review (fresh reviewer): no critical findings; the high\none (isolation unproven) is covered by the tests\nabove; behaviour changes documented; pre-existing issues (TPH/owned\ntypes, bulk update, re-delete audit) recorded.\n- A test pitfall found on the way: EF caches the model per context\n**type**, so one context class with a flag shared\n  one model across tests — each scenario now has its own type.\n- Local: Release build 0 errors, unit tests 39/39 projects (persistence\n326), package validation vs 4.5.0 passes.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-authored-by: Claude Opus 5.5 <noreply@anthropic.com>",
+          "timestamp": "2026-10-30T12:27:02+03:00",
+          "tree_id": "157db72dec9a773bd2bc6a6c1a8e92711c9e9e2c",
+          "url": "https://github.com/omerkck41/OmerkckArchitecture/commit/677e0a294857fe9d4420e8ebf046d5fbbc10f99e"
+        },
+        "date": 1793352875519,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Success_Factory",
+            "value": 4.98504894204212,
+            "unit": "ns",
+            "range": "± 0.24332490517357322"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Failure_Factory",
+            "value": 7.035384154319763,
+            "unit": "ns",
+            "range": "± 0.10661098212740967"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Success",
+            "value": 0.9274556665740749,
+            "unit": "ns",
+            "range": "± 0.13880105540763488"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Failure",
+            "value": 0.874777873387424,
+            "unit": "ns",
+            "range": "± 0.12405401681136612"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Serialize_Reflection",
+            "value": 302.9061180750529,
+            "unit": "ns",
+            "range": "± 3.3575027720500383"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Deserialize_Reflection",
+            "value": 578.2144282414363,
+            "unit": "ns",
+            "range": "± 4.475095286663031"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 0)",
+            "value": 9.122274129518441,
+            "unit": "ns",
+            "range": "± 0.1738090595751545"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 5)",
+            "value": 8.30326686905963,
+            "unit": "ns",
+            "range": "± 0.12506665848949763"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 0)",
+            "value": 8.109905002017816,
+            "unit": "ns",
+            "range": "± 0.1846354372444666"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 5)",
+            "value": 8.072509586811066,
+            "unit": "ns",
+            "range": "± 0.10146427236109788"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 0)",
+            "value": 8.023145694817815,
+            "unit": "ns",
+            "range": "± 0.05004690095663874"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 5)",
+            "value": 8.165873633821805,
+            "unit": "ns",
+            "range": "± 0.1225564051161378"
           }
         ]
       }
