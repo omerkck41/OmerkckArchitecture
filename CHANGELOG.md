@@ -15,6 +15,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   semantics (after commit, at least once). Combining it with `AddDomainEventDispatch<T>()` throws
   `InvalidOperationException`.
 
+### Changed — behaviour
+Applies to contexts that call `ApplyGlobalSoftDeleteQueryFilter()`; others behave as before.
+- `Kck.Persistence.EntityFramework` — `ApplyGlobalSoftDeleteQueryFilter()` throws `InvalidOperationException` when a
+  soft-deletable entity type already has an unnamed query filter, asking you to name it. Before, it replaced that filter
+  (for example a tenant filter) without a trace. An unnamed filter added *after* the call now fails at model build with
+  EF Core's own error; name it too. Named filters now work next to it. To keep one entity out of the global filter:
+  `HasQueryFilter(ModelBuilderExtensions.SoftDeleteQueryFilterName, null)`.
+- `QueryOptions.IncludeDeleted` lifts the soft-delete filter for the whole query: soft-deleted children loaded with
+  `includes` or reached in the predicate are returned too (before, none were — the filter was not lifted at all).
+- `DeleteAsync` on a row that is already soft-deleted now finds it and soft-deletes it again (`DeletedDate` is updated),
+  as contexts without the global filter already did; before, it threw "not found".
+
+### Fixed
+- `Kck.Persistence.EntityFramework` — with `ApplyGlobalSoftDeleteQueryFilter()`, repository reads with
+  `QueryOptions.IncludeDeleted` (`QueryOptions.WithDeleted`, `RevertSoftDeleteAsync`) found no soft-deleted rows: the
+  repository lifted only its own filter, not the model's. The global filter is now an EF Core named filter
+  (`ModelBuilderExtensions.SoftDeleteQueryFilterName`, `"KckSoftDelete"`) and `IncludeDeleted` lifts only that one;
+  other named filters (tenant) keep applying.
+
 ## [4.5.0] — 2026-10-30
 
 ### Added
