@@ -4,7 +4,7 @@
 namespace ReadmeSnippets.DocsProvidersObservability_3;
 using Kck.Observability.Abstractions;
 
-#line 69 "docs/providers/observability.md"
+#line 70 "docs/providers/observability.md"
 public class PaymentService(ITracingService tracing)
 {
     public async Task ChargeAsync(PaymentRequest request, CancellationToken ct)

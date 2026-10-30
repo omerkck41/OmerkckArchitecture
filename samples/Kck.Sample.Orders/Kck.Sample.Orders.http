@@ -1,0 +1,70 @@
+### Kck.Sample.Orders — every endpoint, ready to send.
+### Create a token first: dotnet user-jwts create --project samples/Kck.Sample.Orders
+### and paste it below.
+@host = https://localhost:7180
+@token = paste-the-token-here
+@customerId = 0199f0a0-0000-7000-8000-000000000001
+@orderId = paste-an-order-id-here
+
+### Health (no token)
+GET {{host}}/health/ready
+
+### Product catalogue (cached for five minutes)
+GET {{host}}/products
+Authorization: Bearer {{token}}
+
+### Place an order: 201 and an OrderPlaced log after the commit
+POST {{host}}/orders
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "customerId": "{{customerId}}", "lines": [ { "sku": "A-1", "quantity": 2 } ] }
+
+### Not enough stock (B-2 has 5): 409, nothing saved, no event
+POST {{host}}/orders
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "customerId": "{{customerId}}", "lines": [ { "sku": "A-1", "quantity": 1 }, { "sku": "B-2", "quantity": 6 } ] }
+
+### One order
+GET {{host}}/orders/{{orderId}}
+Authorization: Bearer {{token}}
+
+### Orders, newest first (index is 0-based)
+GET {{host}}/orders?index=0&size=10
+Authorization: Bearer {{token}}
+
+### Search: only Status, CustomerId and CreatedDate may be used
+POST {{host}}/orders/search?index=0&size=10
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "filter": { "field": "Status", "operator": "eq", "value": "Paid" }, "sort": [ { "field": "CreatedDate", "dir": "desc" } ] }
+
+### Pay, then ship
+POST {{host}}/orders/{{orderId}}/pay
+Authorization: Bearer {{token}}
+
+###
+POST {{host}}/orders/{{orderId}}/ship
+Authorization: Bearer {{token}}
+
+### Cancel (soft delete; 409 once shipped)
+DELETE {{host}}/orders/{{orderId}}
+Authorization: Bearer {{token}}
+
+### A cancelled order is still there with includeDeleted
+GET {{host}}/orders/{{orderId}}?includeDeleted=true
+Authorization: Bearer {{token}}
+
+### Create a customer
+POST {{host}}/customers
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "name": "Ada" }
+
+### Delete a customer (409 while they have orders)
+DELETE {{host}}/customers/{{customerId}}
+Authorization: Bearer {{token}}

@@ -47,7 +47,7 @@ app.MapGet("/", () => Results.Ok("Hello from Kck!"));
 app.Run();
 ```
 
-> Full sample: [`samples/Kck.Sample.WebApi`](https://github.com/omerkck41/OmerkckArchitecture/tree/main/samples/Kck.Sample.WebApi)
+> Full sample: [`samples/Kck.Sample.Orders`](https://github.com/omerkck41/OmerkckArchitecture/tree/main/samples/Kck.Sample.Orders)
 
 ### Minimal API (Slim, only what you need)
 
@@ -201,7 +201,9 @@ Kck aims to be **lighter** than ABP, **broader** than FastEndpoints, and **compa
 
 - `dotnet new kck-webapi` — the fastest start: an API solution with persistence, domain events, JWT and tests
   ([Kck.Templates](https://github.com/omerkck41/OmerkckArchitecture/blob/main/src/Kck.Templates/README.md))
-- [`samples/Kck.Sample.WebApi`](https://github.com/omerkck41/OmerkckArchitecture/tree/main/samples/Kck.Sample.WebApi) — WebApi sample with RabbitMQ, Redis, EF Core
+- [`samples/Kck.Sample.Orders`](https://github.com/omerkck41/OmerkckArchitecture/tree/main/samples/Kck.Sample.Orders) — reference
+  app: orders, soft delete, domain and integration events, dynamic queries, caching, OpenTelemetry; tested on SQLite
+  and PostgreSQL
 - [`samples/Kck.Sample.MinimalApi`](https://github.com/omerkck41/OmerkckArchitecture/tree/main/samples/Kck.Sample.MinimalApi) — Minimal API sample
 - [`samples/Kck.Sample.WorkerService`](https://github.com/omerkck41/OmerkckArchitecture/tree/main/samples/Kck.Sample.WorkerService) — Quartz hosted jobs
 

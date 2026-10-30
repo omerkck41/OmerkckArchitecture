@@ -8,7 +8,7 @@ internal static class Snippet
 {
     internal static async Task RunAsync(IServiceCollection services, string connectionString)
     {
-#line 67 "docs/providers/persistence.md"
+#line 71 "docs/providers/persistence.md"
 
 services.AddKckPersistence(p => p
     .UseEntityFrameworkPool<AppDbContext>(o => o.UseSqlServer(connectionString), poolSize: 1024)
