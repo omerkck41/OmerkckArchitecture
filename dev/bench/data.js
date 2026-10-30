@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1793348816249,
+  "lastUpdate": 1793350652216,
   "repoUrl": "https://github.com/omerkck41/OmerkckArchitecture",
   "entries": {
     "Benchmark": [
@@ -12238,6 +12238,102 @@ window.BENCHMARK_DATA = {
             "value": 10.712787186374536,
             "unit": "ns",
             "range": "± 0.46443002745165096"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "106805727+omerkck41@users.noreply.github.com",
+            "name": "Ömer KÜÇÜK",
+            "username": "omerkck41"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "eaf20afff55c05526f323e25a2212e7eb1d30ea7",
+          "message": "feat(persistence): built-in domain event handlers (ADR-0030) (#256)\n\n## Summary\nPlan F1 · G1.0 — built-in domain event handlers\n([ADR-0030](docs/adr/0030-domain-event-handlers.md), approved).\n\n```csharp\npublic sealed class SendOrderConfirmation(ILogger<SendOrderConfirmation> logger) : IDomainEventHandler<OrderPlaced>\n{\n    public Task HandleAsync(OrderPlaced e, CancellationToken ct) { /* ... */ }\n}\n\nservices.AddKckPersistence(p => p\n    .UseEntityFramework<AppDbContext>(o => o.UseSqlServer(cs))\n    .AddDomainEventHandlers(typeof(Program).Assembly));\n```\n\n- `Kck.Core.Abstractions`: `IDomainEventHandler<TEvent>` (additive;\nPublicAPI.Unshipped).\n- `Kck.Persistence.EntityFramework`: `AddDomainEventHandlers(params\nAssembly[])` + internal\n`ServiceProviderDomainEventDispatcher`. Exact-type handlers, raised\norder, first failure stops dispatch (existing\nretry semantics), scoped handlers (fresh scope under pooling), mixing\nwith another dispatcher throws.\n- Docs: persistence.md handler section; the pooling example used a\nnon-existent `MediatorDomainEventDispatcher`.\n  Package README, CHANGELOG `[Unreleased]`.\n\n## Verification\n- 16 new tests (`DomainEventHandlersTests`); RED first (CS0246 before\nthe API existed; null/factory cases failed before\nthe fix). Mutation checks: duplicate registration, missing conflict\ncheck, reversed order and swallowed handler\n  errors each fail the matching tests.\n- Independent review (fresh reviewer): no critical/high findings; fixed\nthe medium ones (unloadable types,\nnull assembly, factory/keyed dispatcher detection, order/stop tests, a\nfalse-green assertion); contravariant\n  containers documented.\n- Local: Release build 0 errors; unit tests 39/39 projects (persistence\n316); package validation vs 4.5.0 passes.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\n---------\n\nCo-authored-by: Claude Opus 5.5 <noreply@anthropic.com>",
+          "timestamp": "2026-10-30T11:50:52+03:00",
+          "tree_id": "4725e7a812791dbf3eace9a437420706d6b43bcd",
+          "url": "https://github.com/omerkck41/OmerkckArchitecture/commit/eaf20afff55c05526f323e25a2212e7eb1d30ea7"
+        },
+        "date": 1793350651334,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Success_Factory",
+            "value": 8.093816203872363,
+            "unit": "ns",
+            "range": "± 0.05551901884963104"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Failure_Factory",
+            "value": 9.512359516819318,
+            "unit": "ns",
+            "range": "± 0.06635606562795984"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Success",
+            "value": 1.7012719934185345,
+            "unit": "ns",
+            "range": "± 0.043180805530578896"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Failure",
+            "value": 0.5572937190532684,
+            "unit": "ns",
+            "range": "± 0.008500872336661174"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Serialize_Reflection",
+            "value": 400.7843728746687,
+            "unit": "ns",
+            "range": "± 2.0086660408346044"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Deserialize_Reflection",
+            "value": 724.2618944985526,
+            "unit": "ns",
+            "range": "± 1.2039206981025252"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 0)",
+            "value": 13.07520967721939,
+            "unit": "ns",
+            "range": "± 0.03633919420560365"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 5)",
+            "value": 12.136151230760984,
+            "unit": "ns",
+            "range": "± 0.040912740299278404"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 0)",
+            "value": 12.24854275782903,
+            "unit": "ns",
+            "range": "± 0.0752405644980065"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 5)",
+            "value": 12.20487408552851,
+            "unit": "ns",
+            "range": "± 0.08229082544117498"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 0)",
+            "value": 12.122466647199222,
+            "unit": "ns",
+            "range": "± 0.07468281142003941"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 5)",
+            "value": 13.109573682149252,
+            "unit": "ns",
+            "range": "± 0.07278787921339114"
           }
         ]
       }
