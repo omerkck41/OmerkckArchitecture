@@ -47,9 +47,7 @@ All providers use `IOptionsMonitor<T>`, chosen for runtime reload support
 ([ADR-0004](../adr/0004-ioptions-monitor-migration.md)).
 
 ```csharp
-services.AddKckCachingRedis(opt =>
-{
-    opt.ConnectionString = builder.Configuration["Redis:ConnectionString"]!;
-    opt.KeyPrefix = "myapp:";
-});
+services.AddKckCachingRedis(
+    redis => redis.Configuration = builder.Configuration["Redis:ConnectionString"],
+    cache => cache.KeyPrefix = "myapp:");
 ```

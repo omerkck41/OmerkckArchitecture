@@ -1,8 +1,7 @@
 # Observability
 
-OpenTelemetry integration for tracing, metrics and health checks.
-It collects RED (Rate, Errors, Duration) and USE (Utilization, Saturation, Errors)
-signals automatically.
+OpenTelemetry integration for tracing and metrics, a small metrics/tracing abstraction for your own signals, and
+liveness/readiness/startup health checks.
 
 ## Packages
 
@@ -14,91 +13,105 @@ signals automatically.
 ## Setup
 
 ```csharp
-services.AddKckObservabilityOpenTelemetry(opt =>
-{
-    opt.ServiceName = "orders-api";
-    opt.ServiceVersion = "1.2.0";
-    opt.OtlpEndpoint = "http://otel-collector:4317";
-    opt.EnableConsoleExporter = false;
-    opt.EnableAspNetCore = true;
-    opt.EnableHttpClient = true;
-    opt.EnableEntityFramework = true;
-});
+using Kck.Observability.Abstractions;
+
+services.AddKckObservability(obs => obs
+    .UseOpenTelemetry(otel =>
+    {
+        otel.ServiceName = "orders-api";
+        otel.EnableTracing()
+            .EnableMetrics()
+            .UseOtlpExporter("http://otel-collector:4317");
+    })
+    .UseHealthChecks(health => health
+        .AddReadinessCheck("orders-db", async ct => new HealthCheckResult(HealthStatus.Healthy))));
+
+// ...
+
+app.MapKckHealthChecks(); // /health, /health/live, /health/ready, /health/startup
 ```
+
+`UseOpenTelemetry` registers `ITracingService` and `IMetricsService` for the service name. Without
+`UseOtlpExporter` nothing is exported.
 
 ## Auto-Instrumentation
 
-Each instrumentation is enabled through configuration:
-
-| Flag | Instrumentation |
+| Enabled by | Instrumentation |
 |---|---|
-| `EnableAspNetCore` | HTTP request trace + `http.server.duration` metric |
-| `EnableHttpClient` | HttpClient request trace + egress metric |
-| `EnableEntityFramework` | EF Core command trace + `db.client.duration` |
+| `EnableTracing()` | ASP.NET Core requests, `HttpClient` calls, EF Core commands, and the `ServiceName` and `Kck.Application` activity sources |
+| `EnableMetrics()` | ASP.NET Core request metrics and the `ServiceName` and `Kck.Application` meters |
 
 ## Custom Metrics
 
 ```csharp
-public class OrderService(IMetricsService metrics)
+using Kck.Observability.Abstractions;
+
+public class OrderMetrics(IMetricsService metrics)
 {
-    public async Task ProcessAsync(Order order, CancellationToken ct)
+    private readonly ICounter _created = metrics.CreateCounter("orders.created", "Orders created");
+    private readonly IHistogram _duration = metrics.CreateHistogram("orders.process.duration", "Processing time (ms)");
+
+    public void Created(Order order, double elapsedMs)
     {
-        metrics.Increment("orders.created", 1, new() { ["tenant"] = order.TenantId });
-        using var timer = metrics.StartTimer("order.process.duration");
-        // ...
+        _created.Increment(1, new KeyValuePair<string, object?>("tenant", order.TenantId));
+        _duration.Record(elapsedMs);
     }
 }
 ```
 
+Create instruments once (for example in a singleton) and reuse them.
+
 ## Custom Tracing
 
-Auto-instrumentation does not capture business logic with p99 > 200 ms. Create a manual span:
-
 ```csharp
+using Kck.Observability.Abstractions;
+
 public class PaymentService(ITracingService tracing)
 {
-    public async Task ChargeAsync(PaymentRequest req, CancellationToken ct)
+    public async Task ChargeAsync(PaymentRequest request, CancellationToken ct)
     {
-        using var span = tracing.StartSpan("payment.charge");
+        using var span = tracing.StartSpan("payment.charge", SpanKind.Client);
         span.SetAttribute("payment.provider", "stripe");
-        span.SetAttribute("payment.amount", req.Amount);
-        // ...
+        try
+        {
+            await Task.Delay(10, ct); // call the payment provider
+            span.SetStatus(SpanStatus.Ok);
+        }
+        catch (Exception ex)
+        {
+            span.RecordException(ex);
+            span.SetStatus(SpanStatus.Error, ex.Message);
+            throw;
+        }
     }
 }
 ```
 
 ## Health Checks
 
-```csharp
-services.AddKckHealthChecks()
-    .AddKckRedisHealthCheck()
-    .AddKckDbContextHealthCheck<MyDbContext>();
+`UseHealthChecks` adds checks to ASP.NET Core health checks with a tag per probe: `AddLivenessCheck`,
+`AddReadinessCheck`, `AddStartupCheck`, or `AddCheck` (untagged). `MapKckHealthChecks(basePath = "/health")` maps:
 
-app.MapKckHealthEndpoints("/health");
-```
-
-Endpoints:
-
-| Path | Purpose |
+| Path | Runs |
 |---|---|
-| `/health/live` | Is the process alive? (liveness probe) |
-| `/health/ready` | Can it accept requests? (readiness probe: DB, cache, dependencies) |
-| `/health/startup` | Has startup finished? (startup probe) |
+| `/health/live` | liveness checks and untagged checks |
+| `/health/ready` | readiness checks and untagged checks (database, cache, dependencies) |
+| `/health/startup` | startup checks and untagged checks |
+| `/health` | all checks |
+
+Providers add their own checks to the same system (for example `rabbitmq-eventbus` with the `ready` tag).
 
 ## Logging Correlation
 
-The Serilog `TraceContextEnricher` adds `TraceId` and `SpanId` to every log line,
-which makes it easier to correlate logs with traces
-([Logging guide](logging.md#trace-correlation)).
+`Kck.Logging.Serilog` adds `TraceId` and `SpanId` to every log event (on by default, `WithTraceCorrelation()`), which
+correlates logs with traces ([Logging guide](logging.md#trace-correlation)).
 
 ## Sampling
 
-Default in production: **parent-based + head sampling (10%)**. To raise the
-sampling rate (for debugging), use `Configure()`.
+No sampler is configured, so the OpenTelemetry SDK default applies (parent-based, always on). To sample, configure
+the SDK with `services.ConfigureOpenTelemetryTracerProvider(...)`.
 
 ## PII Safety
 
-- Do not write PII to span attributes. Use masked or hashed values.
-- The `db.statement` attribute contains raw SQL; ORM parameters are kept separate.
-- Logged headers pass through a default blocklist (`Authorization`,
-  `Cookie`, etc.).
+- Do not write PII to span attributes or metric tags; use masked or hashed values.
+- High-cardinality tags (user ID, order ID) make metric storage expensive; keep them on spans.

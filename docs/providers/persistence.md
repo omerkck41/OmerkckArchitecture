@@ -14,6 +14,8 @@ commits. New to Kck? Start with [your first Kck API in five minutes](../getting-
 ## Setup
 
 ```csharp
+using Kck.Persistence.EntityFramework.Extensions;
+
 services.AddKckPersistence(p => p
     .UseEntityFramework<AppDbContext>(o => o
         .UseSqlServer(builder.Configuration.GetConnectionString("Default")))
@@ -28,6 +30,9 @@ the DbContext automatically (4.1.0+); an interceptor of the same type already ad
 ### Domain event handlers (4.6.0+)
 
 ```csharp
+using Kck.Core.Abstractions.Entities;
+using Kck.Persistence.EntityFramework.Extensions;
+
 public sealed record OrderPlaced(Guid OrderId) : IDomainEvent
 {
     public Guid EventId { get; } = Guid.NewGuid();
@@ -58,6 +63,8 @@ own `IDomainEventDispatcher` registered through `AddDomainEventDispatch<T>()` (`
 ### DbContext pooling (4.5.0+)
 
 ```csharp
+using Kck.Persistence.EntityFramework.Extensions;
+
 services.AddKckPersistence(p => p
     .UseEntityFrameworkPool<AppDbContext>(o => o.UseSqlServer(connectionString), poolSize: 1024)
     .AddAuditInterceptor()
@@ -78,6 +85,8 @@ leased again they are dropped (a warning is logged), never dispatched in another
 Repositories come from `IUnitOfWork`:
 
 ```csharp
+using Kck.Persistence.Abstractions.UnitOfWork;
+
 public sealed class OrderService(IUnitOfWork uow)
 {
     public Task<Order?> GetAsync(Guid id, CancellationToken ct) =>
@@ -121,14 +130,26 @@ soft-deleted at the same time leave the change tracker through EF's cascade and 
 Presets: `QueryOptions.None`, `QueryOptions.Tracking`, `QueryOptions.WithDeleted`.
 
 ```csharp
-var repo = uow.Repository<Order, Guid>();
+using Kck.Persistence.Abstractions.Repositories;
+using Kck.Persistence.Abstractions.UnitOfWork;
 
-var page     = await repo.GetListAsync(QueryOptions.None, predicate: o => o.Total > 100, size: 20);
-var archived = await repo.GetListAsync(QueryOptions.WithDeleted, predicate: o => o.IsDeleted);
-var exists   = await repo.AnyAsync(predicate: o => o.CustomerId == customerId);
+public sealed class OrderQueries(IUnitOfWork uow)
+{
+    private readonly IRepository<Order, Guid> _orders = uow.Repository<Order, Guid>();
 
-// Load a soft-deleted row and change it (tracking must be on):
-var order = await repo.GetAsync(o => o.Id == id, new QueryOptions(IncludeDeleted: true, AsTracking: true));
+    public Task<IPaginate<Order>> LargeOrdersAsync(CancellationToken ct) =>
+        _orders.GetListAsync(QueryOptions.None, predicate: o => o.Total > 100, size: 20, cancellationToken: ct);
+
+    public Task<IPaginate<Order>> DeletedOrdersAsync(CancellationToken ct) =>
+        _orders.GetListAsync(QueryOptions.WithDeleted, predicate: o => o.IsDeleted, cancellationToken: ct);
+
+    public Task<bool> HasOrdersAsync(string email, CancellationToken ct) =>
+        _orders.AnyAsync(predicate: o => o.CustomerEmail == email, cancellationToken: ct);
+
+    // Load a soft-deleted row to change it (tracking must be on):
+    public Task<Order?> LoadDeletedForUpdateAsync(Guid id, CancellationToken ct) =>
+        _orders.GetAsync(o => o.Id == id, new QueryOptions(IncludeDeleted: true, AsTracking: true), cancellationToken: ct);
+}
 ```
 
 > `QueryOptions.WithDeleted` does not track. For load–change–`SaveChanges`, use
@@ -142,10 +163,17 @@ every query of the context, including `db.Orders...` outside repositories:
 this filter; in your own queries use `IgnoreQueryFilters([ModelBuilderExtensions.SoftDeleteQueryFilterName])`.
 
 ```csharp
-protected override void OnModelCreating(ModelBuilder modelBuilder)
+using Kck.Persistence.EntityFramework.Extensions;
+
+public sealed class ShopDbContext(DbContextOptions<ShopDbContext> options, ITenantProvider tenants) : DbContext(options)
 {
-    modelBuilder.Entity<Order>().HasQueryFilter("Tenant", o => o.TenantId == _tenantId); // must be named
-    modelBuilder.ApplyGlobalSoftDeleteQueryFilter();
+    private readonly string _tenantId = tenants.TenantId;
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<Order>().HasQueryFilter("Tenant", o => o.TenantId == _tenantId); // must be named
+        modelBuilder.ApplyGlobalSoftDeleteQueryFilter();
+    }
 }
 ```
 
@@ -171,9 +199,17 @@ filter without a trace, and `IncludeDeleted` returned no soft-deleted rows when 
 queries use `IQueryable<T>.ToPaginateAsync(index, size)`:
 
 ```csharp
-IPaginate<Order> page = await repo.Query(QueryOptions.None)   // soft-delete filtered, no tracking
-    .OrderByDescending(o => o.CreatedDate)
-    .ToPaginateAsync(index: 0, size: 20, cancellationToken: ct);
+using Kck.Persistence.Abstractions.Repositories;
+using Kck.Persistence.Abstractions.UnitOfWork;
+using Kck.Persistence.EntityFramework.Paging;
+
+public sealed class RecentOrders(IUnitOfWork uow)
+{
+    public Task<IPaginate<Order>> FirstPageAsync(CancellationToken ct) =>
+        uow.Repository<Order, Guid>().Query(QueryOptions.None)   // soft-delete filtered, no tracking
+            .OrderByDescending(o => o.CreatedDate)
+            .ToPaginateAsync(index: 0, size: 20, cancellationToken: ct);
+}
 ```
 
 ## Dynamic queries
@@ -184,19 +220,28 @@ filter on a property outside the whitelist throws `ArgumentException`.
 ## Transactions
 
 ```csharp
-await uow.BeginTransactionAsync(ct);
-try
-{
-    // ... work across several repositories
-    await uow.SaveChangesAsync(cancellationToken: ct);
-}
-catch
-{
-    await uow.RollbackAsync(ct);
-    throw;
-}
+using Kck.Persistence.Abstractions.UnitOfWork;
 
-await uow.CommitAsync(ct); // commits, then dispatches the domain events saved inside the transaction
+public sealed class PlaceOrder(IUnitOfWork uow)
+{
+    public async Task RunAsync(Order order, CancellationToken ct)
+    {
+        await uow.BeginTransactionAsync(ct);
+        try
+        {
+            await uow.Repository<Order, Guid>().AddAsync(order, ct);
+            // ... work across several repositories
+            await uow.SaveChangesAsync(cancellationToken: ct);
+        }
+        catch
+        {
+            await uow.RollbackAsync(ct);
+            throw;
+        }
+
+        await uow.CommitAsync(ct); // commits, then dispatches the domain events saved inside the transaction
+    }
+}
 ```
 
 The commit is outside the `try`: if dispatching fails after the commit, the data is already durable and `RollbackAsync`

@@ -5,7 +5,7 @@ namespace ReadmeSnippets.BundleWorkerService_1;
 
 internal static class Snippet
 {
-    internal static async Task RunAsync(string[] args)
+    internal static async Task RunAsync(string[] args, CancellationToken ct)
     {
 #line 15 "src/Bundles/Kck.Bundle.WorkerService/README.nuget.md"
 // Program.cs

@@ -37,6 +37,7 @@ OmerkckArchitecture (Kck.\*).
     "Removed in vX.Y.",
     DiagnosticId = "KCKnnnn",
     UrlFormat = "https://github.com/omerkck41/OmerkckArchitecture/blob/main/docs/policies/deprecation.md#{0}")]
+public class LegacyService { }
 ```
 
 ## Lifecycle

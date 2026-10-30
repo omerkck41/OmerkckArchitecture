@@ -37,11 +37,16 @@ Behaviors run in the order of the `Use…Behavior()` calls.
 | `ITransactionalRequest` | Transaction | none (marker) |
 
 The validation behavior runs all FluentValidation `IValidator<TRequest>` instances registered for the request. If there are
-errors, it throws `Kck.Exceptions.ValidationException` (`Kck.Exceptions.AspNetCore` converts this to a 400 ProblemDetails).
+errors, it throws `Kck.Exceptions.ValidationException` (`Kck.Exceptions.AspNetCore` converts this to a 422 ProblemDetails
+with per-field errors).
 
 ## Example
 
 ```csharp
+using Kck.Exceptions;
+using Kck.Pipeline.Abstractions;
+using Mediator;
+
 public sealed record GetProductQuery(int Id) : IQuery<Product>, ICachableRequest
 {
     public string CacheKey => $"product:{Id}";

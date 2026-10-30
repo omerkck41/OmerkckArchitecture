@@ -7,9 +7,9 @@ secrets management.
 
 | Package | Purpose |
 |---|---|
-| `Kck.Security.Abstractions` | `IHashingService`, `IJwtTokenService`, `IMfaProvider`, `ITokenBlacklistService`, `ISecretsManager` |
+| `Kck.Security.Abstractions` | `IHashingService`, `ITokenService`, `IMfaProvider`, `ITokenBlacklistService`, `ISecretsManager` |
 | `Kck.Security.Argon2` | Argon2id password hashing (`Konscious.Security.Cryptography.Argon2`) |
-| `Kck.Security.Jwt` | JWT generation and validation (`JsonWebTokenHandler`) |
+| `Kck.Security.Jwt` | RS256 JWT generation and validation (`JsonWebTokenHandler`) |
 | `Kck.Security.Totp` | RFC 6238 TOTP (Google Authenticator compatible) |
 | `Kck.Security.TokenBlacklist.Redis` | Redis-based logout / revoke |
 | `Kck.Security.Secrets.UserSecrets` | `IConfiguration` (env, User Secrets, appsettings) |
@@ -18,22 +18,25 @@ secrets management.
 ## Argon2 (Passwords)
 
 ```csharp
-services.AddKckSecurityArgon2(opt =>
+services.AddKckArgon2(opt =>
 {
-    opt.MemorySize = 65536;   // 64 MiB (OWASP minimum 19 MiB)
-    opt.Iterations = 3;
-    opt.DegreeOfParallelism = 4;
+    opt.MemorySize = 65536;        // KiB = 64 MiB (default; OWASP minimum 19 MiB)
+    opt.Iterations = 3;            // default
+    opt.DegreeOfParallelism = 1;   // default
 });
 ```
 
-Usage:
+Usage (note the argument order of `VerifyAsync`: the password first, then the stored hash):
 
 ```csharp
-public class UserService(IHashingService hasher)
+using Kck.Security.Abstractions.Hashing;
+
+public class PasswordService(IHashingService hasher)
 {
-    public Task<string> HashAsync(string password) => hasher.HashAsync(password);
-    public Task<bool> VerifyAsync(string hash, string password) =>
-        hasher.VerifyAsync(hash, password);
+    public Task<string> HashAsync(string password, CancellationToken ct) => hasher.HashAsync(password, ct);
+
+    public Task<bool> VerifyAsync(string password, string storedHash, CancellationToken ct) =>
+        hasher.VerifyAsync(password, storedHash, ct);
 }
 ```
 
@@ -42,90 +45,120 @@ CVE and the migration risk is low.
 
 ## JWT
 
+Tokens are signed with RS256 (an RSA private key); there is no shared-secret (HS256) mode.
+
 ```csharp
-services.AddKckSecurityJwt(opt =>
+using Kck.Security.Jwt;
+
+services.AddKckJwt(opt =>
 {
     opt.Issuer = "myapp";
     opt.Audience = "myapp-api";
-    opt.SecretKey = builder.Configuration["Jwt:SecretKey"]!;
-    opt.AccessTokenLifetime = TimeSpan.FromMinutes(15);
-    opt.RefreshTokenLifetime = TimeSpan.FromDays(7);
+    opt.AccessTokenExpiration = TimeSpan.FromMinutes(15); // default
+    opt.RefreshTokenTtlDays = 7;                          // default
+    opt.KeySource = RsaKeySource.File;                    // or Configuration (default)
+    opt.RsaKeyPath = builder.Configuration["Jwt:RsaKeyPath"];
 });
 ```
 
-Generation:
+- `RsaKeySource.Configuration`: `RsaKeyBase64` holds the PKCS#1 private key as Base64 (keep it in a secret store).
+- `RsaKeySource.File`: `RsaKeyPath` points to a PEM file.
+- `RsaKeySource.SecretsManager` is not supported in this version (it throws at first use).
+
+Generation and validation:
 
 ```csharp
-public class AuthService(IJwtTokenService jwt)
+using Kck.Security.Abstractions.Token;
+
+public class AuthService(ITokenService tokens)
 {
-    public string GenerateAccessToken(User user) =>
-        jwt.GenerateToken(new Claim[]
+    public async Task<string> SignInAsync(User user, CancellationToken ct)
+    {
+        TokenResult result = await tokens.CreateAccessTokenAsync(new TokenRequest
         {
-            new(ClaimTypes.NameIdentifier, user.Id.ToString()),
-            new(ClaimTypes.Email, user.Email)
-        });
+            UserId = user.Id.ToString(),
+            Email = user.Email,
+            Roles = ["customer"]
+        }, ct);
+        return result.AccessToken; // ExpiresAt is in result.ExpiresAt
+    }
+
+    public Task<TokenValidationResult> ValidateAsync(string token, CancellationToken ct) =>
+        tokens.ValidateTokenAsync(token, ct);
 }
 ```
 
-Validation uses `JsonWebTokenHandler`. `JwtSecurityTokenHandler` is deprecated
-([ADR-0003](../adr/0003-jwt-handler-migration.md)).
-
-> **Security:** `SecretKey` needs at least 256 bits of entropy (32+ random bytes). For RS256 /
-> ES256 (asymmetric) scenarios, extend the builder. HS256 with a shared
-> secret is on the prohibited rules list.
+`CreateRefreshTokenAsync()` returns a random refresh token; storing and rotating it is up to you. Validation uses
+`JsonWebTokenHandler` (`JwtSecurityTokenHandler` is deprecated,
+[ADR-0003](../adr/0003-jwt-handler-migration.md)). `AddKckJwt` provides the token service only; ASP.NET Core
+authentication is configured separately (`AddAuthentication().AddJwtBearer(...)`) with the matching public key.
 
 ## TOTP (2FA)
 
+TOTP needs a singleton `IMemoryCache` for replay protection:
+
 ```csharp
-services.AddKckSecurityTotp(opt =>
+services.AddMemoryCache();
+services.AddKckTotp(opt =>
 {
-    opt.Issuer = "MyApp";
-    opt.DigitCount = 6;
-    opt.TimeStep = 30;
+    opt.CodeLength = 6;          // default
+    opt.StepSeconds = 30;        // default
+    opt.VerificationWindow = 1;  // steps accepted before and after the current one
 });
 ```
 
 Usage:
 
 ```csharp
+using Kck.Security.Abstractions.Mfa;
+
 public class MfaService(IMfaProvider totp)
 {
-    public Task<string> GenerateSecretAsync() => totp.GenerateSecretAsync();
+    // Show SetupResult.ProvisioningUri as a QR code; store SecretKey encrypted.
+    public Task<MfaSetupResult> BeginSetupAsync(string email, CancellationToken ct) =>
+        totp.GenerateSetupAsync(email, issuer: "MyApp", ct);
 
-    public async Task<bool> VerifyAsync(string secret, string code)
-    {
-        return await totp.ValidateAsync(secret, code);
-    }
+    public Task<bool> VerifyAsync(string secretKey, string code, CancellationToken ct) =>
+        totp.ValidateCodeAsync(secretKey, code, ct);
 }
 ```
 
-Replay protection: the last used code is stored in a cache
-(`IReplayCache`; the default is InMemory).
+Replay protection: a code accepted once is rejected for the rest of its validity window. The record is kept in
+`IMemoryCache`, so it is per process: with several instances, a used code can be replayed on another instance within
+its window.
+
+> **Security:** with `VerificationWindow = 1`, three codes are valid at any moment, so a 6-digit code can be guessed
+> by brute force. Rate-limit the verification endpoint per account and lock the account (or require a fresh login)
+> after a few failed attempts; `ValidateCodeAsync` does not count failures.
 
 ## Token Blacklist (Revoke / Logout)
 
 ```csharp
-services.AddKckSecurityTokenBlacklistRedis(opt =>
+services.AddKckTokenBlacklistRedis(opt =>
 {
     opt.ConnectionString = builder.Configuration["Redis:ConnectionString"]!;
-    opt.KeyPrefix = "revoked:";
+    opt.KeyPrefix = "revoked:";   // default "kck:token:blacklist:"
 });
 ```
 
 Usage:
 
 ```csharp
+using Kck.Security.Abstractions.Token;
+
 public class LogoutService(ITokenBlacklistService blacklist)
 {
-    public Task RevokeAsync(string jti, DateTimeOffset expiresAt, CancellationToken ct)
-        => blacklist.RevokeAsync(jti, expiresAt, ct);
+    // Keep the entry until the token would have expired anyway.
+    public Task RevokeAsync(string jti, DateTimeOffset expiresAt, CancellationToken ct) =>
+        blacklist.RevokeAsync(jti, expiresAt - DateTimeOffset.UtcNow, ct);
 
-    public Task<bool> IsRevokedAsync(string jti, CancellationToken ct)
-        => blacklist.IsRevokedAsync(jti, ct);
+    public Task<bool> IsRevokedAsync(string jti, CancellationToken ct) => blacklist.IsRevokedAsync(jti, ct);
 }
 ```
 
-The JWT middleware checks the blacklist using the `jti` claim.
+When an `ITokenBlacklistService` is registered, `ITokenService.ValidateTokenAsync` rejects a token whose `jti` claim
+is revoked (after the signature check). The ASP.NET Core JWT bearer handler does not consult it; check it in your own
+`OnTokenValidated` event if bearer authentication must honor revocation.
 
 ## Secrets Management
 
@@ -147,9 +180,11 @@ and User Secrets works well for local development.
 services.AddKckAzureKeyVault(opt =>
 {
     opt.VaultUri = "https://my-vault.vault.azure.net/";
-    opt.SecretPrefix = "prod";  // optional: "prod-Stripe:ApiKey"
+    opt.SecretPrefix = "prod";  // optional: GetSecretAsync("Stripe-ApiKey") reads "prod-Stripe-ApiKey"
 });
 ```
+
+Key Vault secret names allow only letters, digits and dashes, so use `-` instead of `:` in keys.
 
 It uses `DefaultAzureCredential`, which automatically resolves the Azure CLI, Managed Identity or the
 `AZURE_CLIENT_ID`/`AZURE_CLIENT_SECRET` environment variables.
@@ -162,5 +197,4 @@ It uses `DefaultAzureCredential`, which automatically resolves the Azure CLI, Ma
 | PCI DSS | Secrets (KV), Argon2 (passwords) |
 | GDPR | Secrets (KMS-backed via KV) |
 
-For all security rules, see the global `rules/security.md` rules section
-(if it is not in a dedicated directory, you can copy it into your project).
+To report a vulnerability in Kck itself, see the [security policy](https://github.com/omerkck41/OmerkckArchitecture/security/policy).

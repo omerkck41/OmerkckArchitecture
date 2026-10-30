@@ -50,7 +50,8 @@ class RenderTests(unittest.TestCase):
 
         source = rs.render(block)
 
-        self.assertTrue(source.index("using Kck.Caching.Abstractions;") < source.index("namespace ReadmeSnippets.Readme_1;"))
+        # Inside the namespace, so the block's usings win over the project's global usings.
+        self.assertIn("namespace ReadmeSnippets.Readme_1;\nusing Kck.Caching.Abstractions;", source)
         self.assertIn("internal static async Task RunAsync(WebApplicationBuilder builder)", source)
         self.assertIn('#line 5 "README.md"', source)
         self.assertIn('#line 10 "README.md"\npublic class Service(ICacheService cache);', source)
@@ -75,6 +76,99 @@ class RenderTests(unittest.TestCase):
 
         self.assertNotIn("RunAsync", source)
         self.assertIn("public sealed record Order(int Id);", source)
+
+    def test_render_statements_after_a_declaration_go_into_the_method(self) -> None:
+        # Guides declare the reader's types first and register them afterwards.
+        lines = [
+            "public sealed class Handler",
+            "{",
+            "    public void Run() { }",
+            "}",
+            "",
+            "services.AddSingleton<Handler>();",
+        ]
+
+        source = rs.render(rs.Block("docs/providers/x.md", 1, 10, lines))
+
+        method = source[source.index("RunAsync"):source.index("await Task.CompletedTask;")]
+        self.assertIn("services.AddSingleton<Handler>();", method)
+        self.assertNotIn("public sealed class Handler", method)
+        self.assertIn('#line 15 "docs/providers/x.md"\nservices.AddSingleton<Handler>();', source)
+        self.assertIn("RunAsync(IServiceCollection services)", source)
+
+    def test_render_multiline_attribute_stays_with_its_type(self) -> None:
+        lines = ["[Obsolete(", '    "Use the new API.",', '    DiagnosticId = "KCK0001")]', "public class Legacy { }"]
+
+        source = rs.render(rs.Block("docs/policies/x.md", 1, 1, lines))
+
+        self.assertNotIn("RunAsync", source)
+        self.assertIn('[Obsolete(\n    "Use the new API.",', source)
+
+
+class SplitSegmentsTests(unittest.TestCase):
+    def test_split_segments_alternates_declarations_and_statements(self) -> None:
+        body = ["var a = 1;", "public record R(int X);", "var b = 2;", "public class C", "{", "}"]
+
+        segments = rs.split_segments(body)
+
+        self.assertEqual([(s.offset, s.declaration) for s in segments], [(0, False), (1, True), (2, False), (3, True)])
+
+    def test_split_segments_ignores_braces_in_strings(self) -> None:
+        body = ["public class C", "{", '    string S = "}";', "}", "var x = 1;"]
+
+        segments = rs.split_segments(body)
+
+        self.assertEqual([(s.offset, s.declaration) for s in segments], [(0, True), (4, False)])
+
+
+class DocsTests(unittest.TestCase):
+    def test_docs_block_name_comes_from_the_file_path(self) -> None:
+        # The folder alone would give every guide in docs/providers the same name.
+        blocks = rs.extract_blocks("docs/providers/feature-flags.md", "```csharp\nvar x = 1;\n```\n")
+
+        self.assertEqual(blocks[0].name, "DocsProvidersFeatureFlags_1")
+        self.assertEqual(rs.extract_blocks("docs/migrations/v3-to-v4.md", "```csharp\n```\n")[0].name,
+                         "DocsMigrationsV3ToV4_1")
+
+    def test_skip_comment_marks_only_the_next_block(self) -> None:
+        text = "<!-- snippet: skip (before: removed API) -->\n```csharp\nOld();\n```\n\n```csharp\nNew();\n```\n"
+
+        blocks = rs.extract_blocks("docs/migrations/x.md", text)
+
+        self.assertEqual([b.skipped for b in blocks], [True, False])
+
+    def test_expected_files_leave_out_skipped_blocks(self) -> None:
+        blocks = [rs.Block("docs/a.md", 1, 1, ["Old();"], skipped=True), rs.Block("docs/a.md", 2, 5, ["New();"])]
+
+        files = rs.expected_files(blocks)
+
+        self.assertEqual([p.name for p in files], ["DocsA_2.g.cs"])
+
+    def test_source_files_exclude_adrs_plans_and_template(self) -> None:
+        files = rs.source_files()
+
+        self.assertIn("docs/providers/persistence.md", files)
+        self.assertFalse(any(f.startswith(("docs/adr/", "docs/plans/")) for f in files))
+        self.assertNotIn("docs/migrations/_template.md", files)
+
+    def test_skipped_blocks_match_the_ratchet(self) -> None:
+        skipped = [b for b in rs.all_blocks() if b.skipped]
+
+        self.assertEqual(len(skipped), rs.MAX_SKIPPED)
+
+    def test_other_csharp_fence_spellings_fail(self) -> None:
+        for fence in ("```cs", "```C#", "```c#", "```CSharp", "```csharp title=x"):
+            with self.subTest(fence=fence), self.assertRaises(ValueError):
+                rs.extract_blocks("docs/a.md", f"{fence}\nvar x = 1;\n```\n")
+
+    def test_css_fence_is_not_csharp(self) -> None:
+        self.assertEqual(rs.extract_blocks("docs/a.md", "```css\na {}\n```\n"), [])
+
+    def test_colliding_block_names_fail(self) -> None:
+        blocks = [rs.Block("docs/a-b.md", 1, 1, ["A();"]), rs.Block("docs/a_b.md", 1, 1, ["B();"])]
+
+        with self.assertRaises(ValueError):
+            rs.expected_files(blocks)
 
 
 if __name__ == "__main__":

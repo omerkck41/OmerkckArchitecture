@@ -8,13 +8,14 @@ Event handlers are resolved from DI, with a transient scope per message.
 | Package | Purpose |
 |---|---|
 | `Kck.EventBus.Abstractions` | `IEventBus`, `IEventHandler<T>`, `IntegrationEvent` |
-| `Kck.EventBus.InMemory` | In-process channel-based bus |
+| `Kck.EventBus.InMemory` | In-process bus (handlers run on publish) |
 | `Kck.EventBus.RabbitMq` | RabbitMQ (`RabbitMQ.Client`) |
 | `Kck.EventBus.AzureServiceBus` | Azure Service Bus |
 
 ## InMemory
 
-For testing and single-process scenarios. Asynchronous queue; there is no DLQ on failure.
+For tests and single-process apps. `PublishAsync` runs the handlers in the caller's flow, one DI scope per publish; a
+handler exception is logged and swallowed. Nothing is persisted.
 
 ```csharp
 services.AddKckEventBus(b => b
@@ -22,58 +23,91 @@ services.AddKckEventBus(b => b
     .RegisterHandlersFromAssembly(typeof(OrderCreatedHandler).Assembly));
 ```
 
+`RegisterHandlersFromAssembly` registers every `IEventHandler<T>` implementation of the assemblies as a transient
+service, and `PublishAsync` runs all of them. Do not call `Subscribe<TEvent, THandler>()` on the in-memory bus: once an
+event type has a subscription, only subscribed handlers resolved by their class run for it, and handlers registered
+only as `IEventHandler<T>` are skipped without a log entry.
+
 ## RabbitMQ
 
 ```csharp
-services.AddKckEventBusRabbitMq(opt =>
+services.AddKckEventBus(b => b.UseRabbitMq(opt =>
 {
     opt.HostName = builder.Configuration["RabbitMq:Host"]!;
     opt.UserName = builder.Configuration["RabbitMq:User"]!;
     opt.Password = builder.Configuration["RabbitMq:Password"]!;
-    opt.Exchange = "myapp.events";
-})
-.AddKckEventHandler<OrderCreatedEvent, OrderCreatedHandler>();
+    opt.ExchangeName = "myapp.events";
+}));
+services.AddTransient<OrderCreatedHandler>();
 ```
 
 ## Azure Service Bus
 
 ```csharp
-services.AddKckEventBusAzureServiceBus(opt =>
+services.AddKckEventBus(b => b.UseAzureServiceBus(opt =>
 {
     opt.ConnectionString = builder.Configuration["AzureServiceBus:ConnectionString"]!;
     opt.TopicName = "order-events";
     opt.SubscriptionName = "order-processor";
-})
-.AddKckEventHandler<OrderCreatedEvent, OrderCreatedHandler>();
+}));
+services.AddTransient<OrderCreatedHandler>();
 ```
+
+### Subscribing (RabbitMQ, Azure Service Bus)
+
+The broker consumers start with the host and listen only for the events subscribed before that, so subscribe after
+`Build()` and before `Run()`:
+
+```csharp
+using Kck.EventBus.Abstractions;
+
+var bus = app.Services.GetRequiredService<IEventBus>();
+bus.Subscribe<OrderCreatedEvent, OrderCreatedHandler>();
+```
+
+`Subscribe` resolves the handler by its class, so register the class itself (`AddTransient<OrderCreatedHandler>()`
+above); a handler registered only through `RegisterHandlersFromAssembly` (as `IEventHandler<T>`) is not found and the
+message is skipped with a log entry. A message whose handler throws is negatively acknowledged and redelivered up to
+`MaxDeliveryCount` (RabbitMQ) before it goes to the dead-letter queue.
 
 ## Defining an Event
 
 ```csharp
+using Kck.EventBus.Abstractions;
+
 public sealed record OrderCreatedEvent(Guid OrderId, decimal Amount) : IntegrationEvent;
 ```
 
 ## Defining a Handler
 
 ```csharp
-public class OrderCreatedHandler(IEmailService email) : IEventHandler<OrderCreatedEvent>
+using Kck.EventBus.Abstractions;
+using Kck.Messaging.Abstractions;
+
+public class OrderCreatedHandler(IEmailProvider email) : IEventHandler<OrderCreatedEvent>
 {
-    public async Task HandleAsync(OrderCreatedEvent @event, CancellationToken ct = default)
-    {
-        await email.SendAsync(/* ... */, ct);
-    }
+    public Task HandleAsync(OrderCreatedEvent @event, CancellationToken ct = default) =>
+        email.SendAsync(new EmailMessage
+        {
+            From = "shop@example.com",
+            Subject = $"Order {@event.OrderId} received",
+            Body = $"Total: {@event.Amount:C}",
+            Recipients = [new EmailRecipient("customer@example.com")],
+        }, ct);
 }
 ```
 
 ## Publish
 
 ```csharp
+using Kck.EventBus.Abstractions;
+
 public class OrderService(IEventBus bus)
 {
     public async Task CreateAsync(Order order, CancellationToken ct)
     {
-        // ...
-        await bus.PublishAsync(new OrderCreatedEvent(order.Id, order.Amount), ct);
+        // ... save the order first
+        await bus.PublishAsync(new OrderCreatedEvent(order.Id, order.Total), ct);
     }
 }
 ```

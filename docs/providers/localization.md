@@ -18,13 +18,11 @@ string lookup, pluralization and parameter interpolation.
 services.AddKckLocalization(opt =>
 {
     opt.DefaultCulture = "en-US";
+    opt.FallbackCulture = "en-US";
     opt.SupportedCultures = ["en-US", "tr-TR", "de-DE"];
-    opt.FallbackToDefault = true;
-})
-.AddKckLocalizationJson(opt =>
-{
-    opt.ResourcePath = "Resources";
+    opt.ResourcePath = "Resources";   // default; read relative to the working directory
 });
+services.AddKckLocalizationJson();
 ```
 
 Directory structure:
@@ -52,11 +50,8 @@ Resources/
 ## YAML Setup
 
 ```csharp
-services.AddKckLocalization(opt => { /* ... */ })
-    .AddKckLocalizationYaml(opt =>
-    {
-        opt.ResourcePath = "Resources";
-    });
+services.AddKckLocalization(opt => opt.ResourcePath = "Resources");
+services.AddKckLocalizationYaml();
 ```
 
 The YAML format supports the same key hierarchy as JSON.
@@ -64,17 +59,15 @@ The YAML format supports the same key hierarchy as JSON.
 ## Usage
 
 ```csharp
+using Kck.Localization.Abstractions;
+
 public class GreetingService(ILocalizationService l10n)
 {
-    public async Task<string> GreetAsync(string name, CancellationToken ct)
-    {
-        return await l10n.GetStringAsync("Greeting", "en-US", [name], ct);
-    }
+    public Task<string> GreetAsync(string name, string culture, CancellationToken ct) =>
+        l10n.GetStringAsync("Greeting", culture, [name], ct);
 
-    public async Task<string> ItemCountAsync(int count, string culture, CancellationToken ct)
-    {
-        return await l10n.GetPluralStringAsync("ItemsFound", count, culture, ct);
-    }
+    public Task<string> ItemCountAsync(int count, string culture, CancellationToken ct) =>
+        l10n.GetPluralStringAsync("ItemsFound", count, culture, ct); // reads ItemsFound.one, ItemsFound.other...
 }
 ```
 
@@ -92,13 +85,13 @@ The default implementation uses the target culture instead of the invariant cult
 
 ## Fallback Chain
 
-When `FallbackToDefault = true`:
-1. Look up the requested culture (`tr-TR`).
-2. Parent culture (`tr`).
-3. Default culture (`en-US`).
-4. The key itself (no exception is thrown, so a developer error stays visible).
+1. The requested culture (`tr-TR`).
+2. Its parent culture (`tr`).
+3. `FallbackCulture` (`en` by default).
+4. Not found: the key formatted with `MissingKeyPattern` (`[Greeting]` by default), so a missing translation stays
+   visible; with `ThrowOnMissing = true`, a `KeyNotFoundException` instead.
 
 ## Cache
 
-Resource loading is cached (process-local). If you change files at runtime,
-add an `IFeatureChangeNotifier` pattern that reloads the resource provider.
+Resource files are loaded once and cached per process (`EnableCaching`; `CacheExpiration` is not applied yet). After changing files at
+runtime, call `ILocalizationService.ReloadAsync()`: it reloads the JSON and YAML providers.

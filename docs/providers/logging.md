@@ -12,6 +12,8 @@ and rolling files.
 ## Setup
 
 ```csharp
+using Serilog;
+
 builder.Services.AddKckSerilog(log => log
     .WithApplicationName("OrderService")
     .WriteToCompactJson()
@@ -24,10 +26,11 @@ builder.Services.AddKckSerilog(log => log
 | Method | Description |
 |---|---|
 | `WithApplicationName(name)` | Adds the `Application` property to every log |
-| `WriteToConsole()` | Standard console sink (rendered text) |
-| `WriteToCompactJson()` | `RenderedCompactJsonFormatter`, compatible with log aggregators |
-| `WriteToFile(path, interval)` | Rolling file sink (default: Day, 31 files) |
-| `WithTraceCorrelation(enabled)` | `TraceId`, `SpanId`, `ParentSpanId` properties |
+| `WriteToConsole()` | Console sink with rendered text (the default) |
+| `WriteToCompactJson()` | Console sink with `RenderedCompactJsonFormatter`, for log aggregators (replaces the text console output) |
+| `WriteToFile(path, interval)` | Rolling file sink (default: Day; `RetainedFileCount` = 31 files) |
+| `WithTraceCorrelation(enabled)` | `TraceId`, `SpanId`, `ParentSpanId` properties (on by default) |
+| `UsePiiMasking()` / `MaskPiiProperties(names)` | Replaces the values of sensitive properties with `***` |
 | `Configure(action)` | Raw `LoggerConfiguration` access |
 
 ## Trace Correlation
@@ -50,25 +53,40 @@ builder.Services.AddKckSerilog(log => log
 Correct usage (template):
 
 ```csharp
-logger.LogInformation("User {UserId} placed order {OrderId} for {Amount}",
-    userId, orderId, amount);
+public sealed class CheckoutLog(ILogger<CheckoutLog> logger)
+{
+    public void OrderPlaced(Guid userId, Guid orderId, decimal amount) =>
+        logger.LogInformation("User {UserId} placed order {OrderId} for {Amount}", userId, orderId, amount);
+}
 ```
 
 Forbidden (string interpolation):
 
 ```csharp
-// WRONG — the logger does not extract parameters
-logger.LogInformation($"User {userId} placed order {orderId}");
+public sealed class CheckoutLogWrong(ILogger<CheckoutLogWrong> logger)
+{
+    // WRONG — the message is formatted before logging: no UserId/OrderId properties, and a new template per call
+    public void OrderPlaced(Guid userId, Guid orderId) =>
+        logger.LogInformation($"User {userId} placed order {orderId}");
+}
 ```
 
 ## PII / Sensitive Data
 
-- Never log passwords, tokens or CVV. Add a filter in middleware.
-- For a logger created from `ILoggerFactory`, you can use the `ForContext<T>()`
-  scope pattern.
-- GDPR: log PII hashed or masked (E.164 → mask all but the last 4 digits).
+- Never log passwords, tokens or CVV.
+- `UsePiiMasking()` masks structured properties named like `password`, `token`, `apikey`, `email`, `phone`,
+  `creditcard` or `cvv` (case-insensitive); add your own names with `MaskPiiProperties(...)`. It masks property
+  values, not text inside a message, so keep sensitive data in template properties.
+- GDPR: log PII hashed or masked.
 
 ## Log Retention
 
-`WriteToFile` defaults to `retainedFileCountLimit: 31` (31 days). To increase
-it, add `.WriteTo.File(..., retainedFileCountLimit: 90)` through `Configure()`.
+`WriteToFile` keeps 31 files by default (31 days with the daily interval). Set `RetainedFileCount` to change it:
+
+```csharp
+builder.Services.AddKckSerilog(log =>
+{
+    log.WriteToFile("logs/app-.log");
+    log.RetainedFileCount = 90;
+});
+```

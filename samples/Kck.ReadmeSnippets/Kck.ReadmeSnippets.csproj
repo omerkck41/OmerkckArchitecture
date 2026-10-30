@@ -1,8 +1,10 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <!--
-    README code blocks compiled in CI (F3 H21). Generated/ is written by .github/scripts/readme_snippets.py from the
-    README files it lists; Context/ holds the reader's own types a block uses without defining. Only compiler errors
-    matter here: a README block is an excerpt, so analyzer and style warnings are off.
+    README and docs/ code blocks compiled in CI (F3 H21, plan G2.1 b). Generated/ is written by
+    .github/scripts/readme_snippets.py from the README files it lists and the published guides; Context/ holds the
+    reader's own types a block uses without defining. Only compiler errors matter here: a block is an excerpt, so
+    analyzer and style warnings are off. Every provider a guide documents is referenced (Kck.Pipeline.MediatR is
+    deprecated and only shown as "before" code; Kck.Hosting.Aspire has no guide).
   -->
   <PropertyGroup>
     <TargetFrameworks>net10.0</TargetFrameworks>
@@ -19,10 +21,41 @@
     <ProjectReference Include="../../src/Bundles/Kck.Bundle.WebApi/Kck.Bundle.WebApi.csproj" />
     <ProjectReference Include="../../src/Bundles/Kck.Bundle.MinimalApi/Kck.Bundle.MinimalApi.csproj" />
     <ProjectReference Include="../../src/Bundles/Kck.Bundle.WorkerService/Kck.Bundle.WorkerService.csproj" />
+    <ProjectReference Include="../../src/Providers/Kck.AspNetCore/Kck.AspNetCore.csproj" />
+    <ProjectReference Include="../../src/Providers/Kck.BackgroundJobs.Hangfire/Kck.BackgroundJobs.Hangfire.csproj" />
+    <ProjectReference Include="../../src/Providers/Kck.BackgroundJobs.Quartz/Kck.BackgroundJobs.Quartz.csproj" />
+    <ProjectReference Include="../../src/Providers/Kck.Caching.Hybrid/Kck.Caching.Hybrid.csproj" />
+    <ProjectReference Include="../../src/Providers/Kck.Caching.InMemory/Kck.Caching.InMemory.csproj" />
+    <ProjectReference Include="../../src/Providers/Kck.Caching.Redis/Kck.Caching.Redis.csproj" />
+    <ProjectReference Include="../../src/Providers/Kck.Documents.ClosedXml/Kck.Documents.ClosedXml.csproj" />
+    <ProjectReference Include="../../src/Providers/Kck.Documents.ImageSharp/Kck.Documents.ImageSharp.csproj" />
+    <ProjectReference Include="../../src/Providers/Kck.EventBus.AzureServiceBus/Kck.EventBus.AzureServiceBus.csproj" />
+    <ProjectReference Include="../../src/Providers/Kck.EventBus.InMemory/Kck.EventBus.InMemory.csproj" />
+    <ProjectReference Include="../../src/Providers/Kck.EventBus.RabbitMq/Kck.EventBus.RabbitMq.csproj" />
+    <ProjectReference Include="../../src/Providers/Kck.Exceptions.AspNetCore/Kck.Exceptions.AspNetCore.csproj" />
+    <ProjectReference Include="../../src/Providers/Kck.FeatureFlags.AzureAppConfig/Kck.FeatureFlags.AzureAppConfig.csproj" />
+    <ProjectReference Include="../../src/Providers/Kck.FeatureFlags.InMemory/Kck.FeatureFlags.InMemory.csproj" />
+    <ProjectReference Include="../../src/Providers/Kck.FileStorage.AwsS3/Kck.FileStorage.AwsS3.csproj" />
+    <ProjectReference Include="../../src/Providers/Kck.FileStorage.AzureBlob/Kck.FileStorage.AzureBlob.csproj" />
+    <ProjectReference Include="../../src/Providers/Kck.FileStorage.FluentFtp/Kck.FileStorage.FluentFtp.csproj" />
+    <ProjectReference Include="../../src/Providers/Kck.Http.Resilience/Kck.Http.Resilience.csproj" />
+    <ProjectReference Include="../../src/Providers/Kck.Localization/Kck.Localization.csproj" />
+    <ProjectReference Include="../../src/Providers/Kck.Localization.Json/Kck.Localization.Json.csproj" />
+    <ProjectReference Include="../../src/Providers/Kck.Localization.Yaml/Kck.Localization.Yaml.csproj" />
+    <ProjectReference Include="../../src/Providers/Kck.Logging.Serilog/Kck.Logging.Serilog.csproj" />
+    <ProjectReference Include="../../src/Providers/Kck.Messaging.AmazonSes/Kck.Messaging.AmazonSes.csproj" />
+    <ProjectReference Include="../../src/Providers/Kck.Messaging.MailKit/Kck.Messaging.MailKit.csproj" />
+    <ProjectReference Include="../../src/Providers/Kck.Messaging.SendGrid/Kck.Messaging.SendGrid.csproj" />
+    <ProjectReference Include="../../src/Providers/Kck.Observability.OpenTelemetry/Kck.Observability.OpenTelemetry.csproj" />
     <ProjectReference Include="../../src/Providers/Kck.Persistence.EntityFramework/Kck.Persistence.EntityFramework.csproj" />
     <ProjectReference Include="../../src/Providers/Kck.Pipeline.Mediator/Kck.Pipeline.Mediator.csproj" />
-    <ProjectReference Include="../../src/Providers/Kck.Caching.InMemory/Kck.Caching.InMemory.csproj" />
-    <ProjectReference Include="../../src/Providers/Kck.Messaging.MailKit/Kck.Messaging.MailKit.csproj" />
-    <ProjectReference Include="../../src/Providers/Kck.Exceptions.AspNetCore/Kck.Exceptions.AspNetCore.csproj" />
+    <ProjectReference Include="../../src/Providers/Kck.Resilience.Polly/Kck.Resilience.Polly.csproj" />
+    <ProjectReference Include="../../src/Providers/Kck.Search.Elasticsearch/Kck.Search.Elasticsearch.csproj" />
+    <ProjectReference Include="../../src/Providers/Kck.Security.Argon2/Kck.Security.Argon2.csproj" />
+    <ProjectReference Include="../../src/Providers/Kck.Security.Jwt/Kck.Security.Jwt.csproj" />
+    <ProjectReference Include="../../src/Providers/Kck.Security.Secrets.AzureKeyVault/Kck.Security.Secrets.AzureKeyVault.csproj" />
+    <ProjectReference Include="../../src/Providers/Kck.Security.Secrets.UserSecrets/Kck.Security.Secrets.UserSecrets.csproj" />
+    <ProjectReference Include="../../src/Providers/Kck.Security.TokenBlacklist.Redis/Kck.Security.TokenBlacklist.Redis.csproj" />
+    <ProjectReference Include="../../src/Providers/Kck.Security.Totp/Kck.Security.Totp.csproj" />
   </ItemGroup>
 </Project>
