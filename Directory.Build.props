@@ -79,7 +79,7 @@
        each release. See docs/plans/2026-10-26-dis-inceleme-yol-haritasi.md H7. -->
   <PropertyGroup Condition="$([MSBuild]::MakeRelative('$(MSBuildThisFileDirectory)', '$(MSBuildProjectDirectory)').Replace('\', '/').StartsWith('src/'))">
     <EnablePackageValidation>true</EnablePackageValidation>
-    <PackageValidationBaselineVersion>4.5.0</PackageValidationBaselineVersion>
+    <PackageValidationBaselineVersion>4.6.0</PackageValidationBaselineVersion>
   </PropertyGroup>
 
   <!-- Icon included in every publishable package -->
