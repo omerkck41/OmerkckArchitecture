@@ -24,13 +24,43 @@ ve `AddDomainEventDispatch<TDispatcher>()` ile kaydedilen interceptor'lar DbCont
 ayni tipte bir interceptor `configure` icinde `AddInterceptors(...)` ile zaten eklenmisse ikinci kez eklenmez
 (`OnConfiguring`'de eklenen gorulmez).
 
+### Domain event handlers (4.6.0+)
+
+```csharp
+public sealed record OrderPlaced(Guid OrderId) : IDomainEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
+
+public sealed class SendOrderConfirmation(ILogger<SendOrderConfirmation> logger) : IDomainEventHandler<OrderPlaced>
+{
+    public Task HandleAsync(OrderPlaced domainEvent, CancellationToken cancellationToken)
+    {
+        logger.LogInformation("Order {OrderId} placed", domainEvent.OrderId);
+        return Task.CompletedTask;
+    }
+}
+
+services.AddKckPersistence(p => p
+    .UseEntityFramework<AppDbContext>(o => o.UseSqlServer(connectionString))
+    .AddDomainEventHandlers(typeof(Program).Assembly));
+```
+
+`AddDomainEventHandlers` verilen derlemelerdeki her somut `IDomainEventHandler<TEvent>` uygulamasini scoped kaydeder ve
+event'leri onlara dagitir (ADR-0030). Bir handler yalniz tam olarak kendi event tipini alir (turetilmis tipleri degil);
+ayni event icin birden fazla handler'in sirasi tanimsizdir; handler'i olmayan event hata degildir. Handler hata verirse
+asagidaki "Interceptor'lar" kurali gecerlidir (veri kaydedilmis kalir, event'ler entity'ye geri eklenir, sonraki
+`SaveChanges` yeniden dagitir) — handler'lar idempotent olmalidir. Kendi `IDomainEventDispatcher`'inizi
+`AddDomainEventDispatch<T>()` ile kaydettiyseniz ikisi birlikte kullanilamaz (`InvalidOperationException`).
+
 ### DbContext pooling (4.5.0+)
 
 ```csharp
 services.AddKckPersistence(p => p
     .UseEntityFrameworkPool<AppDbContext>(o => o.UseSqlServer(connectionString), poolSize: 1024)
     .AddAuditInterceptor()
-    .AddDomainEventDispatch<MediatorDomainEventDispatcher>());
+    .AddDomainEventHandlers(typeof(Program).Assembly));
 ```
 
 `UseEntityFrameworkPool` `AddDbContextPool` kullanir; kayitlar `UseEntityFramework` ile aynidir. Havuzdaki context'ler tek

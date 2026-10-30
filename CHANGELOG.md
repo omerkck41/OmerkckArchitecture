@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- `Kck.Core.Abstractions` — `IDomainEventHandler<TEvent>`: handles one domain event type (ADR-0030).
+- `Kck.Persistence.EntityFramework` — `AddDomainEventHandlers(params Assembly[])`: registers every concrete
+  `IDomainEventHandler<TEvent>` in the assemblies (scoped) and dispatches domain events to them, so no custom
+  `IDomainEventDispatcher` is needed. A handler receives events of exactly its type; delivery keeps the existing
+  semantics (after commit, at least once). Combining it with `AddDomainEventDispatch<T>()` throws
+  `InvalidOperationException`.
+
 ## [4.5.0] — 2026-10-30
 
 ### Added

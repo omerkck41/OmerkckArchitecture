@@ -37,7 +37,8 @@ public class OrderService(IUnitOfWork uow)
 |---|---|
 | `UseEntityFramework<TContext>(options)` | Registers the `DbContext` (`AddDbContext`) and `IUnitOfWork` |
 | `AddAuditInterceptor()` | Audit fields and soft delete for `IAuditable` / `ISoftDeletable` entities |
-| `AddDomainEventDispatch<TDispatcher>()` | Dispatches aggregate domain events after `SaveChanges` / commit |
+| `AddDomainEventHandlers(assemblies)` | Registers every `IDomainEventHandler<TEvent>` in the assemblies and dispatches domain events to them after `SaveChanges` / commit (4.6.0+) |
+| `AddDomainEventDispatch<TDispatcher>()` | Dispatches aggregate domain events after `SaveChanges` / commit through your own `IDomainEventDispatcher` |
 
 ## Resources
 
