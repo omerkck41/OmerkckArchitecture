@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1793397646049,
+  "lastUpdate": 1793398682699,
   "repoUrl": "https://github.com/omerkck41/OmerkckArchitecture",
   "entries": {
     "Benchmark": [
@@ -13678,6 +13678,102 @@ window.BENCHMARK_DATA = {
             "value": 5.948435693979263,
             "unit": "ns",
             "range": "± 0.07350060306177036"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "106805727+omerkck41@users.noreply.github.com",
+            "name": "Ömer KÜÇÜK",
+            "username": "omerkck41"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "c42ad9c26d668874f2bd21573860686fc119b16c",
+          "message": "feat: guidance for AddDbContextFactory and clearer persistence errors (F4) (#272)\n\n## Summary\n\nPlan step F4 PR-2 (G4.5 of\n`docs/plans/2026-10-30-dx-hero-module-plan.md`): runtime messages that\nsay what to do.\n\n- **`UseEntityFramework` + `AddDbContextFactory`.** Both register\n`DbContextOptions<T>`, per scope and as a singleton.\nToday the combination fails with container errors that do not name the\ncause (factory first: \"Cannot resolve scoped\nservice … from root provider\" when the context is resolved; factory\nafter: \"Cannot consume scoped service … from\nsingleton …\"). Now an `InvalidOperationException` names both calls and\nthe alternatives: a scope with `IUnitOfWork` for\nbackground work, `UseEntityFrameworkPool` to reuse contexts. Raised at\nregistration (factory first) or at the first\ncontext (factory after; checked once). A scoped or keyed factory, or one\nfor another context type, is not affected.\nWith container validation on (ASP.NET Core Development) the container's\nown error comes first; the new\n\"DbContext factory\" section in the persistence guide quotes it so it can\nbe searched.\n- **Messages** (types unchanged): delete / restore of a missing row\n(entity type, id, check with\n`QueryOptions.WithDeleted`), \"No active transaction\" (`CommitAsync` ends\nthe transaction whether it succeeds or fails),\n`ToPaginateAsync` with an index below `from` (`ParamName` `index`), and\na `FilterPropertyWhitelist.Allow` / `Deny`\nexpression that is not a property access (`ParamName` `property`, with\nan example).\n- CHANGELOG `[Unreleased]`: Changed — behaviour, Changed. No version\nbump.\n\nAn independent review found two false positives in the first version of\nthe factory check (scoped factory, keyed\nfactory); both are fixed and covered by tests.\n\n## Test plan\n\n- [x] `dotnet build -c Release` — 0 warnings, 0 errors\n- [x] `dotnet test -c Release --filter \"Category!=Integration\"` — all 39\ntest projects pass (persistence 345)\n- [x] New tests red before the change: both registration orders, six\nmessage checks, scoped and keyed factories\n- [x] `docs_language.py` 0 problems; `readme_snippets.py --check` 153\nblocks up to date\n- [ ] CI\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\n---------\n\nCo-authored-by: Claude Opus 5.5 <noreply@anthropic.com>",
+          "timestamp": "2026-10-30T22:10:35Z",
+          "tree_id": "0462a34b3cd558827400fdca85b6336ff0c7d685",
+          "url": "https://github.com/omerkck41/OmerkckArchitecture/commit/c42ad9c26d668874f2bd21573860686fc119b16c"
+        },
+        "date": 1793398681772,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Success_Factory",
+            "value": 6.057923919388226,
+            "unit": "ns",
+            "range": "± 0.09731375375165198"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Failure_Factory",
+            "value": 10.61157141973575,
+            "unit": "ns",
+            "range": "± 0.3879659247699836"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Success",
+            "value": 1.640686180974756,
+            "unit": "ns",
+            "range": "± 0.006386012803606564"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Failure",
+            "value": 0.5832195482574977,
+            "unit": "ns",
+            "range": "± 0.005545970209209197"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Serialize_Reflection",
+            "value": 457.69109582901,
+            "unit": "ns",
+            "range": "± 1.3624786275632188"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Deserialize_Reflection",
+            "value": 791.1191077913556,
+            "unit": "ns",
+            "range": "± 3.191457435527487"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 0)",
+            "value": 9.656148820051126,
+            "unit": "ns",
+            "range": "± 0.03111665091047088"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 5)",
+            "value": 9.601010123124489,
+            "unit": "ns",
+            "range": "± 0.027707338045199172"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 0)",
+            "value": 9.645390763878822,
+            "unit": "ns",
+            "range": "± 0.037525616532229106"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 5)",
+            "value": 9.564893176513058,
+            "unit": "ns",
+            "range": "± 0.03292204479211404"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 0)",
+            "value": 9.81424925327301,
+            "unit": "ns",
+            "range": "± 0.04107640653295969"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 5)",
+            "value": 10.343751365939776,
+            "unit": "ns",
+            "range": "± 0.31421357630894986"
           }
         ]
       }
