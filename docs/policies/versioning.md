@@ -1,105 +1,105 @@
-# Surum Politikasi (SemVer)
+# Versioning Policy (SemVer)
 
-Bu dokuman OmerkckArchitecture (`Kck.*`) paketlerinin surum numaralandirma
-ve breaking change politikasini tanimlar.
+This document defines the version numbering and breaking change policy of the
+OmerkckArchitecture (`Kck.*`) packages.
 
-## Genel Kural — [SemVer 2.0.0](https://semver.org/)
+## General Rule — [SemVer 2.0.0](https://semver.org/)
 
 `MAJOR.MINOR.PATCH`
 
-| Surum bumpi | Anlami |
+| Version bump | Meaning |
 |---|---|
-| MAJOR | Public API'da breaking change (kaldirilan / imzasi degisen API) |
-| MINOR | Public API'a additive (yeni tip, yeni metot, yeni ozellik) |
-| PATCH | Bug fix, internal refactor, dokuman, performans iyilestirmesi |
+| MAJOR | Breaking change in the public API (removed / changed-signature API) |
+| MINOR | Additive change to the public API (new type, new method, new feature) |
+| PATCH | Bug fix, internal refactor, documentation, performance improvement |
 
-Kutuphane `MinVer` ile git tag uzerinden otomatik versiyonluyor — tag yapisi: `vX.Y.Z`.
+The library is versioned automatically from git tags with `MinVer`. The tag format is `vX.Y.Z`.
 
-## "Public API" Tanimi
+## Definition of "Public API"
 
-Asagidakilerin hepsi public API kapsamindadir:
+All of the following are in the scope of the public API:
 
-- `public` modifier ile isaretli ve `Kck.*` namespace altinda yer alan **tum** tipler ve uyeler:
-  - sinif, struct, record, interface, enum, delegate
-  - metot, property, field, event, constructor
+- **All** types and members marked with the `public` modifier and located under the `Kck.*` namespace:
+  - class, struct, record, interface, enum, delegate
+  - method, property, field, event, constructor
   - generic constraint, default interface implementation
-- `protected` ve `protected internal` uyeler **public sayilir** (turevin gormesi yeterli).
-- `internal` uyeler public sayilmaz (ancak `[InternalsVisibleTo]` ile actigin disardaki paket icin tasarim borcu olabilir — kacin).
+- `protected` and `protected internal` members **count as public** (visibility to a derived type is enough).
+- `internal` members do not count as public (however, exposing them to an outside package with `[InternalsVisibleTo]` can be design debt — avoid it).
 
-## Breaking Change Tanimi
+## Definition of Breaking Change
 
-Asagidaki herhangi bir degisiklik **breaking** sayilir:
+Any of the following changes counts as **breaking**:
 
-- Public tipi/uyeyi kaldirma
-- Public uye imzasini degistirme (parametre tipi, sayisi, donus tipi)
-- Default deger kaldirma / degistirme
-- Generic constraint ekleme/sertleştirme
-- Inheritance hiyerarsisini degistirme (base class swap)
-- Erisim seviyesini daraltma (`public` → `internal`, `protected` → `private`)
-- Davranissal sozlesme degisikligi (ornegin `null` donen bir API artik exception atiyor)
+- Removing a public type/member
+- Changing a public member's signature (parameter type, count, return type)
+- Removing / changing a default value
+- Adding / tightening a generic constraint
+- Changing the inheritance hierarchy (base class swap)
+- Narrowing the access level (`public` → `internal`, `protected` → `private`)
+- Changing the behavioral contract (for example, an API that returned `null` now throws an exception)
 
-## Politika
+## Policy
 
-### 0.x Donemi (mevcut)
+### 0.x Period (current)
 
-- Minor bump'larda **breaking olabilir**, ancak:
-  - `CHANGELOG.md` `### Breaking` altinda **acik** belirtilir.
-  - Mumkun olan yerde once `[Obsolete]` ile uyari verilir
-    ([deprecation policy](deprecation.md) gerei).
-  - `PublicAPI.Shipped.txt` dosyasi guncellenir (PublicApiAnalyzers).
+- **Breaking changes are possible** in minor bumps, but:
+  - They are stated **explicitly** under `### Breaking` in `CHANGELOG.md`.
+  - Where possible, a warning is given first with `[Obsolete]`
+    (as required by the [deprecation policy](deprecation.md)).
+  - The `PublicAPI.Shipped.txt` file is updated (PublicApiAnalyzers).
 
-### 1.0 Sonrasi (planlanan)
+### After 1.0 (planned)
 
-- **MINOR sadece additive olabilir.**
-- Breaking change sadece **MAJOR**'da yapilir.
-- Breaking once `[Obsolete]` ile en az **iki minor** boyunca uyari verir
-  (deprecation policy: N+0.x ve N+1.x).
-- Breaking change'ler `docs/migrations/v(N-1).x-to-vN.0.md` dokumanina yazilir.
+- **MINOR can only be additive.**
+- Breaking changes are made only in **MAJOR**.
+- Before a breaking change, `[Obsolete]` gives a warning for at least **two minor** releases
+  (deprecation policy: N+0.x and N+1.x).
+- Breaking changes are written in the `docs/migrations/v(N-1).x-to-vN.0.md` document.
 
-## PublicApiAnalyzers ile Tracking
+## Tracking with PublicApiAnalyzers
 
-Tum `src/Abstractions/*` projeleri `Microsoft.CodeAnalysis.PublicApiAnalyzers`
-kullanir. Her abstraction projesinde:
+All `src/Abstractions/*` projects use `Microsoft.CodeAnalysis.PublicApiAnalyzers`.
+In each abstraction project:
 
-- `PublicAPI.Shipped.txt` — sayilan tum mevcut public API
-- `PublicAPI.Unshipped.txt` — bir sonraki release'de eklenecek/silinecek API
+- `PublicAPI.Shipped.txt` — all current public API that has shipped
+- `PublicAPI.Unshipped.txt` — API to be added/removed in the next release
 
-Yeni public API eklendiginde build hatasi (RS0016) verilir. PR'da
-`PublicAPI.Unshipped.txt`'a satir eklenmesi zorunludur.
+Adding a new public API causes a build error (RS0016). Adding a line to
+`PublicAPI.Unshipped.txt` in the PR is required.
 
-Release sirasinda `PublicAPI.Unshipped.txt` icerigi `PublicAPI.Shipped.txt`
-dosyasina tasinir, `Unshipped` bos kalir.
+During a release, the contents of `PublicAPI.Unshipped.txt` are moved to the
+`PublicAPI.Shipped.txt` file, and `Unshipped` is left empty.
 
-## CHANGELOG Disiplini
+## CHANGELOG Discipline
 
-Her release oncesi `CHANGELOG.md`'nin `[Unreleased]` bolumu su 5 baslik
-altinda toplanir ([Keep a Changelog](https://keepachangelog.com/en/1.1.0/)):
+Before each release, the `[Unreleased]` section of `CHANGELOG.md` is organized under these 5 headings
+([Keep a Changelog](https://keepachangelog.com/en/1.1.0/)):
 
-- `### Added` (yeni ozellik / API)
-- `### Changed` (mevcut davranis degisikligi)
-- `### Deprecated` (gelecek major'da kalkacak)
-- `### Removed` (artik var olmayan)
+- `### Added` (new feature / API)
+- `### Changed` (change to existing behavior)
+- `### Deprecated` (will be removed in a future major release)
+- `### Removed` (no longer exists)
 - `### Fixed` (bug fix)
-- `### Security` (guvenlik fix'i)
+- `### Security` (security fix)
 
-`### Removed` veya `### Changed` icindeki breaking degisiklikler
-**MAJOR bump** gerektirir (1.0+ sonrasi).
+Breaking changes under `### Removed` or `### Changed`
+require a **MAJOR bump** (after 1.0).
 
-## Yeni Public API Eklerken
+## Adding a New Public API
 
-1. Kodu yaz, `dotnet build` cikis verir (RS0016).
-2. `PublicAPI.Unshipped.txt`'a uretilen satiri kopyala.
-3. XML doc yaz (eksik docs faz'i sonrasi: zorunlu olacak).
-4. `CHANGELOG.md` `### Added` altina kisa aciklama ekle.
+1. Write the code. `dotnet build` produces output (RS0016).
+2. Copy the generated line to `PublicAPI.Unshipped.txt`.
+3. Write XML docs (they will become mandatory after the missing-docs phase).
+4. Add a short description under `### Added` in `CHANGELOG.md`.
 
-## Public API Kaldirirken / Degisirken
+## Removing / Changing a Public API
 
-1. Once `[Obsolete]` isaretle (DiagnosticId zorunlu — [deprecation.md](deprecation.md)).
-2. `PublicAPI.Unshipped.txt`'a `*REMOVED*` satiri ekle (PublicApiAnalyzers konvansiyonu).
-3. `CHANGELOG.md` `### Deprecated` altina yaz.
-4. En az iki minor sonra major bump'ta kaldir.
+1. First mark it `[Obsolete]` (a DiagnosticId is required — [deprecation.md](deprecation.md)).
+2. Add a `*REMOVED*` line to `PublicAPI.Unshipped.txt` (PublicApiAnalyzers convention).
+3. Write it under `### Deprecated` in `CHANGELOG.md`.
+4. Remove it at a major bump after at least two minor releases.
 
-## Referanslar
+## References
 
 - [SemVer 2.0.0](https://semver.org/)
 - [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)

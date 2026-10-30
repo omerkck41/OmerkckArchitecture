@@ -1,26 +1,26 @@
-# Entity Hiyerarşisi — v2.x → v3.0 Migrasyon Kılavuzu
+# Entity Hierarchy — v2.x → v3.0 Migration Guide
 
 **ADR:** [ADR-0024](../adr/0024-entity-hierarchy.md)
 
 ---
 
-## Özet
+## Summary
 
-v3.0'da `Entity<TId>` üç ayrı sınıfa bölündü:
+In v3.0, `Entity<TId>` was split into three separate classes:
 
-| v2.x | v3.0 | Ne zaman kullan |
+| v2.x | v3.0 | When to use |
 |---|---|---|
-| `Entity<TId>` | `Entity<TId>` | Yalnızca kimlik + domain events (nadiren kullanılır) |
-| `Entity<TId>` | `AuditableEntity<TId>` | Kimlik + audit trail (oluşturma/değiştirme tarihleri) |
-| `Entity<TId>` | `FullEntity<TId>` | Kimlik + audit trail + soft-delete + RowVersion |
+| `Entity<TId>` | `Entity<TId>` | Identity + domain events only (rarely used) |
+| `Entity<TId>` | `AuditableEntity<TId>` | Identity + audit trail (creation/modification dates) |
+| `Entity<TId>` | `FullEntity<TId>` | Identity + audit trail + soft-delete + RowVersion |
 
-**En yaygın migration:** `Entity<TId>` → `FullEntity<TId>` (v2.x'deki Entity ile birebir aynı)
+**Most common migration:** `Entity<TId>` → `FullEntity<TId>` (identical to the v2.x Entity)
 
 ---
 
-## Adım Adım
+## Step by Step
 
-### 1. `Entity<TId>`'yi `FullEntity<TId>` ile değiştir
+### 1. Replace `Entity<TId>` with `FullEntity<TId>`
 
 ```csharp
 // v2.x
@@ -38,56 +38,56 @@ public class Product : FullEntity<Guid>
 }
 ```
 
-### 2. Sadece audit isteyen entity'ler
+### 2. Entities that need audit only
 
 ```csharp
-// Soft-delete gerekmiyorsa
+// If you do not need soft-delete
 public class LogEntry : AuditableEntity<Guid>
 {
     public string Message { get; set; } = string.Empty;
 }
 ```
 
-### 3. Sadece kimlik isteyen entity'ler
+### 3. Entities that need identity only
 
 ```csharp
-// Audit ve soft-delete gerekmiyorsa (nadiren)
+// If you need neither audit nor soft-delete (rare)
 public class Tag : Entity<int>
 {
     public string Name { get; set; } = string.Empty;
 }
 ```
 
-### 4. EF Core konfigürasyonu
+### 4. EF Core configuration
 
-EF Core konfigürasyonunuzda `Entity<TId>` type constraint varsa güncelle:
+If your EF Core configuration has an `Entity<TId>` type constraint, update it:
 
 ```csharp
 // v2.x
 modelBuilder.Entity<Product>(b => b.HasKey(e => e.Id));
 
-// v3.0 — değişiklik gerekmez; konfigürasyon aynı çalışır
-// FullEntity<TId>, Entity<TId>'den türediğinden EF Core entity discovery otomatik çalışır
+// v3.0 — no change needed; the configuration works as before
+// FullEntity<TId> derives from Entity<TId>, so EF Core entity discovery works automatically
 ```
 
-### 5. Repository generics (eğer kısıtlama varsa)
+### 5. Repository generics (if you have constraints)
 
 ```csharp
 // v2.x
 public class MyRepo<T> where T : Entity<Guid> { }
 
-// v3.0 — sadece audit/soft-delete isteyen entity'lerle çalışacaksa
+// v3.0 — if it will only work with entities that need audit/soft-delete
 public class MyRepo<T> where T : FullEntity<Guid> { }
 
-// v3.0 — tüm entity'lerle çalışacaksa
+// v3.0 — if it will work with all entities
 public class MyRepo<T> where T : Entity<Guid> { }
 ```
 
 ---
 
-## Kontrol Listesi
+## Checklist
 
-- [ ] Tüm `Entity<TId>` implementasyonları `FullEntity<TId>` (veya uygun base class) ile güncellendi
-- [ ] EF Core configurations gözden geçirildi
-- [ ] Repository generic constraints güncellendi (gerekiyorsa)
-- [ ] `dotnet build` çıktısı 0 hata
+- [ ] All `Entity<TId>` implementations updated to `FullEntity<TId>` (or the appropriate base class)
+- [ ] EF Core configurations reviewed
+- [ ] Repository generic constraints updated (if needed)
+- [ ] `dotnet build` output shows 0 errors

@@ -1,127 +1,126 @@
 # Test Strategy
 
-Bu dokuman OmerkckArchitecture (`Kck.*`) test piramidini ve hangi test
-kategorisinin ne zaman kullanilacagini tanimlar.
+This document defines the test pyramid of OmerkckArchitecture (`Kck.*`) and when
+to use each test category.
 
-## Test Piramidi
+## Test Pyramid
 
 ```
             /\
-           /  \    Integration testleri (Testcontainers)
-          /----\   - gercek DB / broker / external service
+           /  \    Integration tests (Testcontainers)
+          /----\   - real DB / broker / external service
          /      \  - LS-FAZ-4 PoC: Kck.Persistence.EntityFramework.Tests
         /        \
-       /----------\ Unit testleri (xUnit + NSubstitute + InMemory)
-      /            \ - tum providerler + abstraction'lar
-     /              \ - default test koleksiyonu
+       /----------\ Unit tests (xUnit + NSubstitute + InMemory)
+      /            \ - all providers + abstractions
+     /              \ - default test collection
     /----------------\
 ```
 
 ## Unit Tests
 
-**Ne icin:** Bir tip/metodun davranisini hizla dogrula.
+**Purpose:** Quickly verify the behavior of a type or method.
 
-**Araclar:**
+**Tools:**
 - xUnit `[Fact]` / `[Theory]`
-- `FluentAssertions` (assert chain)
-- `NSubstitute` (mock interface)
+- `FluentAssertions` (assertion chains)
+- `NSubstitute` (interface mocks)
 - EF Core: `Microsoft.EntityFrameworkCore.InMemory` provider
 
-**Konum:** `tests/Kck.<Project>.Tests/`
+**Location:** `tests/Kck.<Project>.Tests/`
 
-**Filter:** Default test discovery'ye dahil — ozel filter gerekmez.
+**Filter:** Included in default test discovery. No special filter is needed.
 
-**Trait:** Yok (default).
+**Trait:** None (default).
 
-**CI:** Hem ubuntu hem windows runner'da kosar.
+**CI:** Runs on both the ubuntu and windows runners.
 
 ## Integration Tests (Testcontainers)
 
-**Ne icin:** Mock/InMemory'nin yakalayamadigi gercek davranislari dogrula:
-- Concurrency token (xmin, RowVersion)
+**Purpose:** Verify real behavior that mocks/InMemory cannot catch:
+- Concurrency tokens (xmin, RowVersion)
 - Transaction isolation level
 - JSON column mappings
-- Provider-spesifik query translation
-- Connection pool davranisi
-- Network/IO timeout pattern'leri
+- Provider-specific query translation
+- Connection pool behavior
+- Network/IO timeout patterns
 
-**Araclar:**
-- `Testcontainers.PostgreSql`, `Testcontainers.Redis`, `Testcontainers.RabbitMq` vb.
-- `IAsyncLifetime` xUnit pattern'i
+**Tools:**
+- `Testcontainers.PostgreSql`, `Testcontainers.Redis`, `Testcontainers.RabbitMq`, and so on
+- The xUnit `IAsyncLifetime` pattern
 
-**Konum:** Mevcut test projesinin icinde, ayri test sinifi:
+**Location:** Inside the existing test project, in a separate test class:
 `<Project>.Tests/<Service>IntegrationTests.cs`
 
-**Trait:** `[Trait("Category", "Integration")]` (sinif veya metod seviyesinde)
+**Trait:** `[Trait("Category", "Integration")]` (at class or method level)
 
 **Filter:**
 - Unit test step: `--filter "Category!=Integration"`
-- Integration test step: `--filter "Category=Integration"` (ubuntu-only)
+- Integration test step: `--filter "Category=Integration"` (ubuntu only)
 
-**CI:** Sadece **ubuntu-latest** runner'da. Windows GitHub-hosted runner'da
-Docker pre-installed degil; integration testler skip edilir.
+**CI:** Only on the **ubuntu-latest** runner. Docker is not pre-installed on the
+Windows GitHub-hosted runner, so integration tests are skipped there.
 
-**Yerel calistirma:** Docker Desktop calisir durumda olmali.
+**Running locally:** Docker Desktop must be running.
 
 ```bash
-# Sadece unit testler (Docker'siz):
+# Unit tests only (no Docker):
 dotnet test --filter "Category!=Integration"
 
-# Sadece integration testler (Docker gerekli):
+# Integration tests only (Docker required):
 dotnet test --filter "Category=Integration"
 ```
 
-## Mevcut Integration Test Coverage (LS-FAZ-4)
+## Current Integration Test Coverage (LS-FAZ-4)
 
-| Test Projesi | Container | Durum | Faz |
+| Test Project | Container | Status | Phase |
 |---|---|---|---|
 | `Kck.Persistence.EntityFramework.Tests` | `postgres:16-alpine` | **PoC** (LS-FAZ-4) | ✓ |
-| `Kck.Caching.Redis.Tests` | (mock — InMemory benzeri) | Yayilma bekliyor | LS-FAZ-4.5 |
-| `Kck.EventBus.RabbitMq.Tests` | (mock) | Yayilma bekliyor | LS-FAZ-4.5 |
-| `Kck.EventBus.AzureServiceBus.Tests` | (mock) | Yayilma bekliyor | LS-FAZ-4.5 |
-| `Kck.Search.Elasticsearch.Tests` | (mock) | Yayilma bekliyor | LS-FAZ-4.5 |
-| `Kck.Security.Secrets.AzureKeyVault.Tests` | (mock) | Yayilma bekliyor | LS-FAZ-4.5 |
+| `Kck.Caching.Redis.Tests` | (mock — InMemory-like) | Awaiting rollout | LS-FAZ-4.5 |
+| `Kck.EventBus.RabbitMq.Tests` | (mock) | Awaiting rollout | LS-FAZ-4.5 |
+| `Kck.EventBus.AzureServiceBus.Tests` | (mock) | Awaiting rollout | LS-FAZ-4.5 |
+| `Kck.Search.Elasticsearch.Tests` | (mock) | Awaiting rollout | LS-FAZ-4.5 |
+| `Kck.Security.Secrets.AzureKeyVault.Tests` | (mock) | Awaiting rollout | LS-FAZ-4.5 |
 
-LS-FAZ-4.5 PoC pattern'ini diger 5 test projesine yayinlanmasini hedefliyor.
+LS-FAZ-4.5 aims to roll the PoC pattern out to the other 5 test projects.
 
 ## Benchmarks (BenchmarkDotNet)
 
-**Ne icin:** Mikro-benchmark ile performans regresyonunu yakala. Test
-**degil**, profil aleti.
+**Purpose:** Catch performance regressions with micro-benchmarks. This is a profiling
+tool, **not** a test.
 
-**Konum:** `tests/Kck.Benchmarks/`
+**Location:** `tests/Kck.Benchmarks/`
 
-**Calistirma:**
+**Running:**
 
 ```bash
 dotnet run -c Release --project tests/Kck.Benchmarks
 dotnet run -c Release --project tests/Kck.Benchmarks -- --filter "*Paginate*"
 ```
 
-**CI:** Benchmark calistirma CI'da yok (benchmark resultlari deterministik
-degil). Gelecekte CI regression detection (bencher.dev veya benchmark
-GitHub action) eklenebilir.
+**CI:** Benchmarks do not run in CI (benchmark results are not deterministic).
+CI regression detection (bencher.dev or a benchmark GitHub action) may be added in the future.
 
-## Mutation Testing (Stryker.NET) — Henuz Yok
+## Mutation Testing (Stryker.NET) — Not Yet Available
 
-Bolum 7.4: kritik abstraction'larda (Result, Paginate, Filter) mutation
-score baslat — hedef >%70. **Trial mode** olarak isaretli, henuz uygulanmadi.
+Section 7.4: start a mutation score on critical abstractions (Result, Paginate, Filter) —
+target >70%. Marked as **trial mode**, not yet implemented.
 
-## Property-Based Testing — Henuz Yok
+## Property-Based Testing — Not Yet Available
 
-Bolum 7.3: `Paginate.Create` math, `Filter` parser, `PathSanitizer` icin
-FsCheck/CsCheck ile property test. **Trial mode** olarak isaretli.
+Section 7.3: property tests with FsCheck/CsCheck for `Paginate.Create` math, the `Filter`
+parser, and `PathSanitizer`. Marked as **trial mode**.
 
-## Coverage Politikasi
+## Coverage Policy
 
-Detay: [`docs/policies/test-coverage.md`](policies/test-coverage.md)
+Details: [`docs/policies/test-coverage.md`](policies/test-coverage.md)
 
-- Mevcut esik: **line %40 / branch %35** (regression onleme)
-- Yol haritasi: kademeli yukseltme, test yazimi gerektirir
+- Current threshold: **line 40% / branch 35%** (regression prevention)
+- Roadmap: gradual increases, which require writing tests
 
-## Referanslar
+## References
 
 - [`docs/policies/test-coverage.md`](policies/test-coverage.md)
-- `tasks/library-strategy-2026-04-25.md` Bolum 5.7, 7.1, 7.5
+- `tasks/library-strategy-2026-04-25.md` Sections 5.7, 7.1, 7.5
 - [Testcontainers for .NET](https://dotnet.testcontainers.org/)
 - [BenchmarkDotNet](https://benchmarkdotnet.org/)

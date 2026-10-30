@@ -1,10 +1,10 @@
 # Search
 
-Full-text arama icin abstraction. Su an sadece Elasticsearch provider var.
+Abstraction for full-text search. Currently only an Elasticsearch provider exists.
 
-## Paketler
+## Packages
 
-| Paket | Hedef |
+| Package | Purpose |
 |---|---|
 | `Kck.Search.Abstractions` | `ISearchService`, `SearchQuery`, `SearchResult<T>` |
 | `Kck.Search.Elasticsearch` | Elasticsearch 8.x (Elastic.Clients.Elasticsearch) |
@@ -21,11 +21,11 @@ services.AddKckSearchElasticsearch(opt =>
 });
 ```
 
-## Index Tanimlama
+## Defining an Index
 
-Elasticsearch mapping'i service-level'da degil, domain tarafinda — SpatNest
-veya Elastic.Clients fluent API ile tanimlayin, ornegin startup migration
-script'i:
+The Elasticsearch mapping lives on the domain side, not in the service layer. Define it with SpatNest
+or the Elastic.Clients fluent API, for example in a startup migration
+script:
 
 ```csharp
 await client.Indices.CreateAsync<Product>(c => c
@@ -36,7 +36,7 @@ await client.Indices.CreateAsync<Product>(c => c
     )));
 ```
 
-## Kullanim
+## Usage
 
 ```csharp
 public class ProductSearchService(ISearchService search)
@@ -70,21 +70,21 @@ public record SearchResult<T>(
     long TookMs);
 ```
 
-## Index Stratejileri
+## Index Strategies
 
 - **Index-per-tenant**: `products-tenantA`, `products-tenantB`
-- **Single index + filter**: `products` + `tenantId` query filter
-- **Rollover**: zaman bazli (`logs-2026-04`, `logs-2026-05`)
+- **Single index + filter**: `products` + a `tenantId` query filter
+- **Rollover**: time-based (`logs-2026-04`, `logs-2026-05`)
 
-## Performans
+## Performance
 
-- Bulk index: `IndexBulkAsync` (su an abstraction'da yok — ekleme adayi)
-- Query cache: Elasticsearch kendi query cache'i yonetir
-- Refresh interval: production'da `1s` default — yuksek ingest rate icin `5s`
-  veya `-1` (manuel refresh)
+- Bulk index: `IndexBulkAsync` (not in the abstraction yet; candidate to add)
+- Query cache: Elasticsearch manages its own query cache
+- Refresh interval: default `1s` in production. For a high ingest rate, use `5s`
+  or `-1` (manual refresh)
 
-## Gelecek Planlar
+## Planned Work
 
-- OpenSearch varyanti
-- Vector search (k-NN) destegi
+- OpenSearch variant
+- Vector search (k-NN) support
 - Bulk operations API

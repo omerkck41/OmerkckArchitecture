@@ -1,5 +1,5 @@
 # Published documentation that must be English (ADR-0029 D2; plan G2.1). Checked by .github/scripts/docs_language.py.
-# Add a file here when it is translated; at the end of plan phase F2 this covers every published page.
+# Every published page must be listed (docs_language.py fails on an unlisted one): write new pages in English.
 # ADR-0001..0028 are historical records and stay as written.
 README.md
 docs/adr/0029-dx-first-adoption.md
@@ -69,3 +69,35 @@ src/Providers/Kck.Security.Totp/README.nuget.md
 docs/README.md
 docs/getting-started/README.md
 docs/providers/persistence.md
+CHANGELOG.md
+docs/adr/README.md
+docs/configuration-schema.md
+docs/faq.md
+docs/migrations/README.md
+docs/migrations/_template.md
+docs/migrations/entity-hierarchy-v3.md
+docs/migrations/mediatR-to-mediator.md
+docs/migrations/v3-to-v4.md
+docs/policies/deprecation.md
+docs/policies/support.md
+docs/policies/test-coverage.md
+docs/policies/versioning.md
+docs/providers/README.md
+docs/providers/aspnetcore.md
+docs/providers/background-jobs.md
+docs/providers/caching.md
+docs/providers/documents.md
+docs/providers/event-bus.md
+docs/providers/exceptions.md
+docs/providers/feature-flags.md
+docs/providers/file-storage.md
+docs/providers/http.md
+docs/providers/localization.md
+docs/providers/logging.md
+docs/providers/messaging.md
+docs/providers/observability.md
+docs/providers/pipeline.md
+docs/providers/search.md
+docs/providers/security.md
+docs/test-strategy.md
+SECURITY.md

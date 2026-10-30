@@ -1,11 +1,11 @@
 # Background Jobs
 
-Arka plan is planlamasi icin provider-agnostic abstraction. `IJobScheduler`
-arayuzu asagidaki teknolojilerle implement edilir.
+A provider-agnostic abstraction for background job scheduling. The `IJobScheduler`
+interface is implemented with the following technologies.
 
-## Paketler
+## Packages
 
-| Paket | Hedef |
+| Package | Purpose |
 |---|---|
 | `Kck.BackgroundJobs.Abstractions` | `IJobScheduler`, `IBackgroundJob`, `IRecurringJob`, `CronExpressions` |
 | `Kck.BackgroundJobs.Hangfire` | Hangfire (SQL Server / PostgreSQL / InMemory) |
@@ -21,30 +21,30 @@ services.AddKckBackgroundJobsHangfire(options =>
 });
 ```
 
-Dashboard icin:
+For the dashboard:
 
 ```csharp
 app.UseHangfireDashboard("/jobs");
 ```
 
-> Not: `Hangfire.MySqlStorage` kaldirildi — terkedilmis paketti
-> ([ADR-0002](../adr/0002-hangfire-storage.md)). SQL Server, PostgreSQL veya
-> InMemory desteklenir.
+> Note: `Hangfire.MySqlStorage` was removed because the package is abandoned
+> ([ADR-0002](../adr/0002-hangfire-storage.md)). SQL Server, PostgreSQL, or
+> InMemory are supported.
 
 ## Quartz
 
 ```csharp
-services.AddKckBackgroundJobsQuartz();                         // varsayilanlar: in-memory store
+services.AddKckBackgroundJobsQuartz();                         // defaults: in-memory store
 services.AddKckBackgroundJobsQuartz(q => q.UseDefaultThreadPool(tp => tp.MaxConcurrency = 10)); // Quartz.NET 4 IQuartzBuilder
 ```
 
-Quartz hosted service otomatik eklenir (`WaitForJobsToComplete = true`); isler DI'dan cozulur. 4.0 itibariyla Quartz.NET
-4 kullanilir — Quartz 3'ten gecis notlari: [v3-to-v4](../migrations/v3-to-v4.md#7-quartznet-4).
+The Quartz hosted service is added automatically (`WaitForJobsToComplete = true`); jobs are resolved from DI. As of 4.0,
+Quartz.NET 4 is used. For migration notes from Quartz 3, see [v3-to-v4](../migrations/v3-to-v4.md#7-quartznet-4).
 
-> `Kck.Bundle.WorkerService` 4.0'dan itibaren yalniz Quartz icerir; Hangfire (LGPL-3.0) icin
-> `Kck.BackgroundJobs.Hangfire` paketini ayrica ekleyin.
+> As of 4.0, `Kck.Bundle.WorkerService` includes only Quartz. For Hangfire (LGPL-3.0),
+> add the `Kck.BackgroundJobs.Hangfire` package separately.
 
-## Job Yazma
+## Writing a Job
 
 ```csharp
 public class EmailCleanupJob : IBackgroundJob
@@ -57,13 +57,13 @@ public class EmailCleanupJob : IBackgroundJob
 }
 ```
 
-DI kaydi icin [ADR-0007](../adr/0007-add-kck-job-helper.md) helper:
+For DI registration, use the helper from [ADR-0007](../adr/0007-add-kck-job-helper.md):
 
 ```csharp
 services.AddKckJob<EmailCleanupJob>();
 ```
 
-## Scheduler Kullanimi
+## Using the Scheduler
 
 ```csharp
 public class CheckoutHandler(IJobScheduler scheduler)
@@ -79,11 +79,11 @@ public class CheckoutHandler(IJobScheduler scheduler)
 }
 ```
 
-## Cron Sabitleri
+## Cron Constants
 
-`CronExpressions` hazir sabitler sunar:
+`CronExpressions` provides ready-made constants:
 
-| Sabit | Ifade |
+| Constant | Expression |
 |---|---|
 | `EveryMinute` | `* * * * *` |
 | `EveryHour` | `0 * * * *` |
@@ -92,12 +92,12 @@ public class CheckoutHandler(IJobScheduler scheduler)
 | `EveryWeek` | `0 0 * * 1` |
 | `EveryMonth` | `0 0 1 * *` |
 
-## Secim Kriterleri
+## Selection Criteria
 
-| Kriter | Hangfire | Quartz |
+| Criterion | Hangfire | Quartz |
 |---|---|---|
-| Storage | SQL Server / PostgreSQL / Memory | In-process (persistence opsiyonel) |
-| Dashboard | Yerlesik | Uc-parti |
-| Distributed | Evet (worker pool) | Evet (clustering) |
+| Storage | SQL Server / PostgreSQL / Memory | In-process (persistence optional) |
+| Dashboard | Built-in | Third-party |
+| Distributed | Yes (worker pool) | Yes (clustering) |
 | Cron | Cron + TimeSpan | Full Quartz cron |
 | Best for | Web app job queue | Scheduler-heavy workload |

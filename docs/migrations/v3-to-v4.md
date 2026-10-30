@@ -1,77 +1,77 @@
 # Migration v3.x → v4.0
 
-**Etki:** Breaking · **Tahmini effort:** S–M (cogu degisiklik derleyici hatasi olarak gorunur)
-**Karar:** [ADR-0028](../adr/0028-v4-scope.md)
+**Impact:** Breaking · **Estimated effort:** S–M (most changes show up as compiler errors)
+**Decision:** [ADR-0028](../adr/0028-v4-scope.md)
 
-## Neden bu major?
+## Why this major?
 
-3.x boyunca `[Obsolete]` olarak duyurulan API'ler kaldirildi, varsayilan kullanim yolu tamamen izin verici lisansli hale
-getirildi (MediatR ve bundle'daki Hangfire cikti) ve major bagimliliklar guncellendi. 3.x'in son surumu nuget.org'da
-listede kalir; 3.x yalniz guvenlik/kritik duzeltme alir (`release/3.x`).
+APIs announced as `[Obsolete]` during 3.x were removed, the default usage path now relies entirely on permissively
+licensed packages (MediatR and the bundled Hangfire were dropped), and major dependencies were updated. The last 3.x
+release stays listed on nuget.org; 3.x only receives security and critical fixes (`release/3.x`).
 
-## Hizli bakis
+## At a glance
 
-| Paket | Degisiklik | Ne yapmali |
+| Package | Change | What to do |
 |---|---|---|
-| `Kck.Pipeline.MediatR` | **Kaldirildi** (MediatR 13+ ticari) | `Kck.Pipeline.Mediator`'a gecin — [rehber](mediatR-to-mediator.md) |
-| `Kck.Persistence.*` | `IReadRepository` bool bayrakli metotlari kaldirildi (KCK0100) | `QueryOptions` (asagida tablo) |
-| `Kck.Security.*` | `GetClaimsFromToken` kaldirildi (KCK0001) | `ValidateTokenAsync` |
-| `Kck.EventBus.InMemory` | `AddKckEventBusInMemory` kaldirildi | `AddKckEventBus(b => b.UseInMemory())` |
-| `Kck.Bundle.WorkerService` | Hangfire cikti, varsayilan Quartz | Hangfire icin paketi kendiniz ekleyin |
-| `Kck.Documents.ImageSharp` | Bilinmeyen format hata verir; bos format kaynak formatini korur | Format adlarini kontrol edin |
+| `Kck.Pipeline.MediatR` | **Removed** (MediatR 13+ is commercial) | Move to `Kck.Pipeline.Mediator` — [guide](mediatR-to-mediator.md) |
+| `Kck.Persistence.*` | `IReadRepository` methods with bool flags removed (KCK0100) | Use `QueryOptions` (table below) |
+| `Kck.Security.*` | `GetClaimsFromToken` removed (KCK0001) | `ValidateTokenAsync` |
+| `Kck.EventBus.InMemory` | `AddKckEventBusInMemory` removed | `AddKckEventBus(b => b.UseInMemory())` |
+| `Kck.Bundle.WorkerService` | Hangfire removed, Quartz is the default | Add the Hangfire package yourself if you need it |
+| `Kck.Documents.ImageSharp` | Unknown format throws; empty format keeps the source format | Check your format names |
 | `Kck.BackgroundJobs.Quartz` | Quartz.NET 4.6 | `Action<IQuartzBuilder>` |
-| `Kck.Caching.Hybrid` | `HybridCacheService` ctor'undan `IDistributedCache` cikti | DI kullaniyorsaniz degisiklik yok |
-| `Kck.Caching.Redis`, `.Hybrid`, `TokenBlacklist.Redis` | StackExchange.Redis 3 (RESP3 varsayilan) | Asagidaki notlar |
+| `Kck.Caching.Hybrid` | `IDistributedCache` removed from the `HybridCacheService` constructor | No change if you use DI |
+| `Kck.Caching.Redis`, `.Hybrid`, `TokenBlacklist.Redis` | StackExchange.Redis 3 (RESP3 by default) | See the notes below |
 
 ## 1. MediatR
 
-`Kck.Pipeline.MediatR` 4.0'da yayinlanmiyor. 3.x paketi nuget.org'da "deprecated". Gecis:
+`Kck.Pipeline.MediatR` is not published in 4.0. The 3.x package is marked "deprecated" on nuget.org. Migration:
 [mediatR-to-mediator.md](mediatR-to-mediator.md).
 
-## 2. Repository okuma metotlari (KCK0100)
+## 2. Repository read methods (KCK0100)
 
-3.x'te `QueryOptions` alan uzanti metotlari artik `IReadRepository<T, TId>` uyesi; bool bayrakli overload'lar ve
-`ReadRepositoryExtensions` kaldirildi. `options` verilmezse 3.x varsayilanlari korunur (Get/GetList/GetListByDynamic
-tracking yapar; Any/GetById/Count yapmaz).
+In 3.x, the `QueryOptions` extension methods are now members of `IReadRepository<T, TId>`; the overloads with bool
+flags and `ReadRepositoryExtensions` were removed. If you do not pass `options`, the 3.x defaults are preserved
+(Get/GetList/GetListByDynamic track entities; Any/GetById/Count do not).
 
 | 3.x | 4.0 |
 |---|---|
-| `repo.GetAsync(p, QueryOptions.Tracking)` (uzanti) | ayni — degisiklik yok |
-| `repo.GetAsync(p)` / `repo.GetListAsync(size: 10)` | ayni (tracking acik) |
+| `repo.GetAsync(p, QueryOptions.Tracking)` (extension) | same — no change |
+| `repo.GetAsync(p)` / `repo.GetListAsync(size: 10)` | same (tracking on) |
 | `repo.GetAsync(p, withDeleted: true)` | `repo.GetAsync(p, new QueryOptions(IncludeDeleted: true, AsTracking: true))` |
 | `repo.GetAsync(p, enableTracking: false)` | `repo.GetAsync(p, QueryOptions.None)` |
 | `repo.GetByIdAsync(id, withDeleted: true)` | `repo.GetByIdAsync(id, QueryOptions.WithDeleted)` |
-| `repo.AnyAsync(p)` / `repo.CountAsync(p)` / `repo.GetListAsync(p)` | `AnyAsync(predicate: p)` vb. — `options` ilk parametre |
+| `repo.AnyAsync(p)` / `repo.CountAsync(p)` / `repo.GetListAsync(p)` | `AnyAsync(predicate: p)` etc. — `options` is the first parameter |
 | `ReadRepositoryExtensions.GetAsync(repo, ...)` | `repo.GetAsync(...)` |
 
-> **Dikkat:** `QueryOptions.WithDeleted` tracking yapmaz. 3.x'te `GetAsync(p, withDeleted: true)` tracking yapiyordu;
-> yukle-degistir-`SaveChanges` akisinda `AsTracking: true` vermezseniz degisiklik sessizce kaydedilmez.
+> **Warning:** `QueryOptions.WithDeleted` does not track entities. In 3.x, `GetAsync(p, withDeleted: true)` did track;
+> in a load-modify-`SaveChanges` flow, if you do not pass `AsTracking: true`, your changes are silently not saved.
 
-Kendi `IReadRepository` uygulamaniz varsa yeni imzalari uygulayin.
+If you have your own `IReadRepository` implementation, implement the new signatures.
 
 ## 3. JWT: `GetClaimsFromToken` (KCK0001)
 
-Imza dogrulamadan claim okuyordu. Yetkilendirme icin `ValidateTokenAsync` kullanin:
+It read claims without verifying the signature. Use `ValidateTokenAsync` for authorization:
 
 ```csharp
-// Once (3.x)
+// Before (3.x)
 var claims = tokenService.GetClaimsFromToken(token);
 
-// Sonra (4.0)
+// After (4.0)
 var result = await tokenService.ValidateTokenAsync(token, ct);
 if (result.IsValid) { /* result.Claims */ }
 ```
 
-Yalniz log/debug icin imzasiz okuma gerekiyorsa `Microsoft.IdentityModel.JsonWebTokens.JsonWebToken`'i kendiniz
-kullanin; bu degeri yetki karari icin kullanmayin.
+If you only need an unsigned read for logging/debugging, use `Microsoft.IdentityModel.JsonWebTokens.JsonWebToken`
+yourself; do not use that value for authorization decisions.
 
 ## 4. InMemory event bus
 
 ```csharp
-// Once (3.x)
+// Before (3.x)
 services.AddKckEventBusInMemory(typeof(Program).Assembly);
 
-// Sonra (4.0)
+// After (4.0)
 services.AddKckEventBus(b => b
     .UseInMemory()
     .RegisterHandlersFromAssembly(typeof(Program).Assembly));
@@ -79,50 +79,50 @@ services.AddKckEventBus(b => b
 
 ## 5. Worker Service bundle
 
-Bundle yalniz Quartz kullanir ve varsayilani Quartz'dir. 3.x varsayilani Hangfire'di:
+The bundle uses only Quartz, and Quartz is the default. The 3.x default was Hangfire:
 
-- Yapilandirmada `"Kck:BackgroundJobs:Provider"` yoksa uygulama artik **Quartz** ile calisir. 3.x'te Hangfire ile
-  zamanlanmis isleriniz varsa bunlar Hangfire depolamasindan tasinmaz.
-- `"Provider": "Hangfire"` baslangicta `InvalidOperationException` verir. Hangfire'da kalmak icin:
-  `Kck.BackgroundJobs.Hangfire` paketini ekleyin, `AddKckBackgroundJobsHangfire(...)` cagirin ve bundle yerine
-  Serilog/OpenTelemetry/event bus kayitlarini kendiniz yapin.
-- `BackgroundJobs:HangfireWorkerCount` ayari kaldirildi.
+- If `"Kck:BackgroundJobs:Provider"` is not set in your configuration, the application now runs with **Quartz**. If you
+  had scheduled jobs on Hangfire in 3.x, they are not moved out of the Hangfire storage.
+- `"Provider": "Hangfire"` throws `InvalidOperationException` at startup. To stay on Hangfire: add the
+  `Kck.BackgroundJobs.Hangfire` package, call `AddKckBackgroundJobsHangfire(...)`, and register
+  Serilog/OpenTelemetry/event bus yourself instead of using the bundle.
+- The `BackgroundJobs:HangfireWorkerCount` setting was removed.
 
-## 6. ImageSharp format kurallari
+## 6. ImageSharp format rules
 
-| Girdi | 3.x | 4.0 |
+| Input | 3.x | 4.0 |
 |---|---|---|
-| `avif`, yazim hatasi vb. | sessizce JPEG | `NotSupportedException` |
-| bos / `null` format | JPEG | kaynak gorselin formati (kaynak desteklenmiyorsa JPEG) |
+| `avif`, a typo, etc. | silently JPEG | `NotSupportedException` |
+| empty / `null` format | JPEG | format of the source image (JPEG if the source is not supported) |
 | `jpg` | JPEG | JPEG |
 
 ## 7. Quartz.NET 4
 
 `AddKckBackgroundJobsQuartz(Action<IServiceCollectionQuartzConfigurator>?)` →
-`AddKckBackgroundJobsQuartz(Action<IQuartzBuilder>?)`. Kendi `IJob` siniflariniz varsa imza
-`ValueTask Execute(IJobExecutionContext context, CancellationToken cancellationToken)` oldu. Quartz 4 davranis
-degisiklikleri: saat dilimi verilmeyen cron tetikleyicileri `DefaultTimeZone` kullanir, misfire varsayilani
-`DefaultMisfireHandling`, kimliksiz is/tetikleyici uyari 4030 verir, iptal edilen calisma `Cancelled` kaydedilir.
-Ayrinti: [Quartz 4 migration guide](https://www.quartz-scheduler.net/documentation/quartz-4.x/migration-guide.html),
+`AddKckBackgroundJobsQuartz(Action<IQuartzBuilder>?)`. If you have your own `IJob` classes, the signature is now
+`ValueTask Execute(IJobExecutionContext context, CancellationToken cancellationToken)`. Quartz 4 behavior
+changes: cron triggers without a time zone use `DefaultTimeZone`, the misfire default is `DefaultMisfireHandling`,
+jobs/triggers without an identity raise warning 4030, and a canceled run is recorded as `Cancelled`.
+Details: [Quartz 4 migration guide](https://www.quartz-scheduler.net/documentation/quartz-4.x/migration-guide.html),
 [decisions/2026-10-27-quartz-4.md](../../decisions/2026-10-27-quartz-4.md).
 
-## 8. StackExchange.Redis 3 ve OpenTelemetry 1.20
+## 8. StackExchange.Redis 3 and OpenTelemetry 1.20
 
-- **Redis:** RESP3 varsayilan protokol (RESP2 icin `ConfigurationOptions.Protocol`); `AllowAdmin` gerektiren komutlar
-  (or. `FLUSHALL`) `AllowAdmin` olmadan istemcide reddedilir.
-- **OpenTelemetry:** OTLP exporter'in kendi `HttpClient`'i 3xx yonlendirmelerini izlemez; tek gonderim ust siniri 64 MiB.
+- **Redis:** RESP3 is the default protocol (use `ConfigurationOptions.Protocol` for RESP2); commands that require
+  `AllowAdmin` (e.g. `FLUSHALL`) are rejected on the client unless `AllowAdmin` is set.
+- **OpenTelemetry:** the OTLP exporter's own `HttpClient` does not follow 3xx redirects; the per-send upper limit is 64 MiB.
 
 ## 9. HybridCacheService
 
 `HybridCacheService(HybridCache, IDistributedCache, IConnectionMultiplexer, IOptionsMonitor<HybridCacheOptions>)` →
 `HybridCacheService(HybridCache, IConnectionMultiplexer, IOptionsMonitor<HybridCacheOptions>)`.
-`AddKckCachingHybrid(...)` ile kaydediyorsaniz degisiklik yok.
+No change if you register it with `AddKckCachingHybrid(...)`.
 
-## Kontrol listesi
+## Checklist
 
-- [ ] `Kck.*` paketlerini 4.0'a yukseltin, derleyin; kalan hatalar yukaridaki bolumlerden birine karsilik gelir.
-- [ ] `withDeleted: true` cagrilarinda tracking ihtiyacini kontrol edin (bolum 2).
-- [ ] Worker Service: zamanlayici secimini ve kalici is verisini kontrol edin (bolum 5).
-- [ ] Redis/OTLP kurulumunuzu bolum 8'e gore dogrulayin.
+- [ ] Upgrade the `Kck.*` packages to 4.0 and build; any remaining errors match one of the sections above.
+- [ ] For `withDeleted: true` calls, check whether you need tracking (section 2).
+- [ ] Worker Service: check the scheduler choice and persistent job data (section 5).
+- [ ] Verify your Redis/OTLP setup against section 8.
 
-Sorun: [GitHub Issues](https://github.com/omerkck41/OmerkckArchitecture/issues).
+Problems: [GitHub Issues](https://github.com/omerkck41/OmerkckArchitecture/issues).

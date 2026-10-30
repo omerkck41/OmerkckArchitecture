@@ -1,14 +1,14 @@
 # Observability
 
-Tracing, metrics ve health check icin OpenTelemetry entegrasyonu.
-RED (Rate, Errors, Duration) + USE (Utilization, Saturation, Errors)
-sinyallerini otomatik toplar.
+OpenTelemetry integration for tracing, metrics and health checks.
+It collects RED (Rate, Errors, Duration) and USE (Utilization, Saturation, Errors)
+signals automatically.
 
-## Paketler
+## Packages
 
-| Paket | Hedef |
+| Package | Purpose |
 |---|---|
-| `Kck.Observability.Abstractions` | `IMetricsService`, `ITracingService`, health kontratları |
+| `Kck.Observability.Abstractions` | `IMetricsService`, `ITracingService`, health contracts |
 | `Kck.Observability.OpenTelemetry` | OTel auto-instrumentation + custom meter |
 
 ## Setup
@@ -28,13 +28,13 @@ services.AddKckObservabilityOpenTelemetry(opt =>
 
 ## Auto-Instrumentation
 
-Konfigurasyon bazli olarak ekli:
+Each instrumentation is enabled through configuration:
 
 | Flag | Instrumentation |
 |---|---|
-| `EnableAspNetCore` | HTTP istek trace + `http.server.duration` metric |
-| `EnableHttpClient` | HttpClient istek trace + egress metric |
-| `EnableEntityFramework` | EF Core komut trace + `db.client.duration` |
+| `EnableAspNetCore` | HTTP request trace + `http.server.duration` metric |
+| `EnableHttpClient` | HttpClient request trace + egress metric |
+| `EnableEntityFramework` | EF Core command trace + `db.client.duration` |
 
 ## Custom Metrics
 
@@ -52,7 +52,7 @@ public class OrderService(IMetricsService metrics)
 
 ## Custom Tracing
 
-Auto-instrumentation p99 > 200ms olan business logic'i yakalamaz — manuel span:
+Auto-instrumentation does not capture business logic with p99 > 200 ms. Create a manual span:
 
 ```csharp
 public class PaymentService(ITracingService tracing)
@@ -77,28 +77,28 @@ services.AddKckHealthChecks()
 app.MapKckHealthEndpoints("/health");
 ```
 
-Endpoint'ler:
+Endpoints:
 
-| Path | Amac |
+| Path | Purpose |
 |---|---|
-| `/health/live` | Process ayakta mi? (liveness probe) |
-| `/health/ready` | Istek alabilir mi? (readiness probe: DB, cache, dependency) |
-| `/health/startup` | Baslatma tamamlandi mi? (startup probe) |
+| `/health/live` | Is the process alive? (liveness probe) |
+| `/health/ready` | Can it accept requests? (readiness probe: DB, cache, dependencies) |
+| `/health/startup` | Has startup finished? (startup probe) |
 
 ## Logging Correlation
 
-Serilog `TraceContextEnricher` ile her log satirina `TraceId` + `SpanId`
-eklenir — logları trace ile korelasyon kolaylasır
-([Logging rehberi](logging.md#trace-correlation)).
+The Serilog `TraceContextEnricher` adds `TraceId` and `SpanId` to every log line,
+which makes it easier to correlate logs with traces
+([Logging guide](logging.md#trace-correlation)).
 
 ## Sampling
 
-Production'da varsayilan: **parent-based + head sampling (%10)**. Ornekleme
-oranini artirmak icin (debug) `Configure()` uzerinden.
+Default in production: **parent-based + head sampling (10%)**. To raise the
+sampling rate (for debugging), use `Configure()`.
 
-## PII Guvenligi
+## PII Safety
 
-- Span attribute'larina PII yazma — masked / hashed degerler kullan
-- `db.statement` attribute'una raw SQL yazılır; ORM parametreler ayri tutulur
-- Log'lanan header'lar default blocklist'ten gecirilir (`Authorization`,
-  `Cookie` vs.)
+- Do not write PII to span attributes. Use masked or hashed values.
+- The `db.statement` attribute contains raw SQL; ORM parameters are kept separate.
+- Logged headers pass through a default blocklist (`Authorization`,
+  `Cookie`, etc.).

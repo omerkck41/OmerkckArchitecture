@@ -1,15 +1,15 @@
 # Documents
 
-Ofis / medya dosya islemleri icin abstraction. Excel okuma-yazma, CSV export
-ve gorsel isleme destegi.
+An abstraction for office and media file operations. It supports Excel read/write,
+CSV export, and image processing.
 
-## Paketler
+## Packages
 
-| Paket | Hedef |
+| Package | Purpose |
 |---|---|
 | `Kck.Documents.Abstractions` | `IExcelService`, `ICsvExporter`, `IImageProcessor` |
 | `Kck.Documents.ClosedXml` | ClosedXML (OpenXML-based `.xlsx`) |
-| `Kck.Documents.ImageSharp` | SixLabors.ImageSharp (native-free resim isleme) |
+| `Kck.Documents.ImageSharp` | SixLabors.ImageSharp (native-free image processing) |
 
 ## ClosedXml (Excel)
 
@@ -17,7 +17,7 @@ ve gorsel isleme destegi.
 services.AddKckDocumentsClosedXml();
 ```
 
-Kullanim:
+Usage:
 
 ```csharp
 public class ReportService(IExcelService excel)
@@ -36,7 +36,7 @@ public class ReportService(IExcelService excel)
 }
 ```
 
-Okuma:
+Reading:
 
 ```csharp
 await using var stream = File.OpenRead("input.xlsx");
@@ -49,7 +49,7 @@ var rows = await excel.ReadAsync(stream);
 services.AddKckDocumentsImageSharp();
 ```
 
-Kullanim:
+Usage:
 
 ```csharp
 public class AvatarService(IImageProcessor images)
@@ -68,7 +68,7 @@ public class AvatarService(IImageProcessor images)
 }
 ```
 
-## Format Destegi
+## Format Support
 
 `IImageProcessor.ConvertFormatAsync(stream, targetFormat)`:
 
@@ -79,12 +79,12 @@ public class AvatarService(IImageProcessor images)
 | `webp` | WebpEncoder (Quality) |
 | `gif` | GifEncoder |
 | `bmp` | BmpEncoder |
-| bos / `null` | kaynak gorselin formati; kaynak bu listede yoksa (orn. TIFF) JPEG |
-| diger her ad (orn. `avif`) | `NotSupportedException` (4.0 oncesi sessizce JPEG uretiyordu) |
+| empty / `null` | the source image's format; JPEG if the source is not in this list (e.g. TIFF) |
+| any other name (e.g. `avif`) | `NotSupportedException` (before 4.0 it silently produced JPEG) |
 
-## Notlar
+## Notes
 
-- ImageSharp **native dependency gerektirmez** — SkiaSharp / System.Drawing
-  tersine cross-platform build kolaydir
-- ClosedXml sadece `.xlsx` destekler — `.xls` icin NPOI dusun (bu projede yok)
-- Buyuk Excel dosyalari icin streaming read/write gelecekteki plan
+- ImageSharp **does not require native dependencies**. Unlike SkiaSharp / System.Drawing,
+  cross-platform builds are easy.
+- ClosedXml supports only `.xlsx`. For `.xls`, consider NPOI (not used in this project).
+- Streaming read/write for large Excel files is a future plan.

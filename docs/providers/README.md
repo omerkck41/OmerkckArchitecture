@@ -1,11 +1,11 @@
-# Provider Rehberleri
+# Provider Guides
 
-Bu dizin, her provider'in kullanimi, konfigurasyonu ve yaygin kullanim
-orneklerini acIklar. Her rehber kategoriye gore gruplandirilmistir.
+This directory explains the usage, configuration and common examples of each
+provider. The guides are grouped by category.
 
-## Kategoriler
+## Categories
 
-| Kategori | Rehber | Paketler |
+| Category | Guide | Packages |
 |---|---|---|
 | Background Jobs | [background-jobs.md](background-jobs.md) | Hangfire, Quartz |
 | Caching | [caching.md](caching.md) | InMemory, Redis |
@@ -25,26 +25,26 @@ orneklerini acIklar. Her rehber kategoriye gore gruplandirilmistir.
 | Security | [security.md](security.md) | Argon2, Jwt, Totp, TokenBlacklist, Secrets |
 | Web | [aspnetcore.md](aspnetcore.md) | AspNetCore |
 
-## Ortak Yapi
+## Common Structure
 
-Her provider su kalibi takip eder:
+Every provider follows this pattern:
 
-1. **Abstraction** — `Kck.<Area>.Abstractions` arayuz ve kontrat tanimlar
-2. **Provider** — `Kck.<Area>.<Tech>` abstraction'i somut teknolojiyle karsilar
-3. **DI Extension** — `AddKck<Area><Tech>()` tek cagiriyla kaydeder
-4. **Options** — `IOptionsMonitor<T>` uzerinden konfigurasyon
+1. **Abstraction**: `Kck.<Area>.Abstractions` defines the interfaces and contracts
+2. **Provider**: `Kck.<Area>.<Tech>` implements the abstraction with a concrete technology
+3. **DI Extension**: `AddKck<Area><Tech>()` registers it with a single call
+4. **Options**: configuration through `IOptionsMonitor<T>`
 
-## Abstraction Degistirme
+## Switching Abstractions
 
-Aym abstraction'a birden fazla provider eklenebilir (ornek: Caching.InMemory →
-Caching.Redis). `TryAddSingleton` tutarliligi sayesinde ilk kaydedilen kazanir;
-farkli provider'a gecmek icin registration sirasini degistirin veya
-`services.Remove()` kullanin — detay: [ADR-0009](../adr/0009-tryaddsingleton-consistency.md).
+You can add more than one provider for the same abstraction (for example Caching.InMemory →
+Caching.Redis). Because of `TryAddSingleton` consistency, the first registered provider wins.
+To switch to a different provider, change the registration order or use
+`services.Remove()`. Details: [ADR-0009](../adr/0009-tryaddsingleton-consistency.md).
 
-## Konfigurasyon
+## Configuration
 
-Tum provider'lar `IOptionsMonitor<T>` kullanir — runtime reload destegi icin
-tercih edildi ([ADR-0004](../adr/0004-ioptions-monitor-migration.md)).
+All providers use `IOptionsMonitor<T>`, chosen for runtime reload support
+([ADR-0004](../adr/0004-ioptions-monitor-migration.md)).
 
 ```csharp
 services.AddKckCachingRedis(opt =>

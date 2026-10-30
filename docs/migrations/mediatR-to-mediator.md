@@ -6,31 +6,31 @@
 
 ---
 
-## Neden Geçiş?
+## Why Migrate?
 
-`Kck.Pipeline.MediatR`, `MediatR 14.x` bağımlılığına sahipti. `MediatR`'ın
-lisansı ve ağır bağımlılık ağacı, modern `.NET` kütüphaneleri için ideal
-değildir. `Mediator.Abstractions` (alias `Mediator`), sıfır-bağımlılık,
-source-generator tabanlı ve AOT uyumlu bir alternatiftir.
+`Kck.Pipeline.MediatR` depended on `MediatR 14.x`. `MediatR`'s license and
+heavy dependency tree are not ideal for modern `.NET` libraries.
+`Mediator.Abstractions` (alias `Mediator`) is a zero-dependency,
+source-generator-based, AOT-compatible alternative.
 
 ---
 
-## Önce / Sonra
+## Before / After
 
 ### NuGet
 
 ```xml
-<!-- Önce -->
+<!-- Before -->
 <PackageReference Include="Kck.Pipeline.MediatR" />
 
-<!-- Sonra -->
+<!-- After -->
 <PackageReference Include="Kck.Pipeline.Mediator" />
 ```
 
-### DI Kaydı
+### DI Registration
 
 ```csharp
-// Önce
+// Before
 services.AddKckPipeline(p => p
     .UseMediatR(typeof(Program).Assembly)
     .UseValidationBehavior()
@@ -39,7 +39,7 @@ services.AddKckPipeline(p => p
     .UseTransactionBehavior()
     .UseAuthorizationBehavior());
 
-// Sonra
+// After
 services.AddKckMediator(m => m
     .UseMediator(typeof(Program).Assembly)
     .UseValidationBehavior()
@@ -49,10 +49,10 @@ services.AddKckMediator(m => m
     .UseAuthorizationBehavior());
 ```
 
-### Handler Sınıfı
+### Handler Class
 
 ```csharp
-// Önce (MediatR)
+// Before (MediatR)
 using MediatR;
 
 public sealed record GetUserQuery(Guid Id) : IRequest<UserDto>;
@@ -62,7 +62,7 @@ public sealed class GetUserHandler : IRequestHandler<GetUserQuery, UserDto>
     public Task<UserDto> Handle(GetUserQuery request, CancellationToken ct) { ... }
 }
 
-// Sonra (Mediator)
+// After (Mediator)
 using Mediator;
 
 public sealed record GetUserQuery(Guid Id) : IRequest<UserDto>;
@@ -73,27 +73,27 @@ public sealed class GetUserHandler : IRequestHandler<GetUserQuery, UserDto>
 }
 ```
 
-**Değişen tek şey:** `using MediatR` → `using Mediator` ve
-`Task<T>` → `ValueTask<T>` dönüş tipi.
+**The only changes:** `using MediatR` → `using Mediator` and the
+return type `Task<T>` → `ValueTask<T>`.
 
-### Behavior Marker Arayüzleri
+### Behavior Marker Interfaces
 
-`ICachableRequest`, `ISecuredRequest`, `ILoggableRequest`, `ITransactionalRequest`
-arayüzleri `Kck.Core.Abstractions.Pipeline` namespace'inde ve **değişmeden** kalır.
-İki pakette de aynı arayüzler kullanılır.
+The `ICachableRequest`, `ISecuredRequest`, `ILoggableRequest` and
+`ITransactionalRequest` interfaces live in the `Kck.Core.Abstractions.Pipeline`
+namespace and stay **unchanged**. Both packages use the same interfaces.
 
-### Uyarıyı Susturma (Geçici)
+### Suppressing the Warning (Temporary)
 
-Henüz geçiş yapamayanlar için:
+If you cannot migrate yet:
 
 ```xml
-<!-- .csproj veya Directory.Build.props -->
+<!-- .csproj or Directory.Build.props -->
 <NoWarn>$(NoWarn);KCK0200</NoWarn>
 ```
 
 ---
 
-## Referanslar
+## References
 
 - [Mediator NuGet](https://www.nuget.org/packages/Mediator.Abstractions)
 - [ADR-0021](../adr/0021-deprecate-mediatR-pipeline.md)

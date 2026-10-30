@@ -1,22 +1,22 @@
 # Pipeline (Mediator)
 
-Source-generator tabanli [Mediator](https://github.com/martinothamar/Mediator) (MIT) uzerinde CQRS/request pipeline ve
-cross-cutting behavior'lar.
+CQRS/request pipeline and cross-cutting behaviors built on the source-generator-based
+[Mediator](https://github.com/martinothamar/Mediator) (MIT).
 
-## Paketler
+## Packages
 
-| Paket | Hedef |
+| Package | Purpose |
 |---|---|
-| `Kck.Pipeline.Mediator` | Validation, logging, caching, authorization, transaction behavior'lari |
-| `Kck.Pipeline.Abstractions` | Request'lerin behavior'a katilmasini saglayan marker arayuzler |
+| `Kck.Pipeline.Mediator` | Validation, logging, caching, authorization and transaction behaviors |
+| `Kck.Pipeline.Abstractions` | Marker interfaces that opt requests into behaviors |
 
-> `Kck.Pipeline.MediatR` 4.0.0'da kaldirildi (MediatR 13+ ticari lisans). Gecis:
+> `Kck.Pipeline.MediatR` was removed in 4.0.0 (MediatR 13+ has a commercial license). Migration:
 > [migrations/mediatR-to-mediator.md](../migrations/mediatR-to-mediator.md).
 
 ## Setup
 
 ```csharp
-services.AddMediator(); // Mediator source generator'in dispatcher'i
+services.AddMediator(); // dispatcher from the Mediator source generator
 services.AddKckMediatorPipeline(p => p
     .UseLoggingBehavior()
     .UseAuthorizationBehavior()
@@ -25,21 +25,21 @@ services.AddKckMediatorPipeline(p => p
     .UseTransactionBehavior());
 ```
 
-Behavior'lar `Use…Behavior()` cagrilarinin sirasiyla calisir.
+Behaviors run in the order of the `Use…Behavior()` calls.
 
-## Marker arayuzler (`Kck.Pipeline.Abstractions`)
+## Marker interfaces (`Kck.Pipeline.Abstractions`)
 
-| Arayuz | Behavior | Uyeler |
+| Interface | Behavior | Members |
 |---|---|---|
-| `ILoggableRequest` | Logging | yok (isaret) |
-| `ISecuredRequest` | Authorization | `string[] Roles` — biri yeterli; kullanici yoksa `UnauthorizedException`, rol yoksa `ForbiddenException` |
+| `ILoggableRequest` | Logging | none (marker) |
+| `ISecuredRequest` | Authorization | `string[] Roles`: any one is enough; throws `UnauthorizedException` if there is no user, `ForbiddenException` if no role matches |
 | `ICachableRequest` | Caching | `CacheKey`, `BypassCache`, `CacheGroupKey`, `SlidingExpiration` |
-| `ITransactionalRequest` | Transaction | yok (isaret) |
+| `ITransactionalRequest` | Transaction | none (marker) |
 
-Validation behavior'i request icin kayitli tum FluentValidation `IValidator<TRequest>`'lari calistirir; hata varsa
-`Kck.Exceptions.ValidationException` firlatir (`Kck.Exceptions.AspNetCore` bunu 400 ProblemDetails'e cevirir).
+The validation behavior runs all FluentValidation `IValidator<TRequest>` instances registered for the request. If there are
+errors, it throws `Kck.Exceptions.ValidationException` (`Kck.Exceptions.AspNetCore` converts this to a 400 ProblemDetails).
 
-## Ornek
+## Example
 
 ```csharp
 public sealed record GetProductQuery(int Id) : IQuery<Product>, ICachableRequest
@@ -57,4 +57,4 @@ public sealed class GetProductHandler(IProductRepository repo) : IQueryHandler<G
 }
 ```
 
-Marker arayuzu uygulamayan request ilgili behavior'i atlar.
+A request that does not implement a marker interface skips the corresponding behavior.

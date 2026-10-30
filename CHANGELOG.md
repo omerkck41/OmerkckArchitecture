@@ -468,105 +468,159 @@ See [docs/policies/deprecation.md](docs/policies/deprecation.md).
 ## [2.0.0] — 2026-05-07
 
 ### Removed — BREAKING
-- **TFM desteği kaldırıldı** (ADR-0019). Kütüphane artık yalnızca `net10.0` ve üzerini hedefler. Bu bir **breaking change**'dir; EOS tarihi 2026-11-10.
-- `#if NET9_0_OR_GREATER` fallback blokları (`IntegrationEvent.Id`, `QuartzJobScheduler.NewJobId()`, `TotpMfaProvider` secret hash) kaldırıldı.
+- **Target framework support removed** (ADR-0019). The library now targets only `net10.0` and later. This is a
+  **breaking change**; end of support date 2026-11-10.
+- `#if NET9_0_OR_GREATER` fallback blocks (`IntegrationEvent.Id`, `QuartzJobScheduler.NewJobId()`, `TotpMfaProvider`
+  secret hash) removed.
 
 ### Changed
-- `Mediator.Abstractions` 3.0.2 kararlı sürüme güncellendi (önceki: 3.1.0-prerelease).
+- `Mediator.Abstractions` updated to the stable 3.0.2 (previously 3.1.0-prerelease).
 
 ## [1.1.0] — 2026-05-03
 
 ### Added
-- `Kck.Pipeline.Mediator` — `Mediator.Abstractions` tabanlı pipeline builder; 5 yerleşik behavior: Authorization, Caching, Logging, Transaction, Validation. `AddKckMediator()` DI extension ile kaydedilir (Library Strategy §1.3, FAZ-9).
-- `Kck.Hosting.Aspire` — .NET Aspire host entegrasyonu; `AddKckServiceDefaults()` ile health check, resilience ve observability defaults tek satırda yapılandırılır (Library Strategy §10.2, FAZ-9).
+- `Kck.Pipeline.Mediator` — pipeline builder on `Mediator.Abstractions`; 5 built-in behaviors: Authorization, Caching,
+  Logging, Transaction, Validation. Registered with the `AddKckMediator()` DI extension (Library Strategy §1.3, FAZ-9).
+- `Kck.Hosting.Aspire` — .NET Aspire host integration; `AddKckServiceDefaults()` configures health check, resilience and
+  observability defaults in one line (Library Strategy §10.2, FAZ-9).
 
 ## [1.0.0] — 2026-05-03
 
 ### Added (LS-FAZ-8)
 
-- `Kck.Resilience.Polly` — `Microsoft.Extensions.Resilience` (Polly v8) sarmalayıcı. `AddKckResilience("pipeline-adı", builder => ...)` ile adlandırılmış pipeline kaydı; `ResiliencePipelineProvider<string>` ile çözümleme (Library Strategy §3.1, ADR-0018).
-- `src/Abstractions/Directory.Build.props`: `<IsAotCompatible>true</IsAotCompatible>` tüm 16 abstraction projesine uygulandı — 0 yeni trim/AOT uyarısı (Library Strategy §2.2, ADR-0018).
-- `docs/adr/0018-v1-breaking-changes.md` — v1.0 breaking change gerekçesi ve migration rehberi.
+- `Kck.Resilience.Polly` — wrapper over `Microsoft.Extensions.Resilience` (Polly v8). Named pipelines registered with
+  `AddKckResilience("pipeline-name", builder => ...)`, resolved through `ResiliencePipelineProvider<string>` (Library
+  Strategy §3.1, ADR-0018).
+- `src/Abstractions/Directory.Build.props`: `<IsAotCompatible>true</IsAotCompatible>` applied to all 16 abstraction
+  projects — 0 new trim/AOT warnings (Library Strategy §2.2, ADR-0018).
+- `docs/adr/0018-v1-breaking-changes.md` — rationale for the v1.0 breaking changes and migration guide.
 
 ### Changed (LS-FAZ-8) — BREAKING
 
-- **`Paginate<T>` immutability:** Tüm 11 property `{ get; set; }` → `{ get; init; }`. Post-construction setter çağrıları artık derleme hatası verir. Migration: `Paginate<T>.Create(...)` factory kullanın (Library Strategy §4.1, ADR-0018).
-- **`ICacheService.GetAsync<T>` / `ExistsAsync`** dönüş tipi `Task<T?>` / `Task<bool>` → `ValueTask<T?>` / `ValueTask<bool>`. Çağrı sitesi sözdizimi değişmez; yalnızca `ICacheService` implementasyonları override imzasını güncellemeli (Library Strategy §5.3, ADR-0018).
+- **`Paginate<T>` immutability:** all 11 properties `{ get; set; }` → `{ get; init; }`. Setting them after construction
+  is now a compile error. Migration: use the `Paginate<T>.Create(...)` factory (Library Strategy §4.1, ADR-0018).
+- **`ICacheService.GetAsync<T>` / `ExistsAsync`** return `ValueTask<T?>` / `ValueTask<bool>` instead of `Task<T?>` /
+  `Task<bool>`. Call sites do not change; only `ICacheService` implementations update their override signatures
+  (Library Strategy §5.3, ADR-0018).
 
 ### Added (LS-FAZ-7)
 
-- `Kck.Bundle.WorkerService` — Worker Service host için opinionated stack: Serilog + OpenTelemetry + InMemory EventBus + Hangfire **veya** Quartz (ikisi birden yasaklı, `Kck.BackgroundJobs.Provider` ile seçilir) (Library Strategy §1.1, ADR-0017).
-- `Kck.Bundle.MinimalApi` — WebApi'nin slim varyantı: Serilog + InMemory cache + JWT + exception handling + health checks; MVC, MediatR pipeline ve Argon2 kasıtlı olarak dışarıda (Library Strategy §1.1, ADR-0017).
-- `RedisHealthCheck` — `IConnectionMultiplexer` üzerinden PING; `AddKckCachingRedis` ile otomatik kayıt (`ready` tag'li) (Library Strategy §10.3, ADR-0017).
-- `EfCoreHealthCheck<TContext>` — `CanConnectAsync()` tabanlı; `AddHealthChecks().AddKckEfCoreCheck<MyContext>()` ile manuel kayıt (Library Strategy §10.3, ADR-0017).
-- `RabbitMqHealthCheck` — geçici bağlantı açma testi; `UseRabbitMq` ile otomatik kayıt (`ready` tag'li) (Library Strategy §10.3, ADR-0017).
-- `schemas/appsettings.kck.schema.json` — JSON Schema draft-07; tüm provider konfigürasyon anahtarları, tipler ve örnekler; `"$schema"` ile IDE autocomplete (Library Strategy §10.4, ADR-0017).
-- `docs/configuration-schema.md` — her provider için alan tablosu + tam `appsettings.json` örneği (Library Strategy §10.4).
-- `.github/release-drafter.yml` + `.github/workflows/release-drafter.yml` — PR merge'inde release notu taslağı otomatik oluşturulur; `feat` → minor, `breaking` → major, diğerleri → patch (Library Strategy §6.3, ADR-0017).
-- `docs/adr/0017-bundle-health-release.md` — Bundle + health check + release kararları.
+- `Kck.Bundle.WorkerService` — opinionated stack for Worker Service hosts: Serilog + OpenTelemetry + in-memory EventBus +
+  Hangfire **or** Quartz (both together are rejected; chosen with `Kck.BackgroundJobs.Provider`) (Library Strategy §1.1,
+  ADR-0017).
+- `Kck.Bundle.MinimalApi` — slim variant of WebApi: Serilog + in-memory cache + JWT + exception handling + health checks;
+  MVC, the MediatR pipeline and Argon2 deliberately left out (Library Strategy §1.1, ADR-0017).
+- `RedisHealthCheck` — PING through `IConnectionMultiplexer`; registered automatically by `AddKckCachingRedis` (tagged
+  `ready`) (Library Strategy §10.3, ADR-0017).
+- `EfCoreHealthCheck<TContext>` — based on `CanConnectAsync()`; registered manually with
+  `AddHealthChecks().AddKckEfCoreCheck<MyContext>()` (Library Strategy §10.3, ADR-0017).
+- `RabbitMqHealthCheck` — opens a short-lived connection; registered automatically by `UseRabbitMq` (tagged `ready`)
+  (Library Strategy §10.3, ADR-0017).
+- `schemas/appsettings.kck.schema.json` — JSON Schema draft-07 with every provider configuration key, types and
+  examples; IDE autocomplete through `"$schema"` (Library Strategy §10.4, ADR-0017).
+- `docs/configuration-schema.md` — a field table per provider + a complete `appsettings.json` example (Library Strategy
+  §10.4).
+- `.github/release-drafter.yml` + `.github/workflows/release-drafter.yml` — release note drafts created automatically when
+  a PR merges; `feat` → minor, `breaking` → major, others → patch (Library Strategy §6.3, ADR-0017).
+- `docs/adr/0017-bundle-health-release.md` — bundle, health check and release decisions.
 
 ### Added (LS-FAZ-6)
 
-- `ReadRepositoryExtensions` static class — `IReadRepository<T,TId>` üzerinde 6 `QueryOptions` tabanlı extension metot: `GetAsync`, `GetListAsync`, `GetListByDynamicAsync`, `AnyAsync`, `GetByIdAsync`, `CountAsync`. Pozisyonel `bool withDeleted / bool enableTracking` gürültüsü yerine self-documenting API (Library Strategy §4.2, ADR-0016).
-- `QueryOptions.None` static property — `QueryOptions(false, false)` için explicit isimli factory; `Tracking` ve `WithDeleted`'e paralel (Library Strategy §4.2).
-- `ResultExtensions` static class — `Result<T>` fonksiyonel pipeline: `Map<U>`, `Bind<U>`, `Tap`, `Ensure` (Library Strategy §4.3, ADR-0016).
-- `docs/adr/0016-queryoptions-api.md` — QueryOptions API + Result fonksiyonel pipeline karari.
+- `ReadRepositoryExtensions` static class — 6 `QueryOptions`-based extension methods on `IReadRepository<T,TId>`:
+  `GetAsync`, `GetListAsync`, `GetListByDynamicAsync`, `AnyAsync`, `GetByIdAsync`, `CountAsync`. A self-documenting API
+  instead of positional `bool withDeleted / bool enableTracking` (Library Strategy §4.2, ADR-0016).
+- `QueryOptions.None` static property — an explicitly named factory for `QueryOptions(false, false)`, next to
+  `Tracking` and `WithDeleted` (Library Strategy §4.2).
+- `ResultExtensions` static class — functional pipeline for `Result<T>`: `Map<U>`, `Bind<U>`, `Tap`, `Ensure` (Library
+  Strategy §4.3, ADR-0016).
+- `docs/adr/0016-queryoptions-api.md` — QueryOptions API + Result functional pipeline decision.
 
 ### Changed (LS-FAZ-6)
 
-- **Deprecation:** `IReadRepository<T,TId>` bool-parametreli 6 metot `[Obsolete(DiagnosticId = "KCK0100")]` ile işaretlendi. `EfRepository` implementasyonu değişmedi — KCK0100 yalnızca interface referansı üzerinden çağıranlarda uyarı üretir (Library Strategy §4.2, ADR-0016).
-- **Performance:** `CacheServiceBase` anahtar bazlı kilitleme, sınırsız büyüyebilen `ConcurrentDictionary<string, SemaphoreSlim>` yerine 64-şeritli lock dizisiyle değiştirildi — uzun ömürlü cache servislerinde bellek sızıntısı ve GC baskısı ortadan kaldırıldı (Library Strategy §5.2).
+- **Deprecation:** the 6 bool-parameter methods of `IReadRepository<T,TId>` are marked
+  `[Obsolete(DiagnosticId = "KCK0100")]`. The `EfRepository` implementation is unchanged — KCK0100 warns only callers
+  that go through the interface (Library Strategy §4.2, ADR-0016).
+- **Performance:** per-key locking in `CacheServiceBase` uses a 64-stripe lock array instead of an unbounded
+  `ConcurrentDictionary<string, SemaphoreSlim>` — removes the memory leak and GC pressure in long-lived cache services
+  (Library Strategy §5.2).
 
 ### Added (LS-FAZ-5)
-- `Filter` API: `Filter(string field, FilterOperator op, ...)` constructor (enum'u canonical lower-case wire string'e cevirir), `OperatorEnum` getter, `TryParseOperator` static helper. Wire format degismedi — JSON consumer'lar etkilenmez (Library Strategy §4.4).
-- `Filter.GetValue<T>` AOT-uyumlu rewrite: `Convert.ChangeType` yerine switch + tip-spesifik `ParseString<T>`. `JsonElement` artik native `Deserialize<T>` ile islenir; `Guid`, `DateTime`, `DateTimeOffset`, `DateOnly`, `TimeOnly`, `Enum` desteklenir; bilinmeyen tipler icin `Convert.ChangeType` fallback (Library Strategy §5.5).
-- `docs/adr/0015-perf-quickwins.md` — Redis EXISTS + Filter type safety + AOT karari.
+- `Filter` API: a `Filter(string field, FilterOperator op, ...)` constructor (turns the enum into the canonical
+  lower-case wire string), an `OperatorEnum` getter and a `TryParseOperator` static helper. The wire format is unchanged —
+  JSON consumers are not affected (Library Strategy §4.4).
+- `Filter.GetValue<T>` rewritten to be AOT-friendly: a switch + type-specific `ParseString<T>` instead of
+  `Convert.ChangeType`. `JsonElement` is now handled with native `Deserialize<T>`; `Guid`, `DateTime`, `DateTimeOffset`,
+  `DateOnly`, `TimeOnly` and `Enum` are supported; unknown types fall back to `Convert.ChangeType` (Library Strategy
+  §5.5).
+- `docs/adr/0015-perf-quickwins.md` — Redis EXISTS + Filter type safety + AOT decision.
 
 ### Changed (LS-FAZ-5)
-- **Performance:** `RedisCacheService.ExistsAsync` artik `IConnectionMultiplexer.GetDatabase().KeyExistsAsync()` (sadece `EXISTS` komutu) kullaniyor — eski `IDistributedCache.GetStringAsync()` butun degeri network'ten cekiyordu. Buyuk-degerli cache'lerde %95+ network/GC azalma (Library Strategy §5.6, P1).
-- `DynamicFilterExtensions.ApplyFilter` artik `filter.OperatorEnum ?? throw` kullaniyor — eskiden her cagride `Enum.Parse<FilterOperator>(...)` calistiriyordu.
+- **Performance:** `RedisCacheService.ExistsAsync` now uses `IConnectionMultiplexer.GetDatabase().KeyExistsAsync()` (the
+  `EXISTS` command only) — the old `IDistributedCache.GetStringAsync()` fetched the whole value over the network. 95%+
+  less network/GC on caches with large values (Library Strategy §5.6, P1).
+- `DynamicFilterExtensions.ApplyFilter` now uses `filter.OperatorEnum ?? throw` — it used to run
+  `Enum.Parse<FilterOperator>(...)` on every call.
 
 ### Added (LS-FAZ-4)
-- `tests/Kck.Benchmarks` — BenchmarkDotNet 0.15.0 console app + 3 baslangic benchmark (`PaginateCreateBenchmarks`, `ResultBenchmarks`, `JsonSerializationBenchmarks`). LS-FAZ-5/6 perf optimizasyonlari icin baseline (Library Strategy §5.7).
-- `tests/Kck.Persistence.EntityFramework.Tests/EfRepositoryIntegrationTests.cs` — Testcontainers PoC (postgres:16-alpine), `[Trait("Category", "Integration")]`. Mock/InMemory'nin kacirdigi gercek-DB davranislarini yakalar (Library Strategy §7.5).
-- `Testcontainers.PostgreSql 4.5.0` + `Npgsql.EntityFrameworkCore.PostgreSQL 10.0.0` -> `Directory.Packages.props` (yalniz EF.Tests projesinde kullaniliyor).
-- `docs/test-strategy.md` — test piramidi rehberi (unit vs integration vs benchmark, ne zaman hangisi, mevcut coverage matrix).
-- `docs/policies/test-coverage.md` — coverage gate politikasi + kademeli yukseltme yol haritasi (40/35 -> 50/45 -> 65/50 -> 75/60).
-- `docs/adr/0014-test-strategy.md` — BenchmarkDotNet + Testcontainers + coverage policy karari.
-- README "Testing" + "Benchmarks" bolumleri (Docker gerektiren / gerektirmeyen test komutlari).
+- `tests/Kck.Benchmarks` — BenchmarkDotNet 0.15.0 console app + 3 initial benchmarks (`PaginateCreateBenchmarks`,
+  `ResultBenchmarks`, `JsonSerializationBenchmarks`). Baseline for the LS-FAZ-5/6 performance work (Library Strategy
+  §5.7).
+- `tests/Kck.Persistence.EntityFramework.Tests/EfRepositoryIntegrationTests.cs` — Testcontainers proof of concept
+  (postgres:16-alpine), `[Trait("Category", "Integration")]`. Catches real-database behavior that mocks and the InMemory
+  provider miss (Library Strategy §7.5).
+- `Testcontainers.PostgreSql 4.5.0` + `Npgsql.EntityFrameworkCore.PostgreSQL 10.0.0` → `Directory.Packages.props` (used only
+  by the EF test project).
+- `docs/test-strategy.md` — test pyramid guide (unit vs integration vs benchmark, when to use which, current coverage
+  matrix).
+- `docs/policies/test-coverage.md` — coverage gate policy + gradual raise roadmap (40/35 → 50/45 → 65/50 → 75/60).
+- `docs/adr/0014-test-strategy.md` — BenchmarkDotNet + Testcontainers + coverage policy decision.
+- README "Testing" + "Benchmarks" sections (test commands with and without Docker).
 
 ### Changed (LS-FAZ-4)
-- CI `build-test.yml` test step ikiye boldu: `Test (unit)` (filter `Category!=Integration`, hem ubuntu hem windows) ve `Test (integration)` (filter `Category=Integration`, sadece ubuntu — Docker gerekli).
-- CI coverage gate: `BRANCH_THRESHOLD: 30 -> 35` (regression onleme; gercek olcum %36.3, 1.3 puan pay). Line gate sabit %40 (gercek %40.7).
+- CI `build-test.yml` test step split in two: `Test (unit)` (filter `Category!=Integration`, Ubuntu and Windows) and
+  `Test (integration)` (filter `Category=Integration`, Ubuntu only — Docker needed).
+- CI coverage gate: `BRANCH_THRESHOLD: 30 → 35` (prevents regression; measured 36.3%, 1.3 points of headroom). Line gate
+  stays at 40% (measured 40.7%).
 
 ### Added (LS-FAZ-3)
-- `Microsoft.CodeAnalysis.PublicApiAnalyzers 4.14.0` — 16 abstraction projesinde aktif (ADR-0013). Yeni public API ekleyenler `PublicAPI.Unshipped.txt`'a satir eklemek zorunda; aksi halde RS0016 ile build hatasi.
-- `PublicAPI.Shipped.txt` baseline tum abstraction'larda — 875 unique public symbol kayit altinda.
-- `src/Abstractions/Directory.Build.props` — analyzer'i tum 16 abstraction'a tek noktadan uygular (root Directory.Build.props re-import).
-- `docs/policies/support.md` — .NET destek matrisi (LTS/STS), TFM ekleme/kaldirma akisi (Library Strategy §6.4).
-- `docs/policies/versioning.md` — SemVer kontrati, "Public API" tanimi, breaking change politikasi, PublicApiAnalyzers ile tracking sureci (Library Strategy §12.3).
-- `docs/migrations/README.md` + `_template.md` — per-major migration rehber sablonu (Library Strategy §9.4).
-- `docs/adr/0013-public-api-discipline.md` — PublicApiAnalyzers + SemVer + Obsolete disiplini karari.
-- `[DebuggerDisplay]` — `Result`, `Result<T>`, `Error`, `Paginate<T>`, `PageRequest` (Library Strategy §9.3); watch window'da class adi yerine anlamli ozet.
-- `docs/adr/README.md` indexine ADR-0011/0012/0013 eklendi (LS-FAZ-2'den geri kalan toparlama).
+- `Microsoft.CodeAnalysis.PublicApiAnalyzers 4.14.0` — enabled in 16 abstraction projects (ADR-0013). New public API
+  needs a line in `PublicAPI.Unshipped.txt`, otherwise the build fails with RS0016.
+- `PublicAPI.Shipped.txt` baseline in every abstraction — 875 unique public symbols recorded.
+- `src/Abstractions/Directory.Build.props` — applies the analyzer to all 16 abstractions in one place (re-imports the root
+  Directory.Build.props).
+- `docs/policies/support.md` — .NET support matrix (LTS/STS), process for adding/removing target frameworks (Library
+  Strategy §6.4).
+- `docs/policies/versioning.md` — SemVer contract, definition of "public API", breaking change policy, tracking with
+  PublicApiAnalyzers (Library Strategy §12.3).
+- `docs/migrations/README.md` + `_template.md` — per-major migration guide template (Library Strategy §9.4).
+- `docs/adr/0013-public-api-discipline.md` — PublicApiAnalyzers + SemVer + Obsolete discipline decision.
+- `[DebuggerDisplay]` — `Result`, `Result<T>`, `Error`, `Paginate<T>`, `PageRequest` (Library Strategy §9.3); a meaningful
+  summary instead of the class name in the watch window.
+- ADR-0011/0012/0013 added to the `docs/adr/README.md` index (left over from LS-FAZ-2).
 
 ### Changed (LS-FAZ-3)
-- `Kck.Caching.Redis` eksik konfigurasyon hata mesaji "pit-of-success" formatinda yeniden yazildi: 3 alternatifin somut ornegi + dokuman linki (Library Strategy §9.2 literal ornek).
+- `Kck.Caching.Redis` missing-configuration error message rewritten in "pit of success" style: concrete examples of the 3
+  alternatives + a documentation link (Library Strategy §9.2 literal example).
 
 ### Added (LS-FAZ-2)
-- Multi-target build: `Kck.*.Abstractions` + saf provider'lar artik `net8.0` LTS + `net10.0` STS hedefli (ADR-0011). Net10-only opt-out paketler: `Kck.Bundle.WebApi`, `Kck.Persistence.EntityFramework`, `Kck.AspNetCore`, `Kck.Security.Jwt`, `Kck.Caching.Redis`, `Kck.Http.Resilience`, `Kck.Exceptions.AspNetCore`.
-- `docs/adr/0011-multi-target-net8-net10.md` — multi-target karari ve net8 fallback tablosu.
-- `docs/adr/0012-remove-automapper-package.md` — kullanilmayan AutoMapper paketinin kaldirilmasi karari.
-- README "Quick Start" 3-sekme: WebApi (Bundle), MinimalApi (slim), WorkerService (no HTTP).
-- README "Why Kck?" karsilastirma bolumu (vs ABP / FastEndpoints / Aspire).
-- README Background Jobs ipucu: Hangfire ya da Quartz, ikisi birden onerilmez.
+- Multi-target build: `Kck.*.Abstractions` + plain providers now target `net8.0` LTS + `net10.0` STS (ADR-0011).
+  Net10-only opt-out packages: `Kck.Bundle.WebApi`, `Kck.Persistence.EntityFramework`, `Kck.AspNetCore`,
+  `Kck.Security.Jwt`, `Kck.Caching.Redis`, `Kck.Http.Resilience`, `Kck.Exceptions.AspNetCore`.
+- `docs/adr/0011-multi-target-net8-net10.md` — multi-target decision and net8 fallback table.
+- `docs/adr/0012-remove-automapper-package.md` — decision to remove the unused AutoMapper package.
+- README "Quick Start" in 3 tabs: WebApi (bundle), MinimalApi (slim), WorkerService (no HTTP).
+- README "Why Kck?" comparison section (vs ABP / FastEndpoints / Aspire).
+- README background jobs tip: Hangfire or Quartz; using both is not recommended.
 
 ### Changed (LS-FAZ-2)
-- `Microsoft.IdentityModel.JsonWebTokens 8.17.0` pin'i yorumla netlestirildi — diamond-dependency hizalamasi (Library Strategy §2.3 madde 2).
-- Net8 fallback'leri eklendi (`#if NET9_0_OR_GREATER`): `IntegrationEvent.Id`, `QuartzJobScheduler.NewJobId()`, `TotpMfaProvider` secret hash. Net8'de `Guid.NewGuid()` ve `Convert.ToHexString().ToLowerInvariant()` kullanilir; net9+ surumlerde sirasiyla `Guid.CreateVersion7()` ve `Convert.ToHexStringLower()`.
+- `Microsoft.IdentityModel.JsonWebTokens 8.17.0` pin explained in a comment — diamond-dependency alignment (Library
+  Strategy §2.3 item 2).
+- Net8 fallbacks added (`#if NET9_0_OR_GREATER`): `IntegrationEvent.Id`, `QuartzJobScheduler.NewJobId()`,
+  `TotpMfaProvider` secret hash. Net8 uses `Guid.NewGuid()` and `Convert.ToHexString().ToLowerInvariant()`; net9+ uses
+  `Guid.CreateVersion7()` and `Convert.ToHexStringLower()`.
 
 ### Removed (LS-FAZ-2)
-- `AutoMapper 16.1.1` PackageVersion girisi `Directory.Packages.props`'tan kaldirildi (sifir kullanim, ADR-0012).
+- `AutoMapper 16.1.1` PackageVersion entry removed from `Directory.Packages.props` (no usages, ADR-0012).
 
 ### Added
 - `SECURITY.md` — security policy with CVSS-based response SLA and 90-day coordinated disclosure (Library Strategy §13.1).

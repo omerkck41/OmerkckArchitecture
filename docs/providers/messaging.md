@@ -1,14 +1,14 @@
 # Messaging
 
-E-posta gonderimi icin provider-agnostic `IEmailProvider` abstraction.
-Attachment, HTML/text body, CC/BCC destegi standart.
+A provider-agnostic `IEmailProvider` abstraction for sending email.
+Attachments, HTML/text bodies and CC/BCC are supported as standard.
 
-## Paketler
+## Packages
 
-| Paket | Hedef |
+| Package | Target |
 |---|---|
 | `Kck.Messaging.Abstractions` | `IEmailProvider`, `EmailMessage`, `EmailRecipient`, `EmailAttachment` |
-| `Kck.Messaging.MailKit` | SMTP uzerinden (MailKit) |
+| `Kck.Messaging.MailKit` | Over SMTP (MailKit) |
 | `Kck.Messaging.SendGrid` | SendGrid API |
 | `Kck.Messaging.AmazonSes` | Amazon SES v2 |
 
@@ -26,9 +26,9 @@ services.AddKckMessagingMailKit(opt =>
 });
 ```
 
-SMTP connection pool'u kullanir — thread-safe olmayan `SmtpClient`
-implementasyon'i paylasimli. `PoolSize` tipik olarak concurrent send worker
-sayisi kadardir.
+It uses an SMTP connection pool, because the `SmtpClient` implementation is not
+thread-safe and is shared. `PoolSize` is typically equal to the number of
+concurrent send workers.
 
 ## SendGrid
 
@@ -45,16 +45,16 @@ services.AddKckMessagingSendGrid(opt =>
 services.AddKckMessagingAmazonSes(opt =>
 {
     opt.Region = "eu-west-1";
-    // Opsiyonel — birakilirsa default AWS credential chain
+    // Optional — if omitted, the default AWS credential chain is used
     opt.AccessKey = builder.Configuration["AWS:AccessKey"];
     opt.SecretKey = builder.Configuration["AWS:SecretKey"];
 });
 ```
 
-Environment'da `AWS_PROFILE` veya IAM role set ise `AccessKey`/`SecretKey`
-bos birakilabilir.
+If `AWS_PROFILE` or an IAM role is set in the environment, `AccessKey` and
+`SecretKey` can be left empty.
 
-## Gonderim
+## Sending
 
 ```csharp
 public class OrderConfirmationService(IEmailProvider email)
@@ -81,19 +81,19 @@ public class OrderConfirmationService(IEmailProvider email)
 }
 ```
 
-## Secim Kriterleri
+## Selection Criteria
 
-| Kriter | MailKit | SendGrid | AmazonSes |
+| Criterion | MailKit | SendGrid | AmazonSes |
 |---|---|---|---|
-| Kurulum | SMTP server gerekli | API key | AWS account |
+| Setup | SMTP server required | API key | AWS account |
 | Cost | Self-hosted / Gmail / Office365 | Per-email tier | Per-email (cheap at scale) |
-| Deliverability | Ozel SMTP'ye bagli | Yuksek (managed IP) | Yuksek (managed) |
-| Use case | Development, dusuk hacim | Marketing + transactional | Yuksek hacim, AWS stack |
+| Deliverability | Depends on your SMTP | High (managed IP) | High (managed) |
+| Use case | Development, low volume | Marketing + transactional | High volume, AWS stack |
 
 ## Retry + Outbox
 
-- Provider'lar **retry implement etmez** — bu sorumluluk caller'da
-- Kritik e-postalar icin outbox pattern onerilir (veritabanina yaz, background
-  job ile gonder)
-- FAZ 4'te outbox provider opsiyonel olarak isaretlendi — eklenirse
-  `IEmailOutbox` abstraction'i uzerinden entegre olacak
+- Providers **do not implement retry**. This is the caller's responsibility.
+- For critical emails, the outbox pattern is recommended (write to the database,
+  send with a background job).
+- The outbox provider was marked optional in PHASE 4. If it is added, it will
+  integrate through the `IEmailOutbox` abstraction.

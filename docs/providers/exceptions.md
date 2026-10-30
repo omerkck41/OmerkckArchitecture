@@ -1,32 +1,32 @@
 # Exceptions
 
-Domain exception hiyerarsisi + ASP.NET Core global exception handler.
-Provider layer'a sizmayan abstraction ile ayrildi
+A domain exception hierarchy plus an ASP.NET Core global exception handler.
+They are split so that the abstraction does not leak into the provider layer
 ([ADR-0008](../adr/0008-exceptions-abstractions-split.md)).
 
-## Paketler
+## Packages
 
-| Paket | Hedef |
+| Package | Purpose |
 |---|---|
-| `Kck.Exceptions.Abstractions` | Domain exception hiyerarsisi |
+| `Kck.Exceptions.Abstractions` | Domain exception hierarchy |
 | `Kck.Exceptions.AspNetCore` | Middleware + `IExceptionHandler` |
 
-## Domain Exception Hiyerarsisi
+## Domain Exception Hierarchy
 
-| Tip | HTTP Status | Kullanim |
+| Type | HTTP Status | Usage |
 |---|---|---|
-| `BadRequestException` | 400 | Gecersiz input |
-| `CustomArgumentException` | 400 | Dogrulama hatasi |
-| `NotFoundException` | 404 | Kayit bulunamadi |
+| `BadRequestException` | 400 | Invalid input |
+| `CustomArgumentException` | 400 | Validation error |
+| `NotFoundException` | 404 | Record not found |
 | `ConflictException` | 409 | Duplicate / conflict |
-| `ForbiddenException` | 403 | Yetki yok |
+| `ForbiddenException` | 403 | Not authorized |
 | `RequestTimeoutException` | 408 | Timeout |
-| `SecurityTokenException` | 401 | Auth token invalid |
-| `CustomInvalidOperationException` | 500 | Beklenmedik durum |
-| `FilterSecurityException` | 403 | Query filter ihlal |
+| `SecurityTokenException` | 401 | Invalid auth token |
+| `CustomInvalidOperationException` | 500 | Unexpected state |
+| `FilterSecurityException` | 403 | Query filter violation |
 
-Tum `CustomException` base'ten turetilir — kendi domain exception'larin icin
-genisletebilirsin:
+All of them derive from the `CustomException` base. You can extend it for your
+own domain exceptions:
 
 ```csharp
 public sealed class InsufficientBalanceException(Guid accountId)
@@ -41,7 +41,7 @@ services.AddKckExceptionHandling();
 app.UseKckExceptionHandler();
 ```
 
-Middleware exceptionlari RFC 7807 ProblemDetails formatinda serialize eder:
+The middleware serializes exceptions in RFC 7807 ProblemDetails format:
 
 ```json
 {
@@ -55,9 +55,9 @@ Middleware exceptionlari RFC 7807 ProblemDetails formatinda serialize eder:
 
 ## ValidationException Handler
 
-FluentValidation kullaniyorsan, validation hatalari `ValidationException` olarak
-firlar ve ayri `IExceptionHandler` ile yakalanir — 400 + field bazli hata
-listesi doner.
+If you use FluentValidation, validation errors are thrown as `ValidationException`
+and caught by a separate `IExceptionHandler`. It returns 400 plus a per-field error
+list.
 
 ## Custom Handler
 
@@ -80,11 +80,11 @@ public class MyCustomHandler : IExceptionHandler
 services.AddSingleton<IExceptionHandler, MyCustomHandler>();
 ```
 
-Handler'lar sirayla denenir — ilk `true` donen kazanir, digerleri atlanir.
+Handlers are tried in order. The first one that returns `true` wins and the rest are skipped.
 
-## Loglama
+## Logging
 
-Middleware hatayi `ILogger` ile loglar:
-- 4xx: `Warning` (client hatasi)
-- 5xx: `Error` (server hatasi)
-- TraceId ekliyor (distributed tracing icin)
+The middleware logs the error with `ILogger`:
+- 4xx: `Warning` (client error)
+- 5xx: `Error` (server error)
+- It includes the TraceId (for distributed tracing)

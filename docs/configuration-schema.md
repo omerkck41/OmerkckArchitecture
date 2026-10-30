@@ -1,6 +1,6 @@
-# Kck Framework — Konfigurasyon Rehberi
+# Kck Framework — Configuration Guide
 
-IDE autocomplete için projenizin `appsettings.json` dosyasına şu satırı ekleyin:
+For IDE autocomplete, add the following line to your project's `appsettings.json`:
 
 ```json
 {
@@ -8,7 +8,7 @@ IDE autocomplete için projenizin `appsettings.json` dosyasına şu satırı ekl
 }
 ```
 
-Tüm ayarlar `"Kck"` ana anahtarı altında toplanır. Kullanmadığınız provider'ların bölümlerini eklemenize gerek yoktur.
+All settings are grouped under the top-level `"Kck"` key. You do not need to add sections for providers you do not use.
 
 ---
 
@@ -28,11 +28,11 @@ Tüm ayarlar `"Kck"` ana anahtarı altında toplanır. Kullanmadığınız provi
 }
 ```
 
-| Alan | Tür | Zorunlu | Varsayılan | Açıklama |
+| Field | Type | Required | Default | Description |
 |---|---|---|---|---|
-| `Configuration` | string | Evet | — | StackExchange.Redis bağlantı dizisi |
-| `InstanceName` | string | Hayır | `""` | Tüm anahtarlara eklenen önek |
-| `DefaultExpirationSeconds` | int | Hayır | `3600` | TTL (saniye) |
+| `Configuration` | string | Yes | — | StackExchange.Redis connection string |
+| `InstanceName` | string | No | `""` | Prefix added to all keys |
+| `DefaultExpirationSeconds` | int | No | `3600` | TTL (seconds) |
 
 ### InMemory (`Kck.Caching.InMemory`)
 
@@ -67,13 +67,13 @@ Tüm ayarlar `"Kck"` ana anahtarı altında toplanır. Kullanmadığınız provi
 }
 ```
 
-| Alan | Tür | Zorunlu | Varsayılan | Açıklama |
+| Field | Type | Required | Default | Description |
 |---|---|---|---|---|
-| `Issuer` | string | Evet | — | Token yayıncısı URI |
-| `Audience` | string | Evet | — | Beklenen token kitlesi |
-| `Algorithm` | string | Hayır | `RS256` | `RS256` / `HS256` / ... |
-| `AccessTokenExpirationMinutes` | int | Hayır | `60` | Erişim token ömrü |
-| `RefreshTokenExpirationDays` | int | Hayır | `30` | Yenileme token ömrü |
+| `Issuer` | string | Yes | — | Token issuer URI |
+| `Audience` | string | Yes | — | Expected token audience |
+| `Algorithm` | string | No | `RS256` | `RS256` / `HS256` / ... |
+| `AccessTokenExpirationMinutes` | int | No | `60` | Access token lifetime |
+| `RefreshTokenExpirationDays` | int | No | `30` | Refresh token lifetime |
 
 ### Argon2 (`Kck.Security.Argon2`)
 
@@ -187,7 +187,7 @@ Tüm ayarlar `"Kck"` ana anahtarı altında toplanır. Kullanmadığınız provi
 }
 ```
 
-> **Uyarı:** `Provider` değeri `"Hangfire"` veya `"Quartz"` olabilir. İkisini aynı anda kaydetmeyin.
+> **Warning:** The `Provider` value can be `"Hangfire"` or `"Quartz"`. Do not register both at the same time.
 
 ---
 
@@ -206,7 +206,7 @@ Tüm ayarlar `"Kck"` ana anahtarı altında toplanır. Kullanmadığınız provi
 
 ---
 
-## Tam Örnek (`appsettings.json`)
+## Full Example (`appsettings.json`)
 
 ```json
 {
