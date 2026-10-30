@@ -1,0 +1,54 @@
+name: template-smoke
+
+# Packs every package of this commit, generates a project from Kck.Templates and builds it against them
+# (plan docs/plans/2026-10-30-dx-hero-module-plan.md, G0.3). The template references the Kck packages of the
+# same commit, whose prerelease versions exist only in the local feed built here.
+on:
+  push:
+    branches: [main, develop, 'release/**']
+  pull_request:
+    branches: [main, develop, 'release/**']
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+
+env:
+  # ImageSharp 4 validates a Six Labors license at Release build time; see decisions/2026-10-14-sdk-10.0.402-imagesharp-4.md
+  SixLaborsLicenseKey: ${{ secrets.SIXLABORS_LICENSE_KEY }}
+  DOTNET_NOLOGO: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
+
+jobs:
+  smoke:
+    name: Template smoke (kck-webapi)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          fetch-depth: 0  # MinVer needs full history for tag resolution
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+        with:
+          dotnet-version: '10.0.402'
+
+      - name: Restore
+        run: dotnet restore --locked-mode
+
+      - name: Build
+        run: dotnet build --configuration Release --no-restore
+
+      - name: Pack every package into a local feed
+        run: dotnet pack --configuration Release --no-build --output "$RUNNER_TEMP/feed"
+
+      # Outside the repository so the generated project does not inherit Directory.*.props or global.json.
+      - name: Generate and build kck-webapi
+        run: bash .github/scripts/template-smoke.sh "$RUNNER_TEMP/feed" "$RUNNER_TEMP/smoke"
