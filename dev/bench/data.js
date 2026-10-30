@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1793398682699,
+  "lastUpdate": 1793399259753,
   "repoUrl": "https://github.com/omerkck41/OmerkckArchitecture",
   "entries": {
     "Benchmark": [
@@ -13774,6 +13774,102 @@ window.BENCHMARK_DATA = {
             "value": 10.343751365939776,
             "unit": "ns",
             "range": "± 0.31421357630894986"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "106805727+omerkck41@users.noreply.github.com",
+            "name": "Ömer KÜÇÜK",
+            "username": "omerkck41"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "4319f309ad21160dbc7eb407ecfe9d7a9e78b0a6",
+          "message": "docs: issue forms, fix Edit this page links, next metrics date (F5) (#273)\n\n## Summary\n\nPlan step F5 (G5.1–G5.3 of\n`docs/plans/2026-10-30-dx-hero-module-plan.md`): the feedback loop.\n\n- **G5.1 Issue forms:** \"Docs feedback\" (page, kind of problem, details;\nlabel `docs`) and \"Template problem\"\n(`dotnet new` command, template version, failing step, output, `dotnet\n--info`; label `fix`). No new labels created.\n- **G5.2 \"Edit this page\" fixed:** every page linked to\n`…/blob/main/docs/#L1`, which GitHub redirects to the `docs`\nfolder listing. Cause: `_gitContribute.path` in `docfx.json`, not a\ndocumented property (docfx documents `repo`,\n`branch`, `apiSpecFolder`), overrode each page's file path. Removed;\nlinks now point at the page's file\n(`…/blob/main/docs/providers/persistence.md/#L1`, HTTP 200). The footer\nlinks to the docs feedback form on every page.\n- **G5.3 Measurement:** `docs/policies/adoption-metrics.md` names the\nnext snapshot date (2026-11-29, 4.6.0 + 30 days)\n  and counts the new feedback channels.\n- CHANGELOG `[Unreleased]` Changed. No version bump.\n\n## Test plan\n\n- [x] `dotnet docfx build docfx.json --warningsAsErrors` — 0 warnings, 0\nerrors; edit links checked on three pages\n- [x] `docs_language.py` 0 problems; `readme_snippets.py --check` 153\nblocks up to date\n- [x] Both issue forms parse as YAML\n- [ ] CI (docs workflow, workflow lint)\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\n---------\n\nCo-authored-by: Claude Opus 5.5 <noreply@anthropic.com>",
+          "timestamp": "2026-10-30T22:20:06Z",
+          "tree_id": "27726498bd8b91931f8bdaedc3566ceaff12bc32",
+          "url": "https://github.com/omerkck41/OmerkckArchitecture/commit/4319f309ad21160dbc7eb407ecfe9d7a9e78b0a6"
+        },
+        "date": 1793399258679,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Success_Factory",
+            "value": 6.133945415062564,
+            "unit": "ns",
+            "range": "± 0.04326172163437527"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Failure_Factory",
+            "value": 10.590537147540035,
+            "unit": "ns",
+            "range": "± 0.42852357676375274"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Success",
+            "value": 1.6425590158573218,
+            "unit": "ns",
+            "range": "± 0.004179859399551529"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Failure",
+            "value": 0.2696396591407912,
+            "unit": "ns",
+            "range": "± 0.0036816041235230267"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Serialize_Reflection",
+            "value": 469.16659150804793,
+            "unit": "ns",
+            "range": "± 7.683465518671375"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Deserialize_Reflection",
+            "value": 775.6562769229596,
+            "unit": "ns",
+            "range": "± 3.033651502564769"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 0)",
+            "value": 10.055147797933646,
+            "unit": "ns",
+            "range": "± 0.055408549278885215"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 5)",
+            "value": 10.055192259805542,
+            "unit": "ns",
+            "range": "± 0.052702537597412565"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 0)",
+            "value": 10.00717348433458,
+            "unit": "ns",
+            "range": "± 0.06995331206134817"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 5)",
+            "value": 9.935901180903118,
+            "unit": "ns",
+            "range": "± 0.09567968497872971"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 0)",
+            "value": 9.929049421350161,
+            "unit": "ns",
+            "range": "± 0.12671941431269776"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 5)",
+            "value": 10.127515187220913,
+            "unit": "ns",
+            "range": "± 0.09268006794827019"
           }
         ]
       }
