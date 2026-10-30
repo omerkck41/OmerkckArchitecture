@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1793365276728,
+  "lastUpdate": 1793366225664,
   "repoUrl": "https://github.com/omerkck41/OmerkckArchitecture",
   "entries": {
     "Benchmark": [
@@ -12622,6 +12622,102 @@ window.BENCHMARK_DATA = {
             "value": 10.27000948557487,
             "unit": "ns",
             "range": "± 0.14333639808004797"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "106805727+omerkck41@users.noreply.github.com",
+            "name": "Ömer KÜÇÜK",
+            "username": "omerkck41"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "ed5a69e2e9ceca4ed24674bf293ee449614b63f6",
+          "message": "docs: English documentation guard and README in English (F2 G2.1) (#260)\n\n## Summary\nPlan F2, G2.1(a) and the root README (ADR-0029 D2: English is the single\ndocs language).\n\n- **Guard:** `.github/scripts/docs_language.py` + 8 tests. A line fails\nwhen it has a letter used only in Turkish or a\ncommon Turkish word (also without diacritics; English homographs such as\n*her*, *once* are left out). Code blocks,\ninline code and HTML comments are ignored; proper names can be allowed.\nRuns in `build-test` (ubuntu).\n- **Scope:** `.github/docs-english.txt` lists the published files that\nmust be English — today 65 (README,\nCONTRIBUTING, licensing, all 58 package READMEs, ADR-0029/0030, adoption\nmetrics). Translated files join the list;\nat the end of F2 it covers every published page. Measured today: 35\npublished files still contain Turkish\n  (provider guides, FAQ, migrations, policies, CHANGELOG history).\n- **README:** Turkish notes translated; *Fastest start: the template*\nadded first; wrong claims fixed — the WebApi\nbundle does not wire Mediator or OpenTelemetry, the worker bundle is\nQuartz-only since 4.0, samples list updated.\nREADME code blocks regenerated (they compile in CI; only line numbers\nchanged).\n\n## Verification\n- `python -I -m unittest discover -s .github/scripts -p \"test_*.py\"` OK;\nRED first (module missing).\n- `docs_language.py`: 65 files, 0 problems; on\n`docs/providers/caching.md` it reports the Turkish lines.\n- `readme_snippets.py --check`: 10 blocks up to date.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\n---------\n\nCo-authored-by: Claude Opus 5.5 <noreply@anthropic.com>",
+          "timestamp": "2026-10-30T16:10:14+03:00",
+          "tree_id": "e8b215fabfe50c5146a53fceaa1c36d12ed0c61a",
+          "url": "https://github.com/omerkck41/OmerkckArchitecture/commit/ed5a69e2e9ceca4ed24674bf293ee449614b63f6"
+        },
+        "date": 1793366224581,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Success_Factory",
+            "value": 6.049903073481151,
+            "unit": "ns",
+            "range": "± 0.034586171118925556"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Failure_Factory",
+            "value": 9.297056506077448,
+            "unit": "ns",
+            "range": "± 0.3114645347405343"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Success",
+            "value": 1.6400887774569648,
+            "unit": "ns",
+            "range": "± 0.01007923679742794"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Failure",
+            "value": 0.5818892895029142,
+            "unit": "ns",
+            "range": "± 0.004449913296996616"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Serialize_Reflection",
+            "value": 499.0985160974356,
+            "unit": "ns",
+            "range": "± 1.631584898968349"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Deserialize_Reflection",
+            "value": 776.7278216044108,
+            "unit": "ns",
+            "range": "± 2.856505170650203"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 0)",
+            "value": 10.519434547850064,
+            "unit": "ns",
+            "range": "± 0.023108039834665983"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 5)",
+            "value": 9.788737179977554,
+            "unit": "ns",
+            "range": "± 0.06902052408005109"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 0)",
+            "value": 9.866224680344263,
+            "unit": "ns",
+            "range": "± 0.04845872105551028"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 5)",
+            "value": 9.996352004153389,
+            "unit": "ns",
+            "range": "± 0.023064176996472938"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 0)",
+            "value": 9.766596918304762,
+            "unit": "ns",
+            "range": "± 0.04647190677985114"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 5)",
+            "value": 9.71741050588233,
+            "unit": "ns",
+            "range": "± 0.055955464135844436"
           }
         ]
       }
