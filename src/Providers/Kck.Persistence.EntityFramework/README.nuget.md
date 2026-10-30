@@ -42,6 +42,13 @@ public class OrderService(IUnitOfWork uow)
 | `AddDomainEventHandlers(assemblies)` | Registers every `IDomainEventHandler<TEvent>` in the assemblies and dispatches domain events to them after `SaveChanges` / commit (4.6.0+) |
 | `AddDomainEventDispatch<TDispatcher>()` | Dispatches aggregate domain events after `SaveChanges` / commit through your own `IDomainEventDispatcher` |
 
+## Diagnostics
+
+The package includes analyzers: [KCK1001](https://github.com/omerkck41/OmerkckArchitecture/blob/main/docs/reference/diagnostics/KCK1001.md)
+warns about a transaction committed directly in a project with domain events (commit through `IUnitOfWork` so the
+events are dispatched), and [KCK1002](https://github.com/omerkck41/OmerkckArchitecture/blob/main/docs/reference/diagnostics/KCK1002.md)
+suggests `SaveChangesAsync` over `SaveChanges`.
+
 ## Resources
 
 - [Documentation](https://github.com/omerkck41/OmerkckArchitecture/blob/main/docs/providers/persistence.md)

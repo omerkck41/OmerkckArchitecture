@@ -8,7 +8,7 @@ internal static class Snippet
 {
     internal static async Task RunAsync(WebApplicationBuilder builder, IServiceCollection services)
     {
-#line 18 "docs/providers/persistence.md"
+#line 19 "docs/providers/persistence.md"
 
 services.AddKckPersistence(p => p
     .UseEntityFramework<AppDbContext>(o => o

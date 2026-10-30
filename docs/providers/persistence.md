@@ -2,7 +2,8 @@
 
 Repositories and a unit of work over Entity Framework Core 10, plus the parts teams usually write by hand around it:
 soft delete that follows the model's delete rules, audit fields, and domain events dispatched after the transaction
-commits. New to Kck? Start with [your first Kck API in five minutes](../getting-started/README.md).
+commits. New to Kck? Start with [your first Kck API in five minutes](../getting-started/README.md). How this compares
+with EF Core alone, ABP and Ardalis.Specification: [Persistence: Kck compared](../persistence-comparison.md).
 
 ## Packages
 
@@ -60,6 +61,10 @@ handler fails, the rules under [Interceptors](#interceptors) apply (the data sta
 entity, the next `SaveChanges` dispatches them again), so handlers must be idempotent. It cannot be combined with your
 own `IDomainEventDispatcher` registered through `AddDomainEventDispatch<T>()` (`InvalidOperationException`).
 
+The reference app turns a domain event into an integration event for the event bus in
+[`OrderPlacedHandler.cs`](https://github.com/omerkck41/OmerkckArchitecture/blob/main/samples/Kck.Sample.Orders/Features/Orders/OrderPlacedHandler.cs);
+its test `PlaceOrder_DispatcherFails_EventRetriedOnNextSave` shows the retry, and why a handler can run twice.
+
 ### DbContext pooling (4.5.0+)
 
 ```csharp
@@ -79,6 +84,22 @@ holders); put what it needs into the event. Pending events of a transaction open
 committed directly (below) end with the request, as without pooling: when the context goes back to the pool and is
 leased again they are dropped (a warning is logged), never dispatched in another request. Commit transactions through
 `IUnitOfWork`.
+
+### DbContext factory
+
+`UseEntityFramework<TContext>` cannot be combined with a singleton `AddDbContextFactory<TContext>` (the default
+lifetime) or `AddPooledDbContextFactory<TContext>` for the same context: they register `DbContextOptions<TContext>`
+with different lifetimes (per scope and singleton). A factory registered with `ServiceLifetime.Scoped`, or a keyed one,
+is fine. From 4.7.0 Kck reports this
+with an `InvalidOperationException` that names both calls. With container validation on (ASP.NET Core does it in
+Development), a factory registered after `UseEntityFramework` is reported by the container first, as
+"Cannot consume scoped service 'DbContextOptions`1[...]' from singleton 'IDbContextFactory`1[...]'".
+
+Instead:
+
+- outside a request (background services, jobs), create a scope with `IServiceScopeFactory` and resolve `IUnitOfWork`
+  in it, so audit fields, soft delete and domain events still apply;
+- to reuse context instances, use `UseEntityFrameworkPool` (above).
 
 ## Using repositories
 
@@ -122,6 +143,13 @@ through a cascading relationship (`Cascade` / `ClientCascade`) to a row deleted 
 (`permanent: true`, or not soft-deletable) is deleted permanently with it, even when soft-deletable; `SetNull` /
 `Restrict` relationships do not do that. Known limit: required dependants added (`Added`, not saved yet) to a row
 soft-deleted at the same time leave the change tracker through EF's cascade and are not inserted.
+
+Dependants that are not loaded are not touched. On a required `Restrict` relationship, EF refuses the delete when a
+dependant is tracked, as it would for a permanent delete. The reference app shows both rules:
+[cancelling an order](https://github.com/omerkck41/OmerkckArchitecture/blob/main/samples/Kck.Sample.Orders/Features/Orders/CancelOrder.cs)
+soft-deletes its auto-included lines (`Cascade`), and
+[deleting a customer](https://github.com/omerkck41/OmerkckArchitecture/blob/main/samples/Kck.Sample.Orders/Features/Customers/CustomerEndpoints.cs)
+checks for orders first (`Restrict`), because unloaded orders would not stop it.
 
 ## QueryOptions
 
@@ -222,7 +250,9 @@ public sealed class RecentOrders(IUnitOfWork uow)
 ## Dynamic queries
 
 `GetListByDynamicAsync(DynamicQuery)` works only for entity types with an `IFilterPropertyWhitelist<T>` registration; a
-filter on a property outside the whitelist throws `ArgumentException`.
+filter on a property outside the whitelist throws `ArgumentException`. In the reference app:
+[`SearchOrders.cs`](https://github.com/omerkck41/OmerkckArchitecture/blob/main/samples/Kck.Sample.Orders/Features/Orders/SearchOrders.cs)
+(whitelist, endpoint, 400 for other fields).
 
 ## Transactions
 
@@ -284,6 +314,9 @@ must not be called.
   - Out of scope: a direct commit of an external transaction passed with `Database.UseTransaction` (events are dropped),
     `TransactionScope`, rolling back to a savepoint (events raised after the savepoint are still dispatched on commit).
   - DbContext pooling is supported through `UseEntityFrameworkPool` (above); `AddDbContextFactory` is not.
+- From 4.7.0 the package's analyzers report a direct commit in a project with domain events
+  ([KCK1001](../reference/diagnostics/KCK1001.md)) and a synchronous `SaveChanges`
+  ([KCK1002](../reference/diagnostics/KCK1002.md)).
 
 ## Concurrency
 

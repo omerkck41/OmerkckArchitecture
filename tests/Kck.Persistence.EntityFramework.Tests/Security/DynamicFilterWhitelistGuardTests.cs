@@ -78,6 +78,26 @@ public class DynamicFilterWhitelistGuardTests
     }
 
     [Fact]
+    public void Validate_GroupNodeWithoutField_ValidatesOnlyItsChildren()
+    {
+        // A group node ("and" / "or" over child filters) has no field: ToDynamic never reads it.
+        var query = new DynamicQuery
+        {
+            Filter = new Filter
+            {
+                Field = "",
+                Operator = "eq",
+                Logic = "or",
+                Filters = [new Filter { Field = "Name", Operator = "eq", Value = "x" }, new Filter { Field = "Value", Operator = "gt", Value = 1 }],
+            },
+        };
+
+        var act = () => DynamicFilterWhitelistGuard.Validate(query, Whitelist);
+
+        act.Should().NotThrow();
+    }
+
+    [Fact]
     public void Validate_SortFieldNotAllowed_Throws()
     {
         // Null filter, disallowed sort — kills the sort-loop and Filter-null branch.
@@ -90,5 +110,19 @@ public class DynamicFilterWhitelistGuardTests
         var act = () => DynamicFilterWhitelistGuard.Validate(query, Whitelist);
 
         act.Should().Throw<ArgumentException>().WithMessage("*Secret*");
+    }
+
+    [Fact]
+    public void FilterPropertyWhitelist_AllowWithoutPropertyAccess_ThrowsWithExample()
+    {
+        var act = () => new MethodCallWhitelist();
+
+        act.Should().Throw<ArgumentException>().WithMessage("*property access*Allow(e => e.Name)*")
+            .Which.ParamName.Should().Be("property");
+    }
+
+    private sealed class MethodCallWhitelist : Kck.Persistence.Abstractions.Security.FilterPropertyWhitelist<TestEntity>
+    {
+        public MethodCallWhitelist() => Allow(e => e.Name.Trim()); // a method call, not a property access
     }
 }

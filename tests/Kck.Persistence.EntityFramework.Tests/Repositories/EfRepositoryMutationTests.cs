@@ -203,7 +203,8 @@ public sealed class EfRepositoryMutationTests : IDisposable
     public async Task DeleteAsync_ByPredicate_NotFound_Throws()
     {
         var act = () => _sut.DeleteAsync(e => e.Name == "ghost");
-        await act.Should().ThrowAsync<InvalidOperationException>().WithMessage("*not found*");
+        await act.Should().ThrowAsync<InvalidOperationException>()
+            .WithMessage("No TestEntity matches the predicate (soft-deleted rows included)*GetAsync(predicate, QueryOptions.WithDeleted)*");
     }
 
     [Fact]
@@ -250,7 +251,8 @@ public sealed class EfRepositoryMutationTests : IDisposable
     public async Task DeleteAsync_ById_NotFound_Throws()
     {
         var act = () => _sut.DeleteAsync(Guid.NewGuid());
-        await act.Should().ThrowAsync<InvalidOperationException>().WithMessage("*not found*");
+        await act.Should().ThrowAsync<InvalidOperationException>()
+            .WithMessage("TestEntity with id '*' not found (soft-deleted rows included)*GetByIdAsync(id, QueryOptions.WithDeleted)*");
     }
 
     [Fact]
@@ -270,7 +272,8 @@ public sealed class EfRepositoryMutationTests : IDisposable
     public async Task RevertSoftDeleteAsync_ById_NotFound_Throws()
     {
         var act = () => _sut.RevertSoftDeleteAsync(Guid.NewGuid());
-        await act.Should().ThrowAsync<InvalidOperationException>().WithMessage("*not found*");
+        await act.Should().ThrowAsync<InvalidOperationException>()
+            .WithMessage("TestEntity with id '*' not found*nothing to restore*QueryOptions.WithDeleted*");
     }
 
     [Fact]

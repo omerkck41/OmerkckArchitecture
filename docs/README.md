@@ -13,6 +13,8 @@ the transaction commits.
 ## Reference
 
 - [Provider guides](providers/README.md) — one guide per area (persistence, caching, security, messaging, ...)
+- [Persistence: Kck compared](persistence-comparison.md) — with EF Core alone, a hand-written layer, ABP and
+  Ardalis.Specification
 - [Architecture decision records](adr/README.md) — why the framework is built the way it is
 - [Configuration schema](configuration-schema.md) — the `Kck:*` configuration keys
 - API reference — generated from the source, in the site's top navigation

@@ -5,7 +5,7 @@ namespace ReadmeSnippets.DocsProvidersPersistence_5;
 using Kck.Persistence.Abstractions.Repositories;
 using Kck.Persistence.Abstractions.UnitOfWork;
 
-#line 136 "docs/providers/persistence.md"
+#line 164 "docs/providers/persistence.md"
 public sealed class OrderQueries(IUnitOfWork uow)
 {
     private readonly IRepository<Order, Guid> _orders = uow.Repository<Order, Guid>();

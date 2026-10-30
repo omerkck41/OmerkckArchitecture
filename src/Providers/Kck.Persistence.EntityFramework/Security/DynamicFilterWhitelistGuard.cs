@@ -25,12 +25,15 @@ public static class DynamicFilterWhitelistGuard
             ValidateField(sort.Field, whitelist);
     }
 
+    // A node with child filters is a group: ToDynamic combines the children and never reads the group's own field, so
+    // only the children are checked (a group usually has an empty field).
     private static void ValidateFilter<T>(Filter filter, IFilterPropertyWhitelist<T> whitelist)
     {
-        ValidateField(filter.Field, whitelist);
-
         if (filter.Filters is null)
+        {
+            ValidateField(filter.Field, whitelist);
             return;
+        }
 
         foreach (var nested in filter.Filters)
             ValidateFilter(nested, whitelist);
