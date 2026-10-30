@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1793399259753,
+  "lastUpdate": 1793400145331,
   "repoUrl": "https://github.com/omerkck41/OmerkckArchitecture",
   "entries": {
     "Benchmark": [
@@ -13870,6 +13870,102 @@ window.BENCHMARK_DATA = {
             "value": 10.127515187220913,
             "unit": "ns",
             "range": "± 0.09268006794827019"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "106805727+omerkck41@users.noreply.github.com",
+            "name": "Ömer KÜÇÜK",
+            "username": "omerkck41"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "70f37586ba50bb909e37ce95da521e0000686827",
+          "message": "docs(changelog): 4.7.0 release notes (#274)\n\n## Summary\nRelease preparation for **4.7.0**, the single release at the end of the\nDX + Persistence plan\n(`docs/plans/2026-10-30-dx-hero-module-plan.md`, F2–F5). `[Unreleased]`\n→ `[4.7.0] — 2026-10-31`, and the analyzer\nrules KCK1001 / KCK1002 move from `AnalyzerReleases.Unshipped.md` to\n`AnalyzerReleases.Shipped.md` (release 4.7.0).\n\nIncluded since 4.6.0: #264, #265 (docs compiled and aligned with the\nAPI), #266, #267 (library defects, options that\nhad no effect), #268 (docfx link gate, package READMEs compiled), #269\n(persistence comparison), #271 (analyzers\nKCK1001 / KCK1002, ADR-0031; also carries #270: `Kck.Sample.Orders`,\nJSON dynamic query fixes), #272 (AddDbContextFactory\nguidance, clearer persistence errors), #273 (feedback forms, Edit this\npage links).\n\nMinor version: additive API plus the behaviour changes listed in the\nCHANGELOG (KCK1001 is a warning — builds that\ntreat warnings as errors and commit directly while using domain events\nwill fail after the upgrade). Package\nvalidation against 4.6.0 is green on every PR. The tag is pushed after\nthis merges, with the maintainer's go-ahead; the\nnuget.org publish waits for maintainer approval in the `nuget`\nenvironment. After the release: baseline → 4.7.0.\n\n## Test plan\n- [x] `dotnet build -c Release` on main + this change — 0 errors (5\npre-existing CA1716 warnings)\n- [x] `dotnet test -c Release --filter \"Category!=Integration\"` — all 40\ntest projects pass\n- [x] Analyzer release tracking (RS2008) accepts the Shipped / Unshipped\nfiles\n- [x] `docs_language.py` 0 problems\n- [ ] CI\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-authored-by: Claude Opus 5.5 <noreply@anthropic.com>",
+          "timestamp": "2026-10-30T22:31:16Z",
+          "tree_id": "159deed1b9e7e95b9953d1ba297a495ddc5465ef",
+          "url": "https://github.com/omerkck41/OmerkckArchitecture/commit/70f37586ba50bb909e37ce95da521e0000686827"
+        },
+        "date": 1793400144322,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Success_Factory",
+            "value": 3.852558666633235,
+            "unit": "ns",
+            "range": "± 0.22831736285005452"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Failure_Factory",
+            "value": 5.303881189990334,
+            "unit": "ns",
+            "range": "± 0.2658219047832366"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Success",
+            "value": 0.5242909991315433,
+            "unit": "ns",
+            "range": "± 0.03684351637326942"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Failure",
+            "value": 0.4927664761032377,
+            "unit": "ns",
+            "range": "± 0.04611412606434948"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Serialize_Reflection",
+            "value": 249.6624816507101,
+            "unit": "ns",
+            "range": "± 4.896959416703927"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Deserialize_Reflection",
+            "value": 443.16966918536593,
+            "unit": "ns",
+            "range": "± 7.329195081892101"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 0)",
+            "value": 6.690328567674974,
+            "unit": "ns",
+            "range": "± 0.47231580027430387"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 5)",
+            "value": 6.51382977811687,
+            "unit": "ns",
+            "range": "± 0.4652176335453021"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 0)",
+            "value": 6.616803365849679,
+            "unit": "ns",
+            "range": "± 0.499479270295854"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 5)",
+            "value": 6.460827417356867,
+            "unit": "ns",
+            "range": "± 0.4248435620053471"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 0)",
+            "value": 6.160760763769198,
+            "unit": "ns",
+            "range": "± 0.5004883445237238"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 5)",
+            "value": 6.300999346451881,
+            "unit": "ns",
+            "range": "± 0.4384051010553328"
           }
         ]
       }
