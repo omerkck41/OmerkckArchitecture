@@ -9,6 +9,19 @@ Modular, extensible .NET framework organized around an **Abstractions → Provid
 
 ## Quick Start
 
+### Fastest start: the template
+
+```bash
+dotnet new install Kck.Templates
+dotnet new kck-webapi -n Shop && cd Shop
+dotnet run --project src/Shop.Api   # API reference at /scalar, health at /health/ready
+dotnet test
+```
+
+A solution on SQLite with nothing to set up: EF Core persistence with soft delete, audit fields and domain events
+dispatched after commit, an order sample, JWT bearer authentication and integration tests
+([what's inside](src/Kck.Templates/README.md)).
+
 ### Web API (ASP.NET Core, full Bundle)
 
 ```bash
@@ -34,7 +47,7 @@ app.MapGet("/", () => Results.Ok("Hello from Kck!"));
 app.Run();
 ```
 
-> Tam ornek: [`samples/Kck.Sample.WebApi`](samples/Kck.Sample.WebApi)
+> Full sample: [`samples/Kck.Sample.WebApi`](samples/Kck.Sample.WebApi)
 
 ### Minimal API (Slim, only what you need)
 
@@ -65,7 +78,7 @@ app.MapPost("/users", async (CreateUserCommand cmd, IMediator mediator) =>
 app.Run();
 ```
 
-> Tam ornek: [`samples/Kck.Sample.MinimalApi`](samples/Kck.Sample.MinimalApi)
+> Full sample: [`samples/Kck.Sample.MinimalApi`](samples/Kck.Sample.MinimalApi)
 
 ### Worker Service (background jobs, no HTTP)
 
@@ -86,44 +99,44 @@ await host.Services.GetRequiredService<IJobScheduler>()
 await host.RunAsync();
 ```
 
-> Tam ornek: [`samples/Kck.Sample.WorkerService`](samples/Kck.Sample.WorkerService)
+> Full sample: [`samples/Kck.Sample.WorkerService`](samples/Kck.Sample.WorkerService)
 
 ### Target Frameworks
 
-| Paket Sinifi | TFM |
+| Packages | TFM |
 |---|---|
-| Tüm paketler | `net10.0` |
+| All packages | `net10.0` |
 
-Kütüphane yalnızca `net10.0` ve üzerini hedefler (ADR-0019). Detay: [ADR-0019](docs/adr/0019-drop-net8-target.md).
+The library targets `net10.0` and later only ([ADR-0019](docs/adr/0019-drop-net8-target.md)).
 
 ## Why Kck?
 
-Kck, ABP'den **daha hafif**, FastEndpoints'ten **daha kapsamli**, Aspire'a **uyumlu** olmayi hedefler:
+Kck aims to be **lighter** than ABP, **broader** than FastEndpoints, and **compatible** with Aspire:
 
-| Konu | Kck | ABP Framework | FastEndpoints | Microsoft .NET Aspire |
+| Topic | Kck | ABP Framework | FastEndpoints | Microsoft .NET Aspire |
 |---|---|---|---|---|
-| **Lisans** | MIT | LGPL (Pro: ucretli) | MIT | MIT |
-| **Yaklasim** | Modular, opt-in | Tum-in-bir, opinionated | Endpoint-only | Orchestration |
-| **DI Konvansiyonu** | `Microsoft.Extensions.*` native | ABP DI extension'lari | `Microsoft.Extensions.*` | `Microsoft.Extensions.*` |
-| **Source-gen / Proxy** | Yok (saf C#) | Cok (UoW interceptor, dynamic proxy) | Yok | Yok |
-| **TFM Destegi** | net10.0 | net8 + net9 | net8 + net9 + net10 | net8 + net9 + net10 |
-| **AOT-uyumu** | Kismen (abstraction'lar + Mediator, InMemory cache/event bus/feature flags, Argon2, TOTP, JWT, Localization(.Json), Polly, Http.Resilience; CI'da native AOT smoke) | Hayir | Evet | Evet |
-| **Provider Sayisi** | 30+ resmi | 15+ resmi (Pro) | N/A | N/A (orchestration) |
-| **Battery-included** | Opt-in modullerle | Tum-in-bir | Sadece HTTP | Yok |
-| **Source-Link + Symbols** | Var | Var | Var | Var |
-| **Ogrenme Egrisi** | Dusuk-Orta | Yuksek | Dusuk | Orta |
+| **Licence** | MIT | LGPL (Pro: paid) | MIT | MIT |
+| **Approach** | Modular, opt-in | All-in-one, opinionated | Endpoint-only | Orchestration |
+| **DI conventions** | `Microsoft.Extensions.*` native | ABP DI extensions | `Microsoft.Extensions.*` | `Microsoft.Extensions.*` |
+| **Source generation / proxies** | None (plain C#) | Many (UoW interceptor, dynamic proxy) | None | None |
+| **Target frameworks** | net10.0 | net8 + net9 | net8 + net9 + net10 | net8 + net9 + net10 |
+| **Native AOT** | Partly (abstractions + Mediator, in-memory cache / event bus / feature flags, Argon2, TOTP, JWT, Localization(.Json), Polly, Http.Resilience; native AOT smoke in CI) | No | Yes | Yes |
+| **Providers** | 30+ official | 15+ official (Pro) | N/A | N/A (orchestration) |
+| **Batteries included** | Through opt-in modules | All-in-one | HTTP only | None |
+| **Source Link + symbols** | Yes | Yes | Yes | Yes |
+| **Learning curve** | Low to medium | High | Low | Medium |
 
-**Kck'i secmen gerekiyorsa eger:**
-- ASP.NET Core'a sadik kalmak istiyorsan (DI, options, hosting konvansiyonlari)
-- Modul modul ekleme/cikarma yetkisi istiyorsan (ABP'nin "her sey otomatik" yaklasimini istemeyen)
-- Source-gen veya runtime proxy magic'inden kaciniyorsan (debug edilebilirlik onemliyse)
-- Modern .NET 10 API'larını (AOT, `Guid.CreateVersion7()`) tam destekleyen framework istiyorsan
-- 9+ ADR + 17 provider doc + 0 warning build hijiyenine deger veriyorsan
+**Choose Kck if you:**
+- want to stay close to ASP.NET Core (DI, options, hosting conventions);
+- want to add and remove modules one by one rather than ABP's "everything automatic" approach;
+- avoid source-generation or runtime-proxy magic (debuggability matters);
+- want a framework built for modern .NET 10 APIs (AOT, `Guid.CreateVersion7()`);
+- value ADRs, per-provider guides and a zero-warning build.
 
-**Kck'i secmemen gerekiyorsa:**
-- "Tek paket kurar tum ihtiyacim biter" istiyorsan → ABP
-- Yalniz HTTP endpoint API yaziyorsan → FastEndpoints daha hafif
-- Microservice orchestration istiyorsan → Aspire (Kck ile birlikte de calisir)
+**Choose something else if you:**
+- want one package that covers everything → ABP;
+- only write HTTP endpoint APIs → FastEndpoints is lighter;
+- need microservice orchestration → Aspire (it also works together with Kck).
 
 ## Modules
 
@@ -172,33 +185,37 @@ Kck, ABP'den **daha hafif**, FastEndpoints'ten **daha kapsamli**, Aspire'a **uyu
 | Security | `Kck.Security.Argon2`, `Kck.Security.Jwt`, `Kck.Security.Totp`, `Kck.Security.TokenBlacklist.Redis`, `Kck.Security.Secrets.UserSecrets`, `Kck.Security.Secrets.AzureKeyVault` |
 | Web | `Kck.AspNetCore` |
 
-> **Background Jobs ipucu:** Hangfire ve Quartz **alternatif**tir, beraber kullanilmasi onerilmez. Hangfire dashboard ve persistent storage ihtiyaciniz varsa onu, daha hafif cron + DI entegrasyonu istiyorsaniz Quartz'i secin. Ikisi birden bagimliliklarinizi gereksiz sisirir (~5MB+ assembly farki).
+> **Background jobs:** Hangfire and Quartz are **alternatives**; using both is not recommended. Choose Hangfire if you
+> need its dashboard and persistent storage, Quartz for lighter cron scheduling with DI integration. Both together
+> enlarge your dependencies for nothing (~5 MB+ of assemblies).
 
 ### Bundles
 
 | Bundle | Contents |
 |---|---|
-| `Kck.Bundle.WebApi` | Opinionated ASP.NET Core stack: Mediator pipeline, exception handler, Serilog, OpenTelemetry, JWT |
+| `Kck.Bundle.WebApi` | ASP.NET Core defaults: Serilog, ProblemDetails exception handling, in-memory caching, in-memory event bus, Argon2, health checks, rate limiting, security headers, CORS from configuration; JWT token service when `Kck:Security:Jwt` is set |
 | `Kck.Bundle.MinimalApi` | Slim ASP.NET Core stack: exception handler, caching, JWT, Serilog, OpenTelemetry |
-| `Kck.Bundle.WorkerService` | Worker/daemon stack: Serilog, OpenTelemetry, EventBus, Hangfire + Quartz |
+| `Kck.Bundle.WorkerService` | Worker/daemon stack: Serilog, OpenTelemetry, in-memory event bus, Quartz |
 
 ## Samples
 
-- [`samples/Kck.Sample.WebApi`](samples/Kck.Sample.WebApi) — Full WebApi sample with RabbitMQ, Redis, EF Core
-- [`samples/Kck.Sample.MinimalApi`](samples/Kck.Sample.MinimalApi) — Minimal API with Bundle.WebApi
-- [`samples/Kck.Sample.WorkerService`](samples/Kck.Sample.WorkerService) — Hangfire + Quartz hosted jobs
+- `dotnet new kck-webapi` — the fastest start: an API solution with persistence, domain events, JWT and tests
+  ([Kck.Templates](src/Kck.Templates/README.md))
+- [`samples/Kck.Sample.WebApi`](samples/Kck.Sample.WebApi) — WebApi sample with RabbitMQ, Redis, EF Core
+- [`samples/Kck.Sample.MinimalApi`](samples/Kck.Sample.MinimalApi) — Minimal API sample
+- [`samples/Kck.Sample.WorkerService`](samples/Kck.Sample.WorkerService) — Quartz hosted jobs
 
 ## Testing
 
 ```bash
-# Unit testler (Docker gerektirmez, Windows + Ubuntu hepsi):
+# Unit tests (no Docker needed; Windows and Linux):
 dotnet test --filter "Category!=Integration"
 
-# Integration testler (Docker Desktop gerekir):
+# Integration tests (Docker needed):
 dotnet test --filter "Category=Integration"
 ```
 
-Detay: [`docs/test-strategy.md`](docs/test-strategy.md) ve [`docs/policies/test-coverage.md`](docs/policies/test-coverage.md)
+More: [`docs/test-strategy.md`](docs/test-strategy.md) and [`docs/policies/test-coverage.md`](docs/policies/test-coverage.md)
 
 ## Documentation
 
@@ -222,13 +239,13 @@ dotnet test -c Release --no-build
 dotnet run -c Release --project tests/Kck.Benchmarks
 ```
 
-BenchmarkDotNet `--filter` ile spesifik benchmark calistir:
+Run a single benchmark with BenchmarkDotNet's `--filter`:
 
 ```bash
 dotnet run -c Release --project tests/Kck.Benchmarks -- --filter "*Paginate*"
 ```
 
-> Sadece Release konfigurasyonunda anlamli sonuc verir; Debug uyari ile kosur.
+> Results are meaningful only in Release; a Debug run prints a warning.
 
 ## Contributing
 

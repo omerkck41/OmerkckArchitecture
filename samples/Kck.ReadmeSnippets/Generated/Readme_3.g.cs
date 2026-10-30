@@ -7,7 +7,7 @@ internal static class Snippet
 {
     internal static async Task RunAsync(string[] args)
     {
-#line 77 "README.md"
+#line 90 "README.md"
 var builder = Host.CreateApplicationBuilder(args);
 
 // Serilog + OpenTelemetry + InMemory event bus + Quartz.NET scheduler
