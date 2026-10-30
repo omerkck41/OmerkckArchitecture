@@ -23,19 +23,11 @@ log = logging.getLogger("readme-snippets")
 REPO = Path(__file__).resolve().parents[2]
 OUTPUT = REPO / "samples" / "Kck.ReadmeSnippets" / "Generated"
 
-# Bundles and the most downloaded packages first (roadmap H21).
-README_FILES = [
-    "README.md",
-    "src/Bundles/Kck.Bundle.WebApi/README.nuget.md",
-    "src/Bundles/Kck.Bundle.MinimalApi/README.nuget.md",
-    "src/Bundles/Kck.Bundle.WorkerService/README.nuget.md",
-    "src/Abstractions/Kck.Persistence.Abstractions/README.nuget.md",
-    "src/Providers/Kck.Persistence.EntityFramework/README.nuget.md",
-    "src/Providers/Kck.Pipeline.Mediator/README.nuget.md",
-    "src/Providers/Kck.Caching.InMemory/README.nuget.md",
-    "src/Providers/Kck.EventBus.InMemory/README.nuget.md",
-    "src/Providers/Kck.EventBus.RabbitMq/README.nuget.md",
-]
+# The repository README and every package README shipped to nuget.org (roadmap H21, plan G2.7); the template's own
+# content is compiled by the template smoke test instead.
+README_FILES = ["README.md"]
+PACKAGE_READMES = "src/**/README.nuget.md"
+PACKAGE_READMES_EXCLUDED = ("src/Kck.Templates/content/",)
 
 # Published guides (plan G2.1 b). ADRs are immutable records of the API at decision time and are not compiled.
 DOCS_ROOT = "docs"
@@ -209,9 +201,12 @@ def _next_is_declaration(body: list[str], index: int) -> bool:
 
 
 def source_files(root: Path = REPO) -> list[str]:
-    """The README files plus every published guide under docs/ (repository-relative, POSIX)."""
+    """The README files, every package README and every published guide under docs/ (repository-relative, POSIX)."""
+    packages = sorted(p.relative_to(root).as_posix() for p in root.glob(PACKAGE_READMES))
     guides = sorted(p.relative_to(root).as_posix() for p in (root / DOCS_ROOT).rglob("*.md"))
-    return README_FILES + [g for g in guides if not g.startswith(DOCS_EXCLUDED)]
+    return (README_FILES
+            + [r for r in packages if not r.startswith(PACKAGE_READMES_EXCLUDED)]
+            + [g for g in guides if not g.startswith(DOCS_EXCLUDED)])
 
 
 def all_blocks(root: Path = REPO) -> list[Block]:

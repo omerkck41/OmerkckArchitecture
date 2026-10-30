@@ -1,6 +1,7 @@
 # Kck.Hosting.Aspire
 
-.NET Aspire service defaults integration for Kck applications — wires OpenTelemetry, health checks, and service discovery in a single call.
+.NET Aspire integration for Kck applications: `AddKckServiceDefaults()` adds Aspire service discovery (also for every
+`HttpClient`) and the health check services in a single call. Add OpenTelemetry with `Kck.Observability.OpenTelemetry`.
 
 ## Installation
 
@@ -14,22 +15,16 @@ dotnet add package Kck.Hosting.Aspire
 // Program.cs
 var builder = WebApplication.CreateBuilder(args);
 
-// Registers OpenTelemetry tracing/metrics, health checks, and Aspire service discovery
+// Adds Aspire service discovery (also for every HttpClient) and the health check services
 builder.AddKckServiceDefaults();
 
 var app = builder.Build();
-app.MapDefaultEndpoints(); // /health, /alive
+app.MapHealthChecks("/health");
 app.Run();
 ```
 
-## Configuration
-
-| Property | Description | Default |
-|---|---|---|
-| `ServiceName` | OTEL service name override | assembly name |
-| `EnableMetrics` | Register OpenTelemetry metrics | `true` |
-| `EnableTracing` | Register OpenTelemetry distributed tracing | `true` |
-| `HealthCheckPath` | Health check endpoint path | `"/health"` |
+`AddKckServiceDefaults()` has no options. Map the health endpoint yourself (`app.MapHealthChecks(...)`, or
+`MapKckHealthChecks()` from Kck.Observability.OpenTelemetry for liveness/readiness probes).
 
 ## Resources
 

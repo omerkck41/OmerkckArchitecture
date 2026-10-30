@@ -1,0 +1,74 @@
+- name: Overview
+  href: README.md
+- name: Get started
+  href: getting-started/README.md
+- name: Provider guides
+  items:
+    - name: Overview
+      href: providers/README.md
+    - name: Persistence
+      href: providers/persistence.md
+    - name: Web (ASP.NET Core)
+      href: providers/aspnetcore.md
+    - name: Background jobs
+      href: providers/background-jobs.md
+    - name: Caching
+      href: providers/caching.md
+    - name: Documents
+      href: providers/documents.md
+    - name: Event bus
+      href: providers/event-bus.md
+    - name: Exceptions
+      href: providers/exceptions.md
+    - name: Feature flags
+      href: providers/feature-flags.md
+    - name: File storage
+      href: providers/file-storage.md
+    - name: HTTP resilience
+      href: providers/http.md
+    - name: Localization
+      href: providers/localization.md
+    - name: Logging
+      href: providers/logging.md
+    - name: Messaging
+      href: providers/messaging.md
+    - name: Observability
+      href: providers/observability.md
+    - name: Pipeline (Mediator)
+      href: providers/pipeline.md
+    - name: Search
+      href: providers/search.md
+    - name: Security
+      href: providers/security.md
+- name: Configuration
+  href: configuration-schema.md
+- name: FAQ
+  href: faq.md
+- name: Migration guides
+  items:
+    - name: Overview
+      href: migrations/README.md
+    - name: v3 to v4
+      href: migrations/v3-to-v4.md
+    - name: MediatR to Mediator
+      href: migrations/mediatR-to-mediator.md
+    - name: Entity hierarchy (v3)
+      href: migrations/entity-hierarchy-v3.md
+- name: Policies
+  items:
+    - name: Versioning
+      href: policies/versioning.md
+    - name: Deprecation
+      href: policies/deprecation.md
+    - name: Support
+      href: policies/support.md
+    - name: Test coverage
+      href: policies/test-coverage.md
+    - name: Adoption metrics
+      href: policies/adoption-metrics.md
+    - name: Test strategy
+      href: test-strategy.md
+    - name: Licensing
+      href: licensing.md
+- name: Architecture decisions
+  href: adr/README.md

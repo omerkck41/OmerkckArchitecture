@@ -11,19 +11,25 @@ dotnet add package Kck.Messaging.SendGrid
 ## Quick Start
 
 ```csharp
+using Kck.Messaging.Abstractions;
+
 // Program.cs
 builder.Services.AddKckMessagingSendGrid(options =>
-{
-    options.ApiKey = Environment.GetEnvironmentVariable("SENDGRID_API_KEY")!;
-    options.FromAddress = "noreply@myapp.com";
-    options.FromName = "My App";
-});
+    options.ApiKey = Environment.GetEnvironmentVariable("SENDGRID_API_KEY")!);
 
-// Send email
-public class InvoiceService(IEmailService email)
+// Send through IEmailProvider (the sender address is part of each message)
+public class InvoiceMailer(IEmailProvider email)
 {
-    public async Task SendInvoiceAsync(string to, string html, CancellationToken ct)
-        => await email.SendAsync(to, "Your invoice", html, ct);
+    public Task SendAsync(string to, string subject, string html, CancellationToken ct) =>
+        email.SendAsync(new EmailMessage
+        {
+            From = "noreply@myapp.com",
+            FromName = "My App",
+            Recipients = [new EmailRecipient(to)],
+            Subject = subject,
+            Body = html,
+            IsHtml = true
+        }, ct);
 }
 ```
 
@@ -32,9 +38,8 @@ public class InvoiceService(IEmailService email)
 | Property | Description | Default |
 |---|---|---|
 | `ApiKey` | SendGrid API key | required |
-| `FromAddress` | Default sender email address | required |
-| `FromName` | Display name for the sender | `null` |
-| `SandboxMode` | Enable SendGrid sandbox (no actual delivery) | `false` |
+
+The sender is set per message (`EmailMessage.From`, `FromName`).
 
 ## Resources
 

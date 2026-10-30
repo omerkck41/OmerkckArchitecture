@@ -11,18 +11,21 @@ dotnet add package Kck.Security.Secrets.AzureKeyVault
 ## Quick Start
 
 ```csharp
-// Program.cs
+using Kck.Security.Abstractions.Secrets;
+
+// Program.cs - DefaultAzureCredential (Managed Identity, Azure CLI, environment)
 builder.Services.AddKckAzureKeyVault(options =>
 {
     options.VaultUri = "https://myvault.vault.azure.net/";
-    options.SecretPrefix = "myapp--";
+    options.SecretPrefix = "myapp";   // keys become "myapp-<key>"; Key Vault names allow letters, digits and dashes
 });
 
 // Inject and use
 public class DatabaseService(ISecretsManager secrets)
 {
-    public async Task<string> GetConnectionStringAsync(CancellationToken ct)
-        => await secrets.GetSecretAsync("ConnectionStrings--Default", ct);
+    public async Task<string> GetConnectionStringAsync(CancellationToken ct) =>
+        await secrets.GetSecretAsync("ConnectionStrings-Default", ct)
+        ?? throw new InvalidOperationException("Secret ConnectionStrings-Default is not set.");
 }
 ```
 
@@ -30,9 +33,10 @@ public class DatabaseService(ISecretsManager secrets)
 
 | Property | Description | Default |
 |---|---|---|
-| `VaultUri` | Azure Key Vault URI | required |
-| `SecretPrefix` | Prefix filter for secret names | `""` |
-| `CacheDuration` | How long secrets are cached locally | `TimeSpan.FromMinutes(10)` |
+| `VaultUri` | Key Vault URI | required |
+| `SecretPrefix` | Prefix: key `k` reads secret `{SecretPrefix}-k` | `null` |
+
+Authentication uses `DefaultAzureCredential`. Key Vault secret names allow letters, digits and dashes.
 
 ## Resources
 

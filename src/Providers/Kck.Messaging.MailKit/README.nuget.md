@@ -11,22 +11,31 @@ dotnet add package Kck.Messaging.MailKit
 ## Quick Start
 
 ```csharp
+using Kck.Messaging.Abstractions;
+
 // Program.cs
 builder.Services.AddKckMessagingMailKit(options =>
 {
     options.Host = "smtp.example.com";
     options.Port = 587;
-    options.UseSsl = false; // STARTTLS
-    options.UserName = Environment.GetEnvironmentVariable("SMTP_USER")!;
-    options.Password = Environment.GetEnvironmentVariable("SMTP_PASSWORD")!;
-    options.FromAddress = "noreply@myapp.com";
+    options.UseSsl = true;
+    options.UserName = Environment.GetEnvironmentVariable("SMTP_USER");
+    options.Password = Environment.GetEnvironmentVariable("SMTP_PASSWORD");
 });
 
-// Send email
-public class PasswordService(IEmailService email)
+// Send through IEmailProvider (the sender address is part of each message)
+public class PasswordResetMailer(IEmailProvider email)
 {
-    public async Task SendResetAsync(string to, string link, CancellationToken ct)
-        => await email.SendAsync(to, "Reset your password", $"<a href='{link}'>Reset</a>", ct);
+    public Task SendAsync(string to, string subject, string html, CancellationToken ct) =>
+        email.SendAsync(new EmailMessage
+        {
+            From = "noreply@myapp.com",
+            FromName = "My App",
+            Recipients = [new EmailRecipient(to)],
+            Subject = subject,
+            Body = html,
+            IsHtml = true
+        }, ct);
 }
 ```
 
@@ -34,12 +43,14 @@ public class PasswordService(IEmailService email)
 
 | Property | Description | Default |
 |---|---|---|
-| `Host` | SMTP server hostname | required |
-| `Port` | SMTP server port | `587` |
-| `UseSsl` | Use implicit TLS (port 465) | `false` |
-| `UserName` | SMTP authentication username | required |
-| `Password` | SMTP authentication password | required |
-| `FromAddress` | Default sender email address | required |
+| `Host` | SMTP server | required |
+| `Port` | SMTP port | `587` |
+| `UseSsl` | Require SSL/TLS | `true` |
+| `UserName` | SMTP user; `null` for an unauthenticated relay | `null` |
+| `Password` | SMTP password | `null` |
+| `PoolSize` | SMTP connections kept in the pool | `5` |
+
+The sender is set per message (`EmailMessage.From`).
 
 ## Resources
 

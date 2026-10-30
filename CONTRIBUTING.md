@@ -78,7 +78,7 @@ IOptionsMonitor<T> instead of IOptions<T>. Migration: see ADR-0004.
 ## Security
 
 Do **not** open public issues for security vulnerabilities. Follow the
-responsible disclosure process in [SECURITY.md](SECURITY.md).
+responsible disclosure process in [SECURITY.md](https://github.com/omerkck41/OmerkckArchitecture/blob/main/SECURITY.md).
 
 ## Code style
 

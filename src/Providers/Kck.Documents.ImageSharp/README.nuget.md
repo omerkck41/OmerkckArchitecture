@@ -16,26 +16,24 @@ dotnet add package Kck.Documents.ImageSharp
 ## Quick Start
 
 ```csharp
+using Kck.Documents.Abstractions;
+
 // Program.cs
 builder.Services.AddKckDocumentsImageSharp();
 
-// Resize and convert
-public class ImageController(IImageProcessor images)
+// Resize and convert an uploaded image
+app.MapPost("/thumbnail", async (IFormFile file, IImageProcessor images, CancellationToken ct) =>
 {
-    [HttpPost("thumbnail")]
-    public async Task<IActionResult> Thumbnail(IFormFile file, CancellationToken ct)
+    await using var input = file.OpenReadStream();
+    var webp = await images.ResizeAsync(input, new ImageProcessingOptions
     {
-        await using var input = file.OpenReadStream();
-        var result = await images.ResizeAsync(input, new ImageProcessingOptions
-        {
-            Width = 200,
-            Height = 200,
-            OutputFormat = "webp",
-            Quality = 85
-        }, ct);
-        return File(result, "image/webp");
-    }
-}
+        Width = 200,
+        Height = 200,
+        OutputFormat = "webp",
+        Quality = 85
+    }, ct);
+    return Results.File(webp, "image/webp");
+}).DisableAntiforgery();
 ```
 
 ## Options (`ImageProcessingOptions`)

@@ -11,28 +11,30 @@ dotnet add package Kck.Pipeline.Abstractions
 ## Quick Start
 
 ```csharp
-// 1. Define a query that opts into caching
-public record GetProductQuery(int ProductId)
-    : IRequest<Product?>, ICachableRequest
+using Kck.Pipeline.Abstractions;
+using Mediator;
+
+// 1. A query that opts into caching
+public sealed record GetProductQuery(int ProductId) : IQuery<Product?>, ICachableRequest
 {
-    public string CacheKey     => $"product:{ProductId}";
-    public TimeSpan? CacheTtl  => TimeSpan.FromMinutes(10);
-    public bool BypassCache    => false;
+    public string CacheKey => $"product:{ProductId}";
+    public bool BypassCache => false;
+    public string? CacheGroupKey => "products";
+    public TimeSpan? SlidingExpiration => TimeSpan.FromMinutes(10);
 }
 
-// 2. Define a command that requires authorization + transaction
-public record PlaceOrderCommand(Guid CustomerId, List<OrderLine> Lines)
-    : IRequest<Order>, ISecuredRequest, ITransactionalRequest
+// 2. A command that requires a role and runs in a transaction
+public sealed record PlaceOrderCommand(Guid CustomerId, IReadOnlyList<Guid> ProductIds)
+    : ICommand<Guid>, ISecuredRequest, ITransactionalRequest
 {
-    public string[] RequiredPermissions => ["orders.create"];
+    public string[] Roles => ["customer"];
 }
 
-// 3. Define a query that should be logged
-public record GetAuditLogQuery(Guid EntityId)
-    : IRequest<IReadOnlyList<AuditEntry>>, ILoggableRequest;
+// 3. A command that is logged
+public sealed record CancelOrderCommand(Guid OrderId) : ICommand, ILoggableRequest;
 
-// The behaviors (registered by bundle packages) intercept the pipeline automatically.
-// No handler code changes needed.
+// The Kck.Pipeline.Mediator behaviors (AddKckMediatorPipeline) act on these markers; requests without a marker skip
+// the matching behavior.
 ```
 
 ## Configuration

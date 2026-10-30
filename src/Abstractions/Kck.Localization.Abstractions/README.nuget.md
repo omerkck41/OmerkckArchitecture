@@ -11,33 +11,27 @@ dotnet add package Kck.Localization.Abstractions
 ## Quick Start
 
 ```csharp
-// Program.cs — register a concrete provider (e.g. Kck.Localization.Json)
-builder.Services.AddKckJsonLocalization(options =>
+using Kck.Localization.Abstractions;
+
+// Program.cs — the service and a resource provider (Kck.Localization.Json or .Yaml)
+builder.Services.AddKckLocalization(options =>
 {
-    options.ResourcePath = "Resources";
+    options.ResourcePath = "Resources";   // Resources/en.json, Resources/tr.json ...
     options.DefaultCulture = "en";
 });
+builder.Services.AddKckLocalizationJson();
 
-// Use ILocalizationService in a handler or middleware
+// Use ILocalizationService in a handler
 public class NotificationHandler(ILocalizationService localizer)
 {
-    public async Task<string> GetWelcomeMessageAsync(
-        string userId, string culture, CancellationToken ct)
-    {
-        // Simple key lookup
-        return await localizer.GetStringAsync("welcome.message", culture, ct);
-    }
+    public Task<string> WelcomeAsync(string culture, CancellationToken ct) =>
+        localizer.GetStringAsync("welcome.message", culture, ct);
 
-    public async Task<string> GetFormattedMessageAsync(
-        string key, string culture, object[] args, CancellationToken ct)
-    {
-        // Parameterized lookup — {0}, {1} substituted from args
-        return await localizer.GetStringAsync(key, culture, args, ct);
-    }
+    public Task<string> GreetAsync(string name, string culture, CancellationToken ct) =>
+        localizer.GetStringAsync("greeting", culture, [name], ct);   // "Hello {0}"
+
+    public Task ReloadAsync(CancellationToken ct) => localizer.ReloadAsync(ct); // pick up changed files
 }
-
-// Force reload of resource files (e.g. after hot-update)
-await localizer.ReloadAsync(ct);
 ```
 
 ## Configuration

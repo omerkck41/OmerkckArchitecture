@@ -11,28 +11,27 @@ dotnet add package Kck.Security.Secrets.UserSecrets
 ## Quick Start
 
 ```csharp
-// Program.cs
+using Kck.Security.Abstractions.Secrets;
+
+// Program.cs - reads IConfiguration (user secrets, environment variables, appsettings); read-only
 builder.Services.AddKckUserSecrets();
 
-// Initialize user secrets in project (one-time)
+// Initialize user secrets in the project (one-time)
 // dotnet user-secrets init
-// dotnet user-secrets set "Database:Password" "dev-password"
+// dotnet user-secrets set "ConnectionStrings:Default" "Host=localhost;..."
 
 // Inject and use
-public class DevSetupService(ISecretsManager secrets)
+public class DatabaseService(ISecretsManager secrets)
 {
-    public async Task<string> GetDbPasswordAsync(CancellationToken ct)
-        => await secrets.GetSecretAsync("Database:Password", ct);
+    public async Task<string> GetConnectionStringAsync(CancellationToken ct) =>
+        await secrets.GetSecretAsync("ConnectionStrings:Default", ct)
+        ?? throw new InvalidOperationException("Secret ConnectionStrings:Default is not set.");
 }
 ```
 
 ## Configuration
 
-User secrets are stored in the OS user profile directory and are loaded automatically by `AddKckUserSecrets()` in development environments.
-
-| Property | Description | Default |
-|---|---|---|
-| `UserSecretsId` | Project user secrets ID | from `.csproj` |
+No options. `AddKckUserSecrets()` registers a read-only `ISecretsManager` over `IConfiguration` (user secrets, environment variables, appsettings); `SetSecretAsync` throws `NotSupportedException`.
 
 ## Resources
 

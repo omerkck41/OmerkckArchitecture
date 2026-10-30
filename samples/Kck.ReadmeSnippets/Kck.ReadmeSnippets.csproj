@@ -4,7 +4,7 @@
     .github/scripts/readme_snippets.py from the README files it lists and the published guides; Context/ holds the
     reader's own types a block uses without defining. Only compiler errors matter here: a block is an excerpt, so
     analyzer and style warnings are off. Every provider a guide documents is referenced (Kck.Pipeline.MediatR is
-    deprecated and only shown as "before" code; Kck.Hosting.Aspire has no guide).
+    deprecated and only shown as "before" code).
   -->
   <PropertyGroup>
     <TargetFrameworks>net10.0</TargetFrameworks>
@@ -38,6 +38,7 @@
     <ProjectReference Include="../../src/Providers/Kck.FileStorage.AwsS3/Kck.FileStorage.AwsS3.csproj" />
     <ProjectReference Include="../../src/Providers/Kck.FileStorage.AzureBlob/Kck.FileStorage.AzureBlob.csproj" />
     <ProjectReference Include="../../src/Providers/Kck.FileStorage.FluentFtp/Kck.FileStorage.FluentFtp.csproj" />
+    <ProjectReference Include="../../src/Providers/Kck.Hosting.Aspire/Kck.Hosting.Aspire.csproj" />
     <ProjectReference Include="../../src/Providers/Kck.Http.Resilience/Kck.Http.Resilience.csproj" />
     <ProjectReference Include="../../src/Providers/Kck.Localization/Kck.Localization.csproj" />
     <ProjectReference Include="../../src/Providers/Kck.Localization.Json/Kck.Localization.Json.csproj" />

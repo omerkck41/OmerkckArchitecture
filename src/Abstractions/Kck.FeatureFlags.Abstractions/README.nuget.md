@@ -11,31 +11,24 @@ dotnet add package Kck.FeatureFlags.Abstractions
 ## Quick Start
 
 ```csharp
-// Program.cs — register a concrete provider (e.g. Kck.FeatureFlags.InMemory)
-builder.Services.AddKckInMemoryFeatureFlags(flags =>
+using Kck.FeatureFlags.Abstractions;
+
+// Program.cs — a provider (e.g. Kck.FeatureFlags.InMemory)
+builder.Services.AddKckFeatureFlagsInMemory(flags =>
 {
-    flags.Add("NewCheckout", enabled: true);
-    flags.Add("BetaDashboard", enabled: false);
+    flags.Features["NewCheckout"] = true;
+    flags.Features["BetaDashboard"] = false;
 });
 
-// Use IFeatureFlagService in a controller or handler
-public class CheckoutController(IFeatureFlagService flags)
+// Use IFeatureFlagService anywhere
+public class CheckoutService(IFeatureFlagService flags)
 {
-    [HttpPost("checkout")]
-    public async Task<IActionResult> CheckoutAsync(
-        CheckoutRequest request, CancellationToken ct)
-    {
-        var context = new FeatureContext { UserId = request.UserId };
+    public async Task<string> CheckoutAsync(CancellationToken ct) =>
+        await flags.IsEnabledAsync("NewCheckout", ct) ? "new checkout" : "legacy checkout";
 
-        if (await flags.IsEnabledAsync("NewCheckout", context, ct))
-            return await RunNewCheckoutAsync(request, ct);
-
-        return await RunLegacyCheckoutAsync(request, ct);
-    }
+    public async Task<IReadOnlyList<string>> EnabledFlagsAsync(CancellationToken ct) =>
+        (await flags.GetAllAsync(ct)).Where(f => f.Enabled).Select(f => f.Name).ToList();
 }
-
-// List all defined flags
-var allFlags = await flags.GetAllAsync(ct);
 ```
 
 ## Configuration

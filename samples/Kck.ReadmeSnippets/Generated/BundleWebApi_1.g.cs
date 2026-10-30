@@ -7,7 +7,7 @@ internal static class Snippet
 {
     internal static async Task RunAsync(string[] args)
     {
-#line 14 "src/Bundles/Kck.Bundle.WebApi/README.nuget.md"
+#line 16 "src/Bundles/Kck.Bundle.WebApi/README.nuget.md"
 // Program.cs
 var builder = WebApplication.CreateBuilder(args);
 

@@ -11,24 +11,31 @@ dotnet add package Kck.Security.Jwt
 ## Quick Start
 
 ```csharp
-// Program.cs
+using Kck.Security.Abstractions.Token;
+using Kck.Security.Jwt;
+
+// Program.cs - RS256 with an RSA private key
 builder.Services.AddKckJwt(options =>
 {
     options.Issuer = "https://myapp.com";
     options.Audience = "api://myapp";
     options.AccessTokenExpiration = TimeSpan.FromMinutes(15);
     options.KeySource = RsaKeySource.Configuration;
-    options.RsaKeyBase64 = Environment.GetEnvironmentVariable("JWT_RSA_KEY")!;
+    options.RsaKeyBase64 = Environment.GetEnvironmentVariable("JWT_RSA_KEY"); // PKCS#1 DER, Base64
 });
 
-// Generate and validate tokens
+// Create and validate tokens
 public class AuthService(ITokenService tokens)
 {
-    public async Task<string> LoginAsync(User user, CancellationToken ct)
+    public async Task<string> LoginAsync(Guid userId, string email, CancellationToken ct)
     {
-        var claims = new[] { new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()) };
-        return await tokens.GenerateAsync(claims, ct);
+        TokenResult token = await tokens.CreateAccessTokenAsync(
+            new TokenRequest { UserId = userId.ToString(), Email = email, Roles = ["customer"] }, ct);
+        return token.AccessToken;
     }
+
+    public async Task<bool> IsValidAsync(string token, CancellationToken ct) =>
+        (await tokens.ValidateTokenAsync(token, ct)).IsValid;
 }
 ```
 

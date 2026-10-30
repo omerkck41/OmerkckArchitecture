@@ -2,7 +2,7 @@
 
 Kck is MIT-licensed. Its rule for dependencies: **no dependency may require a paid license**, and the default path a
 consumer takes should be free and permissive. The CI `license-audit` workflow enforces this on every push, pull
-request and weekly schedule. Decision record: [decisions/2026-10-26-license-gate.md](../decisions/2026-10-26-license-gate.md).
+request and weekly schedule. Decision record: [decisions/2026-10-26-license-gate.md](https://github.com/omerkck41/OmerkckArchitecture/blob/main/decisions/2026-10-26-license-gate.md).
 
 ## How the gate works
 
@@ -10,7 +10,7 @@ request and weekly schedule. Decision record: [decisions/2026-10-26-license-gate
 `--locked-mode`) and the local .NET tools of every `dotnet-tools.json` manifest (today `.config/dotnet-tools.json`:
 MinVer, ReportGenerator, dotnet-ef, Stryker, CycloneDX, docfx, dotnet-sonarscanner — restored by `dotnet tool restore`),
 opens each package's nuspec in the NuGet global packages folder and compares its declared license with
-[`.github/license-policy.json`](../.github/license-policy.json). The gate is **fail-closed**: an unknown license, an
+[`.github/license-policy.json`](https://github.com/omerkck41/OmerkckArchitecture/blob/main/.github/license-policy.json). The gate is **fail-closed**: an unknown license, an
 unreadable nuspec (including a tool that was not restored), a missing lock file, a tool without a version or an expired
 exception fails the job. A tool is checked as one package: assemblies it bundles are covered by the tool's own license
 only (accepted risk: CI tools are not shipped to consumers). Workflows use pinned local tools, not

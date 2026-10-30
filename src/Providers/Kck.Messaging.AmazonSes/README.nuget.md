@@ -11,20 +11,28 @@ dotnet add package Kck.Messaging.AmazonSes
 ## Quick Start
 
 ```csharp
+using Kck.Messaging.Abstractions;
+
 // Program.cs
 builder.Services.AddKckMessagingAmazonSes(options =>
 {
     options.Region = "eu-central-1";
-    options.AccessKey = Environment.GetEnvironmentVariable("AWS_ACCESS_KEY")!;
-    options.SecretKey = Environment.GetEnvironmentVariable("AWS_SECRET_KEY")!;
-    options.FromAddress = "noreply@myapp.com";
+    // Leave AccessKey/SecretKey unset to use the default AWS credential chain (IAM role, profile, env).
 });
 
-// Send an email
-public class NotificationService(IEmailService email)
+// Send through IEmailProvider (the sender address is part of each message)
+public class NotificationMailer(IEmailProvider email)
 {
-    public async Task SendWelcomeAsync(string to, CancellationToken ct)
-        => await email.SendAsync(to, "Welcome!", "<h1>Welcome!</h1>", ct);
+    public Task SendAsync(string to, string subject, string html, CancellationToken ct) =>
+        email.SendAsync(new EmailMessage
+        {
+            From = "noreply@myapp.com",
+            FromName = "My App",
+            Recipients = [new EmailRecipient(to)],
+            Subject = subject,
+            Body = html,
+            IsHtml = true
+        }, ct);
 }
 ```
 
@@ -32,10 +40,11 @@ public class NotificationService(IEmailService email)
 
 | Property | Description | Default |
 |---|---|---|
-| `Region` | AWS region for SES | required |
-| `AccessKey` | AWS access key ID | required (or IAM role) |
-| `SecretKey` | AWS secret access key | required (or IAM role) |
-| `FromAddress` | Default sender address | required |
+| `Region` | AWS region of the SES endpoint | required |
+| `AccessKey` | AWS access key; omit to use the default credential chain | `null` |
+| `SecretKey` | AWS secret key paired with `AccessKey` | `null` |
+
+The sender is set per message (`EmailMessage.From`).
 
 ## Resources
 

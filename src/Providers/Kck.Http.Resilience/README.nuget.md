@@ -11,31 +11,39 @@ dotnet add package Kck.Http.Resilience
 ## Quick Start
 
 ```csharp
-// Program.cs
-builder.Services.AddKckResilience("payment-api", pipeline =>
+using Kck.Http.Abstractions;
+
+// Program.cs - IApiClient as a typed HttpClient with the standard resilience handler
+builder.Services.AddKckHttpResilience(options =>
 {
-    pipeline
-        .AddRetry(new HttpRetryStrategyOptions
-        {
-            MaxRetryAttempts = 3,
-            Delay = TimeSpan.FromMilliseconds(500),
-            UseJitter = true
-        })
-        .AddTimeout(TimeSpan.FromSeconds(10));
+    options.MaxRetryAttempts = 3;
+    options.MedianFirstRetryDelay = TimeSpan.FromMilliseconds(500);
+    options.Timeout = TimeSpan.FromSeconds(10);   // per attempt; the whole call gets 3x
 });
 
-builder.Services.AddHttpClient<IPaymentClient, PaymentClient>()
-    .AddResiliencePipeline("payment-api");
+// Usage (absolute URLs: the client has no base address)
+public sealed record PaymentStatus(string Id, string State);
+
+public class PaymentClient(IApiClient api)
+{
+    public async Task<PaymentStatus?> GetStatusAsync(string id, CancellationToken ct) =>
+        (await api.GetAsync<PaymentStatus>($"https://payments.example.com/v1/payments/{id}", ct)).Data;
+}
 ```
 
 ## Configuration
 
+`ResilienceOptions` (Kck.Http.Abstractions):
+
 | Property | Description | Default |
 |---|---|---|
-| Pipeline name | Identifies the pipeline for `AddResiliencePipeline(name)` | required |
-| `MaxRetryAttempts` | Number of retry attempts | `3` |
-| `Delay` | Base delay between retries | `500ms` |
-| `TimeoutInterval` | Per-request timeout | `10s` |
+| `Timeout` | Attempt timeout; the whole call gets 3x | 30 s |
+| `MaxRetryAttempts` | Retries on transient failures, exponential backoff | `3` |
+| `MedianFirstRetryDelay` | Base retry delay | 1 s |
+| `CircuitBreakerDuration` | How long the circuit stays open (4.7.0+; before, it set the sampling window) | 30 s |
+| `CircuitBreakerFailureRatio` | Failure share that opens the circuit (4.7.0+) | `0.1` |
+| `CircuitBreakerMinimumThroughput` | Requests in the window before it can open (4.7.0+) | `100` |
+| `SerializerOptions` | JSON options for bodies (source-generated for Native AOT) | web defaults |
 
 ## Resources
 

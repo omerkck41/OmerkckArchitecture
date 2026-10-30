@@ -10,6 +10,7 @@ public class CheckoutHandler(IJobScheduler scheduler)
     {
         await scheduler.EnqueueAsync<EmailCleanupJob>(ct);
         await scheduler.ScheduleAsync<EmailCleanupJob>(TimeSpan.FromMinutes(5), ct);
+        // Hangfire: a 5-field crontab constant. Quartz: its own format, seconds first ("0 0 0 * * ?").
         await scheduler.AddOrUpdateRecurringAsync<EmailCleanupJob>("daily-cleanup", CronExpressions.EveryDay, ct);
     }
 }

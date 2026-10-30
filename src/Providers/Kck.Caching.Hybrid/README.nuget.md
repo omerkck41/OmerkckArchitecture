@@ -11,33 +11,35 @@ dotnet add package Kck.Caching.Hybrid
 ## Quick Start
 
 ```csharp
-// Program.cs
-builder.Services.AddKckCachingHybrid(options =>
-{
-    options.KeyPrefix = "myapp";
-    options.DefaultExpiration = TimeSpan.FromMinutes(30);
-    options.DefaultLocalExpiration = TimeSpan.FromMinutes(5);
-    options.RedisConfiguration = "localhost:6379";
-});
+// Program.cs - L1 in memory, L2 Redis (Microsoft.Extensions.Caching.Hybrid)
+builder.Services.AddKckCachingHybrid(
+    redis => redis.Configuration = "localhost:6379",
+    hybrid =>
+    {
+        hybrid.KeyPrefix = "myapp:";
+        hybrid.DefaultExpiration = TimeSpan.FromMinutes(30);
+        hybrid.DefaultLocalExpiration = TimeSpan.FromMinutes(5);
+    });
 
 // Usage
-public class ProductService(ICacheService cache)
+public class ProductService(ICacheService cache, IProductRepository products)
 {
-    public async Task<Product?> GetAsync(int id, CancellationToken ct)
-        => await cache.GetOrSetAsync($"product:{id}",
-               () => _db.Products.FindAsync(id, ct).AsTask(),
-               ct: ct);
+    public Task<Product?> GetAsync(int id, CancellationToken ct) =>
+        cache.GetOrSetAsync($"product:{id}", () => products.FindAsync(id, ct), TimeSpan.FromMinutes(10), ct);
+
+    public Task InvalidateAllAsync(CancellationToken ct) => cache.RemoveByPrefixAsync("product:", ct);
 }
 ```
 
 ## Configuration
 
+First callback: `RedisCacheOptions` for the L2 Redis cache (`Configuration`). Second callback:
+
 | Property | Description | Default |
 |---|---|---|
-| `KeyPrefix` | Namespace prefix for all cache keys | `""` |
-| `DefaultExpiration` | L2 (Redis) entry lifetime | `TimeSpan.FromMinutes(30)` |
-| `DefaultLocalExpiration` | L1 (in-memory) entry lifetime | `TimeSpan.FromMinutes(5)` |
-| `RedisConfiguration` | Redis connection string | `"localhost:6379"` |
+| `KeyPrefix` | Prefix prepended to every cache key | `null` |
+| `DefaultExpiration` | L1 + L2 expiration | 5 minutes |
+| `DefaultLocalExpiration` | L1 (in-memory) expiration, at most `DefaultExpiration` | 1 minute |
 
 ## Resources
 

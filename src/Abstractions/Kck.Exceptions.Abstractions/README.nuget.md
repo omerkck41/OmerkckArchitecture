@@ -11,25 +11,36 @@ dotnet add package Kck.Exceptions.Abstractions
 ## Quick Start
 
 ```csharp
-// Throw typed exceptions in domain/application layer
-public async Task<Order> GetOrderAsync(Guid id, CancellationToken ct)
+using Kck.Exceptions;
+
+// Throw typed exceptions in the domain/application layer
+public class OrderService(IOrderStore orders, IPermissionChecker permissions)
 {
-    var order = await _repo.GetByIdAsync(id, ct)
-        ?? throw new NotFoundException($"Order {id} was not found.");
-    return order;
+    public async Task<Order> GetOrderAsync(Guid id, CancellationToken ct) =>
+        await orders.FindAsync(id, ct) ?? throw new NotFoundException($"Order {id} was not found.");
+
+    public async Task UpdateOrderAsync(Guid userId, Order order, CancellationToken ct)
+    {
+        if (order.Total <= 0)
+            throw new BadRequestException("Order total must be greater than zero.");
+
+        if (!await permissions.HasPermissionAsync(userId, "orders.write", ct))
+            throw new ForbiddenException("You do not have permission to update orders.");
+    }
 }
 
-public async Task UpdateOrderAsync(UpdateOrderCommand cmd, CancellationToken ct)
+public interface IOrderStore
 {
-    if (cmd.Total <= 0)
-        throw new BadRequestException("Order total must be greater than zero.");
-
-    if (!await _auth.HasPermissionAsync(cmd.UserId, "orders.write", ct))
-        throw new UnauthorizedException("You do not have permission to update orders.");
+    Task<Order?> FindAsync(Guid id, CancellationToken ct);
 }
 
-// The exception middleware (Kck.Exceptions.AspNetCore) catches these
-// and returns the correct HTTP status code automatically.
+public interface IPermissionChecker
+{
+    Task<bool> HasPermissionAsync(Guid userId, string permission, CancellationToken ct);
+}
+
+// The exception middleware (Kck.Exceptions.AspNetCore) catches these and returns the matching status code:
+// NotFoundException 404, BadRequestException 400, ForbiddenException 403.
 ```
 
 ## Configuration

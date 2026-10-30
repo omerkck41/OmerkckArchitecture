@@ -3,6 +3,8 @@
 `dotnet new` templates for Kck-based .NET projects. One command gives you a running API with persistence, domain
 events, authentication, health checks and tests — on SQLite, with nothing to set up.
 
+Step by step: [Your first Kck API in five minutes](https://github.com/omerkck41/OmerkckArchitecture/blob/main/docs/getting-started/README.md).
+
 ## Installation
 
 ```bash

@@ -11,31 +11,25 @@ dotnet add package Kck.Http.Abstractions
 ## Quick Start
 
 ```csharp
-// Program.cs — register a concrete provider (e.g. Kck.Http.Resilience)
-builder.Services.AddKckResilientHttpClient(builder.Configuration);
+using Kck.Http.Abstractions;
 
-// Use IApiClient in a service
+// Program.cs — the provider (Kck.Http.Resilience): retry, circuit breaker and timeouts
+builder.Services.AddKckHttpResilience(opt => opt.MaxRetryAttempts = 3);
+
+public sealed record ChargeRequest(string Token, decimal Amount);
+public sealed record PaymentResult(string PaymentId, string Status);
+
+// Use IApiClient in a service (absolute URLs: the client has no base address)
 public class PaymentGatewayService(IApiClient apiClient)
 {
-    private const string BaseUrl = "https://api.payment-gateway.com";
+    private const string BaseUrl = "https://api.payment-gateway.example";
 
-    public async Task<PaymentResult?> ChargeAsync(
-        ChargeRequest request, CancellationToken ct)
+    public async Task<PaymentResult> ChargeAsync(ChargeRequest request, CancellationToken ct)
     {
-        var response = await apiClient.PostAsync<ChargeRequest, PaymentResult>(
-            $"{BaseUrl}/v1/charge", request, ct);
-
+        ApiResponse<PaymentResult> response = await apiClient.PostAsync<PaymentResult>($"{BaseUrl}/v1/charge", request, ct);
         if (!response.IsSuccess)
-            throw new BadRequestException($"Payment failed: {response.ErrorMessage}");
-
-        return response.Data;
-    }
-
-    public async Task<PaymentStatus?> GetStatusAsync(string paymentId, CancellationToken ct)
-    {
-        var response = await apiClient.GetAsync<PaymentStatus>(
-            $"{BaseUrl}/v1/payments/{paymentId}", ct);
-        return response.Data;
+            throw new InvalidOperationException($"Payment failed ({response.StatusCode}): {response.ErrorMessage}");
+        return response.Data!;
     }
 }
 ```

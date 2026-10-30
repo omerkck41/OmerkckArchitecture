@@ -11,23 +11,27 @@ dotnet add package Kck.FileStorage.AzureBlob
 ## Quick Start
 
 ```csharp
+using Kck.FileStorage.Abstractions;
+
 // Program.cs
 builder.Services.AddKckFileStorageAzureBlob(options =>
 {
-    options.ConnectionString = Environment.GetEnvironmentVariable("AZURE_STORAGE_CONNECTION")!;
+    options.ConnectionString = Environment.GetEnvironmentVariable("AZURE_STORAGE_CONNECTION");
     options.ContainerName = "files";
 });
 
-// Upload a file
-public class UploadController(IFileStorageService storage)
+// Upload a file (Minimal API)
+app.MapPost("/upload", async (IFormFile file, IFileStorageService storage, CancellationToken ct) =>
 {
-    [HttpPost("upload")]
-    public async Task<string> Upload(IFormFile file, CancellationToken ct)
+    await using var stream = file.OpenReadStream();
+    await storage.UploadAsync(new FileUploadRequest
     {
-        await using var stream = file.OpenReadStream();
-        return await storage.UploadAsync(stream, file.FileName, file.ContentType, ct);
-    }
-}
+        Content = stream,
+        FileName = Path.GetFileName(file.FileName), // never trust a client-supplied path
+        DestinationPath = "uploads"
+    }, ct);
+    return Results.Ok();
+}).DisableAntiforgery();
 ```
 
 ## Configuration

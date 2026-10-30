@@ -11,29 +11,26 @@ dotnet add package Kck.AspNetCore
 ## Quick Start
 
 ```csharp
-// Program.cs
-builder.Services.AddKckAspNetCore(options =>
-{
-    options.EnableRateLimiting = true;
-    options.EnableSecurityHeaders = true;
-    options.CorsOrigins = ["https://myapp.com"];
-});
+// Program.cs - every feature is opt-in
+builder.Services.AddKckAspNetCore(aspnet => aspnet
+    .UseSecurityHeaders()
+    .UseRateLimiting(rate => rate.PermitLimit = 100)   // per client IP, per 60 s window
+    .UseCorsPolicy(["https://myapp.com"]));
 
 var app = builder.Build();
-app.UseKckSecurityHeaders();
-app.UseKckCors();
-app.UseKckRateLimiting();
+app.UseKckAspNetCore();   // security headers, then rate limiter, then CORS
 ```
 
 ## Configuration
 
-| Property | Description | Default |
-|---|---|---|
-| `EnableRateLimiting` | Activates sliding-window rate limiting | `true` |
-| `EnableSecurityHeaders` | Adds HSTS, CSP, X-Frame-Options headers | `true` |
-| `CorsOrigins` | Allowed CORS origins | `[]` |
-| `RateLimitWindowSeconds` | Rate limit sliding window size in seconds | `60` |
-| `RateLimitMaxRequests` | Maximum requests per window | `100` |
+The builder enables each feature; nothing is on by default.
+
+| Builder method | Effect |
+|---|---|
+| `UseSecurityHeaders()` | `X-Frame-Options`, `X-Content-Type-Options`, `Referrer-Policy`, `Permissions-Policy`, CSP; HSTS on HTTPS in Production |
+| `UseRateLimiting(o => ...)` | Fixed window per client IP: `PermitLimit` (100) requests per `WindowInSeconds` (60); then 429 |
+| `UseCorsPolicy(origins)` | CORS policy for the origins; without origins, any origin (warning in Production) |
+| `AddInputSanitizer()` / `AddCookieManager()` / `AddSessionManager()` | Registers the helper service |
 
 ## Resources
 

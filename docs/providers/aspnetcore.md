@@ -80,7 +80,7 @@ services.AddScoped<ICurrentUserProvider, HttpCurrentUserProvider>();
 
 ## WebApi Bundle
 
-For an opinionated setup in one call, use [`Kck.Bundle.WebApi`](../../src/Bundles/Kck.Bundle.WebApi):
+For an opinionated setup in one call, use [`Kck.Bundle.WebApi`](https://github.com/omerkck41/OmerkckArchitecture/tree/main/src/Bundles/Kck.Bundle.WebApi):
 
 ```csharp
 builder.Services.AddKckWebApiDefaults(builder.Configuration);

@@ -11,29 +11,48 @@ dotnet add package Kck.BackgroundJobs.Hangfire
 ## Quick Start
 
 ```csharp
-// Program.cs
-builder.Services.AddKckHangfire(options =>
+using Hangfire;
+using Kck.BackgroundJobs.Abstractions;
+
+// Program.cs - in-memory storage by default; plug in a durable one with ConfigureStorage
+builder.Services.AddKckBackgroundJobsHangfire(options =>
 {
-    options.ConnectionString = builder.Configuration.GetConnectionString("Hangfire")!;
-    options.DashboardPath = "/jobs";
+    options.WorkerCount = 4;
+    // options.ConfigureStorage = config => config.UseSqlServerStorage(connectionString); // Hangfire.SqlServer (4.7.0+)
 });
+builder.Services.AddKckJob<WelcomeEmailJob>();
 
-var app = builder.Build();
-app.UseKckHangfireDashboard();
+public sealed class WelcomeEmailJob(ILogger<WelcomeEmailJob> logger) : IBackgroundJob
+{
+    public Task ExecuteAsync(CancellationToken ct = default)
+    {
+        logger.LogInformation("Sending welcome emails");
+        return Task.CompletedTask;
+    }
+}
 
-// Schedule a job
-app.Services.GetRequiredService<IJobScheduler>()
-   .EnqueueAsync<IEmailService>(s => s.SendAsync("hello@example.com"));
+// Schedule a job (Hangfire accepts the 5-field CronExpressions constants)
+public sealed class JobSetup(IJobScheduler scheduler)
+{
+    public async Task StartAsync(CancellationToken ct)
+    {
+        await scheduler.EnqueueAsync<WelcomeEmailJob>(ct);
+        await scheduler.AddOrUpdateRecurringAsync<WelcomeEmailJob>("welcome", CronExpressions.EveryHour, ct);
+    }
+}
+
+// The dashboard is in the Hangfire.AspNetCore package: app.UseHangfireDashboard("/jobs") with an authorization filter.
 ```
 
 ## Configuration
 
 | Property | Description | Default |
 |---|---|---|
-| `ConnectionString` | SQL Server / PostgreSQL connection string | required |
-| `DashboardPath` | Hangfire dashboard route | `"/hangfire"` |
-| `WorkerCount` | Number of background worker threads | `5` |
-| `RetryAttempts` | Automatic retry count on failure | `3` |
+| `StorageType` | `InMemory` (the only built-in storage) | `"InMemory"` |
+| `ConfigureStorage` | Plugs in another Hangfire storage, e.g. `c => c.UseSqlServerStorage(...)` (4.7.0+) | `null` |
+| `WorkerCount` | Hangfire server worker count | `Environment.ProcessorCount` |
+
+The dashboard is in `Hangfire.AspNetCore`, which this package does not reference.
 
 ## Resources
 

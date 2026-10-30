@@ -11,30 +11,25 @@ dotnet add package Kck.Documents.ClosedXml
 ## Quick Start
 
 ```csharp
-// Program.cs
-builder.Services.AddKckDocumentsClosedXml();
+using Kck.Documents.Abstractions;
 
-// Generate Excel from a list
-public class ReportController(IExcelService excel)
+// Program.cs
+builder.Services.AddKckDocumentsClosedXml();   // IExcelService + ICsvExporter
+
+public sealed record OrderRow(Guid Id, string Customer, decimal Total);
+
+// Generate an Excel file from a list
+app.MapGet("/orders/export", async (IExcelService excel, CancellationToken ct) =>
 {
-    [HttpGet("export")]
-    public async Task<FileResult> Export(CancellationToken ct)
-    {
-        var orders = await _db.Orders.ToListAsync(ct);
-        var stream = await excel.CreateFromDataAsync(orders, ct);
-        return File(stream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                    "orders.xlsx");
-    }
-}
+    IReadOnlyList<OrderRow> rows = [new(Guid.NewGuid(), "Ada", 42m)];
+    DocumentResult file = await excel.CreateFromDataAsync(rows, worksheetName: "Orders", ct: ct);
+    return Results.File(file.Content, file.ContentType, "orders.xlsx");
+});
 ```
 
 ## Configuration
 
-| Property | Description | Default |
-|---|---|---|
-| `DefaultSheetName` | Default worksheet name | `"Sheet1"` |
-| `MaxRowsPerSheet` | Row limit before creating a new sheet | `1048576` |
-| `DateFormat` | Cell format string for DateTime columns | `"yyyy-MM-dd"` |
+No options. `AddKckDocumentsClosedXml()` registers `IExcelService` and `ICsvExporter` (`.xlsx` only; `ReadAsync` reads the first worksheet).
 
 ## Resources
 

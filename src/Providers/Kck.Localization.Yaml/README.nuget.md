@@ -11,12 +11,15 @@ dotnet add package Kck.Localization.Yaml
 ## Quick Start
 
 ```csharp
-// Program.cs
-builder.Services.AddKckLocalizationYaml(options =>
+using Kck.Localization.Abstractions;
+
+// Program.cs — the localization service plus this resource provider
+builder.Services.AddKckLocalization(options =>
 {
     options.ResourcePath = "Resources";
     options.DefaultCulture = "en";
 });
+builder.Services.AddKckLocalizationYaml();
 
 // Resources/en.yaml
 // greeting: "Hello, {0}!"
@@ -24,19 +27,16 @@ builder.Services.AddKckLocalizationYaml(options =>
 // greeting: "Merhaba, {0}!"
 
 // Usage
-public class WelcomeService(IStringLocalizer<WelcomeService> localizer)
+public class WelcomeService(ILocalizationService localizer)
 {
-    public string Greet(string name) => localizer["greeting", name];
+    public Task<string> GreetAsync(string name, string culture, CancellationToken ct) =>
+        localizer.GetStringAsync("greeting", culture, [name], ct);
 }
 ```
 
 ## Configuration
 
-| Property | Description | Default |
-|---|---|---|
-| `ResourcePath` | Folder containing YAML locale files | `"Resources"` |
-| `DefaultCulture` | Fallback culture when translation is missing | `"en"` |
-| `FileExtension` | YAML file extension pattern | `".yaml"` |
+No options of its own: it reads `LocalizationOptions` (`ResourcePath`, caching) set with `AddKckLocalization(...)`. Files are `{ResourcePath}/{culture}.yaml` (or `.yml`).
 
 ## Resources
 

@@ -11,42 +11,41 @@ dotnet add package Kck.Resilience.Polly
 ## Quick Start
 
 ```csharp
-// Program.cs
-builder.Services.AddKckResilience("api", pipeline =>
-{
-    pipeline.AddRetry(new RetryStrategyOptions
+using Kck.Resilience.Polly;
+using Polly;
+using Polly.CircuitBreaker;
+using Polly.Registry;
+using Polly.Retry;
+
+// Program.cs - a named pipeline (Polly v8)
+builder.Services.AddKckResilience("api", pipeline => pipeline
+    .AddRetry(new RetryStrategyOptions
     {
         MaxRetryAttempts = 3,
         Delay = TimeSpan.FromMilliseconds(300),
         UseJitter = true
-    });
-    pipeline.AddCircuitBreaker(new CircuitBreakerStrategyOptions
+    })
+    .AddCircuitBreaker(new CircuitBreakerStrategyOptions
     {
         FailureRatio = 0.5,
         SamplingDuration = TimeSpan.FromSeconds(10)
-    });
-    pipeline.AddTimeout(TimeSpan.FromSeconds(5));
-});
+    })
+    .AddTimeout(TimeSpan.FromSeconds(5)));
 
 // Resolve and use the pipeline
-public class ExternalApiService(ResiliencePipelineProvider<string> pipelines)
+public class ExternalApiService(ResiliencePipelineProvider<string> pipelines, HttpClient http)
 {
     public async Task<string> CallAsync(CancellationToken ct)
     {
         var pipeline = pipelines.GetPipeline("api");
-        return await pipeline.ExecuteAsync(async t => await _http.GetStringAsync("/data", t), ct);
+        return await pipeline.ExecuteAsync(async token => await http.GetStringAsync("https://api.example.com/data", token), ct);
     }
 }
 ```
 
 ## Configuration
 
-| Property | Description | Default |
-|---|---|---|
-| Pipeline name | Key for `GetPipeline(name)` | required |
-| `MaxRetryAttempts` | Retry count | `3` |
-| `FailureRatio` | Circuit breaker open threshold | `0.5` |
-| `TimeoutInterval` | Per-execution timeout | `30s` |
+No options of its own: `AddKckResilience(name, builder => ...)` registers a named Polly v8 pipeline; configure strategies with Polly's options (`RetryStrategyOptions`, `CircuitBreakerStrategyOptions`, `AddTimeout`). Resolve it with `ResiliencePipelineProvider<string>.GetPipeline(name)`.
 
 ## Resources
 

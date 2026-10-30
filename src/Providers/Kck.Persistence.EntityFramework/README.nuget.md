@@ -2,6 +2,8 @@
 
 Entity Framework Core integration for Kck applications — registers `IUnitOfWork` (repositories via `IUnitOfWork.Repository<T, TId>()`), audit / soft-delete and domain event interceptors, and dynamic query extensions.
 
+New to Kck? [Your first Kck API in five minutes](https://github.com/omerkck41/OmerkckArchitecture/blob/main/docs/getting-started/README.md) creates a working API with this package: `dotnet new install Kck.Templates`, then `dotnet new kck-webapi`.
+
 ## Installation
 
 ```bash

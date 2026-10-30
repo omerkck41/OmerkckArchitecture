@@ -11,29 +11,40 @@ dotnet add package Kck.Authorization.Abstractions
 ## Quick Start
 
 ```csharp
-// Implement the contracts in your auth provider
-public class MyPermissionChecker : IPermissionChecker
+using Kck.Authorization.Abstractions;
+using Kck.Exceptions;
+
+// Kck consumes these contracts (the Mediator AuthorizationBehavior reads ICurrentUserProvider) but does not
+// implement them: register your own, typically over IHttpContextAccessor and your permission store.
+builder.Services.AddScoped<IPermissionChecker, MyPermissionChecker>();
+
+public class MyPermissionChecker(ICurrentUserProvider currentUser) : IPermissionChecker
 {
-    public async Task<bool> HasPermissionAsync(string userId, string permission,
-        CancellationToken ct = default)
+    public Task<bool> HasPermissionAsync(string permission, CancellationToken ct = default) =>
+        Task.FromResult(currentUser.IsInRole("admin") || currentUser.Claims.ContainsKey($"perm:{permission}"));
+
+    public async Task<bool> HasAllPermissionsAsync(IEnumerable<string> permissions, CancellationToken ct = default)
     {
-        // query your permission store
-        return await _store.ExistsAsync(userId, permission, ct);
+        foreach (var permission in permissions)
+            if (!await HasPermissionAsync(permission, ct)) return false;
+        return true;
+    }
+
+    public async Task<bool> HasAnyPermissionAsync(IEnumerable<string> permissions, CancellationToken ct = default)
+    {
+        foreach (var permission in permissions)
+            if (await HasPermissionAsync(permission, ct)) return true;
+        return false;
     }
 }
 
-// Register in Program.cs
-builder.Services.AddScoped<IPermissionChecker, MyPermissionChecker>();
-builder.Services.AddScoped<ICurrentUserProvider, HttpContextCurrentUserProvider>();
-
-// Use in a handler or controller
-public class MyHandler(IPermissionChecker permissions, ICurrentUserProvider currentUser)
+// Use in a handler
+public class ReadOrdersHandler(IPermissionChecker permissions)
 {
     public async Task HandleAsync(CancellationToken ct)
     {
-        var userId = currentUser.GetUserId();
-        if (!await permissions.HasPermissionAsync(userId, "orders.read", ct))
-            throw new UnauthorizedException("Insufficient permissions.");
+        if (!await permissions.HasPermissionAsync("orders.read", ct))
+            throw new ForbiddenException("Insufficient permissions.");
     }
 }
 ```
