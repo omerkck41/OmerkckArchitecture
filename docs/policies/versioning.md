@@ -40,21 +40,17 @@ Any of the following changes counts as **breaking**:
 
 ## Policy
 
-### 0.x Period (current)
+### Since 1.0 (current major: 4.x)
 
-- **Breaking changes are possible** in minor bumps, but:
-  - They are stated **explicitly** under `### Breaking` in `CHANGELOG.md`.
-  - Where possible, a warning is given first with `[Obsolete]`
-    (as required by the [deprecation policy](deprecation.md)).
-  - The `PublicAPI.Shipped.txt` file is updated (PublicApiAnalyzers).
-
-### After 1.0 (planned)
-
-- **MINOR can only be additive.**
+- **MINOR can only be additive** to the public API. A minor may change behaviour to fix a defect; such changes are
+  listed under `### Changed — behaviour` in `CHANGELOG.md`.
 - Breaking changes are made only in **MAJOR**.
 - Before a breaking change, `[Obsolete]` gives a warning for at least **two minor** releases
   (deprecation policy: N+0.x and N+1.x).
-- Breaking changes are written in the `docs/migrations/v(N-1).x-to-vN.0.md` document.
+- Breaking changes are written in the `docs/migrations/v(N-1).x-to-vN.0.md` document (for example
+  [v3-to-v4](../migrations/v3-to-v4.md)).
+
+Before 1.0 (0.x), breaking changes were allowed in minor bumps with a CHANGELOG entry.
 
 ## Tracking with PublicApiAnalyzers
 
@@ -72,7 +68,7 @@ During a release, the contents of `PublicAPI.Unshipped.txt` are moved to the
 
 ## CHANGELOG Discipline
 
-Before each release, the `[Unreleased]` section of `CHANGELOG.md` is organized under these 5 headings
+Before each release, the `[Unreleased]` section of `CHANGELOG.md` is organized under these 6 headings
 ([Keep a Changelog](https://keepachangelog.com/en/1.1.0/)):
 
 - `### Added` (new feature / API)
@@ -82,8 +78,8 @@ Before each release, the `[Unreleased]` section of `CHANGELOG.md` is organized u
 - `### Fixed` (bug fix)
 - `### Security` (security fix)
 
-Breaking changes under `### Removed` or `### Changed`
-require a **MAJOR bump** (after 1.0).
+Breaking entries are marked in the heading (`### Removed — BREAKING`, `### Changed — BREAKING`) and require a
+**MAJOR bump**.
 
 ## Adding a New Public API
 
@@ -97,7 +93,7 @@ require a **MAJOR bump** (after 1.0).
 1. First mark it `[Obsolete]` (a DiagnosticId is required — [deprecation.md](deprecation.md)).
 2. Add a `*REMOVED*` line to `PublicAPI.Unshipped.txt` (PublicApiAnalyzers convention).
 3. Write it under `### Deprecated` in `CHANGELOG.md`.
-4. Remove it at a major bump after at least two minor releases.
+4. Remove it in a major release, after it has been obsolete for at least two minor releases.
 
 ## References
 

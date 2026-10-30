@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- `schemas/appsettings.kck.schema.json` lists only the keys the bundles read (`Kck:Security:Jwt:Issuer`/`Audience`,
+  `Kck:AspNetCore:*`, `Kck:BackgroundJobs:Provider`). The removed sections (`Caching`, `EventBus`, `Messaging`,
+  `Security:Argon2`) were never read; providers are configured in code.
+
 ## [4.6.0] — 2026-10-30
 
 ### Added

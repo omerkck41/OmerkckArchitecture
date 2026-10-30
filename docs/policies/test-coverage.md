@@ -30,14 +30,14 @@ the industry standard as follows:
 - Library project: 80%+ line, 60%+ branch (Polly, Serilog, EF Core ~85%)
 - Provider/wrapper: 70%+ line
 
-Roadmap (each stage is a separate phase and requires writing tests):
+Roadmap (each stage is a separate phase and requires writing tests; a target never goes below the current threshold):
 
 | Stage | Target Line | Target Branch | Phase / Trigger |
 |---|---|---|---|
 | **0** | 40 | 35 | LS-FAZ-4 — regression prevention |
 | **1** ✅ | 50 | 45 | Faz-B2 — Entity/Paginate/Error/property-based tests |
-| **2** ✅ | 65 | 50 | H20 — provider and abstraction unit tests (2026-10-29, threshold 70/67) |
-| **3** | 75 | 60 | Filling the gaps with mutation testing (Stryker.NET) |
+| **2** ✅ | 65 | 50 | H20 — provider and abstraction unit tests; exceeded: threshold 70/67 (2026-10-29) |
+| **3** | 75 | 70 | Filling the gaps with mutation testing (Stryker.NET) |
 
 ## Preconditions for Raising a Stage
 
