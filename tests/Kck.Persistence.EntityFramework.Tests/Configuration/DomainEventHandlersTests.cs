@@ -63,25 +63,25 @@ public sealed class DomainEventHandlersTests : IAsyncLifetime
     public async Task AddDomainEventHandlers_TwoHandlersForOneEvent_BothRun()
     {
         var provider = await BuildWithHandlersAsync();
-        var domainEvent = new HandledEvent();
+        IDomainEvent domainEvent = new HandledEvent();
 
         await using (var scope = provider.CreateAsyncScope())
             await SaveWithEventAsync(scope.ServiceProvider, domainEvent);
 
         _sink.Calls.Should().BeEquivalentTo(
-            [(nameof(FirstHandler), (IDomainEvent)domainEvent), (nameof(SecondHandler), domainEvent)]);
+            [(nameof(FirstHandler), domainEvent), (nameof(SecondHandler), domainEvent)]);
     }
 
     [Fact]
     public async Task AddDomainEventHandlers_HandlerForBaseEventType_NotInvoked()
     {
         var provider = await BuildWithHandlersAsync();
-        var domainEvent = new DerivedEvent();
+        IDomainEvent domainEvent = new DerivedEvent();
 
         await using (var scope = provider.CreateAsyncScope())
             await SaveWithEventAsync(scope.ServiceProvider, domainEvent);
 
-        _sink.Calls.Should().Equal((nameof(DerivedEventHandler), (IDomainEvent)domainEvent));
+        _sink.Calls.Should().Equal((nameof(DerivedEventHandler), domainEvent));
     }
 
     [Fact]
@@ -100,7 +100,7 @@ public sealed class DomainEventHandlersTests : IAsyncLifetime
     public async Task AddDomainEventHandlers_HandlerThrows_EventsGoBackOnEntity()
     {
         var provider = await BuildWithHandlersAsync();
-        var domainEvent = new FailingEvent();
+        IDomainEvent domainEvent = new FailingEvent();
         _sink.FailNext = true;
 
         await using var scope = provider.CreateAsyncScope();
@@ -115,7 +115,7 @@ public sealed class DomainEventHandlersTests : IAsyncLifetime
         entity.DomainEvents.Should().Equal(domainEvent);
 
         await ctx.SaveChangesAsync();
-        _sink.Calls.Should().Equal((nameof(FailingEventHandler), (IDomainEvent)domainEvent));
+        _sink.Calls.Should().Equal((nameof(FailingEventHandler), domainEvent));
         entity.DomainEvents.Should().BeEmpty();
     }
 

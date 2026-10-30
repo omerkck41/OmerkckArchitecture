@@ -130,16 +130,12 @@ public sealed class KckPersistenceBuilder(IServiceCollection services)
                 "IDomainEventHandler<T> handlers or through a custom IDomainEventDispatcher.");
         }
 
-        foreach (var type in assemblies.SelectMany(LoadableTypes))
+        var handlerTypes = assemblies.SelectMany(LoadableTypes)
+            .Where(type => type.IsClass && !type.IsAbstract && !type.ContainsGenericParameters);
+        foreach (var type in handlerTypes)
         {
-            if (!type.IsClass || type.IsAbstract || type.ContainsGenericParameters)
-                continue;
-
-            foreach (var handlerInterface in type.GetInterfaces())
-            {
-                if (handlerInterface.IsGenericType && handlerInterface.GetGenericTypeDefinition() == typeof(IDomainEventHandler<>))
-                    Services.TryAddEnumerable(ServiceDescriptor.Scoped(handlerInterface, type));
-            }
+            foreach (var handlerInterface in type.GetInterfaces().Where(IsDomainEventHandlerInterface))
+                Services.TryAddEnumerable(ServiceDescriptor.Scoped(handlerInterface, type));
         }
 
         if (dispatcher is null)
@@ -156,6 +152,9 @@ public sealed class KckPersistenceBuilder(IServiceCollection services)
     // Keyed registrations are not used by the interceptor, so they neither conflict nor count.
     private ServiceDescriptor? RegisteredDispatcher() =>
         Services.LastOrDefault(d => d.ServiceType == typeof(IDomainEventDispatcher) && !d.IsKeyedService);
+
+    private static bool IsDomainEventHandlerInterface(Type type) =>
+        type.IsGenericType && type.GetGenericTypeDefinition() == typeof(IDomainEventHandler<>);
 
     private static bool IsHandlerDispatcher(ServiceDescriptor descriptor) =>
         descriptor.ImplementationType == typeof(ServiceProviderDomainEventDispatcher);
