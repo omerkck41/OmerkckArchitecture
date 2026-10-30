@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1793368488942,
+  "lastUpdate": 1793369624889,
   "repoUrl": "https://github.com/omerkck41/OmerkckArchitecture",
   "entries": {
     "Benchmark": [
@@ -12910,6 +12910,102 @@ window.BENCHMARK_DATA = {
             "value": 5.86181170060191,
             "unit": "ns",
             "range": "± 0.2920164495729408"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "106805727+omerkck41@users.noreply.github.com",
+            "name": "Ömer KÜÇÜK",
+            "username": "omerkck41"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "a458b798d4c43f08dfa7aa32d7532ca457c0fadd",
+          "message": "docs: every published page in English (F2 G2.6) (#263)\n\n## Summary\nPlan F2, G2.6: every published documentation page is now English\n(ADR-0029 D2).\n\n- **Translated (32 pages):** all provider guides (`docs/providers/*`),\nconfiguration schema, FAQ, test strategy,\npolicies (versioning, deprecation, support, test coverage), migration\nguides, ADR index, `SECURITY.md`, and the\n1.0.0–2.0.0 history in `CHANGELOG.md`. Prose, headings, table cells and\ncode comments only: code, versions,\ndiagnostic IDs, ADR references, links and commitments (security response\ntimes, embargo, deprecation rules) are\nunchanged. Code fence counts are identical before and after in every\nfile.\n- **Guard closes the loop:** `docs_language.py` also fails when a page\ndocfx publishes is missing from\n`.github/docs-english.txt` (historical ADRs 0001–0028 excepted), so a\nnew Turkish page cannot skip the check.\n  The list now covers 100 files.\n- Historical ADR-0001…0028 stay in their original language (ADR-0029\nD2); the ADR index says so.\n\n## Known — handled in the next PR\nTranslating surfaced documentation that no longer matches the code (it\nwas already wrong in Turkish), e.g.\n`aspnetcore.md` (`AddKckWebApi`, middleware order, CORS options),\n`http.md` (`MaxRetries`, `BaseAddress`),\n`localization.md` (`FallbackToDefault`), `security.md` /\n`configuration-schema.md` (JWT options), `observability.md`\n(`Enable*` flags), `search.md`, stale thresholds and versions in FAQ /\ntest strategy / `SECURITY.md` / support matrix.\nThe next change compiles the C# blocks of `docs/` in CI (plan G2.1(b))\nand fixes them against the code.\n\n## Verification\n- `docs_language.py`: 100 files, 0 problems; script tests OK (new test\nfor unlisted published pages, RED first).\n- Relative links in all translated pages resolve (checked per group);\nREADME code blocks up to date.\n- Translations done by five parallel agents per file group, each running\nthe language/link check; spot-reviewed\n(SECURITY.md response-time table and embargo, provider and migration\nguides).\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-authored-by: Claude Opus 5.5 <noreply@anthropic.com>",
+          "timestamp": "2026-10-30T17:06:21+03:00",
+          "tree_id": "ec4643060dd20c0f7b014c5e5c22c8764512758c",
+          "url": "https://github.com/omerkck41/OmerkckArchitecture/commit/a458b798d4c43f08dfa7aa32d7532ca457c0fadd"
+        },
+        "date": 1793369624128,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Success_Factory",
+            "value": 6.458050905664762,
+            "unit": "ns",
+            "range": "± 0.07822747786067541"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Failure_Factory",
+            "value": 10.859853075610268,
+            "unit": "ns",
+            "range": "± 0.2916878047537282"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Success",
+            "value": 1.6350887481655394,
+            "unit": "ns",
+            "range": "± 0.002511622366195433"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Failure",
+            "value": 0.5840038341971544,
+            "unit": "ns",
+            "range": "± 0.003245267944950165"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Serialize_Reflection",
+            "value": 481.86882796654334,
+            "unit": "ns",
+            "range": "± 2.3848588611006187"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Deserialize_Reflection",
+            "value": 791.6159035364786,
+            "unit": "ns",
+            "range": "± 4.031725393628907"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 0)",
+            "value": 10.714532943442464,
+            "unit": "ns",
+            "range": "± 0.3639741225610652"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 5)",
+            "value": 10.801835846494544,
+            "unit": "ns",
+            "range": "± 0.3441863536181505"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 0)",
+            "value": 10.503895690043768,
+            "unit": "ns",
+            "range": "± 0.1844020843301839"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 5)",
+            "value": 10.843516999234756,
+            "unit": "ns",
+            "range": "± 0.3604425748396005"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 0)",
+            "value": 10.402534157037735,
+            "unit": "ns",
+            "range": "± 0.1215401504612651"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 5)",
+            "value": 10.373300020183835,
+            "unit": "ns",
+            "range": "± 0.09474858581176174"
           }
         ]
       }
