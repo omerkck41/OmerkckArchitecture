@@ -18,13 +18,20 @@ public static class QueryablePaginateExtensions
         int from = 0,
         CancellationToken cancellationToken = default)
     {
+        ArgumentOutOfRangeException.ThrowIfNegative(from);
+        ArgumentOutOfRangeException.ThrowIfNegative(size);
         if (from > index)
             throw new ArgumentException($"From ({from}) > Index ({index}), must From <= Index");
+
+        // (index - from) * size used to overflow into a negative OFFSET for a large client-supplied index.
+        var offset = (long)(index - from) * size;
+        if (offset > int.MaxValue)
+            throw new ArgumentOutOfRangeException(nameof(index), index, $"Page {index} of size {size} is beyond the largest supported offset.");
 
         var count = await source.CountAsync(cancellationToken).ConfigureAwait(false);
 
         var items = await source
-            .Skip((index - from) * size)
+            .Skip((int)offset)
             .Take(size)
             .ToListAsync(cancellationToken)
             .ConfigureAwait(false);

@@ -5,7 +5,7 @@ namespace ReadmeSnippets.DocsProvidersEventBus_6;
 using Kck.EventBus.Abstractions;
 using Kck.Messaging.Abstractions;
 
-#line 87 "docs/providers/event-bus.md"
+#line 84 "docs/providers/event-bus.md"
 public class OrderCreatedHandler(IEmailProvider email) : IEventHandler<OrderCreatedEvent>
 {
     public Task HandleAsync(OrderCreatedEvent @event, CancellationToken ct = default) =>

@@ -24,28 +24,34 @@ internal static class SoftDeleteHelper
     public static void SoftDelete(DbContext context, IEnumerable<object> entities, DateTime now)
     {
         var owners = new HashSet<object>(entities, ReferenceEqualityComparer.Instance);
+        var attached = new HashSet<object>(ReferenceEqualityComparer.Instance);
         foreach (var owner in owners)
         {
             // As DbContext.Remove: a detached graph is tracked first, so the cascade reaches its loaded dependents; a
             // row that was never inserted is just not inserted.
             var entry = context.Entry(owner);
             if (entry.State == EntityState.Detached)
+            {
+                var tracked = context.ChangeTracker.Entries().Select(e => e.Entity).ToHashSet(ReferenceEqualityComparer.Instance);
                 context.Attach(owner);
+                attached.UnionWith(context.ChangeTracker.Entries().Select(e => e.Entity).Where(e => !tracked.Contains(e)));
+            }
 
             entry.State = entry.State == EntityState.Added ? EntityState.Detached : EntityState.Deleted;
         }
 
-        Apply(context, owners, now);
+        Apply(context, owners, now, attached);
     }
 
     /// <summary>Turns every tracked delete of a soft-deletable entity into a soft delete, except permanent ones.</summary>
     /// <returns>The entities that were soft-deleted.</returns>
     public static IReadOnlySet<object> SoftDeleteTrackedDeletes(DbContext context, DateTime now) =>
-        Apply(context, owners: null, now);
+        Apply(context, owners: null, now, attached: null);
 
     // owners null: every deleted entry that no deleted principal cascades to is a root of its own. Otherwise only the
-    // owners are soft-deleted; other deletes stay hard deletes, and so do the rows they cascade to.
-    private static HashSet<object> Apply(DbContext context, HashSet<object>? owners, DateTime now)
+    // owners are soft-deleted; other deletes stay hard deletes, and so do the rows they cascade to. attached: entities
+    // the caller passed in detached; their IsDeleted / DeletedDate values are not trusted.
+    private static HashSet<object> Apply(DbContext context, HashSet<object>? owners, DateTime now, HashSet<object>? attached)
     {
         var softDeleted = new HashSet<object>(ReferenceEqualityComparer.Instance);
         var entries = context.ChangeTracker.Entries().ToList();
@@ -66,9 +72,16 @@ internal static class SoftDeleteHelper
             switch (outcomes[entry.Entity])
             {
                 case Outcome.SoftDelete:
+                    // A row that is already soft-deleted keeps its DeletedDate: deleting it again is not a new deletion.
+                    // (EF resets original values on the way to Deleted, so "already deleted" is IsDeleted with a date,
+                    // and only for an entity that was loaded, not one passed in detached.)
                     var softDeletable = (ISoftDeletable)entry.Entity;
-                    softDeletable.IsDeleted = true;
-                    softDeletable.DeletedDate = now;
+                    if (attached?.Contains(entry.Entity) == true || !softDeletable.IsDeleted || softDeletable.DeletedDate is null)
+                    {
+                        softDeletable.IsDeleted = true;
+                        softDeletable.DeletedDate = now;
+                    }
+
                     entry.State = EntityState.Modified;
                     softDeleted.Add(entry.Entity);
                     kept.Add(entry);

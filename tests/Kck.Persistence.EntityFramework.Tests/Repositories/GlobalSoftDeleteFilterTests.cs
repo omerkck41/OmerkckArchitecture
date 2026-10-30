@@ -194,6 +194,127 @@ public sealed class GlobalSoftDeleteFilterTests : IAsyncLifetime
         : UnnamedTenantDbContextBase(options, applyGlobalFilter: true);
 
     [Fact]
+    public async Task ApplyGlobalSoftDeleteQueryFilter_InheritanceHierarchy_FiltersDerivedTypesThroughTheRoot()
+    {
+        // EF allows query filters only on the root of a hierarchy; before 4.7 the derived type got one too and the
+        // model failed to build.
+        await using var ctx = new HierarchyDbContext(new DbContextOptionsBuilder().UseSqlite(_isolatedConnection).Options);
+        await ctx.Database.EnsureCreatedAsync();
+        ctx.Animals.AddRange(new Dog { Id = Guid.NewGuid(), Name = "live" }, new Dog { Id = Guid.NewGuid(), Name = "gone", IsDeleted = true });
+        await ctx.SaveChangesAsync();
+        ctx.ChangeTracker.Clear();
+
+        (await ctx.Set<Dog>().Select(d => d.Name).ToListAsync()).Should().Equal("live");
+        (await ctx.Animals.CountAsync()).Should().Be(1);
+    }
+
+    [Fact]
+    public async Task ApplyGlobalSoftDeleteQueryFilter_SoftDeletableOwnedType_ThrowsWithGuidance()
+    {
+        // Owned types cannot have query filters, so a soft-deleted owned row would keep coming back: fail loudly.
+        await using var ctx = new OwnedSoftDeletableDbContext(new DbContextOptionsBuilder().UseSqlite(_isolatedConnection).Options);
+
+        var buildModel = () => ctx.Model;
+
+        buildModel.Should().Throw<InvalidOperationException>().WithMessage("*Address*owned*");
+    }
+
+    [Fact]
+    public async Task ApplyGlobalSoftDeleteQueryFilter_SoftDeletableDerivedTypeOfPlainRoot_ThrowsWithGuidance()
+    {
+        // The filter can only go on the root; a root that is not soft-deletable would leave deleted rows visible.
+        await using var ctx = new PlainRootDbContext(new DbContextOptionsBuilder().UseSqlite(_isolatedConnection).Options);
+
+        var buildModel = () => ctx.Model;
+
+        buildModel.Should().Throw<InvalidOperationException>().WithMessage("*Invoice*root*Document*");
+    }
+
+    public abstract class Document : Entity<Guid>;
+
+    public sealed class Invoice : Document, ISoftDeletable
+    {
+        public bool IsDeleted { get; set; }
+        public string? DeletedBy { get; set; }
+        public DateTime? DeletedDate { get; set; }
+    }
+
+    private sealed class PlainRootDbContext(DbContextOptions options) : DbContext(options)
+    {
+        public DbSet<Document> Documents => Set<Document>();
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Invoice>();
+            modelBuilder.ApplyGlobalSoftDeleteQueryFilter();
+        }
+    }
+
+    public abstract class Animal : FullEntity<Guid>
+    {
+        public string Name { get; set; } = string.Empty;
+    }
+
+    public sealed class Dog : Animal;
+
+    public sealed class Kennel : FullEntity<Guid>
+    {
+        public Address Address { get; set; } = new();
+    }
+
+    public sealed class Address : ISoftDeletable
+    {
+        public string Street { get; set; } = string.Empty;
+        public bool IsDeleted { get; set; }
+        public string? DeletedBy { get; set; }
+        public DateTime? DeletedDate { get; set; }
+    }
+
+    [Fact]
+    public async Task ApplyGlobalSoftDeleteQueryFilter_TablePerTypeHierarchy_FiltersDerivedTypesThroughTheRoot()
+    {
+        await using var ctx = new TptHierarchyDbContext(new DbContextOptionsBuilder().UseSqlite(_isolatedConnection).Options);
+        await ctx.Database.EnsureCreatedAsync();
+        ctx.Animals.AddRange(new Dog { Id = Guid.NewGuid(), Name = "live" }, new Dog { Id = Guid.NewGuid(), Name = "gone", IsDeleted = true });
+        await ctx.SaveChangesAsync();
+        ctx.ChangeTracker.Clear();
+
+        (await ctx.Set<Dog>().Select(d => d.Name).ToListAsync()).Should().Equal("live");
+    }
+
+    private class HierarchyDbContext(DbContextOptions options) : DbContext(options)
+    {
+        public DbSet<Animal> Animals => Set<Animal>();
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            var animal = modelBuilder.Entity<Animal>();
+            animal.Ignore(a => a.RowVersion);
+            if (GetType() == typeof(TptHierarchyDbContext))
+                animal.UseTptMappingStrategy();
+            modelBuilder.Entity<Dog>();
+            modelBuilder.ApplyGlobalSoftDeleteQueryFilter();
+        }
+    }
+
+    private sealed class TptHierarchyDbContext(DbContextOptions options) : HierarchyDbContext(options);
+
+    private sealed class OwnedSoftDeletableDbContext(DbContextOptions options) : DbContext(options)
+    {
+        public DbSet<Kennel> Kennels => Set<Kennel>();
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Kennel>(b =>
+            {
+                b.Ignore(k => k.RowVersion);
+                b.OwnsOne(k => k.Address);
+            });
+            modelBuilder.ApplyGlobalSoftDeleteQueryFilter();
+        }
+    }
+
+    [Fact]
     public async Task ApplyGlobalSoftDeleteQueryFilter_UnnamedFilterOnSoftDeletable_ThrowsWithGuidance()
     {
         await using var ctx = new UnnamedFilterDbContext(

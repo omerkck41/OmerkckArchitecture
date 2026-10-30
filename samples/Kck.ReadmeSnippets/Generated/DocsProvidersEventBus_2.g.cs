@@ -7,15 +7,14 @@ internal static class Snippet
 {
     internal static async Task RunAsync(WebApplicationBuilder builder, IServiceCollection services)
     {
-#line 34 "docs/providers/event-bus.md"
+#line 33 "docs/providers/event-bus.md"
 services.AddKckEventBus(b => b.UseRabbitMq(opt =>
 {
     opt.HostName = builder.Configuration["RabbitMq:Host"]!;
     opt.UserName = builder.Configuration["RabbitMq:User"]!;
     opt.Password = builder.Configuration["RabbitMq:Password"]!;
     opt.ExchangeName = "myapp.events";
-}));
-services.AddTransient<OrderCreatedHandler>();
+}).RegisterHandlersFromAssembly(typeof(OrderCreatedHandler).Assembly));
 #line default
         await Task.CompletedTask;
     }

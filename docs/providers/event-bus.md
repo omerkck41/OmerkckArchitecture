@@ -24,9 +24,8 @@ services.AddKckEventBus(b => b
 ```
 
 `RegisterHandlersFromAssembly` registers every `IEventHandler<T>` implementation of the assemblies as a transient
-service, and `PublishAsync` runs all of them. Do not call `Subscribe<TEvent, THandler>()` on the in-memory bus: once an
-event type has a subscription, only subscribed handlers resolved by their class run for it, and handlers registered
-only as `IEventHandler<T>` are skipped without a log entry.
+service (once, even when an assembly is scanned twice), and the handler class itself, and `PublishAsync` runs all of them. `Subscribe<TEvent, THandler>()` is optional on the in-memory bus: a
+subscribed handler runs once, in addition to the registered ones.
 
 ## RabbitMQ
 
@@ -37,8 +36,7 @@ services.AddKckEventBus(b => b.UseRabbitMq(opt =>
     opt.UserName = builder.Configuration["RabbitMq:User"]!;
     opt.Password = builder.Configuration["RabbitMq:Password"]!;
     opt.ExchangeName = "myapp.events";
-}));
-services.AddTransient<OrderCreatedHandler>();
+}).RegisterHandlersFromAssembly(typeof(OrderCreatedHandler).Assembly));
 ```
 
 ## Azure Service Bus
@@ -49,8 +47,7 @@ services.AddKckEventBus(b => b.UseAzureServiceBus(opt =>
     opt.ConnectionString = builder.Configuration["AzureServiceBus:ConnectionString"]!;
     opt.TopicName = "order-events";
     opt.SubscriptionName = "order-processor";
-}));
-services.AddTransient<OrderCreatedHandler>();
+}).RegisterHandlersFromAssembly(typeof(OrderCreatedHandler).Assembly));
 ```
 
 ### Subscribing (RabbitMQ, Azure Service Bus)
@@ -65,9 +62,9 @@ var bus = app.Services.GetRequiredService<IEventBus>();
 bus.Subscribe<OrderCreatedEvent, OrderCreatedHandler>();
 ```
 
-`Subscribe` resolves the handler by its class, so register the class itself (`AddTransient<OrderCreatedHandler>()`
-above); a handler registered only through `RegisterHandlersFromAssembly` (as `IEventHandler<T>`) is not found and the
-message is skipped with a log entry. A message whose handler throws is negatively acknowledged and redelivered up to
+The handler must be registered in DI, through `RegisterHandlersFromAssembly` or as its own class
+(`services.AddTransient<OrderCreatedHandler>()`); before 4.7 only the class registration was found. A handler that is
+not registered is skipped with a log entry. A message whose handler throws is negatively acknowledged and redelivered up to
 `MaxDeliveryCount` (RabbitMQ) before it goes to the dead-letter queue.
 
 ## Defining an Event

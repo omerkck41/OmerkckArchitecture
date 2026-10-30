@@ -82,6 +82,63 @@ public sealed class InMemoryEventBusTests
 
         await act.Should().NotThrowAsync();
     }
+
+    [Fact]
+    public async Task PublishAsync_SubscribedHandlerRegisteredOnlyAsInterface_RunsOnce()
+    {
+        // RegisterHandlersFromAssembly + Subscribe: before 4.7 the handler was looked up by class and silently skipped.
+        var handler = new CountingSubscriber();
+        _services.AddSingleton<IEventHandler<TestEvent>>(handler);
+        var sut = new InMemoryEventBus(_services.BuildServiceProvider(), _logger);
+
+        sut.Subscribe<TestEvent, CountingSubscriber>();
+        await sut.PublishAsync(new TestEvent { Message = "m" });
+
+        handler.Calls.Should().Be(1);
+    }
+
+    [Fact]
+    public async Task PublishAsync_SubscriptionDoesNotHideOtherRegisteredHandlers()
+    {
+        var registered = new TestEventSubscriber();
+        var subscribed = new CountingSubscriber();
+        _services.AddSingleton<IEventHandler<TestEvent>>(registered);
+        _services.AddSingleton(subscribed);
+        var sut = new InMemoryEventBus(_services.BuildServiceProvider(), _logger);
+
+        sut.Subscribe<TestEvent, CountingSubscriber>();
+        await sut.PublishAsync(new TestEvent { Message = "both" });
+
+        registered.LastMessage.Should().Be("both");
+        subscribed.Calls.Should().Be(1);
+    }
+
+    [Fact]
+    public async Task PublishAsync_HandlerBothRegisteredAndSubscribed_RunsOnce()
+    {
+        var handler = new CountingSubscriber();
+        _services.AddSingleton(handler);
+        _services.AddSingleton<IEventHandler<TestEvent>>(sp => sp.GetRequiredService<CountingSubscriber>());
+        var sut = new InMemoryEventBus(_services.BuildServiceProvider(), _logger);
+
+        sut.Subscribe<TestEvent, CountingSubscriber>();
+        await sut.PublishAsync(new TestEvent { Message = "once" });
+
+        handler.Calls.Should().Be(1);
+    }
+}
+
+public sealed class CountingSubscriber : IEventHandler<TestEvent>
+{
+    private int _calls;
+
+    public int Calls => _calls;
+
+    public Task HandleAsync(TestEvent @event, CancellationToken ct = default)
+    {
+        Interlocked.Increment(ref _calls);
+        return Task.CompletedTask;
+    }
 }
 
 public sealed record TestEvent : IntegrationEvent

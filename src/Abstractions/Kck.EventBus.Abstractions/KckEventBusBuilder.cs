@@ -1,6 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using Kck.EventBus.Abstractions;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -34,8 +35,14 @@ public sealed class KckEventBusBuilder(IServiceCollection services)
                 var interfaces = type.GetInterfaces()
                     .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == handlerInterface);
 
+                // TryAddEnumerable: scanning an assembly twice must not run a handler twice.
                 foreach (var @interface in interfaces)
-                    Services.AddTransient(@interface, type);
+                    Services.TryAddEnumerable(ServiceDescriptor.Transient(@interface, type));
+
+                // The class too: Subscribe<TEvent, THandler>() resolves the handler by its class, without building
+                // every other handler of the event.
+                if (!type.ContainsGenericParameters)
+                    Services.TryAddTransient(type);
             }
         }
 

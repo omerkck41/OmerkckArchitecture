@@ -11,31 +11,47 @@ dotnet add package Kck.EventBus.RabbitMq
 ## Quick Start
 
 ```csharp
-// Program.cs
-builder.Services.AddKckEventBus(eb =>
-    eb.UseRabbitMq(options =>
+using Kck.EventBus.Abstractions;
+
+builder.Services.AddKckEventBus(eb => eb
+    .UseRabbitMq(options =>
     {
         options.HostName = "localhost";
-        options.Port = 5672;
         options.UserName = "guest";
         options.Password = Environment.GetEnvironmentVariable("RABBITMQ_PASSWORD")!;
         options.ExchangeName = "domain-events";
-    }));
+    })
+    .RegisterHandlersFromAssembly(typeof(OrderPlacedHandler).Assembly));
 
-// Subscribe to an event
-builder.Services.AddKckEventHandler<OrderPlacedEvent, OrderPlacedHandler>();
+var app = builder.Build();
+
+// Consumers start with the host: subscribe before Run().
+app.Services.GetRequiredService<IEventBus>().Subscribe<OrderPlacedEvent, OrderPlacedHandler>();
+
+public sealed record OrderPlacedEvent(Guid OrderId) : IntegrationEvent;
+
+public sealed class OrderPlacedHandler : IEventHandler<OrderPlacedEvent>
+{
+    public Task HandleAsync(OrderPlacedEvent eventData, CancellationToken ct = default) => Task.CompletedTask;
+}
 ```
 
 ## Configuration
 
 | Property | Description | Default |
 |---|---|---|
-| `HostName` | RabbitMQ broker hostname | `"localhost"` |
+| `HostName` | Broker host name (required) | `""` |
 | `Port` | AMQP port | `5672` |
-| `UserName` | Broker username | `"guest"` |
-| `Password` | Broker password | `"guest"` |
-| `ExchangeName` | Topic exchange name | `"kck-events"` |
-| `VirtualHost` | RabbitMQ virtual host | `"/"` |
+| `UserName` / `Password` | Broker credentials | `""` |
+| `VirtualHost` | Virtual host | `"/"` |
+| `ExchangeName` | Exchange the events are published to | `"kck.eventbus"` |
+| `ExchangeType` | Exchange type | `"topic"` |
+| `QueuePrefix` | Consumer queues are `{QueuePrefix}.{EventName}` | `"kck"` |
+| `MaxDeliveryCount` | Deliveries of a failing message before it is dead-lettered | `5` |
+| `RetryCount` / `RetryDelay` / `MaxRetryDelay` | Connection retry policy | `5` / `2 s` / `30 s` |
+
+Queues are durable and a message is acknowledged after its handlers succeed (at-least-once): handlers must be
+idempotent.
 
 ## Resources
 

@@ -216,6 +216,30 @@ public class HelperAndFilterTests
         page.Items.Should().HaveCount(2);
     }
 
+    [Theory]
+    [InlineData(int.MaxValue, 20, 0, "index")] // (index - from) * size overflowed into a negative OFFSET (500 on PostgreSQL / SQL Server)
+    [InlineData(107374183, 20, 0, "index")]    // smallest index whose offset exceeds int.MaxValue
+    [InlineData(0, -1, 0, "size")]
+    [InlineData(0, 10, -1, "from")]
+    public async Task ToPaginateAsync_OutOfRangeArguments_ThrowBeforeQuerying(int index, int size, int from, string parameter)
+    {
+        using var harness = new SqliteHarness<TestDbContext>(o => new TestDbContext(o));
+
+        var act = () => harness.Context.TestEntities.ToPaginateAsync(index, size, from);
+
+        (await act.Should().ThrowAsync<ArgumentOutOfRangeException>()).Which.ParamName.Should().Be(parameter);
+    }
+
+    [Fact]
+    public async Task ToPaginateAsync_LargestOffsetThatFits_DoesNotThrow()
+    {
+        using var harness = new SqliteHarness<TestDbContext>(o => new TestDbContext(o));
+
+        var page = await harness.Context.TestEntities.ToPaginateAsync(index: 107374182, size: 20);
+
+        page.Items.Should().BeEmpty();
+    }
+
     [Fact]
     public async Task ToPaginateAsync_FromEqualsIndex_ReturnsPage()
     {

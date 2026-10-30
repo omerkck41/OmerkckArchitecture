@@ -49,7 +49,7 @@ public sealed class EventProcessor(
         using var scope = serviceProvider.CreateScope();
         foreach (var handlerType in handlerTypes)
         {
-            var handler = scope.ServiceProvider.GetService(handlerType);
+            var handler = ResolveHandler(scope.ServiceProvider, handlerType, eventType);
             if (handler is null)
             {
                 Log.NoHandlerRegistered(logger, handlerType.Name, eventName);
@@ -59,4 +59,12 @@ public sealed class EventProcessor(
             await EventHandlerInvoker.InvokeAsync(handler, @event, eventType).ConfigureAwait(false);
         }
     }
+
+    // Subscribe<TEvent, THandler>() stores the handler class, while RegisterHandlersFromAssembly registers only
+    // IEventHandler<TEvent>: look for the class first, then for an IEventHandler<TEvent> registration of that class.
+    [RequiresDynamicCode("Closes IEventHandler<> over the runtime event type.")]
+    private static object? ResolveHandler(IServiceProvider services, Type handlerType, Type eventType) =>
+        services.GetService(handlerType)
+        ?? services.GetServices(typeof(IEventHandler<>).MakeGenericType(eventType))
+            .FirstOrDefault(h => h?.GetType() == handlerType);
 }
