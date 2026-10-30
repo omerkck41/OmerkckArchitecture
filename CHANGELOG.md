@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [4.7.0] — 2026-10-31
+
 ### Added
 - `Kck.Http.Abstractions` — `ResilienceOptions.CircuitBreakerFailureRatio` (default 0.1) and
   `CircuitBreakerMinimumThroughput` (default 100), applied to the standard resilience handler's circuit breaker.
