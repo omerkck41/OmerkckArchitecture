@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1793364703951,
+  "lastUpdate": 1793365276728,
   "repoUrl": "https://github.com/omerkck41/OmerkckArchitecture",
   "entries": {
     "Benchmark": [
@@ -12526,6 +12526,102 @@ window.BENCHMARK_DATA = {
             "value": 11.344436021645864,
             "unit": "ns",
             "range": "± 0.2565125697417732"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "106805727+omerkck41@users.noreply.github.com",
+            "name": "Ömer KÜÇÜK",
+            "username": "omerkck41"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "b2aa6fafdf54c0de6bd2c369034ce84dabf5bd67",
+          "message": "docs(changelog): 4.6.0 release notes (#259)\n\n## Summary\nRelease preparation for **4.6.0** (plan F1, G1.8). `[Unreleased]` →\n`[4.6.0] — 2026-10-30`:\n\n- Added: `IDomainEventHandler<TEvent>` + `AddDomainEventHandlers` (#256,\nADR-0030); `kck-webapi` options (#258).\n- Changed — behaviour: `kck-webapi` showcase solution (#258);\n`ApplyGlobalSoftDeleteQueryFilter` with unnamed filters,\n  whole-query `IncludeDeleted`, re-delete of a soft-deleted row (#257).\n- Fixed: `IncludeDeleted` with the global soft-delete filter (#257).\n\nAlso since 4.5.0, not user-facing or dependency-only: #254 (approved\nDependabot updates), #255 (plan, ADR-0029,\ntemplate smoke). Minor version: additive API, package validation vs\n4.5.0 green on every PR. The tag is pushed after\nthis merges; the nuget.org publish waits for maintainer approval in the\n`nuget` environment. After the release:\nbaseline → 4.6.0.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-authored-by: Claude Opus 5.5 <noreply@anthropic.com>",
+          "timestamp": "2026-10-30T15:53:14+03:00",
+          "tree_id": "40e141337cebd0dc1637c3b825a3c376527f2eb0",
+          "url": "https://github.com/omerkck41/OmerkckArchitecture/commit/b2aa6fafdf54c0de6bd2c369034ce84dabf5bd67"
+        },
+        "date": 1793365275863,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Success_Factory",
+            "value": 6.424174765745799,
+            "unit": "ns",
+            "range": "± 0.050832865131124665"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Failure_Factory",
+            "value": 11.256918702875414,
+            "unit": "ns",
+            "range": "± 0.8175534167141554"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Success",
+            "value": 1.6408487054017873,
+            "unit": "ns",
+            "range": "± 0.005134777038831272"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Failure",
+            "value": 0.5821503818035125,
+            "unit": "ns",
+            "range": "± 0.0034533667792214957"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Serialize_Reflection",
+            "value": 480.96800349308893,
+            "unit": "ns",
+            "range": "± 1.4370539353998064"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Deserialize_Reflection",
+            "value": 788.3017672697703,
+            "unit": "ns",
+            "range": "± 2.846605481310206"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 0)",
+            "value": 10.4614346577571,
+            "unit": "ns",
+            "range": "± 0.13689173232837998"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 5)",
+            "value": 10.344737811730457,
+            "unit": "ns",
+            "range": "± 0.17784522296404193"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 0)",
+            "value": 11.356053536136946,
+            "unit": "ns",
+            "range": "± 0.06542613514338899"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 5)",
+            "value": 10.534597054123878,
+            "unit": "ns",
+            "range": "± 0.2322080494586201"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 0)",
+            "value": 10.27967854302663,
+            "unit": "ns",
+            "range": "± 0.09485343972904657"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 5)",
+            "value": 10.27000948557487,
+            "unit": "ns",
+            "range": "± 0.14333639808004797"
           }
         ]
       }
