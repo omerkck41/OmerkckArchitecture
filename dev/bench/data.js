@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1793319415250,
+  "lastUpdate": 1793346181557,
   "repoUrl": "https://github.com/omerkck41/OmerkckArchitecture",
   "entries": {
     "Benchmark": [
@@ -12046,6 +12046,102 @@ window.BENCHMARK_DATA = {
             "value": 10.918439053744077,
             "unit": "ns",
             "range": "± 0.31913837301370135"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "106805727+omerkck41@users.noreply.github.com",
+            "name": "Ömer KÜÇÜK",
+            "username": "omerkck41"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "4b21dc85628c8ee8f3c5a25ec5121bc8404b77de",
+          "message": "chore(deps): apply the approved Dependabot updates (#254)\n\n## Summary\nApplies the Dependabot updates the maintainer approved in one change,\ninstead of ten serial PRs whose lock files\nconflict with each other on a strict `main`.\n\n| Package / tool | From | To | PR |\n|---|---|---|---|\n| Microsoft.Extensions.* (6) | 10.0.13 | 10.0.14 | #166 |\n| Azure.Security.KeyVault.Secrets | 4.11.2 | 4.12.0 | #242 |\n| AwesomeAssertions | 9.4.0 | 9.6.0 | #244 |\n| CsCheck (**major**) | 4.0.0 | 5.0.0 | #244 |\n| AWSSDK.Core / AWSSDK.S3 | 4.0.7.4 / 4.0.13 | 4.0.102.14 / 4.0.104.8 |\n#246 |\n| AWSSDK.SimpleEmailV2 | 4.0.14 | 4.0.106.7 | #247 |\n| cyclonedx (tool) | 6.2.0 | 6.3.1 | #248 |\n| dotnet-ef (tool) | 10.0.7 | 10.0.14 | #249 (closed by Dependabot) |\n| dotnet-reportgenerator-globaltool (tool) | 5.5.10 | 5.5.12 | #250\n(closed by Dependabot) |\n| dotnet-stryker (tool, **major**) | 4.14.2 | 5.0.0 | #251 |\n| FluentValidation | 12.1.1 | 12.2.0 | #252 |\n\nLeft out: the direct `PackageReference`s #166 added to\n`Kck.FeatureFlags.AzureAppConfig`, `Kck.FileStorage.AzureBlob`,\n`Kck.Resilience.Polly` and the WorkerService sample. They would add new\ndependencies to three published packages and\nare not needed for the version bump.\n\n## Verification\n- Lock files: solution-wide `dotnet restore --force-evaluate`, then\n`--locked-mode`.\n- `dotnet build -c Release`: 0 errors; unit tests 39/39 projects pass\n(CsCheck 5 property tests in Core.Abstractions,\n  FileStorage.FluentFtp and Persistence.EntityFramework included).\n- Stryker.NET 5.0.0 with xUnit v2 (`stryker-totp.json`): mutation score\n81.25 % (13 killed, 3 survived) — runs as\n  before, not the 0 % that blocked xunit v3.\n- License gate locally: 231 packages, 0 violations (dotnet-stryker 5.0.0\nfile licence still matches the pinned hash).\n\nAfter merge the Dependabot PRs are superseded and close.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-authored-by: Claude Opus 5.5 <noreply@anthropic.com>",
+          "timestamp": "2026-10-30T10:35:56+03:00",
+          "tree_id": "2fbff7c6dfe933d11d5ec4a681ee6cb14683a2dd",
+          "url": "https://github.com/omerkck41/OmerkckArchitecture/commit/4b21dc85628c8ee8f3c5a25ec5121bc8404b77de"
+        },
+        "date": 1793346180296,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Success_Factory",
+            "value": 5.068015801161527,
+            "unit": "ns",
+            "range": "± 0.17601955583681264"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Failure_Factory",
+            "value": 6.498519202570121,
+            "unit": "ns",
+            "range": "± 0.1722639957338454"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Success",
+            "value": 0.7832269283942879,
+            "unit": "ns",
+            "range": "± 0.1253321209201424"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Failure",
+            "value": 0.5144048464985994,
+            "unit": "ns",
+            "range": "± 0.0015773700461957003"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Serialize_Reflection",
+            "value": 308.036411857605,
+            "unit": "ns",
+            "range": "± 2.2513885998887067"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Deserialize_Reflection",
+            "value": 583.931000773112,
+            "unit": "ns",
+            "range": "± 4.171093055891635"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 0)",
+            "value": 8.086075194180012,
+            "unit": "ns",
+            "range": "± 0.10117433560880114"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 5)",
+            "value": 8.179188284277917,
+            "unit": "ns",
+            "range": "± 0.10945432258106139"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 0)",
+            "value": 7.823889194925626,
+            "unit": "ns",
+            "range": "± 0.09574253590417044"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 5)",
+            "value": 7.956411106387774,
+            "unit": "ns",
+            "range": "± 0.04198096712961571"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 0)",
+            "value": 9.748936524757973,
+            "unit": "ns",
+            "range": "± 0.06393171955885753"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 5)",
+            "value": 8.209319925308227,
+            "unit": "ns",
+            "range": "± 0.11583718064943566"
           }
         ]
       }
