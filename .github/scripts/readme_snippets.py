@@ -175,15 +175,19 @@ def split_segments(body: list[str]) -> list[Segment]:
         if current is None and code:
             starts = _starts_declaration(body, index, code)
             if starts != declaration:
-                if index > start:
-                    segments.append(Segment(start, body[start:index], declaration))
+                _close_segment(segments, body, start, index, declaration)
                 start, declaration = index, starts
             current = _DeclarationEnd() if starts else None
         if current is not None and current.ends_at(code):
             current = None
-    if start < len(body):
-        segments.append(Segment(start, body[start:], declaration))
+    _close_segment(segments, body, start, len(body), declaration)
     return segments
+
+
+def _close_segment(segments: list[Segment], body: list[str], start: int, end: int, declaration: bool) -> None:
+    """Appends body[start:end] as a segment unless it is empty."""
+    if end > start:
+        segments.append(Segment(start, body[start:end], declaration))
 
 
 def _starts_declaration(body: list[str], index: int, code: str) -> bool:
