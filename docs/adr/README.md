@@ -32,6 +32,7 @@ historical records in their original language (Turkish); ADRs from 0029 on are w
 | [0028](0028-v4-scope.md) | v4.0.0 scope — announced removals, licence of the default path | Accepted | 2026-10-27 | `Kck.Pipeline.MediatR`, `Kck.Persistence.Abstractions`, `Kck.Security.*`, `Kck.EventBus.InMemory`, `Kck.Bundle.WorkerService`, `Kck.Documents.ImageSharp` |
 | [0029](0029-dx-first-adoption.md) | Adoption: developer experience first, Persistence as the hero module | Accepted | 2026-10-30 | `Kck.Templates`, `docs/`, `Kck.Persistence.EntityFramework` |
 | [0030](0030-domain-event-handlers.md) | Built-in domain event handlers (`IDomainEventHandler<T>`, `AddDomainEventHandlers`) | Accepted | 2026-10-30 | `Kck.Core.Abstractions`, `Kck.Persistence.EntityFramework` |
+| [0031](0031-persistence-analyzers.md) | Roslyn analyzers shipped with the persistence package (KCK1001, KCK1002) | Accepted | 2026-10-30 | `Kck.Persistence.EntityFramework` |
 
 ## By category
 
@@ -69,6 +70,7 @@ historical records in their original language (Turkish); ADRs from 0029 on are w
 - [0016](0016-queryoptions-api.md) — IReadRepository QueryOptions API + Result<T> functional pipeline
 - [0029](0029-dx-first-adoption.md) — developer experience first, Persistence as the hero module
 - [0030](0030-domain-event-handlers.md) — built-in domain event handlers
+- [0031](0031-persistence-analyzers.md) — persistence analyzers (KCK1001, KCK1002)
 
 ### Release / ecosystem
 - [0017](0017-bundle-health-release.md) — WorkerService & MinimalApi bundles, release-drafter, health check pattern

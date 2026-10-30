@@ -100,4 +100,8 @@ docs/providers/pipeline.md
 docs/providers/search.md
 docs/providers/security.md
 docs/test-strategy.md
+docs/reference/diagnostics/README.md
+docs/reference/diagnostics/KCK1001.md
+docs/reference/diagnostics/KCK1002.md
+docs/adr/0031-persistence-analyzers.md
 SECURITY.md

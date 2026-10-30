@@ -284,6 +284,9 @@ must not be called.
   - Out of scope: a direct commit of an external transaction passed with `Database.UseTransaction` (events are dropped),
     `TransactionScope`, rolling back to a savepoint (events raised after the savepoint are still dispatched on commit).
   - DbContext pooling is supported through `UseEntityFrameworkPool` (above); `AddDbContextFactory` is not.
+- From 4.7.0 the package's analyzers report a direct commit in a project with domain events
+  ([KCK1001](../reference/diagnostics/KCK1001.md)) and a synchronous `SaveChanges`
+  ([KCK1002](../reference/diagnostics/KCK1002.md)).
 
 ## Concurrency
 

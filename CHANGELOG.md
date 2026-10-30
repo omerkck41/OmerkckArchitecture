@@ -12,6 +12,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `CircuitBreakerMinimumThroughput` (default 100), applied to the standard resilience handler's circuit breaker.
 - `Kck.BackgroundJobs.Hangfire` — `HangfireOptions.ConfigureStorage`: plug in a durable Hangfire storage (for example
   `c => c.UseSqlServerStorage(...)` from Hangfire.SqlServer) instead of the in-memory one.
+- `Kck.Persistence.EntityFramework` — analyzers in the package (ADR-0031): **KCK1001** (warning) for a transaction
+  committed directly with `IDbContextTransaction.Commit` / `CommitAsync` in a project that uses domain events;
+  **KCK1002** (suggestion) for synchronous `SaveChanges`. `Kck.Bundle.WebApi` passes them on.
+  See `docs/reference/diagnostics/`.
 
 ### Deprecated
 - `ResilienceOptions.CircuitBreakerFailureThreshold` (KCK0900) — never applied; use the two options above.
@@ -38,6 +42,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   exception handler maps both to 500.
 
 ### Changed — behaviour
+- `Kck.Persistence.EntityFramework` — KCK1001 is a warning: a project that treats warnings as errors and commits a
+  transaction directly while using domain events fails its build after the upgrade. Commit through `IUnitOfWork`, or
+  turn the rule off (`dotnet_diagnostic.KCK1001.severity = none`).
 - `Kck.EventBus.InMemory` — `PublishAsync` runs every registered `IEventHandler<TEvent>` plus each subscribed handler
   not among them, once. Before, a single `Subscribe<TEvent, THandler>()` call replaced the registered handlers for that
   event, and a subscribed handler registered only as `IEventHandler<TEvent>` was skipped without a log entry.
