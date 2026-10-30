@@ -13,7 +13,7 @@ claim about another project links to its documentation in
 | Include deleted rows in one query | `IgnoreQueryFilters(["name"])` | Same | `IDataFilter.Disable<ISoftDelete>()` scope | — | `QueryOptions.WithDeleted`; tenant and other named filters keep applying |
 | Audit timestamps | You write an interceptor | You write it | Automatic | — | Automatic (`CreatedDate`, `ModifiedDate`, `DeletedDate`) |
 | Audit user ids | You write it | You write it | Automatic (`CreatorId`, `LastModifierId`, `DeleterId`) | — | Properties exist; you set them |
-| Domain events | — | You write the dispatch | Local events run inside the transaction, before commit; a failing handler rolls back | — | Dispatched after commit; a failing handler does not undo the saved data, events are retried (at least once) |
+| Domain events | — | You write the dispatch | Local events run inside the transaction, before commit; a failing handler rolls back | — | Dispatched after commit; a failing handler does not undo the saved data. The events are retried by the next save in the same request (at least once); if the request ends first they are lost — no outbox |
 | Outbox / inbox | — | You write it | Built in for distributed events (EF Core, MongoDB) | — | — |
 | Repository and unit of work | `DbContext` | You write it | Built in (interceptor-based UoW) | `RepositoryBase` for EF Core | `IUnitOfWork.Repository<T, TId>()` |
 | Reusable query specifications | — | You write it | `Specification<T>` with `And` / `Or` / `Not`, used by repositories | Its core feature, with an evaluator | `Specification<T>` base class, but no repository method applies it yet; dynamic queries with a property whitelist |
