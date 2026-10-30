@@ -2,7 +2,8 @@
 
 Repositories and a unit of work over Entity Framework Core 10, plus the parts teams usually write by hand around it:
 soft delete that follows the model's delete rules, audit fields, and domain events dispatched after the transaction
-commits. New to Kck? Start with [your first Kck API in five minutes](../getting-started/README.md).
+commits. New to Kck? Start with [your first Kck API in five minutes](../getting-started/README.md). How this compares
+with EF Core alone, ABP and Ardalis.Specification: [Persistence: Kck compared](../persistence-comparison.md).
 
 ## Packages
 
