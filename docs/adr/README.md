@@ -30,6 +30,7 @@ bir karar yeni ADR ile `superseded` isaretlenerek gecilir.
 | [0020](0020-hybridcache-provider.md) | Kck.Caching.Hybrid (HybridCache L1+L2) | Onaylandi | 2026-05-07 | `Kck.Caching.Hybrid` |
 | [0021](0021-deprecate-mediatR-pipeline.md) | Kck.Pipeline.MediatR deprecasyonu (KCK0200) | Onaylandi | 2026-05-07 | `Kck.Pipeline.MediatR` |
 | [0028](0028-v4-scope.md) | v4.0.0 kapsamı — duyurulan kaldırmalar, varsayılan yolun lisansı | Onaylandi | 2026-10-27 | `Kck.Pipeline.MediatR`, `Kck.Persistence.Abstractions`, `Kck.Security.*`, `Kck.EventBus.InMemory`, `Kck.Bundle.WorkerService`, `Kck.Documents.ImageSharp` |
+| [0029](0029-dx-first-adoption.md) | Adoption: developer experience first, Persistence as the hero module | Onaylandi | 2026-10-30 | `Kck.Templates`, `docs/`, `Kck.Persistence.EntityFramework` |
 
 ## Kategori
 
