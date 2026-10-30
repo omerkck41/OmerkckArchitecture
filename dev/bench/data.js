@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1793369624889,
+  "lastUpdate": 1793374133219,
   "repoUrl": "https://github.com/omerkck41/OmerkckArchitecture",
   "entries": {
     "Benchmark": [
@@ -13006,6 +13006,102 @@ window.BENCHMARK_DATA = {
             "value": 10.373300020183835,
             "unit": "ns",
             "range": "± 0.09474858581176174"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "106805727+omerkck41@users.noreply.github.com",
+            "name": "Ömer KÜÇÜK",
+            "username": "omerkck41"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "f6cea53e2f3569e5563cbd83626a9f2cbd16134e",
+          "message": "docs: compile docs/ code blocks and align guides with the API (F2 G2.1b) (#264)\n\n## What\n\nPlan G2.1(b) (ADR-0029, F2): the C# code in the published guides under\n`docs/` is now compiled in CI, and the guides\nwere corrected wherever the code showed they no longer matched the API.\n\n- `readme_snippets.py` also turns every ```` ```csharp ```` block of\n`docs/**` (ADRs, plans, archive, memory and the\nmigration template excluded) into\n`samples/Kck.ReadmeSnippets/Generated/*.g.cs`; the Build step compiles\nthem and\n  `--check` fails when a guide changed without regenerating.\n- `<!-- snippet: skip (reason) -->` exempts a block. `MAX_SKIPPED = 4`\nmust equal the count: today only the \"before\"\ncode of APIs removed in 4.0 (MediatR pipeline, `GetClaimsFromToken`,\n`AddKckEventBusInMemory`).\n- Generator fixes needed for guides: path-based names\n(`DocsProvidersHttp_1`), statements after type declarations,\nmulti-line attributes, block usings inside the namespace (so a reader's\n`using Mediator;` wins over the project's\nglobal usings). Other C# fence spellings (```` ```cs ````, ```` ```c#\n````) and colliding names now fail instead of\n  silently escaping compilation.\n- `Context/DocsReaderTypes.cs`: the reader's own types the guides use\n(`Order`, `Product`, `AppDbContext`, ...).\n\n## Guide corrections (examples)\n\n- security: Argon2 `VerifyAsync(password, hash)` — the guide had the\narguments reversed; JWT is RS256 only\n(`AccessTokenExpiration`, `RefreshTokenTtlDays`, `RsaKeySource`); TOTP\noptions and a brute-force / multi-instance\n  replay warning.\n- background-jobs: Hangfire supports only in-memory storage; the\ndashboard needs `Hangfire.AspNetCore`.\n- event-bus: real registration (`AddKckEventBus(b =>\nb.UseRabbitMq(...))`), `Subscribe` after `Build()` and the\n  handler-class registration it requires.\n- exceptions: 422 for `ValidationException`, no custom handler\nregistration point, `UseKckExceptionHandling()`.\n- aspnetcore, http, caching, feature-flags, file-storage, localization,\nlogging, messaging, observability, search,\npipeline, persistence, faq, migrations: method names, option names and\nbehaviour as in `src/`.\n\nLibrary behaviour found along the way (not changed here, tracked\nseparately): `CircuitBreakerFailureThreshold` is\nnot applied; broker consumers skip handlers registered only as\n`IEventHandler<T>`; `RsaKeySource.SecretsManager`\nthrows.\n\n## Verification\n\n- `dotnet build OmerkckArchitecture.sln -c Release`: 0 warnings, 0\nerrors; `dotnet restore --locked-mode` clean.\n- Script tests 73/73; 9 deliberate mutations of the new guards all\ncaught.\n- Demonstration: putting `opt.MaxRetries = 3;` back into\n`docs/providers/http.md` fails `--check`, and the build reports\n`docs\\providers\\http.md(19,9): error CS1061: 'ResilienceOptions' ...\n'MaxRetries'`.\n- Independent review (Opus): no critical/high findings; the in-scope\nmedium/low ones are fixed in this PR.\n- `docs_language.py`: 100 files, 0 problems.\n\nNo library code changes.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\n---------\n\nCo-authored-by: Claude Opus 5.5 <noreply@anthropic.com>",
+          "timestamp": "2026-10-30T18:21:42+03:00",
+          "tree_id": "b3a74f0b06ddcd9006b09c3bae0f03707e78b81a",
+          "url": "https://github.com/omerkck41/OmerkckArchitecture/commit/f6cea53e2f3569e5563cbd83626a9f2cbd16134e"
+        },
+        "date": 1793374131564,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Success_Factory",
+            "value": 6.125280559062958,
+            "unit": "ns",
+            "range": "± 0.04993653015835076"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Failure_Factory",
+            "value": 11.743217760765994,
+            "unit": "ns",
+            "range": "± 0.4180827925948728"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Success",
+            "value": 1.6448934410627072,
+            "unit": "ns",
+            "range": "± 0.008654641131976165"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Failure",
+            "value": 0.5848190869603839,
+            "unit": "ns",
+            "range": "± 0.0038078778112925413"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Serialize_Reflection",
+            "value": 468.2847513130733,
+            "unit": "ns",
+            "range": "± 2.3310904417815808"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Deserialize_Reflection",
+            "value": 789.6385720797947,
+            "unit": "ns",
+            "range": "± 4.9152148056702165"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 0)",
+            "value": 9.926907154917718,
+            "unit": "ns",
+            "range": "± 0.11143803181753593"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 5)",
+            "value": 10.00321261882782,
+            "unit": "ns",
+            "range": "± 0.14711315636359362"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 0)",
+            "value": 10.003031700849533,
+            "unit": "ns",
+            "range": "± 0.20183752364408886"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 5)",
+            "value": 10.403505073984464,
+            "unit": "ns",
+            "range": "± 0.09049193175894815"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 0)",
+            "value": 9.864767387509346,
+            "unit": "ns",
+            "range": "± 0.06820862031270866"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 5)",
+            "value": 10.094268199801444,
+            "unit": "ns",
+            "range": "± 0.16147309452773698"
           }
         ]
       }
