@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1793383961475,
+  "lastUpdate": 1793396966299,
   "repoUrl": "https://github.com/omerkck41/OmerkckArchitecture",
   "entries": {
     "Benchmark": [
@@ -13486,6 +13486,102 @@ window.BENCHMARK_DATA = {
             "value": 12.610456691185634,
             "unit": "ns",
             "range": "± 0.2843720117513928"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "106805727+omerkck41@users.noreply.github.com",
+            "name": "Ömer KÜÇÜK",
+            "username": "omerkck41"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "a49ddbd8ae816f7c8951b88ebeafa5629c113a14",
+          "message": "docs: persistence comparison and sourced Why Kck table (F2 G2.5) (#269)\n\n## Summary\n\nPlan step F2 G2.5 (`docs/plans/2026-10-30-dx-hero-module-plan.md`): a\ndated, sourced comparison of the persistence\nmodule, and a fact check of the README \"Why Kck?\" table.\n\n- **New page** `docs/persistence-comparison.md`: soft delete, audit\nfields, domain events, outbox, repository / UoW,\nspecifications, multi-tenancy and licence across EF Core 10 alone, a\nhand-written layer, ABP Framework 10.7,\nArdalis.Specification 9.3.1 and Kck 4.x, plus a \"Where the others are\nstronger\" section.\n- **Sources** `decisions/2026-10-30-persistence-comparison-sources.md`:\npre-commitment written before the research,\nprimary sources only (official docs, repositories, nuget.org), all\naccessed 2026-10-30. Unverifiable claims are left\n  out, not softened.\n- **README \"Why Kck?\"**: versions, licence and target frameworks\nupdated; ABP Native AOT marked \"not documented\";\nsubjective rows (learning curve, batteries included) and unverifiable\nrows removed; the inaccurate \"no source\ngeneration\" claim corrected to \"no runtime proxies\" (Kck does use source\ngenerators).\n- Page linked from `docs/toc.yml`, `docs/README.md` and the persistence\nguide; listed in `.github/docs-english.txt`.\nDocs snippets regenerated (line numbers in the persistence guide\nshifted).\n\nKck gaps are stated plainly: audit user ids are not set automatically,\nno outbox, no multi-tenancy, and\n`Specification<T>` exists but no repository applies it (tracked\nseparately).\n\n## Test plan\n\n- [x] `python .github/scripts/docs_language.py` — 101 files, 0 problems\n- [x] `python .github/scripts/readme_snippets.py --check` — 153 blocks\nup to date\n- [x] `dotnet build samples/Kck.ReadmeSnippets -c Release` — 0 errors\n- [x] `dotnet docfx metadata` + `dotnet docfx build docfx.json\n--warningsAsErrors` — 0 warnings, 0 errors\n- [ ] CI\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\n---------\n\nCo-authored-by: Claude Opus 5.5 <noreply@anthropic.com>",
+          "timestamp": "2026-10-30T21:41:24Z",
+          "tree_id": "9fbba673572a5a46cb4bf6c9379f9dae97bbf773",
+          "url": "https://github.com/omerkck41/OmerkckArchitecture/commit/a49ddbd8ae816f7c8951b88ebeafa5629c113a14"
+        },
+        "date": 1793396965516,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Success_Factory",
+            "value": 8.370867562741042,
+            "unit": "ns",
+            "range": "± 2.751986748841204"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Failure_Factory",
+            "value": 7.654690078326634,
+            "unit": "ns",
+            "range": "± 0.1492657549161675"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Success",
+            "value": 1.6367724894412927,
+            "unit": "ns",
+            "range": "± 0.0044443649670473685"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Failure",
+            "value": 0.6819580276807149,
+            "unit": "ns",
+            "range": "± 0.003643262400578471"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Serialize_Reflection",
+            "value": 497.9084685398982,
+            "unit": "ns",
+            "range": "± 1.81370473358274"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Deserialize_Reflection",
+            "value": 800.7324825014387,
+            "unit": "ns",
+            "range": "± 2.2855419190317194"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 0)",
+            "value": 10.232251200292792,
+            "unit": "ns",
+            "range": "± 0.13081007347610168"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 5)",
+            "value": 10.133236254964556,
+            "unit": "ns",
+            "range": "± 0.0760041000326449"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 0)",
+            "value": 10.66159644837563,
+            "unit": "ns",
+            "range": "± 0.18557251116882917"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 5)",
+            "value": 10.289638100908352,
+            "unit": "ns",
+            "range": "± 0.16525730055754667"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 0)",
+            "value": 10.259760228917003,
+            "unit": "ns",
+            "range": "± 0.25281982625083804"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 5)",
+            "value": 10.342342297945704,
+            "unit": "ns",
+            "range": "± 0.10276386749380999"
           }
         ]
       }
