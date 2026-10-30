@@ -61,6 +61,10 @@ handler fails, the rules under [Interceptors](#interceptors) apply (the data sta
 entity, the next `SaveChanges` dispatches them again), so handlers must be idempotent. It cannot be combined with your
 own `IDomainEventDispatcher` registered through `AddDomainEventDispatch<T>()` (`InvalidOperationException`).
 
+The reference app turns a domain event into an integration event for the event bus in
+[`OrderPlacedHandler.cs`](https://github.com/omerkck41/OmerkckArchitecture/blob/main/samples/Kck.Sample.Orders/Features/Orders/OrderPlacedHandler.cs);
+its test `PlaceOrder_DispatcherFails_EventRetriedOnNextSave` shows the retry, and why a handler can run twice.
+
 ### DbContext pooling (4.5.0+)
 
 ```csharp
@@ -123,6 +127,13 @@ through a cascading relationship (`Cascade` / `ClientCascade`) to a row deleted 
 (`permanent: true`, or not soft-deletable) is deleted permanently with it, even when soft-deletable; `SetNull` /
 `Restrict` relationships do not do that. Known limit: required dependants added (`Added`, not saved yet) to a row
 soft-deleted at the same time leave the change tracker through EF's cascade and are not inserted.
+
+Dependants that are not loaded are not touched. On a required `Restrict` relationship, EF refuses the delete when a
+dependant is tracked, as it would for a permanent delete. The reference app shows both rules:
+[cancelling an order](https://github.com/omerkck41/OmerkckArchitecture/blob/main/samples/Kck.Sample.Orders/Features/Orders/CancelOrder.cs)
+soft-deletes its auto-included lines (`Cascade`), and
+[deleting a customer](https://github.com/omerkck41/OmerkckArchitecture/blob/main/samples/Kck.Sample.Orders/Features/Customers/CustomerEndpoints.cs)
+checks for orders first (`Restrict`), because unloaded orders would not stop it.
 
 ## QueryOptions
 
@@ -223,7 +234,9 @@ public sealed class RecentOrders(IUnitOfWork uow)
 ## Dynamic queries
 
 `GetListByDynamicAsync(DynamicQuery)` works only for entity types with an `IFilterPropertyWhitelist<T>` registration; a
-filter on a property outside the whitelist throws `ArgumentException`.
+filter on a property outside the whitelist throws `ArgumentException`. In the reference app:
+[`SearchOrders.cs`](https://github.com/omerkck41/OmerkckArchitecture/blob/main/samples/Kck.Sample.Orders/Features/Orders/SearchOrders.cs)
+(whitelist, endpoint, 400 for other fields).
 
 ## Transactions
 
@@ -285,6 +298,9 @@ must not be called.
   - Out of scope: a direct commit of an external transaction passed with `Database.UseTransaction` (events are dropped),
     `TransactionScope`, rolling back to a savepoint (events raised after the savepoint are still dispatched on commit).
   - DbContext pooling is supported through `UseEntityFrameworkPool` (above); `AddDbContextFactory` is not.
+- From 4.7.0 the package's analyzers report a direct commit in a project with domain events
+  ([KCK1001](../reference/diagnostics/KCK1001.md)) and a synchronous `SaveChanges`
+  ([KCK1002](../reference/diagnostics/KCK1002.md)).
 
 ## Concurrency
 

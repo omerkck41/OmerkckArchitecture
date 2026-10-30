@@ -58,6 +58,9 @@ public class ProductService(ICacheService cache, IProductRepository products)
 }
 ```
 
+The reference app caches its product catalogue this way:
+[`ListProducts.cs`](https://github.com/omerkck41/OmerkckArchitecture/blob/main/samples/Kck.Sample.Orders/Features/Products/ListProducts.cs).
+
 ## API
 
 | Method | Description |

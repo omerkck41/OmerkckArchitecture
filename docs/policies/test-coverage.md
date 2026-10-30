@@ -77,10 +77,10 @@ Do **not** collect coverage measurement in these test projects:
 - `tests/Kck.Benchmarks` — ✗ excluded (not a test project, a console app)
 - `samples/**/*.csproj` — ✗ excluded (application code, not framework code)
 
-The exclusion pattern is not explicit in `coverlet.runsettings` or `dotnet test --filter`.
-Currently the `XPlat Code Coverage` collector gathers coverage for all referenced
-projects. The benchmark/sample csproj files do not reference a test asset, so they are
-not included automatically.
+The `XPlat Code Coverage` collector gathers coverage for every project a test project references. The benchmark
+project is not referenced by a test project. `tests/Kck.Sample.Orders.Tests` does reference
+`samples/Kck.Sample.Orders`, so the merge step filters sample assemblies out explicitly
+(`reportgenerator -assemblyfilters:'-Kck.Sample.*'`).
 
 ## References
 

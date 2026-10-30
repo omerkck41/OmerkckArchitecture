@@ -4,7 +4,7 @@
 namespace ReadmeSnippets.DocsProvidersPersistence_4;
 using Kck.Persistence.Abstractions.UnitOfWork;
 
-#line 91 "docs/providers/persistence.md"
+#line 95 "docs/providers/persistence.md"
 public sealed class OrderService(IUnitOfWork uow)
 {
     public Task<Order?> GetAsync(Guid id, CancellationToken ct) =>

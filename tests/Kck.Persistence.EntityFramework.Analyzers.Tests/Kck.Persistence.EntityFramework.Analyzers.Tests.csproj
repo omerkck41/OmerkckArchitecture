@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFrameworks>net10.0</TargetFrameworks>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="xunit" />
+    <PackageReference Include="xunit.runner.visualstudio" />
+    <PackageReference Include="AwesomeAssertions" />
+    <!-- Tests run the analyzers through Roslyn directly (decisions/2026-10-30-roslyn-analyzer-packages.md, plan B). -->
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Using Include="Xunit" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Analyzers\Kck.Persistence.EntityFramework.Analyzers\Kck.Persistence.EntityFramework.Analyzers.csproj" />
+    <!-- The code under test (EF Core, Kck abstractions) is compiled against these assemblies (Verify.References). -->
+    <ProjectReference Include="..\..\src\Providers\Kck.Persistence.EntityFramework\Kck.Persistence.EntityFramework.csproj" />
+  </ItemGroup>
+</Project>

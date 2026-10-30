@@ -44,6 +44,14 @@
       href: providers/security.md
 - name: Configuration
   href: configuration-schema.md
+- name: Diagnostics
+  items:
+    - name: Overview
+      href: reference/diagnostics/README.md
+    - name: KCK1001
+      href: reference/diagnostics/KCK1001.md
+    - name: KCK1002
+      href: reference/diagnostics/KCK1002.md
 - name: FAQ
   href: faq.md
 - name: Migration guides

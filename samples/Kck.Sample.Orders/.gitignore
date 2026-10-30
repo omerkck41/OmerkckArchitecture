@@ -1,0 +1,4 @@
+# The development SQLite database (DatabaseExtensions.UseOrdersDatabase)
+orders.db
+orders.db-shm
+orders.db-wal
