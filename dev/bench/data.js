@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1793382764868,
+  "lastUpdate": 1793383961475,
   "repoUrl": "https://github.com/omerkck41/OmerkckArchitecture",
   "entries": {
     "Benchmark": [
@@ -13390,6 +13390,102 @@ window.BENCHMARK_DATA = {
             "value": 9.84820659359296,
             "unit": "ns",
             "range": "± 0.046310903862369864"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "106805727+omerkck41@users.noreply.github.com",
+            "name": "Ömer KÜÇÜK",
+            "username": "omerkck41"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "422a1045c196b6b7929ae18f5def572cb6a90075",
+          "message": "docs: docfx link gate and package READMEs compiled (F2 G2.1c, G2.7) (#268)\n\n## What\n\nTwo remaining F2 items of the DX plan.\n\n### G2.1(c) — docfx link gate\n- `docs.yml` now also runs for pull requests and builds the site with\n`--warningsAsErrors`, so a broken file link or\nbookmark fails before merge. Only `main` uploads and deploys; the build\njob is read-only (`contents: read`).\n- 17 broken links fixed: they pointed to repository files the site does\nnot publish (`LICENSE`, `samples/`, `src/`,\n`decisions/`, `SECURITY.md`) and now use GitHub URLs, which work on\nGitHub and on the site.\n- `docs/toc.yml` (the Docs navigation was missing) and `api/index.md`\n(the API homepage the root toc points to) added;\n  docfx output (`_site/`, `api/*.yml`) ignored.\n- API metadata warnings (crefs inherited from EF Core's XML docs) are\nnot gated (plan R7).\n\n### G2.7 — package READMEs\n- `readme_snippets.py` compiles every `src/**/README.nuget.md` (was 10\nfiles), so a new package cannot skip it.\n- 50 package READMEs (the nuget.org pages) rewritten against the API.\nTheir quick starts used methods and types that\ndo not exist (`AddKckHangfire`, `AddKckInMemoryEventBus`,\n`AddKckFluentFtpStorage`, `IJob`, `IPasswordHasher`,\n`MapDefaultEndpoints`, …); their configuration tables listed invented\noptions and wrong defaults (MailKit `UseSsl`\ndefault `true`, App Configuration refresh 30 s, token blacklist prefix\n`kck:token:blacklist:`, …). The tables of\n  the providers with options classes were rebuilt from those classes.\n- Bundle and Aspire package descriptions no longer claim JWT\nauthentication / OpenTelemetry they do not set up.\n- `Kck.Persistence.EntityFramework`, `Kck.Bundle.WebApi` and\n`Kck.Templates` READMEs link to the five-minute\n  getting started.\n\nMerge after #267: the HTTP and Hangfire tables document options #267\nadds.\n\nFound while doing this (not changed, tracked): the `CronExpressions`\nconstants are 5-field crontab expressions and\nfail with `FormatException` in the Quartz scheduler (verified); the docs\nnow say so.\n\n## Verification\n\n- 152 README/docs code blocks compile (`samples/Kck.ReadmeSnippets`);\n`dotnet build -c Release` 0 warnings, 0 errors.\n- `docfx metadata` + `docfx build --warningsAsErrors`: 0 warnings; with\na deliberately broken link the build exits\n  non-zero.\n- Script tests pass; `docs_language.py` 100 files, 0 problems; locked\nrestore clean.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-authored-by: Claude Opus 5.5 <noreply@anthropic.com>",
+          "timestamp": "2026-10-30T18:05:37Z",
+          "tree_id": "0a7eee824bdd4f9ac27fac0cba2b341f0d0ebb43",
+          "url": "https://github.com/omerkck41/OmerkckArchitecture/commit/422a1045c196b6b7929ae18f5def572cb6a90075"
+        },
+        "date": 1793383959994,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Success_Factory",
+            "value": 7.7459067228962395,
+            "unit": "ns",
+            "range": "± 0.25330438730532184"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Failure_Factory",
+            "value": 9.51275855941432,
+            "unit": "ns",
+            "range": "± 0.1677541733265667"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Success",
+            "value": 1.661159835755825,
+            "unit": "ns",
+            "range": "± 0.038021908743582175"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Failure",
+            "value": 0.5586779668927193,
+            "unit": "ns",
+            "range": "± 0.008658910915940064"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Serialize_Reflection",
+            "value": 399.83515204702104,
+            "unit": "ns",
+            "range": "± 3.503786155539375"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Deserialize_Reflection",
+            "value": 729.7531980787005,
+            "unit": "ns",
+            "range": "± 4.0764273092188885"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 0)",
+            "value": 12.39221067627271,
+            "unit": "ns",
+            "range": "± 0.31367841216828296"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 5)",
+            "value": 12.927530122654778,
+            "unit": "ns",
+            "range": "± 0.4069389653744186"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 0)",
+            "value": 13.219823370377222,
+            "unit": "ns",
+            "range": "± 0.28821864338424913"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 5)",
+            "value": 13.387109780311585,
+            "unit": "ns",
+            "range": "± 0.26742111644333555"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 0)",
+            "value": 12.429022876279694,
+            "unit": "ns",
+            "range": "± 0.2570836645658866"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 5)",
+            "value": 12.610456691185634,
+            "unit": "ns",
+            "range": "± 0.2843720117513928"
           }
         ]
       }
