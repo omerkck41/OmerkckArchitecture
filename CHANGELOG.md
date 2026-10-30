@@ -14,9 +14,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `IDomainEventDispatcher` is needed. A handler receives events of exactly its type; delivery keeps the existing
   semantics (after commit, at least once). Combining it with `AddDomainEventDispatch<T>()` throws
   `InvalidOperationException`.
+- `Kck.Templates` — `kck-webapi` options `--database sqlite|postgres|sqlserver`, `--include-tests`, `--include-sample`.
 
 ### Changed — behaviour
-Applies to contexts that call `ApplyGlobalSoftDeleteQueryFilter()`; others behave as before.
+- `Kck.Templates` — `kck-webapi` generates a solution (`.slnx`) with `src/<Name>.Api` and `tests/<Name>.Api.Tests`
+  instead of a single controller project: minimal APIs, EF Core persistence on SQLite (soft delete, audit fields,
+  domain events after commit), an order management sample, JWT bearer authentication (`dotnet user-jwts` for local
+  tokens), health checks, OpenAPI with the Scalar UI in development, and integration tests. Option names are now
+  lower-case (`--include-sample`). Projects generated earlier are not affected; the previous output is
+  `dotnet new install Kck.Templates::4.5.0`.
+
+Applies to contexts that call `ApplyGlobalSoftDeleteQueryFilter()`; others behave as before:
 - `Kck.Persistence.EntityFramework` — `ApplyGlobalSoftDeleteQueryFilter()` throws `InvalidOperationException` when a
   soft-deletable entity type already has an unnamed query filter, asking you to name it. Before, it replaced that filter
   (for example a tenant filter) without a trace. An unnamed filter added *after* the call now fails at model build with

@@ -39,9 +39,14 @@ derlenen kodla ve tek bir "ilk 5 dakika" yoluyla.
 - **Ö2 — sipariş akışı:** `POST /orders {"customerId":"…","lines":[{"sku":"A-1","quantity":2,"unitPrice":10.0}]}` →
   `201 Created` + `Location: /orders/{id}`; log'da `OrderPlaced {id}` **commit'ten sonra** bir kez. Aynı istekte
   handler hata fırlatırsa → `500` ProblemDetails, veritabanında sipariş yok, `OrderPlaced` log'u yok.
+  **Karar (yürütme, 2026-10-30):** satır fiyatı katalogdan (`Product`), istekte yalnız `sku` + `quantity`; "hata"
+  örneği stok yetersizliği oldu: sipariş kaydı + koşullu stok düşümü tek transaction'da, stok yetmezse rollback →
+  `409`, sipariş yok, stok rezervasyonu geri alınır, `OrderPlaced` hiç dağıtılmaz. Uç noktalar `RequireAuthorization()`
+  (G1.5 bilgi hamlesi: `dotnet user-jwts` + standart `AddJwtBearer`).
 - **Ö3 — soft-delete:** `DELETE /orders/{id}` → `204`; `GET /orders/{id}` → `404`; `GET /orders/{id}?includeDeleted=true`
   → `200`, `isDeleted: true`, `deletedDate` dolu, kalemlerinin hepsi `isDeleted: true`; müşteri silinmez.
 - **Ö4 — sayfalama:** 25 sipariş varken `GET /orders?page=1&size=10` → 10 kayıt, `count: 25`, `pages: 3`, `index: 1`.
+  **Karar (yürütme):** parametre adları `IPaginate` ile aynı — `GET /orders?index=1&size=10` (0 tabanlı).
 - **Ö5 — testler:** üretilen çözümde `dotnet test` → bütün testler geçer (Ö2–Ö4'ü uçtan uca doğrulayanlar dahil).
 - **Ö6 — diğer veritabanları:** `dotnet new kck-webapi -n Shop --database postgres` (ve `sqlserver`) → `dotnet build`
   0 uyarı; bağlantı cümlesi `appsettings.json`'da yok, `dotnet user-secrets` komutu README'de.
@@ -70,7 +75,7 @@ derlenen kodla ve tek bir "ilk 5 dakika" yoluyla.
 |---|---|---|---|---|
 | Şablonun yeri | (a) `kck-webapi`'yi yenile · (b) yeni `kck-api` ekle, eskisi kalsın | (a) tek giriş kapısı, bakım tek · (b) eski çıktı korunur | (a) eski çıktıyı bekleyen yok (üretilmiş projeler etkilenmez) · (b) iki şablon, karışık mesaj | **(a)**; eski çıktı `--minimal` ile korunmaz, CHANGELOG'da "template output changed" |
 | Uç nokta stili | (a) Minimal API + özellik dilimleri (VSA) · (b) controller | (a) .NET 10 varsayılanı, az tören, dilim = klasör · (b) tanıdık | (b) daha çok kalıp kod | **(a)**; `rules/dotnet.md` VSA ile uyumlu |
-| Komut işleme | (a) Mediator + Kck `TransactionBehavior` · (b) endpoint içinde doğrudan `IUnitOfWork` | (a) commit→event sırası tek yerde, vitrinin ana hikâyesi · (b) daha az kavram | (a) bir kavram fazla | **(a)**; bundle zaten içeriyor |
+| Komut işleme | (a) Mediator + Kck `TransactionBehavior` · (b) endpoint içinde doğrudan `IUnitOfWork` | (a) commit→event sırası tek yerde, vitrinin ana hikâyesi · (b) daha az kavram | (a) bir kavram fazla | ~~(a)~~ → **(b)** — Karar (yürütme): bundle Mediator'a başvuruyor ama kaydetmiyor; şablona Mediator.SourceGenerator + pipeline eklemek kavram ve 60 sn yolunu büyütür; G1.0 ile event'ler Mediator'sız işleniyor. Mediator F2 how-to'da |
 | Etkileşimli API arayüzü | (a) Scalar.AspNetCore (Development) · (b) yalnız OpenAPI JSON + `.http` dosyası | (a) "60 sn vay be" anı · (b) bağımlılık yok | (a) yeni bağımlılık | **(a) koşullu** — G1.2 `/currency-check` geçerse; geçmezse (b) (Plan B). `.http` her durumda var |
 | Veritabanı şeması | (a) Development'ta `EnsureCreated` · (b) şablonda migration | (a) sağlayıcıdan bağımsız, 60 sn · (b) üretim yolu | (b) her `--database` için ayrı migration, bakım yükü | **(a)** + README'de "switch to migrations" bölümü; `EnsureCreated` yalnız Development'ta (Ö7) |
 | Çözüm dosyası | (a) `.slnx` · (b) `.sln` | (a) SDK 10 `dotnet new sln` varsayılanı · (b) eski araçlar | (a) VS 17.13 öncesi açamaz | **(a)**; G1.1'de VS/Rider/VS Code ile açılış doğrulanır, sorun çıkarsa (b) |

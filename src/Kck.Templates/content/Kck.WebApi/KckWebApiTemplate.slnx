@@ -1,0 +1,10 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/TEMPLATE_RAW_NAME.Api/TEMPLATE_RAW_NAME.Api.csproj" />
+  </Folder>
+  <!--#if (IncludeTests) -->
+  <Folder Name="/tests/">
+    <Project Path="tests/TEMPLATE_RAW_NAME.Api.Tests/TEMPLATE_RAW_NAME.Api.Tests.csproj" />
+  </Folder>
+  <!--#endif -->
+</Solution>

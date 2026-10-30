@@ -3,7 +3,7 @@
     <PackageType>Template</PackageType>
     <PackageId>Kck.Templates</PackageId>
     <Title>Kck Project Templates</Title>
-    <Description>dotnet new templates for Kck-based .NET projects. Install with 'dotnet new install Kck.Templates' then scaffold with 'dotnet new kck-webapi -n MyApp'. Includes kck-webapi template pre-wired with Kck.Bundle.WebApi.</Description>
+    <Description>dotnet new templates for Kck-based .NET projects. 'dotnet new kck-webapi -n Shop' creates an API solution with EF Core persistence (soft delete, audit fields, domain events after commit), JWT authentication, health checks and integration tests, running on SQLite with no setup.</Description>
     <PackageTags>dotnet;kck;templates;dotnet-new;scaffolding;webapi</PackageTags>
     <PackageReadmeFile>README.nuget.md</PackageReadmeFile>
     <TargetFramework>net10.0</TargetFramework>
@@ -28,26 +28,70 @@
   </ItemGroup>
 
   <!--
-    The generated project must reference the Kck release this template ships with, not a hard-coded
-    version that goes stale (it once pinned an unlisted 3.0.0). Stamp the package version into the
-    template project file at pack time; fail if the placeholder is missing or survives.
+    Generated projects are not under central package management, so their versions are stamped at pack time:
+    KCK_PACKAGE_VERSION becomes the version of this Kck release (the template once pinned an unlisted 3.0.0), and
+    KCK_VERSION(Package.Id) becomes the version of that package in Directory.Packages.props, which Dependabot keeps
+    current. An unknown package id or a placeholder left in a stamped file fails the pack.
   -->
   <Target Name="StampTemplatePackageVersion" BeforeTargets="_GetPackageFiles" DependsOnTargets="MinVer">
-    <PropertyGroup>
-      <_KckTemplateProject>content/Kck.WebApi/KckWebApiTemplate.csproj</_KckTemplateProject>
-      <_KckStampedProject>$(IntermediateOutputPath)template/KckWebApiTemplate.csproj</_KckStampedProject>
-      <_KckTemplateText>$([System.IO.File]::ReadAllText('$(MSBuildProjectDirectory)/$(_KckTemplateProject)'))</_KckTemplateText>
-    </PropertyGroup>
-    <Error Condition="!$(_KckTemplateText.Contains('KCK_PACKAGE_VERSION'))"
-           Text="$(_KckTemplateProject) must reference Kck packages with Version=&quot;KCK_PACKAGE_VERSION&quot;." />
-    <WriteLinesToFile File="$(_KckStampedProject)"
-                      Lines="$([MSBuild]::Escape($(_KckTemplateText.Replace('KCK_PACKAGE_VERSION', '$(PackageVersion)'))))"
-                      Overwrite="true" />
-    <Error Condition="$([System.IO.File]::ReadAllText('$(_KckStampedProject)').Contains('KCK_PACKAGE_VERSION'))"
-           Text="Template version stamping failed: placeholder left in $(_KckStampedProject)." />
     <ItemGroup>
-      <Content Remove="@(Content)" Condition="'%(Filename)%(Extension)' == 'KckWebApiTemplate.csproj'" />
-      <Content Include="$(_KckStampedProject)" Pack="true" PackagePath="content/Kck.WebApi/KckWebApiTemplate.csproj" />
+      <_KckTemplateProject Include="content/**/*.csproj" Exclude="content/**/bin/**;content/**/obj/**" />
+      <_KckTemplateProject>
+        <StampedPath>$(IntermediateOutputPath)template/%(RecursiveDir)%(Filename)%(Extension)</StampedPath>
+        <PackagePath>content/%(RecursiveDir)%(Filename)%(Extension)</PackagePath>
+      </_KckTemplateProject>
+    </ItemGroup>
+    <Error Condition="'@(_KckTemplateProject)' == ''" Text="No template project files found under content/." />
+    <StampKckTemplateVersions Source="%(_KckTemplateProject.FullPath)"
+                              Destination="%(_KckTemplateProject.StampedPath)"
+                              KckVersion="$(PackageVersion)"
+                              PackageVersions="@(PackageVersion)" />
+    <ItemGroup>
+      <Content Remove="@(_KckTemplateProject->'%(FullPath)')" />
+      <Content Remove="@(_KckTemplateProject)" />
+      <Content Include="%(_KckTemplateProject.StampedPath)" Pack="true" PackagePath="%(_KckTemplateProject.PackagePath)" />
     </ItemGroup>
   </Target>
+
+  <UsingTask TaskName="StampKckTemplateVersions" TaskFactory="RoslynCodeTaskFactory"
+             AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.Core.dll">
+    <ParameterGroup>
+      <Source ParameterType="System.String" Required="true" />
+      <Destination ParameterType="System.String" Required="true" />
+      <KckVersion ParameterType="System.String" Required="true" />
+      <PackageVersions ParameterType="Microsoft.Build.Framework.ITaskItem[]" Required="true" />
+    </ParameterGroup>
+    <Task>
+      <Using Namespace="System.Collections.Generic" />
+      <Using Namespace="System.IO" />
+      <Using Namespace="System.Text.RegularExpressions" />
+      <Code Type="Fragment" Language="cs"><![CDATA[
+var versions = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+foreach (var item in PackageVersions)
+    versions[item.ItemSpec] = item.GetMetadata("Version");
+
+var text = File.ReadAllText(Source).Replace("KCK_PACKAGE_VERSION", KckVersion);
+var missing = new List<string>();
+text = Regex.Replace(text, @"KCK_VERSION\(([^)]+)\)", match =>
+{
+    string version;
+    if (versions.TryGetValue(match.Groups[1].Value, out version) && version.Length > 0)
+        return version;
+    missing.Add(match.Groups[1].Value);
+    return match.Value;
+});
+
+if (missing.Count > 0)
+    Log.LogError("{0}: no PackageVersion in Directory.Packages.props for {1}.", Source, string.Join(", ", missing));
+else if (text.Contains("KCK_"))
+    Log.LogError("{0}: a version placeholder was left after stamping.", Source);
+else
+{
+    Directory.CreateDirectory(Path.GetDirectoryName(Destination));
+    File.WriteAllText(Destination, text);
+}
+return !Log.HasLoggedErrors;
+]]></Code>
+    </Task>
+  </UsingTask>
 </Project>

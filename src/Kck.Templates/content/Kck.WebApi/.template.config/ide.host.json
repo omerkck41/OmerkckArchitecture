@@ -1,0 +1,9 @@
+{
+  "$schema": "http://json.schemastore.org/ide.host",
+  "order": 0,
+  "symbolInfo": [
+    { "id": "Database", "isVisible": true },
+    { "id": "IncludeTests", "isVisible": true },
+    { "id": "IncludeSample", "isVisible": true }
+  ]
+}

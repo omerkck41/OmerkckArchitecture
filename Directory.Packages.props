@@ -8,7 +8,7 @@
     <PackageVersion Include="Microsoft.EntityFrameworkCore.Relational" Version="10.0.14" />
     <!-- Mutation testing: SQLite in-memory exercises transaction/relational paths InMemory provider cannot (EfUnitOfWork, ExecuteUpdate, query filters) -->
     <PackageVersion Include="Microsoft.EntityFrameworkCore.Sqlite" Version="10.0.14" />
-    <PackageVersion Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.5" />
+    <PackageVersion Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.14" />
     <PackageVersion Include="Microsoft.Extensions.Caching.Hybrid" Version="10.11.0" />
     <PackageVersion Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="10.0.14" />
     <PackageVersion Include="Microsoft.Extensions.Diagnostics.HealthChecks" Version="10.0.14" />
@@ -16,6 +16,18 @@
     <PackageVersion Include="Microsoft.Extensions.Resilience" Version="10.11.0" />
     <!-- LS-FAZ-4: PostgreSQL provider for Testcontainers integration tests (Kck.Persistence.EntityFramework.Tests) -->
     <PackageVersion Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.3" />
+  </ItemGroup>
+  <!--
+    Used only by the kck-webapi template output: Kck.Templates stamps these versions into the generated projects at
+    pack time (src/Kck.Templates, KCK_VERSION(...) placeholders), so Dependabot keeps the template current.
+    Scalar.AspNetCore: decisions/2026-10-30-template-scalar.md.
+  -->
+  <ItemGroup Label="kck-webapi template output">
+    <PackageVersion Include="Microsoft.AspNetCore.OpenApi" Version="10.0.14" />
+    <PackageVersion Include="Microsoft.AspNetCore.Mvc.Testing" Version="10.0.14" />
+    <PackageVersion Include="Microsoft.EntityFrameworkCore.SqlServer" Version="10.0.14" />
+    <PackageVersion Include="Scalar.AspNetCore" Version="2.18.5" />
+    <!-- The SQL Server output also stamps System.Security.Cryptography.Pkcs (security floor, entry below). -->
   </ItemGroup>
   <ItemGroup Label="Microsoft — System">
     <PackageVersion Include="System.Text.Encodings.Web" Version="10.0.5" />
@@ -68,7 +80,8 @@
   <ItemGroup Label="Messaging">
     <PackageVersion Include="MailKit" Version="4.17.0" />
     <!-- Security floor: MimeKit only requires Pkcs >= 10.0.0; 10.0.0-10.0.12 are vulnerable
-         (GHSA-846f-f764-76mx, GHSA-2fmv-rv2c-59x7). Referenced directly by Kck.Messaging.MailKit. -->
+         (GHSA-846f-f764-76mx, GHSA-2fmv-rv2c-59x7). Referenced directly by Kck.Messaging.MailKit, and stamped into
+         the kck-webapi SQL Server output (Microsoft.Data.SqlClient brings 9.0.11). -->
     <PackageVersion Include="System.Security.Cryptography.Pkcs" Version="10.0.13" />
     <PackageVersion Include="SendGrid" Version="9.29.3" />
     <PackageVersion Include="AWSSDK.SimpleEmailV2" Version="4.0.106.7" />

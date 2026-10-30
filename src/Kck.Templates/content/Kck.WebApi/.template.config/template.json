@@ -3,30 +3,58 @@
   "author": "Omerkck",
   "classifications": ["Web", "API", "Kck"],
   "identity": "Kck.Templates.WebApi",
-  "name": "Kck WebAPI",
+  "name": "Kck Web API",
   "shortName": "kck-webapi",
-  "description": "A WebAPI project pre-wired with Kck.Bundle.WebApi: Mediator pipeline, in-memory caching, JWT, Argon2, Serilog, OpenTelemetry, rate limiting, and exception handling.",
+  "description": "An ASP.NET Core API solution on Kck: EF Core persistence with soft delete, audit fields and domain events dispatched after commit, JWT bearer authentication, health checks, ProblemDetails, rate limiting, and an integration test project. Runs on SQLite with no setup.",
   "tags": {
     "language": "C#",
-    "type": "project"
+    "type": "solution"
   },
   "sourceName": "KckWebApiTemplate",
   "preferNameDirectory": true,
+  "guids": ["8E5A1C2B-3D4F-4A6B-9C7D-0E1F2A3B4C5D"],
   "symbols": {
     "Framework": {
       "type": "parameter",
-      "description": "Target framework",
+      "description": "Target framework.",
       "datatype": "choice",
       "choices": [
-        { "choice": "net10.0", "description": ".NET 10" }
+        { "choice": "net10.0", "description": ".NET 10 (LTS)" }
       ],
       "defaultValue": "net10.0",
       "replaces": "net10.0"
     },
+    "Database": {
+      "type": "parameter",
+      "description": "Database provider. SQLite needs no setup; PostgreSQL and SQL Server read the connection string 'Default' from user secrets or the environment.",
+      "datatype": "choice",
+      "choices": [
+        { "choice": "sqlite", "description": "SQLite (file database, no setup)" },
+        { "choice": "postgres", "description": "PostgreSQL" },
+        { "choice": "sqlserver", "description": "SQL Server" }
+      ],
+      "defaultValue": "sqlite"
+    },
+    "RawName": {
+      "type": "derived",
+      "valueSource": "name",
+      "valueTransform": "identity",
+      "replaces": "TEMPLATE_RAW_NAME",
+      "description": "The name exactly as given (file and folder names keep it; namespaces use a safe form, e.g. my-shop -> my_shop)."
+    },
+    "UseSqlite": { "type": "computed", "value": "(Database == \"sqlite\")" },
+    "UsePostgres": { "type": "computed", "value": "(Database == \"postgres\")" },
+    "UseSqlServer": { "type": "computed", "value": "(Database == \"sqlserver\")" },
+    "IncludeTests": {
+      "type": "parameter",
+      "datatype": "bool",
+      "description": "Add an integration test project (xUnit, WebApplicationFactory).",
+      "defaultValue": "true"
+    },
     "IncludeSample": {
       "type": "parameter",
       "datatype": "bool",
-      "description": "Include a WeatherForecast sample feature to illustrate Kck patterns.",
+      "description": "Add the order management sample (customers, products, orders, domain events).",
       "defaultValue": "true"
     }
   },
@@ -34,10 +62,29 @@
     {
       "modifiers": [
         {
+          "condition": "(!IncludeTests)",
+          "exclude": ["tests/**"]
+        },
+        {
           "condition": "(!IncludeSample)",
-          "exclude": ["Features/**"]
+          "exclude": [
+            "src/KckWebApiTemplate.Api/Orders/**",
+            "tests/KckWebApiTemplate.Api.Tests/OrdersEndpointTests.cs",
+            "KckWebApiTemplate.http"
+          ]
         }
       ]
+    }
+  ],
+  "primaryOutputs": [
+    { "path": "KckWebApiTemplate.slnx" }
+  ],
+  "postActions": [
+    {
+      "description": "Restore NuGet packages required by this solution.",
+      "manualInstructions": [{ "text": "Run 'dotnet restore'" }],
+      "actionId": "210D431B-A78B-4D2F-B762-4ED3E3EA9025",
+      "continueOnError": true
     }
   ]
 }

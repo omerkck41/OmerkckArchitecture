@@ -1,6 +1,7 @@
 # Kck.Templates
 
-`dotnet new` templates for Kck-based .NET projects — install once, scaffold a fully wired Kck WebAPI project in seconds.
+`dotnet new` templates for Kck-based .NET projects. One command gives you a running API with persistence, domain
+events, authentication, health checks and tests — on SQLite, with nothing to set up.
 
 ## Installation
 
@@ -8,33 +9,37 @@
 dotnet new install Kck.Templates
 ```
 
-## Quick Start
+## Quick start
 
 ```bash
-# Scaffold a new WebAPI project pre-wired with Kck.Bundle.WebApi
-dotnet new kck-webapi -n MyApp
-
-cd MyApp
-
-# Run immediately — JWT, caching, exception handling already configured
-dotnet run
+dotnet new kck-webapi -n Shop
+cd Shop
+dotnet run --project src/Shop.Api   # API reference at /scalar, health at /health/ready
+dotnet test
 ```
 
-The generated project includes:
+The generated solution:
 
-- `Program.cs` with `AddKckWebApiDefaults` + `UseKckWebApiDefaults`
-- `appsettings.json` with placeholder Kck configuration sections
-- A sample `WeatherForecast` controller demonstrating the Result pattern
-- `Dockerfile` and `.github/workflows/build.yml` stubs
+- **Persistence** with `Kck.Persistence.EntityFramework`: repositories and `IUnitOfWork`, audit fields, soft delete
+  that follows your delete rules, and domain events handled by `IDomainEventHandler<T>` after the data is committed.
+- **An order management sample**: placing an order reserves stock in the same transaction — when stock runs out the
+  transaction rolls back and the `OrderPlaced` event is discarded, never dispatched. Cancelling is a soft delete of the
+  order and its lines.
+- **JWT bearer authentication** on `/orders` (local tokens with `dotnet user-jwts create`), ProblemDetails, rate
+  limiting, security headers, CORS from configuration, OpenAPI with the Scalar UI in development. No secrets in the
+  generated files.
+- **Integration tests** with xUnit and `WebApplicationFactory`.
 
-## Available Templates
+## Options
 
-| Template Name | Description |
-|---|---|
-| `kck-webapi` | ASP.NET Core WebAPI with `Kck.Bundle.WebApi` |
+| Option | Default | Description |
+|---|---|---|
+| `--database sqlite\|postgres\|sqlserver` | `sqlite` | Database provider |
+| `--include-tests` | `true` | Add the integration test project |
+| `--include-sample` | `true` | Add the order management sample |
 
 ## Resources
 
-- [Documentation](https://github.com/omerkck41/OmerkckArchitecture/blob/main/README.md)
+- [Documentation](https://omerkck41.github.io/OmerkckArchitecture/)
 - [CHANGELOG](https://github.com/omerkck41/OmerkckArchitecture/blob/main/CHANGELOG.md)
 - [Source](https://github.com/omerkck41/OmerkckArchitecture)

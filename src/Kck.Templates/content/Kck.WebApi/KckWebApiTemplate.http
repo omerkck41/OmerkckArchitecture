@@ -1,0 +1,55 @@
+### TEMPLATE_RAW_NAME — try the API (Visual Studio, Rider or the VS Code REST Client extension)
+### 1. Start the API:   dotnet run --project src/TEMPLATE_RAW_NAME.Api
+### 2. Create a token:  dotnet user-jwts create --project src/TEMPLATE_RAW_NAME.Api
+###    and paste it below.
+
+@baseUrl = http://localhost:5080
+@token = paste-the-token-from-dotnet-user-jwts-here
+@customerId = 0199f0a0-0000-7000-8000-000000000001
+
+### Health (no token needed)
+GET {{baseUrl}}/health/ready
+
+### Place an order (A-1 has 100 in stock, B-2 has 5)
+# @name placeOrder
+POST {{baseUrl}}/orders
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "customerId": "{{customerId}}",
+  "lines": [
+    { "sku": "A-1", "quantity": 2 },
+    { "sku": "B-2", "quantity": 1 }
+  ]
+}
+
+### Not enough stock: 409, nothing is saved and OrderPlaced is not dispatched
+POST {{baseUrl}}/orders
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "customerId": "{{customerId}}",
+  "lines": [{ "sku": "B-2", "quantity": 50 }]
+}
+
+### Get the order
+GET {{baseUrl}}/orders/{{placeOrder.response.body.$.id}}
+Authorization: Bearer {{token}}
+
+### List orders (newest first)
+GET {{baseUrl}}/orders?index=0&size=10
+Authorization: Bearer {{token}}
+
+### Cancel the order (soft delete: the order and its lines)
+DELETE {{baseUrl}}/orders/{{placeOrder.response.body.$.id}}
+Authorization: Bearer {{token}}
+
+### Cancelled orders are hidden...
+GET {{baseUrl}}/orders/{{placeOrder.response.body.$.id}}
+Authorization: Bearer {{token}}
+
+### ...unless you ask for them
+GET {{baseUrl}}/orders/{{placeOrder.response.body.$.id}}?includeDeleted=true
+Authorization: Bearer {{token}}
