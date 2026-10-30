@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1793375941191,
+  "lastUpdate": 1793378221736,
   "repoUrl": "https://github.com/omerkck41/OmerkckArchitecture",
   "entries": {
     "Benchmark": [
@@ -13198,6 +13198,102 @@ window.BENCHMARK_DATA = {
             "value": 12.665285370747249,
             "unit": "ns",
             "range": "± 0.058671157593271295"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "106805727+omerkck41@users.noreply.github.com",
+            "name": "Ömer KÜÇÜK",
+            "username": "omerkck41"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "a08a7edf845fce4be3986b0fe163d9eab10fa6e0",
+          "message": "fix: event bus handler lookup, soft-delete filter, paging, re-delete (#266)\n\n## What\n\nPR-A of the library-defect plan (4.7.0, no breaking change): behaviour\nthat was silently wrong.\n\n| # | Defect | Fix |\n|---|---|---|\n| A1 | Event bus: `Subscribe<TEvent, THandler>()` resolved the handler\nby class while `RegisterHandlersFromAssembly` registered only\n`IEventHandler<T>` → RabbitMQ / Azure Service Bus skipped the message\nwith a log entry. InMemory: one subscription replaced all registered\nhandlers for that event. | The scan also registers the class (and uses\n`TryAddEnumerable`, so a second scan does not duplicate handlers);\n`EventProcessor` falls back to the `IEventHandler<T>` registrations;\nInMemory runs registered + subscribed handlers, each once. |\n| A2 | `ApplyGlobalSoftDeleteQueryFilter` put the filter on derived and\nowned types → model build failed for TPH/TPT/TPC. | Root types only. A\nsoft-deletable owned type, or a soft-deletable derived type whose root\nis not soft-deletable, throws `InvalidOperationException` naming the\ntype (no filter could hide its deleted rows). |\n| A3 | `ToPaginateAsync`: `(index - from) * size` overflowed into a\nnegative OFFSET (500 on PostgreSQL / SQL Server). | Negative `size` /\n`from` and an offset beyond `int.MaxValue` throw\n`ArgumentOutOfRangeException` before querying. |\n| A4 | Re-deleting a soft-deleted row overwrote `DeletedDate`. | It is\nkept; an entity passed to `DeleteAsync` detached is not trusted and\nalways gets a new date. |\n\nAlso: docs (persistence, event bus, FAQ), CHANGELOG `[Unreleased]`\n(Fixed / Changed — behaviour), and the InMemory and\nRabbitMQ package READMEs, which used a non-existent `AddKckEventHandler`\nand invented option tables; both are now\ncompiled by the snippet project.\n\n## Verification\n\n- Test first for every fix (RED seen, then GREEN); new guards\nmutation-checked (each removal fails a test).\n- `dotnet build -c Release`: 0 warnings, 0 errors. Full test run: all\nnon-Docker tests pass; the 20 Testcontainers\n  integration tests need Docker (not available locally) and run in CI.\n- Independent review + adversarial review (Opus): the high finding\n(silent unfiltered derived/owned types) and the\nmedium ones (class registration and once-only scan, detached\n`DeletedDate`) are fixed in this PR.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-authored-by: Claude Opus 5.5 <noreply@anthropic.com>",
+          "timestamp": "2026-10-30T19:30:11+03:00",
+          "tree_id": "660bd7dac4b325ad4015adad489f6892203402bc",
+          "url": "https://github.com/omerkck41/OmerkckArchitecture/commit/a08a7edf845fce4be3986b0fe163d9eab10fa6e0"
+        },
+        "date": 1793378220708,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Success_Factory",
+            "value": 5.536199422677358,
+            "unit": "ns",
+            "range": "± 0.10320128976320267"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Failure_Factory",
+            "value": 6.64492173067161,
+            "unit": "ns",
+            "range": "± 0.11040254952079341"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Success",
+            "value": 1.379045764108499,
+            "unit": "ns",
+            "range": "± 0.048291715861997334"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Failure",
+            "value": 0.4766003707689898,
+            "unit": "ns",
+            "range": "± 0.016531248378768924"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Serialize_Reflection",
+            "value": 315.0047801562718,
+            "unit": "ns",
+            "range": "± 2.7842342154560686"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Deserialize_Reflection",
+            "value": 574.5522470474243,
+            "unit": "ns",
+            "range": "± 5.6359632399668405"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 0)",
+            "value": 8.111400386691093,
+            "unit": "ns",
+            "range": "± 0.14158326100197552"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 5)",
+            "value": 8.056513824633189,
+            "unit": "ns",
+            "range": "± 0.10579208809150123"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 0)",
+            "value": 8.195890211810669,
+            "unit": "ns",
+            "range": "± 0.29976460262782034"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 5)",
+            "value": 8.628084144421987,
+            "unit": "ns",
+            "range": "± 0.10593273357578122"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 0)",
+            "value": 7.91462670479502,
+            "unit": "ns",
+            "range": "± 0.11544588634198019"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 5)",
+            "value": 8.724385108266558,
+            "unit": "ns",
+            "range": "± 0.06856533398907814"
           }
         ]
       }
