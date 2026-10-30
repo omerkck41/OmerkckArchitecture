@@ -3,6 +3,11 @@ namespace Kck.Bundle.WorkerService;
 public sealed class KckWorkerServiceDefaults
 {
     public BackgroundJobsDefaults BackgroundJobs { get; set; } = new();
+    [Obsolete(
+        "Not read by AddKckWorkerServiceDefaults: " +
+        "configure OpenTelemetry in code with AddKckObservability(o => o.UseOpenTelemetry(...)). Removed in v5.0.",
+        DiagnosticId = "KCK0002",
+        UrlFormat = "https://github.com/omerkck41/OmerkckArchitecture/blob/main/docs/policies/deprecation.md#{0}")]
     public ObservabilityDefaults Observability { get; set; } = new();
 }
 

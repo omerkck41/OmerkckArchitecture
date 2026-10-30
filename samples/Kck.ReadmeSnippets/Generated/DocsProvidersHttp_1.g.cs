@@ -13,7 +13,9 @@ services.AddKckHttpResilience(opt =>
     opt.Timeout = TimeSpan.FromSeconds(30);                    // per attempt; the whole call gets 3x
     opt.MaxRetryAttempts = 3;
     opt.MedianFirstRetryDelay = TimeSpan.FromSeconds(1);
-    opt.CircuitBreakerDuration = TimeSpan.FromSeconds(30);
+    opt.CircuitBreakerDuration = TimeSpan.FromSeconds(30);         // how long the circuit stays open
+    opt.CircuitBreakerFailureRatio = 0.1;                          // share of failures that opens it
+    opt.CircuitBreakerMinimumThroughput = 100;                     // requests needed before it can open
 });
 #line default
         await Task.CompletedTask;

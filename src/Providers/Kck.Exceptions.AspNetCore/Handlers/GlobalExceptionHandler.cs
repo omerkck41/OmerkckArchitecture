@@ -35,7 +35,10 @@ public sealed partial class GlobalExceptionHandler : IKckExceptionHandler
 
         if (exception is CustomException customEx)
         {
-            LogHandledCustomException(_logger, exception, traceId, customEx.ErrorType);
+            if (statusCode >= StatusCodes.Status500InternalServerError)
+                LogCustomServerError(_logger, exception, traceId, customEx.ErrorType);
+            else
+                LogHandledCustomException(_logger, exception, traceId, customEx.ErrorType);
 
             return new UnifiedApiErrorResponse(
                 type: $"https://httpstatuses.com/{statusCode}",
@@ -62,6 +65,9 @@ public sealed partial class GlobalExceptionHandler : IKckExceptionHandler
 
     [LoggerMessage(Level = LogLevel.Warning, Message = "Handled CustomException. TraceId: {TraceId}, Type: {ExceptionType}")]
     private static partial void LogHandledCustomException(ILogger logger, Exception exception, string traceId, string exceptionType);
+
+    [LoggerMessage(Level = LogLevel.Error, Message = "CustomException mapped to a server error. TraceId: {TraceId}, Type: {ExceptionType}")]
+    private static partial void LogCustomServerError(ILogger logger, Exception exception, string traceId, string exceptionType);
 
     [LoggerMessage(Level = LogLevel.Error, Message = "Unhandled exception routed to GlobalExceptionHandler. TraceId: {TraceId}")]
     private static partial void LogUnhandledGlobalException(ILogger logger, Exception exception, string traceId);

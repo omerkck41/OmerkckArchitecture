@@ -1,3 +1,7 @@
 #nullable enable
 Kck.Http.Abstractions.ResilienceOptions.SerializerOptions.get -> System.Text.Json.JsonSerializerOptions?
 Kck.Http.Abstractions.ResilienceOptions.SerializerOptions.set -> void
+Kck.Http.Abstractions.ResilienceOptions.CircuitBreakerFailureRatio.get -> double
+Kck.Http.Abstractions.ResilienceOptions.CircuitBreakerFailureRatio.set -> void
+Kck.Http.Abstractions.ResilienceOptions.CircuitBreakerMinimumThroughput.get -> int
+Kck.Http.Abstractions.ResilienceOptions.CircuitBreakerMinimumThroughput.set -> void

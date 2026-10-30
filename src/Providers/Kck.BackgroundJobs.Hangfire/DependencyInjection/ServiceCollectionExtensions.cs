@@ -21,6 +21,12 @@ public static class KckBackgroundJobsHangfireServiceCollectionExtensions
             config.UseSimpleAssemblyNameTypeSerializer();
             config.UseRecommendedSerializerSettings();
 
+            if (options.ConfigureStorage is not null)
+            {
+                options.ConfigureStorage(config);
+                return;
+            }
+
             switch (options.StorageType.ToLowerInvariant())
             {
                 case "inmemory":
@@ -28,7 +34,8 @@ public static class KckBackgroundJobsHangfireServiceCollectionExtensions
                     break;
                 default:
                     throw new NotSupportedException(
-                        $"Hangfire storage type '{options.StorageType}' is not supported. Use 'inmemory'.");
+                        $"Hangfire storage type '{options.StorageType}' is not supported. Use 'InMemory', or set " +
+                        "HangfireOptions.ConfigureStorage for another storage.");
             }
         });
 

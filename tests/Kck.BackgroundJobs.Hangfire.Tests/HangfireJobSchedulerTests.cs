@@ -1,4 +1,5 @@
 using AwesomeAssertions;
+using Hangfire;
 using Kck.BackgroundJobs.Abstractions;
 using Kck.BackgroundJobs.Hangfire;
 using Microsoft.Extensions.DependencyInjection;
@@ -8,6 +9,35 @@ namespace Kck.BackgroundJobs.Hangfire.Tests;
 
 public sealed class HangfireJobSchedulerTests
 {
+    [Fact]
+    public void AddKckBackgroundJobsHangfire_ConfigureStorage_ReplacesTheInMemoryStorage()
+    {
+        // A durable storage (Hangfire.SqlServer, Hangfire.PostgreSql...) is plugged in through ConfigureStorage.
+        var storage = new global::Hangfire.InMemory.InMemoryStorage();
+        var services = new ServiceCollection();
+        services.AddLogging();
+        services.AddKckBackgroundJobsHangfire(o => o.ConfigureStorage = config => config.UseStorage(storage));
+
+        // Not disposed: Hangfire keeps the configured logger in static state shared by the tests.
+        var provider = services.BuildServiceProvider();
+
+        provider.GetRequiredService<global::Hangfire.JobStorage>().Should().BeSameAs(storage);
+    }
+
+    [Fact]
+    public void AddKckBackgroundJobsHangfire_UnknownStorageTypeWithoutConfigureStorage_Throws()
+    {
+        var services = new ServiceCollection();
+        services.AddLogging();
+        services.AddKckBackgroundJobsHangfire(o => o.StorageType = "SqlServer");
+
+        // Not disposed: Hangfire keeps the configured logger in static state shared by the tests.
+        var provider = services.BuildServiceProvider();
+        var resolve = () => provider.GetRequiredService<global::Hangfire.JobStorage>();
+
+        resolve.Should().Throw<NotSupportedException>().WithMessage("*ConfigureStorage*");
+    }
+
     [Fact]
     public void AddKckBackgroundJobsHangfire_RegistersScheduler()
     {

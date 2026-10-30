@@ -29,9 +29,6 @@ OmerkckArchitecture (Kck.\*).
 | `KCK0800-0899` | EventBus                          |
 | `KCK0900-0999` | Localization/Documents/Other      |
 
-Exception: `KCK0200` was issued to `Kck.Pipeline.MediatR` (ADR-0021) although it falls in the Caching range. An
-issued ID is never reused.
-
 ## Attribute Template
 
 ```csharp
@@ -61,6 +58,10 @@ v1.0.0 — API can be removed (major bump)
 | KCK0100      | `IReadRepository<T>`: `GetAsync`, `GetListAsync`, `GetListByDynamicAsync`, `AnyAsync`, `GetByIdAsync`, `CountAsync` (old signatures with bool flags) | 2.x | **removed: v4.0** (the `QueryOptions` methods became members of `IReadRepository`) |
 | KCK0200      | `Kck.Pipeline.MediatR` package (`KckPipelineBuilder`, `AddKckPipeline`) — ADR-0021; MediatR 13+ commercial license | 2.x (2026-05-07) | **removed: v4.0** (the package is no longer published; 3.x is deprecated on nuget.org) |
 | KCK0101      | `IQuery<T>.Query(filter, orderBy, bool withDeleted, bool enableTracking)` + `EfRepository.Query(...)` same signature — replaced by `Query(QueryOptions options, filter, orderBy)` | 4.3.0 (2026-10-29) | v5.0 (earliest; 4.4.x first) |
+| KCK0002      | Bundle settings that were never read: `KckWebApiDefaults.Persistence`, `.Caching`, `.Observability`, `SecurityDefaults.Hashing`, `JwtDefaults.Algorithm` (WebApi, MinimalApi), `KckWorkerServiceDefaults.Observability` — configure those providers in code | 4.7.0 | v5.0 (earliest) |
+| KCK0300      | `RsaKeySource.SecretsManager` (`Kck.Security.Jwt`) — never implemented; options validation rejects it. Set `RsaKeyBase64` | 4.7.0 | v5.0 (earliest) |
+| KCK0700      | `HangfireOptions.ConnectionString` — never read; use `HangfireOptions.ConfigureStorage` | 4.7.0 | v5.0 (earliest) |
+| KCK0900      | `ResilienceOptions.CircuitBreakerFailureThreshold` (`Kck.Http.Abstractions`) — never applied; use `CircuitBreakerFailureRatio` / `CircuitBreakerMinimumThroughput` | 4.7.0 | v5.0 (earliest) |
 | (none)       | `Kck.EventBus.InMemory` old registration methods (`AddKckEventBusInMemory` x2) — marked without a DiagnosticId | 2.x | **removed: v4.0** |
 
 > Note (2026-10-26): By number range KCK0200 falls in the Caching category, but it was used for Pipeline. Changing the

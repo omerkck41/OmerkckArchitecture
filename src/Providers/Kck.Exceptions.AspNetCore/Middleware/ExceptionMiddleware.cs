@@ -31,11 +31,8 @@ public sealed partial class ExceptionMiddleware
         _logger = logger;
     }
 
-    [LoggerMessage(Level = LogLevel.Error, Message = "Exception caught by ExceptionMiddleware. TraceId: {TraceId}")]
-    private static partial void LogExceptionCaught(ILogger logger, Exception ex, string traceId);
-
-    [LoggerMessage(Level = LogLevel.Warning, Message = "Response has already started, cannot write error response. TraceId: {TraceId}")]
-    private static partial void LogResponseAlreadyStarted(ILogger logger, string traceId);
+    [LoggerMessage(Level = LogLevel.Error, Message = "Response has already started, cannot write error response. TraceId: {TraceId}")]
+    private static partial void LogResponseAlreadyStarted(ILogger logger, Exception ex, string traceId);
 
     public async Task InvokeAsync(HttpContext context)
     {
@@ -45,11 +42,10 @@ public sealed partial class ExceptionMiddleware
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
-            LogExceptionCaught(_logger, ex, context.TraceIdentifier);
-
+            // The handlers log the exception once, at a level that matches its status code (4xx Warning, 5xx Error).
             if (context.Response.HasStarted)
             {
-                LogResponseAlreadyStarted(_logger, context.TraceIdentifier);
+                LogResponseAlreadyStarted(_logger, ex, context.TraceIdentifier);
                 throw;
             }
 

@@ -63,7 +63,8 @@ services.AddKckJwt(opt =>
 
 - `RsaKeySource.Configuration`: `RsaKeyBase64` holds the PKCS#1 private key as Base64 (keep it in a secret store).
 - `RsaKeySource.File`: `RsaKeyPath` points to a PEM file.
-- `RsaKeySource.SecretsManager` is not supported in this version (it throws at first use).
+- `RsaKeySource.SecretsManager` is obsolete (KCK0300): it was never implemented, and options validation rejects it at
+  startup. Read the key from your secret store yourself and set `RsaKeyBase64`.
 
 Generation and validation:
 

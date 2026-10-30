@@ -6,6 +6,7 @@ using Kck.Exceptions.AspNetCore.Middleware;
 using Kck.Exceptions.AspNetCore.Models;
 using Kck.Exceptions.Models;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Xunit;
 
@@ -108,6 +109,47 @@ public class ExceptionMiddlewareTests
         await middleware.InvokeAsync(context);
 
         context.Response.StatusCode.Should().Be(200);
+    }
+
+    public static TheoryData<Exception, LogLevel> LoggedOnceCases => new()
+    {
+        { new NotFoundException("missing"), LogLevel.Warning },                              // 404
+        { new ValidationException([new ValidationExceptionModel { Property = "Name", Errors = ["Required"] }]), LogLevel.Warning }, // 422
+        { new UnclassifiedException(), LogLevel.Error },                                    // CustomException without a status: 500
+        { new InvalidOperationException("boom"), LogLevel.Error },                          // not a CustomException: 500
+    };
+
+    [Theory]
+    [MemberData(nameof(LoggedOnceCases))]
+    public async Task InvokeAsync_LogsEachExceptionOnce_WarningForClientErrorsErrorForServerErrors(Exception thrown, LogLevel expected)
+    {
+        // Before 4.7 the middleware logged every exception at Error and the handler logged it again.
+        var log = new List<LogLevel>();
+        var middleware = CreateMiddleware(_ => throw thrown, log);
+
+        await middleware.InvokeAsync(CreateHttpContext());
+
+        log.Should().Equal(expected);
+    }
+
+    private sealed class UnclassifiedException() : CustomException("unclassified");
+
+    private sealed class RecordingLogger<T>(List<LogLevel> log) : ILogger<T>
+    {
+        public IDisposable? BeginScope<TState>(TState state) where TState : notnull => null;
+
+        public bool IsEnabled(LogLevel logLevel) => true;
+
+        public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception? exception,
+            Func<TState, Exception?, string> formatter) => log.Add(logLevel);
+    }
+
+    private static ExceptionMiddleware CreateMiddleware(RequestDelegate next, List<LogLevel> log)
+    {
+        var factory = new ExceptionHandlerFactory(
+            new ValidationExceptionHandler(new RecordingLogger<ValidationExceptionHandler>(log)),
+            new GlobalExceptionHandler(new RecordingLogger<GlobalExceptionHandler>(log)));
+        return new ExceptionMiddleware(next, factory, new RecordingLogger<ExceptionMiddleware>(log));
     }
 
     private static ExceptionMiddleware CreateMiddleware(RequestDelegate next)

@@ -20,7 +20,13 @@ public static class KckHttpResilienceServiceCollectionExtensions
             {
                 handler.Retry.MaxRetryAttempts = options.MaxRetryAttempts;
                 handler.Retry.Delay = options.MedianFirstRetryDelay;
-                handler.CircuitBreaker.SamplingDuration = options.CircuitBreakerDuration * 2;
+                handler.CircuitBreaker.BreakDuration = options.CircuitBreakerDuration;
+                handler.CircuitBreaker.FailureRatio = options.CircuitBreakerFailureRatio;
+                handler.CircuitBreaker.MinimumThroughput = options.CircuitBreakerMinimumThroughput;
+                // The standard handler requires a sampling window of at least twice the attempt timeout; 30 s (its
+                // default) is the floor, so a very short timeout does not shrink the window below its minimum.
+                handler.CircuitBreaker.SamplingDuration = TimeSpan.FromTicks(Math.Max(
+                    (options.Timeout * 2).Ticks, TimeSpan.FromSeconds(30).Ticks));
                 handler.AttemptTimeout.Timeout = options.Timeout;
                 handler.TotalRequestTimeout.Timeout = options.Timeout * 3;
             });

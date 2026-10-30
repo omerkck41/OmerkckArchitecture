@@ -4,7 +4,7 @@
 namespace ReadmeSnippets.DocsProvidersSecurity_8;
 using Kck.Security.Abstractions.Token;
 
-#line 149 "docs/providers/security.md"
+#line 150 "docs/providers/security.md"
 public class LogoutService(ITokenBlacklistService blacklist)
 {
     // Keep the entry until the token would have expired anyway.
