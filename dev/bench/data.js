@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1793346181557,
+  "lastUpdate": 1793348816249,
   "repoUrl": "https://github.com/omerkck41/OmerkckArchitecture",
   "entries": {
     "Benchmark": [
@@ -12142,6 +12142,102 @@ window.BENCHMARK_DATA = {
             "value": 8.209319925308227,
             "unit": "ns",
             "range": "± 0.11583718064943566"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "106805727+omerkck41@users.noreply.github.com",
+            "name": "Ömer KÜÇÜK",
+            "username": "omerkck41"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "ee04ff12387a0f02ef4f5b42a8a71d0689a5cda1",
+          "message": "docs: DX-first adoption plan, ADR-0029 and template smoke test (F0) (#255)\n\n## Summary\nPhase F0 of the adoption plan approved on 2026-10-30: decisions,\nbaseline and a safety net before the template changes.\n\n- **Plan** — `docs/plans/2026-10-30-dx-hero-module-plan.md` (F0–F5):\ntemplate showcase (4.6.0), English docs,\nreference sample, analyzers (4.7.0); acceptance examples, alternatives,\nimpact map, premortem, blind spots, rollback.\n- **ADR-0029** — developer experience first,\n`Kck.Persistence.EntityFramework` as the hero module; English as the\nsingle\ndocs language (historical ADRs stay as they are); SQLite solution\ntemplate; Diátaxis docs; phased 4.x minors.\n- **Adoption baseline** — `docs/policies/adoption-metrics.md`: 58\npackages, 132,499 total downloads, median 2,242,\n  0 stars, 0 external issues (2026-10-30).\n- **Architecture map** — `docs/memory/architecture.md` (not published;\nsource for plan impact maps).\n- **`template-smoke` workflow** — packs every package of the commit into\na local feed (their prerelease versions are not\non nuget.org), generates `kck-webapi` in an isolated template hive\noutside the repository and builds it with\n  `-warnaserror`; fails if a version placeholder survives.\n\n## Verification\n- Local run of `.github/scripts/template-smoke.sh` against a fresh pack:\nthe generated project references\n`Kck.Bundle.WebApi 4.5.1-alpha.0.2` from the local feed and builds with\n0 warnings.\n- RED: with `var brokenOnPurpose = ;` appended to the template's\n`Program.cs`, the script fails with CS1525; reverted.\n- Workflow YAML parses; script passes `bash -n`. actionlint/zizmor run\nin CI (`workflow-lint`).\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-authored-by: Claude Opus 5.5 <noreply@anthropic.com>",
+          "timestamp": "2026-10-30T11:19:12+03:00",
+          "tree_id": "1042543bdcdaa748273ee6314756402c0960d8ba",
+          "url": "https://github.com/omerkck41/OmerkckArchitecture/commit/ee04ff12387a0f02ef4f5b42a8a71d0689a5cda1"
+        },
+        "date": 1793348815687,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Success_Factory",
+            "value": 6.600678282587425,
+            "unit": "ns",
+            "range": "± 0.24897264751167544"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Failure_Factory",
+            "value": 10.001617091206404,
+            "unit": "ns",
+            "range": "± 0.1673604425650293"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Success",
+            "value": 1.6412300713933432,
+            "unit": "ns",
+            "range": "± 0.00685047307099982"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Failure",
+            "value": 0.6821553460680522,
+            "unit": "ns",
+            "range": "± 0.004287304200212535"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Serialize_Reflection",
+            "value": 480.1808459418161,
+            "unit": "ns",
+            "range": "± 3.337161488725871"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Deserialize_Reflection",
+            "value": 820.9008968217032,
+            "unit": "ns",
+            "range": "± 2.751219448842003"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 0)",
+            "value": 10.865377542163644,
+            "unit": "ns",
+            "range": "± 0.127654304877287"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 5)",
+            "value": 11.01329307059447,
+            "unit": "ns",
+            "range": "± 0.2412791370620526"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 0)",
+            "value": 11.317388585209846,
+            "unit": "ns",
+            "range": "± 0.2536239678382946"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 5)",
+            "value": 11.357704378167789,
+            "unit": "ns",
+            "range": "± 0.1886490954460674"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 0)",
+            "value": 10.328888924284415,
+            "unit": "ns",
+            "range": "± 0.5094464472619614"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 5)",
+            "value": 10.712787186374536,
+            "unit": "ns",
+            "range": "± 0.46443002745165096"
           }
         ]
       }
