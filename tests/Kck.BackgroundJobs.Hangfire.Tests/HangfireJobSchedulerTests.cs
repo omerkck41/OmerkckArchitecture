@@ -13,7 +13,7 @@ public sealed class HangfireJobSchedulerTests
     public void AddKckBackgroundJobsHangfire_ConfigureStorage_ReplacesTheInMemoryStorage()
     {
         // A durable storage (Hangfire.SqlServer, Hangfire.PostgreSql...) is plugged in through ConfigureStorage.
-        var storage = new global::Hangfire.InMemory.InMemoryStorage();
+        using var storage = new global::Hangfire.InMemory.InMemoryStorage();
         var services = new ServiceCollection();
         services.AddLogging();
         services.AddKckBackgroundJobsHangfire(o => o.ConfigureStorage = config => config.UseStorage(storage));

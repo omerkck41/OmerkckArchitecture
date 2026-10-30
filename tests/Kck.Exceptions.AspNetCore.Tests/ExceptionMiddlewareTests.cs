@@ -111,19 +111,21 @@ public class ExceptionMiddlewareTests
         context.Response.StatusCode.Should().Be(200);
     }
 
-    public static TheoryData<Exception, LogLevel> LoggedOnceCases => new()
-    {
-        { new NotFoundException("missing"), LogLevel.Warning },                              // 404
-        { new ValidationException([new ValidationExceptionModel { Property = "Name", Errors = ["Required"] }]), LogLevel.Warning }, // 422
-        { new UnclassifiedException(), LogLevel.Error },                                    // CustomException without a status: 500
-        { new InvalidOperationException("boom"), LogLevel.Error },                          // not a CustomException: 500
-    };
-
     [Theory]
-    [MemberData(nameof(LoggedOnceCases))]
-    public async Task InvokeAsync_LogsEachExceptionOnce_WarningForClientErrorsErrorForServerErrors(Exception thrown, LogLevel expected)
+    [InlineData("not-found", LogLevel.Warning)]       // 404
+    [InlineData("validation", LogLevel.Warning)]      // 422
+    [InlineData("unclassified", LogLevel.Error)]      // CustomException without a status: 500
+    [InlineData("other", LogLevel.Error)]             // not a CustomException: 500
+    public async Task InvokeAsync_LogsEachExceptionOnce_WarningForClientErrorsErrorForServerErrors(string kind, LogLevel expected)
     {
         // Before 4.7 the middleware logged every exception at Error and the handler logged it again.
+        Exception thrown = kind switch
+        {
+            "not-found" => new NotFoundException("missing"),
+            "validation" => new ValidationException([new ValidationExceptionModel { Property = "Name", Errors = ["Required"] }]),
+            "unclassified" => new UnclassifiedException(),
+            _ => new InvalidOperationException("boom"),
+        };
         var log = new List<LogLevel>();
         var middleware = CreateMiddleware(_ => throw thrown, log);
 
