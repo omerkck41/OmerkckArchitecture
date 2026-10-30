@@ -1,54 +1,54 @@
-# Destek Politikasi (.NET Surum Matrisi)
+# Support Policy (.NET Version Matrix)
 
-Bu dokuman OmerkckArchitecture (`Kck.*`) paketlerinin hedef framework
-destek soyutlamasini tanimlar.
+This document defines the target framework support model of the
+OmerkckArchitecture (`Kck.*`) packages.
 
-## Genel Kural
+## General Rule
 
-Kutuphane Microsoft'un .NET destek politikasini takip eder:
+The library follows Microsoft's .NET support policy:
 
-- **LTS** (Long Term Support, 3 yil): kutuphane **butun yasam dongusu boyunca** destekler.
-- **STS** (Standard Term Support, 18 ay): kutuphane **destek penceresi suresince** hedefler.
-- LTS donemi sonu yaklastiginda yeni LTS yayinlandiktan sonra eski LTS kademeli olarak kaldirilir.
+- **LTS** (Long Term Support, 3 years): the library supports it **for its entire lifecycle**.
+- **STS** (Standard Term Support, 18 months): the library targets it **for the duration of its support window**.
+- As the end of an LTS period approaches, the old LTS is removed gradually once the new LTS is released.
 
-## Mevcut Destek Matrisi (2026-05-04 itibariyle)
+## Current Support Matrix (as of 2026-05-04)
 
-| TFM | Tip | Microsoft Destek Sonu | Kutuphane Durumu |
+| TFM | Type | Microsoft End of Support | Library Status |
 |---|---|---|---|
-| `net8.0` | LTS | 2026-11-10 | **Kaldırıldı** (ADR-0019, v2.0) |
-| `net10.0` | STS (LTS adayi) | 2027-11-09 | **Birincil hedef** |
+| `net8.0` | LTS | 2026-11-10 | **Removed** (ADR-0019, v2.0) |
+| `net10.0` | STS (LTS candidate) | 2027-11-09 | **Primary target** |
 
-> .NET 10 yayin doneminde STS olarak duyurulmus, ancak Microsoft destek sayfasi
-> guncellenirse LTS'e cevrilebilir. Resmi durum icin:
+> .NET 10 was announced as STS at release, but it may be changed to LTS if Microsoft
+> updates its support page. For the official status, see:
 > https://dotnet.microsoft.com/platform/support/policy/dotnet-core
 
-## Hedef Framework Karari
+## Target Framework Decision
 
-**Hedef framework politikasi (ADR-0019):**
+**Target framework policy (ADR-0019):**
 
-- Tüm paketler: `net10.0` (tek hedef)
-- ADR-0011 (multi-target net8+net10) ADR-0019 ile yerine geçildi.
+- All packages: `net10.0` (single target)
+- ADR-0011 (multi-target net8+net10) was superseded by ADR-0019.
 
-Detaylar: [`docs/adr/0019-drop-net8-target.md`](../adr/0019-drop-net8-target.md)
+Details: [`docs/adr/0019-drop-net8-target.md`](../adr/0019-drop-net8-target.md)
 
-## Surum Cikarma Politikasi
+## Release Policy
 
-- LTS sonu: en az **bir minor** boyunca uyari donemi (CHANGELOG `### Deprecated` → `Target framework X removal`).
-- Major bump (1.0 sonrasi): TFM kaldirma sadece major'da.
-- 0.x doneminde: minor bump'larda TFM degisikligi yapilabilir (CHANGELOG ile).
+- End of LTS: a warning period of at least **one minor** release (CHANGELOG `### Deprecated` → `Target framework X removal`).
+- Major bump (after 1.0): TFMs are removed only in a major release.
+- During 0.x: the TFM can change in minor bumps (with a CHANGELOG entry).
 
-## Yeni TFM Eklerken / Kaldirirken
+## Adding / Removing a TFM
 
-1. ADR yaz (Bolum 11.x) — gerekce + alternatifler.
-2. `Directory.Build.props` icindeki default `<TargetFrameworks>` guncelle.
-3. Net10-only csproj'lari gozden gecir (multi-target'a aday var mi?).
-4. CI matrix (`.github/workflows/build-test.yml`) yeni TFM'yi build/test eder.
-5. `CHANGELOG.md` `[Unreleased]` altina kayit dus.
-6. Bu dokumandaki matrisi guncelle.
+1. Write an ADR (Section 11.x) — rationale + alternatives.
+2. Update the default `<TargetFrameworks>` in `Directory.Build.props`.
+3. Review the net10-only csproj files (are there any candidates for multi-targeting?).
+4. The CI matrix (`.github/workflows/build-test.yml`) builds/tests the new TFM.
+5. Add an entry under `[Unreleased]` in `CHANGELOG.md`.
+6. Update the matrix in this document.
 
-## Referanslar
+## References
 
 - [.NET Support Policy (Microsoft)](https://dotnet.microsoft.com/platform/support/policy/dotnet-core)
 - [ADR-0011: Multi-Target net8.0 + net10.0 (Superseded)](../adr/0011-multi-target-net8-net10.md)
-- [ADR-0019: net8.0 desteğinin kaldırılması](../adr/0019-drop-net8-target.md)
-- `tasks/library-strategy-2026-04-25.md` Bolum 6.4
+- [ADR-0019: Dropping net8.0 support](../adr/0019-drop-net8-target.md)
+- `tasks/library-strategy-2026-04-25.md` Section 6.4

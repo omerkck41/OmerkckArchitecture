@@ -1,70 +1,70 @@
 # Migration vX.x → vY.0
 
-**Yayin tarihi:** YYYY-MM-DD
-**Etki:** Breaking
-**Tahmini effort:** S / M / L (kullanicinin kod buyuklugune gore)
+**Release date:** YYYY-MM-DD
+**Impact:** Breaking
+**Estimated effort:** S / M / L (depends on the size of your codebase)
 
-## Neden Bu Major?
+## Why This Major?
 
-Bu major'in sebebini 1-2 paragrafta acikla. Hangi mimari karar (ADR-XXXX)
-tetikledi? Gerekce.
+Explain the reason for this major in 1-2 paragraphs. Which architecture
+decision (ADR-XXXX) triggered it? Give the rationale.
 
-## Etkilenen Paketler
+## Affected Packages
 
-| Paket | Degisiklik Tipi | Etki Seviyesi |
+| Package | Change type | Impact level |
 |---|---|---|
-| `Kck.Core.Abstractions` | API rename | Orta |
-| `Kck.Caching.Redis` | Servis kayit imzasi | Yuksek |
+| `Kck.Core.Abstractions` | API rename | Medium |
+| `Kck.Caching.Redis` | Service registration signature | High |
 
-(Etki: Dusuk = sadece interface implementasyonlari, Orta = kullanim siteleri,
-Yuksek = configuration / DI seviyesi)
+(Impact: Low = interface implementations only, Medium = call sites,
+High = configuration / DI level)
 
-## Hizli Bakis (TL;DR)
+## At a Glance (TL;DR)
 
-- Degisiklik 1 (3-5 kelime ile)
-- Degisiklik 2
-- Degisiklik 3
+- Change 1 (in 3-5 words)
+- Change 2
+- Change 3
 
-## Detayli Degisiklikler
+## Detailed Changes
 
-### 1. `<API adi>` Kaldirildi/Yeniden Adlandirildi
+### 1. `<API name>` Removed/Renamed
 
-**Sebep:** ...
+**Reason:** ...
 
-**Once (vX):**
+**Before (vX):**
 ```csharp
 services.AddKckXxx(opt => opt.Foo = "bar");
 ```
 
-**Sonra (vY):**
+**After (vY):**
 ```csharp
 services.AddKckXxx(opt => opt.Bar = "foo");
 ```
 
-**DiagnosticId:** `KCKnnnn` (varsa)
+**DiagnosticId:** `KCKnnnn` (if any)
 
-### 2. `<API adi>` Davranis Degisikligi
+### 2. `<API name>` Behavior Change
 
 ...
 
-## Otomatik Migration
+## Automated Migration
 
-Mumkun olan donusumler:
+Conversions that can be automated:
 
-- **Roslynator analyzer:** `<analyzer-id>` — `dotnet format analyzers`
-  ile uygulanabilir.
+- **Roslynator analyzer:** `<analyzer-id>` — can be applied with
+  `dotnet format analyzers`.
 - **`dotnet format`:** ...
-- **IDE quick fix:** Visual Studio / Rider Ctrl+. / Alt+Enter — Obsolete
-  uyarisi tikla, "Use suggested replacement".
+- **IDE quick fix:** Visual Studio / Rider Ctrl+. / Alt+Enter — click the
+  Obsolete warning, then "Use suggested replacement".
 
-## Manuel Adimlar
+## Manual Steps
 
-Otomatiklestirilemeyen yerler:
+Places that cannot be automated:
 
-1. Configuration (`appsettings.json`) anahtar yeniden adlandirmasi: `Foo` → `Bar`.
+1. Rename configuration (`appsettings.json`) keys: `Foo` → `Bar`.
 2. ...
 
-## Referans
+## References
 
 - ADR-XXXX
 - CHANGELOG.md `[vY.0.0]`

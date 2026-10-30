@@ -2,34 +2,34 @@
 
 ## Setup & Registration
 
-### Hangi paketi yüklemeliyim?
+### Which package should I install?
 
-Hızlı başlangıç için `Kck.Bundle.WebApi` veya `Kck.Bundle.MinimalApi` ekleyin — tek pakette
-tüm temel provider'lar gelir. Yalnızca belirli modüllere ihtiyaç duyuyorsanız tekil provider
-paketlerini (`Kck.Caching.Redis`, `Kck.EventBus.RabbitMq`, vb.) tercih edin.
+For a quick start, add `Kck.Bundle.WebApi` or `Kck.Bundle.MinimalApi`. A single package brings
+all the core providers. If you only need specific modules, prefer the individual provider
+packages (`Kck.Caching.Redis`, `Kck.EventBus.RabbitMq`, and so on).
 
-### "No service for type 'ICacheService' has been registered" hatası
+### "No service for type 'ICacheService' has been registered" error
 
-`AddKckCaching()` veya bundle'da caching bölümünü atlamışsınızdır. `Program.cs` içinde:
+You skipped `AddKckCaching()` or the caching section of the bundle. In `Program.cs`:
 
 ```csharp
 builder.Services.AddKckCaching(opts => opts.KeyPrefix = "myapp:");
-builder.Services.AddKckInMemoryCache();  // ya da AddKckRedisCache(...)
+builder.Services.AddKckInMemoryCache();  // or AddKckRedisCache(...)
 ```
 
-### AddKck* çağrılarının sırası önemli mi?
+### Does the order of AddKck* calls matter?
 
-`AddKckCaching()` → `AddKckRedisCache()` gibi önce abstraction, sonra provider. Ancak
-Mediator pipeline'ında davranış sırasına dikkat edin: `AddKckMediatorPipeline()` builder
-üzerindeki `.Use…Behavior()` çağrılarının sırasıyla çalışır.
+Register the abstraction first, then the provider: `AddKckCaching()` → `AddKckRedisCache()`. In the
+Mediator pipeline, however, watch the order of behaviors: `AddKckMediatorPipeline()` runs the
+behaviors in the order of the `.Use…Behavior()` calls on the builder.
 
 ---
 
 ## Entity & Persistence
 
-### Entity<TId> soyut sınıftan türeyen sınıfımda parametre constructor kullanamıyorum
+### I can't use a parameterized constructor in my class derived from the abstract Entity<TId>
 
-Entity `protected Entity(TId id)` constructor'a sahip. Türetilen sınıfta bunu çağırın:
+Entity has a `protected Entity(TId id)` constructor. Call it in the derived class:
 
 ```csharp
 public class Product : Entity<Guid>
@@ -40,120 +40,120 @@ public class Product : Entity<Guid>
 }
 ```
 
-### EF Core migration'da "The entity type requires a primary key" hatası
+### "The entity type requires a primary key" error in an EF Core migration
 
-EF Core, `Entity<TId>.Id`'yi otomatik olarak PK olarak tanımaz. `OnModelCreating` içinde
-ya da fluent konfigürasyonda belirtin:
+EF Core does not automatically recognize `Entity<TId>.Id` as the primary key. Specify it in
+`OnModelCreating` or in a fluent configuration:
 
 ```csharp
 modelBuilder.Entity<Product>().HasKey(p => p.Id);
 ```
 
-`IEntityTypeConfiguration<T>` ile ayrı dosyada yapılandırmanız önerilir.
+We recommend configuring it in a separate file with `IEntityTypeConfiguration<T>`.
 
-### SoftDelete filtresi otomatik uygulanıyor mu?
+### Is the SoftDelete filter applied automatically?
 
-Hayır, `EfRepository` varsayılan sorgularına global filtre eklenmez. `DbContext`'inizde kendiniz
-`HasQueryFilter(e => !e.IsDeleted)` eklemeniz gerekir. Bu kasıtlı bir tasarım kararıdır —
-admin paneli gibi silinen kayıtları gösteren ekranlar için filtre gerekmiyor olabilir.
+No. `EfRepository` does not add a global filter to its default queries. You must add
+`HasQueryFilter(e => !e.IsDeleted)` to your `DbContext` yourself. This is a deliberate design
+decision: screens that show deleted records, such as an admin panel, may not need the filter.
 
-### Paginate<T> ile IQueryable kullanımı
+### Using IQueryable with Paginate<T>
 
 ```csharp
-// DOĞRU — önce Where/OrderBy, sonra ToPaginateAsync
+// CORRECT — Where/OrderBy first, then ToPaginateAsync
 var result = await _repo.GetListAsync(
     predicate: p => p.IsActive,
     orderBy: q => q.OrderBy(p => p.Name),
     index: 0, size: 20, cancellationToken: ct);
 ```
 
-`ToPaginateAsync` extension metodu, `totalCount` için ayrı `COUNT(*)` sorgusu çalıştırır.
-Büyük tablolarda performans için `QueryOptions` ile gerekli alanları `Select` edin.
+The `ToPaginateAsync` extension method runs a separate `COUNT(*)` query for `totalCount`.
+On large tables, use `QueryOptions` to `Select` only the fields you need for better performance.
 
 ---
 
 ## Caching
 
-### Redis bağlantısı "Connection refused" hatası
+### Redis "Connection refused" error
 
-`RedisConnectionHostedService`, uygulama başlarken bağlanır. Bağlantı başarısız olursa
-uygulama ayağa kalkar ama `ICacheService` çağrıları `InvalidOperationException` fırlatır.
+`RedisConnectionHostedService` connects when the application starts. If the connection fails,
+the application still starts, but `ICacheService` calls throw `InvalidOperationException`.
 
-Kontrol listesi:
-1. `CacheOptions.RedisConnectionString` doğru mu?
-2. Redis sunucusu erişilebilir mi? (`redis-cli ping`)
-3. `ASPNETCORE_ENVIRONMENT=Development` ise `appsettings.Development.json`'a bakın.
+Checklist:
+1. Is `CacheOptions.RedisConnectionString` correct?
+2. Is the Redis server reachable? (`redis-cli ping`)
+3. If `ASPNETCORE_ENVIRONMENT=Development`, check `appsettings.Development.json`.
 
-### InMemory cache ile Redis cache farkı nedir?
+### What is the difference between InMemory cache and Redis cache?
 
-| Özellik | InMemory | Redis | HybridCache |
+| Feature | InMemory | Redis | HybridCache |
 |---|---|---|---|
-| Dağıtık | Hayır | Evet | Evet (L2) |
-| Hız | En hızlı | Ağ gecikmesi | L1 cache hit = InMemory hızı |
-| Stampede koruması | CacheServiceBase (64 stripe) | CacheServiceBase (64 stripe) | HybridCache yerleşik |
-| Multi-instance | Hayır | Evet | Evet |
+| Distributed | No | Yes | Yes (L2) |
+| Speed | Fastest | Network latency | L1 cache hit = InMemory speed |
+| Stampede protection | CacheServiceBase (64 stripes) | CacheServiceBase (64 stripes) | Built into HybridCache |
+| Multi-instance | No | Yes | Yes |
 
-### KeyPrefix ne için kullanılır?
+### What is KeyPrefix used for?
 
-Aynı Redis instance'ını birden fazla uygulama veya ortam (staging/production) paylaşıyorsa
-key çakışmalarını önler. Öneri: `"{appname}:{env}:"` formatı.
+It prevents key collisions when several applications or environments (staging/production)
+share the same Redis instance. Recommendation: use the `"{appname}:{env}:"` format.
 
 ---
 
 ## Event Bus
 
-### IntegrationEvent'im yayınlandı ama handler çalışmadı
+### My IntegrationEvent was published but the handler did not run
 
-1. `Subscribe<TEvent, THandler>()` çağrıldı mı? DI container handler'ı kayıt ediyor ama
-   subscribe ayrıca yapılmalı (genellikle startup'da).
-2. Handler, DI'da kayıtlı mı? `AddKckEventBus()` builder üzerinden handler'ları kaydedin.
-3. RabbitMQ/Azure kullanıyorsanız exchange/queue adlarının eşleştiğini doğrulayın.
+1. Did you call `Subscribe<TEvent, THandler>()`? The DI container registers the handler, but
+   you must also subscribe separately (usually at startup).
+2. Is the handler registered in DI? Register handlers through the `AddKckEventBus()` builder.
+3. If you use RabbitMQ/Azure, verify that the exchange/queue names match.
 
-### RabbitMQ bağlantısı kesilince mesajlar kaybolur mu?
+### Are messages lost if the RabbitMQ connection drops?
 
-`InMemoryEventBus` fire-and-forget'tir — kalıcılık yok. `RabbitMqEventBus` kullanıyorsanız
-durability için exchange ve queue'yu `durable: true` ile tanımladığınızdan emin olun.
-Kritik iş süreçleri için Outbox pattern entegrasyonunu değerlendirin (bakınız: Faz E listesi).
+`InMemoryEventBus` is fire-and-forget: there is no persistence. If you use `RabbitMqEventBus`,
+make sure you define the exchange and queue with `durable: true` for durability.
+For critical business processes, consider integrating the Outbox pattern (see: Phase E list).
 
 ---
 
 ## Pipeline (Mediator)
 
-### MediatR desteği nerede?
+### Where is MediatR support?
 
-`Kck.Pipeline.MediatR` 4.0.0'da kaldırıldı (ADR-0021, ADR-0028): MediatR 13+ ticari lisanslı. Pipeline için
-`Kck.Pipeline.Mediator` (Mediator, MIT) kullanın. Migrasyon kılavuzu:
+`Kck.Pipeline.MediatR` was removed in 4.0.0 (ADR-0021, ADR-0028): MediatR 13+ is commercially licensed. Use
+`Kck.Pipeline.Mediator` (Mediator, MIT) for the pipeline. Migration guide:
 [docs/migrations/mediatR-to-mediator.md](migrations/mediatR-to-mediator.md).
 
-### Behavior sırasını nasıl belirlerim?
+### How do I set the behavior order?
 
-`AddKckMediatorPipeline()` builder'ındaki `.Use…Behavior()` çağrılarının sırası pipeline sırasını belirler:
+The order of the `.Use…Behavior()` calls on the `AddKckMediatorPipeline()` builder sets the pipeline order:
 
 ```csharp
 services.AddMediator();
 services.AddKckMediatorPipeline(p => p
-    .UseLoggingBehavior()       // ilk çalışır
-    .UseValidationBehavior()    // ikinci
-    .UseCachingBehavior());     // üçüncü
+    .UseLoggingBehavior()       // runs first
+    .UseValidationBehavior()    // second
+    .UseCachingBehavior());     // third
 ```
 
 ---
 
 ## Security
 
-### JWT token "IDX10223: Lifetime validation failed" hatası
+### JWT token "IDX10223: Lifetime validation failed" error
 
-Sunucu saati ile token oluşturma zamanı arasında fark var. `ClockSkew` toleransını kontrol edin:
+There is a difference between the server clock and the token creation time. Check the `ClockSkew` tolerance:
 
 ```csharp
 options.TokenValidationParameters.ClockSkew = TimeSpan.FromMinutes(5);
 ```
 
-### Argon2 hash doğrulaması yavaş
+### Argon2 hash verification is slow
 
-Bu beklenen davranıştır — Argon2 kasıtlı olarak yavaştır (DoS karşıtı tasarım).
-`Argon2Options.Iterations` ve `MemorySize` değerlerini ortamınıza göre ayarlayın.
-Minimum önerilen: `Iterations=3, MemorySize=65536`.
+This is expected. Argon2 is deliberately slow (a design that counters DoS attacks).
+Adjust the `Argon2Options.Iterations` and `MemorySize` values for your environment.
+Minimum recommended: `Iterations=3, MemorySize=65536`.
 
 ---
 
@@ -161,24 +161,24 @@ Minimum önerilen: `Iterations=3, MemorySize=65536`.
 
 ### NU1004 — lock file package version mismatch
 
-Tipik neden: farklı SDK versiyonu veya Directory.Packages.props değişikliği.
+Typical cause: a different SDK version or a change to Directory.Packages.props.
 
 ```bash
-dotnet restore --force-evaluate  # lock dosyalarını yeniden oluşturur
+dotnet restore --force-evaluate  # regenerates the lock files
 git add "**packages.lock.json"
 ```
 
-SDK versiyonu sabitleyin (global.json). Detay: [ADR-0011](adr/0011-multi-target-net8-net10.md).
+Pin the SDK version (global.json). Details: [ADR-0011](adr/0011-multi-target-net8-net10.md).
 
-### CS0433 — Azure.Core çakışması
+### CS0433 — Azure.Core conflict
 
-`Azure.Identity >= 1.21.0` ve `Azure.Core >= 1.54.0` birlikte kullanıldığında oluşabilir.
-`Directory.Packages.props` içinde `Azure.Identity 1.21.0+`'a yükseltin. Detay:
+It can occur when `Azure.Identity >= 1.21.0` and `Azure.Core >= 1.54.0` are used together.
+Upgrade to `Azure.Identity 1.21.0+` in `Directory.Packages.props`. Details:
 [MEMORY: Azure CS0433](https://github.com/omerkck41/OmerkckArchitecture/blob/main/SECURITY.md).
 
-### "Coverage threshold not met" CI hatası
+### "Coverage threshold not met" CI error
 
-Lokal olarak coverage ölçün:
+Measure coverage locally:
 
 ```bash
 dotnet test --collect:"XPlat Code Coverage"
@@ -186,22 +186,22 @@ dotnet reportgenerator -reports:"**/coverage.cobertura.xml" -targetdir:coverage-
 cat coverage-report/Summary.txt
 ```
 
-Eşikler: `Line ≥50%, Branch ≥45%`. Detay: [docs/policies/test-coverage.md](policies/test-coverage.md).
+Thresholds: `Line ≥50%, Branch ≥45%`. Details: [docs/policies/test-coverage.md](policies/test-coverage.md).
 
 ---
 
 ## Versioning & NuGet
 
-### Yeni versiyon tag'lemeyi unuttum, NuGet'te eski versiyon görünüyor
+### I forgot to tag the new version and NuGet shows the old version
 
-MinVer tag'e göre versiyon hesaplar. Tag yoksa `-preview.N` suffix ekler. Publish için:
+MinVer calculates the version from the tag. If there is no tag, it adds a `-preview.N` suffix. To publish:
 
 ```bash
 git tag v2.1.0
-git push origin v2.1.0   # CI otomatik NuGet push yapar
+git push origin v2.1.0   # CI pushes to NuGet automatically
 ```
 
-### Paket readme'si NuGet.org'da görünmüyor
+### The package readme does not appear on NuGet.org
 
-`Directory.Build.props` içinde `<PackageReadmeFile>README.md</PackageReadmeFile>` tanımlı olmalı
-(Faz C'den itibaren eklenmiştir). Eski sürümler için paket yeniden yayınlanmalıdır.
+`<PackageReadmeFile>README.md</PackageReadmeFile>` must be defined in `Directory.Build.props`
+(added as of Phase C). Older versions must be republished.

@@ -1,16 +1,16 @@
 # Localization
 
-Cok dilli kaynak yonetimi. `ILocalizationService` cultured string lookup,
-pluralization ve parametre interpolation saglar.
+Multilingual resource management. `ILocalizationService` provides cultured
+string lookup, pluralization and parameter interpolation.
 
-## Paketler
+## Packages
 
-| Paket | Hedef |
+| Package | Target |
 |---|---|
 | `Kck.Localization.Abstractions` | `ILocalizationService`, `IResourceProvider`, `IPluralizer`, `IFormatterService` |
 | `Kck.Localization` | Core service + default pluralizer/formatter |
-| `Kck.Localization.Json` | JSON dosya kaynak saglayici |
-| `Kck.Localization.Yaml` | YAML dosya kaynak saglayici |
+| `Kck.Localization.Json` | JSON file resource provider |
+| `Kck.Localization.Yaml` | YAML file resource provider |
 
 ## JSON Setup
 
@@ -27,7 +27,7 @@ services.AddKckLocalization(opt =>
 });
 ```
 
-Dizin yapisi:
+Directory structure:
 
 ```
 Resources/
@@ -36,7 +36,7 @@ Resources/
   de-DE.json
 ```
 
-`tr-TR.json` ornegi:
+`tr-TR.json` example:
 
 ```json
 {
@@ -59,9 +59,9 @@ services.AddKckLocalization(opt => { /* ... */ })
     });
 ```
 
-YAML formati JSON ile ayni anahtar hiyerarsisini destekler.
+The YAML format supports the same key hierarchy as JSON.
 
-## Kullanim
+## Usage
 
 ```csharp
 public class GreetingService(ILocalizationService l10n)
@@ -80,25 +80,25 @@ public class GreetingService(ILocalizationService l10n)
 
 ## Pluralization
 
-`IPluralizer` CLDR plural kategorilerini kullanir:
+`IPluralizer` uses the CLDR plural categories:
 - `zero`, `one`, `two`, `few`, `many`, `other`
 
-Eksik kategori → `other` fallback'i.
+A missing category falls back to `other`.
 
 ## Formatter
 
-`IFormatterService` `string.Format` sargısı + culture bilinirli formatlama.
-Default implementasyon invariant culture yerine hedef culture'i kullanir.
+`IFormatterService` is a `string.Format` wrapper with culture-aware formatting.
+The default implementation uses the target culture instead of the invariant culture.
 
-## Fallback Zinciri
+## Fallback Chain
 
-`FallbackToDefault = true` oldugunda:
-1. Istenen culture'da ara (`tr-TR`)
-2. Parent culture (`tr`)
-3. Default culture (`en-US`)
-4. Key'in kendisi (surec olmadi — gelistirici hatasi gorulebilir)
+When `FallbackToDefault = true`:
+1. Look up the requested culture (`tr-TR`).
+2. Parent culture (`tr`).
+3. Default culture (`en-US`).
+4. The key itself (no exception is thrown, so a developer error stays visible).
 
 ## Cache
 
-Resource yuklemesi cache'lenir (process-local). Runtime'da dosya degistirirsen
-resource provider'i yeniden yukleyen `IFeatureChangeNotifier` patterni ekle.
+Resource loading is cached (process-local). If you change files at runtime,
+add an `IFeatureChangeNotifier` pattern that reloads the resource provider.

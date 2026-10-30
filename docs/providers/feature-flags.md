@@ -1,15 +1,15 @@
 # Feature Flags
 
-`IFeatureFlagService` runtime ozellik togglelamasi icin abstraction.
-In-memory provider konfigurasyon-tabanli flag'ler destekler; buyuk projelerde
-LaunchDarkly / Flagsmith adapter yazmak kolay.
+`IFeatureFlagService` is an abstraction for runtime feature toggling.
+The in-memory provider supports configuration-based flags; for larger projects,
+writing a LaunchDarkly / Flagsmith adapter is straightforward.
 
-## Paketler
+## Packages
 
-| Paket | Hedef |
+| Package | Target |
 |---|---|
 | `Kck.FeatureFlags.Abstractions` | `IFeatureFlagService`, `FeatureDefinition`, `IFeatureContext` |
-| `Kck.FeatureFlags.InMemory` | Konfigurasyon-tabanli dictionary |
+| `Kck.FeatureFlags.InMemory` | Configuration-based dictionary |
 
 ## InMemory Setup
 
@@ -21,7 +21,7 @@ services.AddKckFeatureFlagsInMemory(opt =>
 });
 ```
 
-appsettings.json ornegi:
+appsettings.json example:
 
 ```json
 {
@@ -39,7 +39,7 @@ services.AddKckFeatureFlagsInMemory(opt =>
 });
 ```
 
-## Kullanim
+## Usage
 
 ```csharp
 public class CheckoutController(IFeatureFlagService flags)
@@ -55,7 +55,7 @@ public class CheckoutController(IFeatureFlagService flags)
 
 ## Context-Aware Check
 
-Bazi sonlanana rekloler icin (user segment, tenant):
+For some scenarios (user segment, tenant):
 
 ```csharp
 public sealed class RequestFeatureContext(string userId) : IFeatureContext
@@ -69,11 +69,11 @@ public sealed class RequestFeatureContext(string userId) : IFeatureContext
 var enabled = await flags.IsEnabledAsync("beta-feature", new RequestFeatureContext(userId));
 ```
 
-> Not: `InMemoryFeatureFlagService` context'i su an degerlendirmiyor — flag
-> yalnizca boolean. Context-aware senaryolar icin ozel `IFeatureEvaluator`
-> implement edin.
+> Note: `InMemoryFeatureFlagService` does not currently evaluate the context.
+> A flag is only a boolean. For context-aware scenarios, implement a custom
+> `IFeatureEvaluator`.
 
-## Tum Flag'leri Listele
+## List All Flags
 
 ```csharp
 var all = await flags.GetAllAsync();
@@ -81,10 +81,10 @@ foreach (var flag in all)
     Console.WriteLine($"{flag.Name}: {flag.Enabled}");
 ```
 
-## Genisletme
+## Extending
 
-Baska bir provider (LaunchDarkly, ConfigCat) icin:
+For another provider (LaunchDarkly, ConfigCat):
 
-1. `IFeatureFlagService` implement et
-2. `AddKckFeatureFlags<YourProvider>()` extension yaz
-3. `TryAddSingleton<IFeatureFlagService, YourProviderService>()` kaydet
+1. Implement `IFeatureFlagService`.
+2. Write an `AddKckFeatureFlags<YourProvider>()` extension.
+3. Register `TryAddSingleton<IFeatureFlagService, YourProviderService>()`.

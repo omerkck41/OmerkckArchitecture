@@ -1,58 +1,57 @@
-# Test Coverage Politikasi
+# Test Coverage Policy
 
-Bu dokuman OmerkckArchitecture (`Kck.*`) projelerinin test coverage gate'i
-ve kademeli yukseltme politikasini tanimlar.
+This document defines the coverage gate and the gradual-increase policy
+for the OmerkckArchitecture (`Kck.*`) projects.
 
-## Genel Kural — Regression Onleme
+## General Rule — Regression Prevention
 
-**Her PR coverage'i dusuremez.** Coverage gate (`build-test.yml` icinde
-`Enforce coverage threshold` step) bunu zorunlu kilar. Esik degeri zaman
-icinde **kademeli** olarak yukselir; ancak yukseltme **test yazimina**
-baglidir, kararname ile degil.
+**No PR may lower coverage.** The coverage gate (the `Enforce coverage threshold`
+step in `build-test.yml`) enforces this. The threshold values rise **gradually**
+over time, but each increase depends on **writing tests**, not on a decree.
 
-## Mevcut Esikler (2026-10-29 circir; build-test.yml)
+## Current Thresholds (2026-10-29, rounded; build-test.yml)
 
-| Metrik | Esik | CI olcumu (3 ardisik yesil build, 2026-10-29) |
+| Metric | Threshold | CI measurement (3 consecutive green builds, 2026-10-29) |
 |---|---|---|
 | Line | **70%** | 72.9% / 73.0% / 73.3% |
 | Branch | **67%** | 70.1% / 70.1% / 70.1% |
 
-> **H20 (2026-10-29, #222):** Observability.OpenTelemetry, Http.Resilience, AspNetCore, Logging.Serilog ve
-> abstraction'lar icin birim testleri. Esik, olcumun ~3 puan altinda (yerel / CI farkini emer). Onceki esik 55/51.
+> **H20 (2026-10-29, #222):** Unit tests for Observability.OpenTelemetry, Http.Resilience, AspNetCore, Logging.Serilog, and
+> the abstractions. The threshold is about 3 points below the measurement (absorbs the local / CI difference). Previous threshold: 55/51.
 
-> Yerel olcum: `dotnet test --collect:"XPlat Code Coverage"` +
-> `reportgenerator -reporttypes:TextSummary` ile uretildi (CI ile ayni komut).
+> Local measurement: produced with `dotnet test --collect:"XPlat Code Coverage"` +
+> `reportgenerator -reporttypes:TextSummary` (the same command as CI).
 
-## Kademeli Yukseltme Yol Haritasi
+## Gradual Increase Roadmap
 
-Kaynak rapor (`tasks/library-strategy-2026-04-25.md` Bolum 7.1) endustri
-standardini soyle ozetliyor:
+The source report (`tasks/library-strategy-2026-04-25.md` Section 7.1) summarizes
+the industry standard as follows:
 
-- Kutuphane projesi: %80+ line, %60+ branch (Polly, Serilog, EF Core ~%85)
-- Provider/sarmalayici: %70+ line
+- Library project: 80%+ line, 60%+ branch (Polly, Serilog, EF Core ~85%)
+- Provider/wrapper: 70%+ line
 
-Yol haritasi (her kademe ayri faz, test yazimi gerektirir):
+Roadmap (each stage is a separate phase and requires writing tests):
 
-| Kademe | Hedef Line | Hedef Branch | Faz / Trigger |
+| Stage | Target Line | Target Branch | Phase / Trigger |
 |---|---|---|---|
-| **0** | 40 | 35 | LS-FAZ-4 — regression onleme |
-| **1** ✅ | 50 | 45 | Faz-B2 — Entity/Paginate/Error/property-based testler |
-| **2** ✅ | 65 | 50 | H20 — provider ve abstraction birim testleri (2026-10-29, esik 70/67) |
-| **3** | 75 | 60 | Mutation testing (Stryker.NET) ile boslukları doldurarak |
+| **0** | 40 | 35 | LS-FAZ-4 — regression prevention |
+| **1** ✅ | 50 | 45 | Faz-B2 — Entity/Paginate/Error/property-based tests |
+| **2** ✅ | 65 | 50 | H20 — provider and abstraction unit tests (2026-10-29, threshold 70/67) |
+| **3** | 75 | 60 | Filling the gaps with mutation testing (Stryker.NET) |
 
-## Bir Kademeyi Yukseltme Ön Sartlari
+## Preconditions for Raising a Stage
 
-Bir esige kadar **test yazimi** tamamlanmadan esik **degisemez**:
+A threshold **cannot change** until the **test writing** up to it is complete:
 
-1. Yerel olcum: `reportgenerator -reporttypes:TextSummary` ciktisi yeni hedefin uzerinde olmali.
-2. CI'da en az 3 ardisik build yesil — geçici sapma degil, kalici durum.
-3. PR aciklamasinda hangi testlerin eklendigi listelenir.
-4. Esik degisikligi ve neden ayni PR'da yapilir.
+1. Local measurement: the `reportgenerator -reporttypes:TextSummary` output must be above the new target.
+2. At least 3 consecutive green builds in CI — a lasting state, not a temporary deviation.
+3. The PR description lists which tests were added.
+4. The threshold change and the reason are made in the same PR.
 
-## Olcum Tekrarlanabilirligi
+## Measurement Reproducibility
 
-Coverage olcumu host SDK + test discovery yontemine duyarli olabilir.
-Tutarli olcum icin:
+Coverage measurement can be sensitive to the host SDK and the test discovery method.
+For consistent measurement:
 
 ```bash
 dotnet test OmerkckArchitecture.sln --no-build \
@@ -68,24 +67,24 @@ dotnet reportgenerator \
 cat ./coverage-report/Summary.txt
 ```
 
-CI komutu (`build-test.yml`) ayni adimlari calistirir.
+The CI command (`build-test.yml`) runs the same steps.
 
-## Excluded Projeler
+## Excluded Projects
 
-Coverage olcumu su test projelerinde **toplama**:
+Do **not** collect coverage measurement in these test projects:
 
-- `tests/**/*.Tests.csproj` — ✓ dahil
-- `tests/Kck.Benchmarks` — ✗ disinda (test projesi degil, console app)
-- `samples/**/*.csproj` — ✗ disinda (uygulama kodu degil framework kodu)
+- `tests/**/*.Tests.csproj` — ✓ included
+- `tests/Kck.Benchmarks` — ✗ excluded (not a test project, a console app)
+- `samples/**/*.csproj` — ✗ excluded (application code, not framework code)
 
-Excluding patterni `coverlet.runsettings` veya `dotnet test --filter` ile
-acik degil — su an `XPlat Code Coverage` collector tum referans verilen
-projelerin coverage'ini toplar; benchmark/sample csproj'lar test asseti
-referans vermiyor → otomatik dahil olmuyor.
+The exclusion pattern is not explicit in `coverlet.runsettings` or `dotnet test --filter`.
+Currently the `XPlat Code Coverage` collector gathers coverage for all referenced
+projects. The benchmark/sample csproj files do not reference a test asset, so they are
+not included automatically.
 
-## Referanslar
+## References
 
 - `.github/workflows/build-test.yml` (Enforce coverage threshold step)
-- `tasks/library-strategy-2026-04-25.md` Bolum 7.1
+- `tasks/library-strategy-2026-04-25.md` Section 7.1
 - [Coverlet documentation](https://github.com/coverlet-coverage/coverlet)
 - [reportgenerator](https://github.com/danielpalme/ReportGenerator)

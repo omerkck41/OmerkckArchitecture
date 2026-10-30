@@ -1,15 +1,15 @@
 # File Storage
 
-Dosya saklama ve transfer icin abstraction: FTP, Azure Blob Storage ve Amazon S3 (ve S3 uyumlu servisler) provider'lari.
+Abstraction for file storage and transfer, with FTP, Azure Blob Storage and Amazon S3 (and S3-compatible services) providers.
 
-## Paketler
+## Packages
 
-| Paket | Hedef |
+| Package | Target |
 |---|---|
 | `Kck.FileStorage.Abstractions` | `IFileStorageService`, `IFtpService`, `IFileConverter`, `IFileMetadataReader` |
 | `Kck.FileStorage.FluentFtp` | FluentFTP (FTP/FTPS) |
 | `Kck.FileStorage.AzureBlob` | Azure Blob Storage (`AddKckFileStorageAzureBlob`) |
-| `Kck.FileStorage.AwsS3` | Amazon S3 ve MinIO / Cloudflare R2 / Wasabi (`AddKckFileStorageAwsS3`; `ServiceUrl`, `ForcePathStyle`) |
+| `Kck.FileStorage.AwsS3` | Amazon S3 and MinIO / Cloudflare R2 / Wasabi (`AddKckFileStorageAwsS3`; `ServiceUrl`, `ForcePathStyle`) |
 
 ## FluentFtp Setup
 
@@ -27,12 +27,12 @@ services.AddKckFileStorageFluentFtp(opt =>
 
 ## Connection Pool
 
-FTP connection'lar pool'landi (bounded channel, `SmtpConnectionPool` paterni).
-`PoolSize` tipik olarak 3-10 arasi — yuksek paralel upload icin artir.
+FTP connections are pooled (bounded channel, same pattern as `SmtpConnectionPool`).
+`PoolSize` is typically between 3 and 10. Increase it for highly parallel uploads.
 
-Disposed client otomatik discard edilir, disconnected client yeniden acilir.
+A disposed client is discarded automatically, and a disconnected client is reopened.
 
-## Kullanim
+## Usage
 
 ```csharp
 public class ReportUploader(IFtpService ftp)
@@ -59,14 +59,14 @@ public class ReportUploader(IFtpService ftp)
 }
 ```
 
-## Path Normalizasyonu
+## Path Normalization
 
-`PathHelper.Combine("upload/", "/file.txt")` → `upload/file.txt` — trailing /
-ve leading / ile ugrasmaz.
+`PathHelper.Combine("upload/", "/file.txt")` → `upload/file.txt`. You do not
+need to handle trailing or leading slashes yourself.
 
-## Guvenlik
+## Security
 
-- **SFTP / FTPS zorunlu** production'da — duz FTP man-in-the-middle'a acik
-- Credential'lar Key Vault / Secrets Manager'da saklanmali, appsettings'de degil
-- Path traversal korumasi: kullanici input'u dogrudan FTP path'ine yazma —
-  `Path.GetFileName()` ile sanitize et
+- **Use SFTP / FTPS in production.** Plain FTP is open to man-in-the-middle attacks.
+- Store credentials in Key Vault / Secrets Manager, not in appsettings.
+- Path traversal protection: never write user input directly into an FTP path.
+  Sanitize it with `Path.GetFileName()`.

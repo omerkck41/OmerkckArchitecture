@@ -70,6 +70,16 @@ class CheckFilesTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 dl.inside(Path(root), listing)
 
+    def test_published_pages_missing_from_the_list_are_reported(self):
+        with tempfile.TemporaryDirectory() as root:
+            for name in ["README.md", "docs/a.md", "docs/plans/p.md", "docs/adr/0003-old.md", "docs/adr/0031-new.md"]:
+                Path(root, name).parent.mkdir(parents=True, exist_ok=True)
+                Path(root, name).write_text("English.\n", encoding="utf-8")
+
+            missing = dl.unlisted_published_pages(Path(root), ["README.md"])
+
+        self.assertEqual(missing, ["docs/a.md", "docs/adr/0031-new.md"])
+
     def test_read_list_skips_comments_and_blank_lines(self):
         with tempfile.TemporaryDirectory() as root:
             listing = Path(root, "english.txt")

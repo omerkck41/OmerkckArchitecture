@@ -1,12 +1,12 @@
 # Caching
 
-`ICacheService` abstraction'i key-value cache icin unifiye edilmis arayuzdur.
-Cache stampede koruma (`GetOrSetAsync`), prefix bazli toplu silme ve TTL destegi
-tum provider'larda ortaktır.
+The `ICacheService` abstraction is a unified interface for key-value caching.
+Cache stampede protection (`GetOrSetAsync`), prefix-based bulk removal, and TTL support
+are common to all providers.
 
-## Paketler
+## Packages
 
-| Paket | Hedef |
+| Package | Purpose |
 |---|---|
 | `Kck.Caching.Abstractions` | `ICacheService`, `CacheOptions`, `CacheServiceBase` |
 | `Kck.Caching.InMemory` | `Microsoft.Extensions.Caching.Memory` |
@@ -14,7 +14,7 @@ tum provider'larda ortaktır.
 
 ## InMemory
 
-Tek-process senaryolar icin. Distributed degildir.
+For single-process scenarios. It is not distributed.
 
 ```csharp
 services.AddKckCachingInMemory(opt =>
@@ -26,7 +26,7 @@ services.AddKckCachingInMemory(opt =>
 
 ## Redis
 
-Distributed cache icin. Redis connection `IHostedService` olarak acilir
+For distributed caching. The Redis connection is opened as an `IHostedService`
 ([ADR-0006](../adr/0006-redis-async-hosted-service.md)).
 
 ```csharp
@@ -38,7 +38,7 @@ services.AddKckCachingRedis(opt =>
 });
 ```
 
-## Kullanim
+## Usage
 
 ```csharp
 public class ProductService(ICacheService cache)
@@ -60,27 +60,27 @@ public class ProductService(ICacheService cache)
 
 ## API
 
-| Metod | Aciklama |
+| Method | Description |
 |---|---|
-| `GetAsync<T>(key)` | Null doner eger yoksa |
-| `SetAsync<T>(key, value, ttl?)` | Opsiyonel TTL |
-| `GetOrSetAsync<T>(key, factory, ttl?)` | Cache stampede korumali |
-| `RemoveAsync(key)` | Tekil silme |
-| `RemoveByPrefixAsync(prefix)` | Toplu silme (Redis: 1000/batch chunked) |
-| `ExistsAsync(key)` | Bool check |
+| `GetAsync<T>(key)` | Returns null if the key does not exist |
+| `SetAsync<T>(key, value, ttl?)` | Optional TTL |
+| `GetOrSetAsync<T>(key, factory, ttl?)` | Cache stampede protected |
+| `RemoveAsync(key)` | Single removal |
+| `RemoveByPrefixAsync(prefix)` | Bulk removal (Redis: chunked, 1000 per batch) |
+| `ExistsAsync(key)` | Boolean check |
 
-## Performans Notlari
+## Performance Notes
 
-- Redis `RemoveByPrefixAsync`: 1000 key/batch chunked — buyuk prefix silme
-  tek-call'a sigmayacak tuple'larda bile calisir
-- InMemory `GetOrSetAsync`: `SemaphoreSlim` ile stampede korumasi
-- Redis `KeyPrefix` bos birakilirsa: `myapp:products:1` → `products:1` olur
+- Redis `RemoveByPrefixAsync`: chunked at 1000 keys per batch, so removing a large
+  prefix works even when the keys do not fit in a single call
+- InMemory `GetOrSetAsync`: stampede protection with `SemaphoreSlim`
+- If the Redis `KeyPrefix` is left empty: `myapp:products:1` becomes `products:1`
 
-## Secim Kriterleri
+## Selection Criteria
 
-| Kriter | InMemory | Redis |
+| Criterion | InMemory | Redis |
 |---|---|---|
-| Scope | Tek process | Cluster |
+| Scope | Single process | Cluster |
 | Latency | < 1 ms | 1-5 ms |
-| Persistence | Yok | Opsiyonel (RDB/AOF) |
+| Persistence | None | Optional (RDB/AOF) |
 | Use case | Unit test, CLI, single-instance | Web app, microservice |

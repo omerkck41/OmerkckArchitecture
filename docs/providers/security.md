@@ -1,32 +1,32 @@
 # Security
 
-Parola hashleme, JWT, TOTP 2FA, token blacklist ve secrets yonetimi
-icin provider ailesi.
+A provider family for password hashing, JWT, TOTP 2FA, token blacklist and
+secrets management.
 
-## Paketler
+## Packages
 
-| Paket | Hedef |
+| Package | Purpose |
 |---|---|
 | `Kck.Security.Abstractions` | `IHashingService`, `IJwtTokenService`, `IMfaProvider`, `ITokenBlacklistService`, `ISecretsManager` |
-| `Kck.Security.Argon2` | Argon2id parola hashleme (`Konscious.Security.Cryptography.Argon2`) |
-| `Kck.Security.Jwt` | JWT uret/dogrula (`JsonWebTokenHandler`) |
-| `Kck.Security.Totp` | RFC 6238 TOTP (Google Authenticator uyumlu) |
-| `Kck.Security.TokenBlacklist.Redis` | Redis tabanli logout / revoke |
+| `Kck.Security.Argon2` | Argon2id password hashing (`Konscious.Security.Cryptography.Argon2`) |
+| `Kck.Security.Jwt` | JWT generation and validation (`JsonWebTokenHandler`) |
+| `Kck.Security.Totp` | RFC 6238 TOTP (Google Authenticator compatible) |
+| `Kck.Security.TokenBlacklist.Redis` | Redis-based logout / revoke |
 | `Kck.Security.Secrets.UserSecrets` | `IConfiguration` (env, User Secrets, appsettings) |
 | `Kck.Security.Secrets.AzureKeyVault` | Azure Key Vault |
 
-## Argon2 (Parola)
+## Argon2 (Passwords)
 
 ```csharp
 services.AddKckSecurityArgon2(opt =>
 {
-    opt.MemorySize = 65536;   // 64 MiB (OWASP min 19 MiB)
+    opt.MemorySize = 65536;   // 64 MiB (OWASP minimum 19 MiB)
     opt.Iterations = 3;
     opt.DegreeOfParallelism = 4;
 });
 ```
 
-Kullanim:
+Usage:
 
 ```csharp
 public class UserService(IHashingService hasher)
@@ -37,8 +37,8 @@ public class UserService(IHashingService hasher)
 }
 ```
 
-**Paket korundu** ([ADR-0001](../adr/0001-argon2-implementation.md)) — bilinen
-CVE yok, migration riski dusukluk nedeniyle.
+**The package was kept** ([ADR-0001](../adr/0001-argon2-implementation.md)): there is no known
+CVE and the migration risk is low.
 
 ## JWT
 
@@ -53,7 +53,7 @@ services.AddKckSecurityJwt(opt =>
 });
 ```
 
-Uretim:
+Generation:
 
 ```csharp
 public class AuthService(IJwtTokenService jwt)
@@ -67,12 +67,12 @@ public class AuthService(IJwtTokenService jwt)
 }
 ```
 
-Dogrulama `JsonWebTokenHandler` kullanir — `JwtSecurityTokenHandler` deprecated
+Validation uses `JsonWebTokenHandler`. `JwtSecurityTokenHandler` is deprecated
 ([ADR-0003](../adr/0003-jwt-handler-migration.md)).
 
-> **Guvenlik:** `SecretKey` en az 256-bit entropi (32+ byte random). RS256 /
-> ES256 (asymmetric) senaryolari icin builder'i genislet. HS256 paylasimli
-> secret yasak kural listesinde.
+> **Security:** `SecretKey` needs at least 256 bits of entropy (32+ random bytes). For RS256 /
+> ES256 (asymmetric) scenarios, extend the builder. HS256 with a shared
+> secret is on the prohibited rules list.
 
 ## TOTP (2FA)
 
@@ -85,7 +85,7 @@ services.AddKckSecurityTotp(opt =>
 });
 ```
 
-Kullanim:
+Usage:
 
 ```csharp
 public class MfaService(IMfaProvider totp)
@@ -99,8 +99,8 @@ public class MfaService(IMfaProvider totp)
 }
 ```
 
-Replay koruma: son kullanilan kod cache'de saklanir
-(`IReplayCache` — varsayilan InMemory).
+Replay protection: the last used code is stored in a cache
+(`IReplayCache`; the default is InMemory).
 
 ## Token Blacklist (Revoke / Logout)
 
@@ -112,7 +112,7 @@ services.AddKckSecurityTokenBlacklistRedis(opt =>
 });
 ```
 
-Kullanim:
+Usage:
 
 ```csharp
 public class LogoutService(ITokenBlacklistService blacklist)
@@ -125,9 +125,9 @@ public class LogoutService(ITokenBlacklistService blacklist)
 }
 ```
 
-JWT middleware `jti` claim'i uzerinden blacklist check eder.
+The JWT middleware checks the blacklist using the `jti` claim.
 
-## Secrets Yonetimi
+## Secrets Management
 
 ### UserSecrets (`IConfiguration`)
 
@@ -138,8 +138,8 @@ services.AddKckUserSecrets();
 // dotnet user-secrets set "Stripe:ApiKey" "sk_test_..."
 ```
 
-Read-only — `SetSecretAsync` `NotSupportedException` firlatir. Env variable
-ve User Secrets kombinasyonu local dev icin idealdir.
+Read-only: `SetSecretAsync` throws `NotSupportedException`. Combining environment variables
+and User Secrets works well for local development.
 
 ### Azure Key Vault
 
@@ -147,20 +147,20 @@ ve User Secrets kombinasyonu local dev icin idealdir.
 services.AddKckAzureKeyVault(opt =>
 {
     opt.VaultUri = "https://my-vault.vault.azure.net/";
-    opt.SecretPrefix = "prod";  // opsiyonel: "prod-Stripe:ApiKey"
+    opt.SecretPrefix = "prod";  // optional: "prod-Stripe:ApiKey"
 });
 ```
 
-`DefaultAzureCredential` kullanir — Azure CLI, Managed Identity veya
-`AZURE_CLIENT_ID`/`AZURE_CLIENT_SECRET` env variable'lari otomatik cozer.
+It uses `DefaultAzureCredential`, which automatically resolves the Azure CLI, Managed Identity or the
+`AZURE_CLIENT_ID`/`AZURE_CLIENT_SECRET` environment variables.
 
-## Compliance Notlari
+## Compliance Notes
 
-| Standard | Ilgili Provider |
+| Standard | Relevant Provider |
 |---|---|
 | OWASP ASVS | Argon2 (V2.4), JWT (V3.5), TOTP (V2.8) |
-| PCI DSS | Secrets (KV), Argon2 (parola) |
-| GDPR | Secrets (KV ile KMS-backed) |
+| PCI DSS | Secrets (KV), Argon2 (passwords) |
+| GDPR | Secrets (KMS-backed via KV) |
 
-Tum guvenlik kurallari icin [security.md](../../rules/security.md) global
-rules bolumune bakilabilir (ozel dizinde degilse projeye kopyalanabilir).
+For all security rules, see the global `rules/security.md` rules section
+(if it is not in a dedicated directory, you can copy it into your project).

@@ -1,42 +1,41 @@
-# Migration Rehberleri
+# Migration Guides
 
-Bu dizin OmerkckArchitecture (`Kck.*`) paketleri arasindaki **major**
-surum gecislerinde kullanicilara yol gosteren migration dokumanlarini
-icerir.
+This directory contains migration guides that help you move between **major**
+versions of the OmerkckArchitecture (`Kck.*`) packages.
 
-## Dosya Adlandirmasi
+## File Naming
 
 `v<NEXT-1>.x-to-v<NEXT>.0.md`
 
-Ornek:
-- `v0.x-to-v1.0.md` — 0.x serisinden 1.0'a gecis
-- `v1.x-to-v2.0.md` — 1.x serisinden 2.0'a gecis
+Examples:
+- `v0.x-to-v1.0.md` — moving from the 0.x series to 1.0
+- `v1.x-to-v2.0.md` — moving from the 1.x series to 2.0
 
-## Ne Zaman Yazilir
+## When to Write One
 
-- **MAJOR bump:** zorunlu (1.0 sonrasi).
-- **0.x donemi:** her minor breaking change CHANGELOG `### Breaking` altinda
-  yeterli — ayri rehber yazmaya gerek yok.
+- **MAJOR bump:** required (after 1.0).
+- **0.x period:** listing each minor breaking change under `### Breaking` in
+  the CHANGELOG is enough — no separate guide is needed.
 
-Detay: [`docs/policies/versioning.md`](../policies/versioning.md)
+Details: [`docs/policies/versioning.md`](../policies/versioning.md)
 
-## Sablon
+## Template
 
-Yeni rehber baslatmak icin: [`_template.md`](_template.md) kopyala.
+To start a new guide, copy [`_template.md`](_template.md).
 
-## Mevcut Rehberler
+## Available Guides
 
-- [v3-to-v4.md](v3-to-v4.md) — 3.x'ten 4.0'a (ADR-0028)
+- [v3-to-v4.md](v3-to-v4.md) — 3.x to 4.0 (ADR-0028)
 - [mediatR-to-mediator.md](mediatR-to-mediator.md) — `Kck.Pipeline.MediatR` → `Kck.Pipeline.Mediator`
 - [entity-hierarchy-v3.md](entity-hierarchy-v3.md) — `Entity<TId>` → `FullEntity<TId>` (3.0)
 
-## Otomatik Migration
+## Automated Migration
 
-Roslynator, `dotnet format`, IDE quick fix gibi araclarla otomatik
-donusum mumkun olan degisiklikler her rehberin sonunda **"Otomatik
-Migration"** bolumunde belirtilir.
+Changes that tools such as Roslynator, `dotnet format` or IDE quick fixes can
+convert automatically are listed in the **"Automated Migration"** section at
+the end of each guide.
 
-## Referans
+## References
 
 - [`docs/policies/versioning.md`](../policies/versioning.md)
 - [`docs/policies/deprecation.md`](../policies/deprecation.md)

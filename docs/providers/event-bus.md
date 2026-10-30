@@ -1,11 +1,11 @@
 # Event Bus
 
-`IEventBus` abstraction'i, provider-agnostic publish/subscribe destegidir.
-Event handler'lar DI'dan cozulur, transient scope per mesaj.
+The `IEventBus` abstraction provides provider-agnostic publish/subscribe.
+Event handlers are resolved from DI, with a transient scope per message.
 
-## Paketler
+## Packages
 
-| Paket | Hedef |
+| Package | Purpose |
 |---|---|
 | `Kck.EventBus.Abstractions` | `IEventBus`, `IEventHandler<T>`, `IntegrationEvent` |
 | `Kck.EventBus.InMemory` | In-process channel-based bus |
@@ -14,7 +14,7 @@ Event handler'lar DI'dan cozulur, transient scope per mesaj.
 
 ## InMemory
 
-Testing ve tek-process senaryolar icin. Asenkron queue, hata durumunda DLQ yok.
+For testing and single-process scenarios. Asynchronous queue; there is no DLQ on failure.
 
 ```csharp
 services.AddKckEventBus(b => b
@@ -47,13 +47,13 @@ services.AddKckEventBusAzureServiceBus(opt =>
 .AddKckEventHandler<OrderCreatedEvent, OrderCreatedHandler>();
 ```
 
-## Event Tanimi
+## Defining an Event
 
 ```csharp
 public sealed record OrderCreatedEvent(Guid OrderId, decimal Amount) : IntegrationEvent;
 ```
 
-## Handler Tanimi
+## Defining a Handler
 
 ```csharp
 public class OrderCreatedHandler(IEmailService email) : IEventHandler<OrderCreatedEvent>
@@ -78,18 +78,18 @@ public class OrderService(IEventBus bus)
 }
 ```
 
-## At-Least-Once Semantigi
+## At-Least-Once Semantics
 
-- RabbitMq ve AzureServiceBus: teknik olarak at-least-once
-- Handler'lar **idempotent** olmali — ayni event birden fazla islenebilir
-- Event ID + processed-id tablosu pattern onerilir (outbox veya inbox)
+- RabbitMq and AzureServiceBus: technically at-least-once
+- Handlers must be **idempotent**, because the same event can be processed more than once
+- An event ID plus processed-ID table pattern is recommended (outbox or inbox)
 
-## Secim Kriterleri
+## Selection Criteria
 
-| Kriter | InMemory | RabbitMq | AzureServiceBus |
+| Criterion | InMemory | RabbitMq | AzureServiceBus |
 |---|---|---|---|
-| Persistence | Yok | Durable queue | Managed |
+| Persistence | None | Durable queue | Managed |
 | Delivery | At-most-once | At-least-once | At-least-once |
-| Dead letter | Yok | Evet | Evet |
-| Scope | Tek process | Cluster | Cloud-native |
-| Best for | Test, CLI | Self-hosted mesajlasma | Azure workload |
+| Dead letter | None | Yes | Yes |
+| Scope | Single process | Cluster | Cloud-native |
+| Best for | Test, CLI | Self-hosted messaging | Azure workload |

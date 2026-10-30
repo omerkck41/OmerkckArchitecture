@@ -1,10 +1,10 @@
 # Security Policy
 
-OmerkckArchitecture (Kck.* paket ailesi) icin guvenlik politikasi.
+Security policy for OmerkckArchitecture (the Kck.* package family).
 
 ## Supported Versions
 
-Bu kutuphane `v3.x` surumundedir. Guvenlik yamasi asagidaki surumler icin saglanir:
+This library is at version `v3.x`. Security patches are provided for the following versions:
 
 | Version         | Supported           |
 | --------------- | ------------------- |
@@ -14,34 +14,34 @@ Bu kutuphane `v3.x` surumundedir. Guvenlik yamasi asagidaki surumler icin saglan
 
 ## Reporting a Vulnerability
 
-Lutfen public GitHub issue **acmayin**. Bunun yerine:
+Please **do not** open a public GitHub issue. Instead:
 
-- **Tercih edilen:** GitHub Private Vulnerability Reporting
-  (`Security` sekmesi → `Report a vulnerability`)
+- **Preferred:** GitHub Private Vulnerability Reporting
+  (`Security` tab → `Report a vulnerability`)
 - Email: omer_kck@msn.com
 
-Raporunuza dahil edin:
-- Etkilenen paket adi ve versiyonu
-- Yeniden uretim adimlari (mumkunse minimal repro)
-- Etki: bilgi ifsasi, RCE, DoS, vb.
-- Onerilen duzeltme (varsa)
+Include in your report:
+- Affected package name and version
+- Reproduction steps (a minimal repro, if possible)
+- Impact: information disclosure, RCE, DoS, and so on
+- Suggested fix (if any)
 
-### Yanit Suresi
+### Response Time
 
-| Sorun siddeti        | Ilk yanit    | Patch yayini     |
-| -------------------- | ------------ | ---------------- |
-| Critical (CVSS 9.0+) | 48 saat      | 7 gun            |
-| High (CVSS 7.0-8.9)  | 5 is gunu    | 30 gun           |
-| Medium (CVSS 4.0-6.9)| 10 is gunu   | 90 gun           |
-| Low (CVSS < 4.0)     | 30 gun       | sonraki release  |
+| Issue severity       | First response | Patch release    |
+| -------------------- | -------------- | ---------------- |
+| Critical (CVSS 9.0+) | 48 hours       | 7 days           |
+| High (CVSS 7.0-8.9)  | 5 business days | 30 days         |
+| Medium (CVSS 4.0-6.9)| 10 business days | 90 days        |
+| Low (CVSS < 4.0)     | 30 days        | next release     |
 
 ## Disclosure Policy
 
-Coordinated disclosure, **90 gun** default embargo.
-Embargo sonunda CVE alinacak ve `SECURITY-ADVISORIES.md`'de duyurulacak.
+Coordinated disclosure, **90 days** default embargo.
+At the end of the embargo, a CVE will be requested and announced in `SECURITY-ADVISORIES.md`.
 
 ## Security-Related Links
 
 - [Dependabot Alerts](https://github.com/omerkck41/OmerkckArchitecture/security/dependabot)
 - [Code Scanning](https://github.com/omerkck41/OmerkckArchitecture/security/code-scanning)
-- [SECURITY-ADVISORIES.md](./SECURITY-ADVISORIES.md) (publish edildigi gun olusur)
+- `SECURITY-ADVISORIES.md` (not a link yet: the file is created on the day it is published)

@@ -1,11 +1,11 @@
 # Logging
 
-Serilog tabanli yapilandirilmis loglama. Trace correlation, JSON output,
-rolling file destegi.
+Serilog-based structured logging. Supports trace correlation, JSON output
+and rolling files.
 
-## Paketler
+## Packages
 
-| Paket | Hedef |
+| Package | Target |
 |---|---|
 | `Kck.Logging.Serilog` | `AddKckSerilog()` + `KckSerilogBuilder` |
 
@@ -21,54 +21,54 @@ builder.Services.AddKckSerilog(log => log
 
 ## Builder API
 
-| Metod | Aciklama |
+| Method | Description |
 |---|---|
-| `WithApplicationName(name)` | `Application` property'si her loga eklenir |
+| `WithApplicationName(name)` | Adds the `Application` property to every log |
 | `WriteToConsole()` | Standard console sink (rendered text) |
-| `WriteToCompactJson()` | `RenderedCompactJsonFormatter` — log aggregator uyumlu |
-| `WriteToFile(path, interval)` | Rolling file sink (varsayilan: Day, 31 dosya) |
-| `WithTraceCorrelation(enabled)` | `TraceId`, `SpanId`, `ParentSpanId` property'leri |
+| `WriteToCompactJson()` | `RenderedCompactJsonFormatter`, compatible with log aggregators |
+| `WriteToFile(path, interval)` | Rolling file sink (default: Day, 31 files) |
+| `WithTraceCorrelation(enabled)` | `TraceId`, `SpanId`, `ParentSpanId` properties |
 | `Configure(action)` | Raw `LoggerConfiguration` access |
 
 ## Trace Correlation
 
-`WithTraceCorrelation(true)` varsayilandir. `Activity.Current` varsa her log
-event'ine `TraceId` ve `SpanId` eklenir — OpenTelemetry ile log/trace
-iliskilendirme saglar.
+`WithTraceCorrelation(true)` is the default. When `Activity.Current` exists,
+`TraceId` and `SpanId` are added to every log event. This correlates logs and
+traces with OpenTelemetry.
 
 ## Log Levels
 
-Varsayilan minimum `Information`. Development'ta artirmak icin:
+The default minimum level is `Information`. To raise verbosity in development:
 
 ```csharp
 builder.Services.AddKckSerilog(log => log
     .Configure(c => c.MinimumLevel.Debug()));
 ```
 
-## Yapilandirilmis Log Ornekleri
+## Structured Log Examples
 
-Dogru kullanim (template):
+Correct usage (template):
 
 ```csharp
 logger.LogInformation("User {UserId} placed order {OrderId} for {Amount}",
     userId, orderId, amount);
 ```
 
-Yasak (string interpolation):
+Forbidden (string interpolation):
 
 ```csharp
-// YANLIS — logger parametre extractionu yapmaz
+// WRONG — the logger does not extract parameters
 logger.LogInformation($"User {userId} placed order {orderId}");
 ```
 
 ## PII / Sensitive Data
 
-- Sifre, token, CVV asla logla — middleware'de filter ekle
-- `ILoggerFactory`'den olusturulan logger'da `ForContext<T>()` scope pattern
-  kullanilabilir
-- GDPR: PII'yi hash veya masked log (E.164 → masked son 4 hane)
+- Never log passwords, tokens or CVV. Add a filter in middleware.
+- For a logger created from `ILoggerFactory`, you can use the `ForContext<T>()`
+  scope pattern.
+- GDPR: log PII hashed or masked (E.164 → mask all but the last 4 digits).
 
 ## Log Retention
 
-`WriteToFile`'da default `retainedFileCountLimit: 31` (31 gun). Artirmak icin
-`Configure()` ile `.WriteTo.File(..., retainedFileCountLimit: 90)` ekle.
+`WriteToFile` defaults to `retainedFileCountLimit: 31` (31 days). To increase
+it, add `.WriteTo.File(..., retainedFileCountLimit: 90)` through `Configure()`.

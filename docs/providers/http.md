@@ -1,14 +1,14 @@
 # HTTP Resilience
 
-Dis servis cagrilari icin retry + circuit breaker + timeout sargısı.
-Polly (Microsoft.Extensions.Http.Resilience) uzerinde kurulu.
+A retry + circuit breaker + timeout wrapper for external service calls.
+Built on Polly (Microsoft.Extensions.Http.Resilience).
 
-## Paketler
+## Packages
 
-| Paket | Hedef |
+| Package | Target |
 |---|---|
 | `Kck.Http.Abstractions` | `IApiClient`, `ApiResponse<T>` |
-| `Kck.Http.Resilience` | Polly tabanli `ResilientApiClient` |
+| `Kck.Http.Resilience` | Polly-based `ResilientApiClient` |
 
 ## Setup
 
@@ -23,7 +23,7 @@ services.AddKckHttpResilience(opt =>
 });
 ```
 
-## Kullanim
+## Usage
 
 ```csharp
 public class UpstreamService(IApiClient client)
@@ -42,13 +42,13 @@ public class UpstreamService(IApiClient client)
 
 ## Resilience Policies
 
-Provider asagidaki policy'leri kademeli uygular:
+The provider applies the following policies in layers:
 
-| Policy | Davranis |
+| Policy | Behavior |
 |---|---|
-| Timeout | Her istek icin `Timeout` (varsayilan 30s) |
-| Retry | Transient hata (5xx, timeout) uzerine `MaxRetries` kez exponential backoff |
-| Circuit Breaker | Ardisik basarisizliktan sonra `CircuitBreakerDurationOfBreak` kadar istek reddedilir |
+| Timeout | `Timeout` for each request (default 30s) |
+| Retry | On a transient error (5xx, timeout), retries `MaxRetries` times with exponential backoff |
+| Circuit Breaker | After consecutive failures, requests are rejected for `CircuitBreakerDurationOfBreak` |
 
 ## ApiResponse\<T>
 
@@ -60,16 +60,16 @@ public record ApiResponse<T>(
     int StatusCode);
 ```
 
-- Http 2xx → `IsSuccess = true`, `Data` dolu
-- Http 4xx/5xx (retry sonrasi) → `IsSuccess = false`, `ErrorMessage` dolu
-- Circuit breaker acikken → `IsSuccess = false`, status 503
+- HTTP 2xx → `IsSuccess = true`, `Data` is populated
+- HTTP 4xx/5xx (after retries) → `IsSuccess = false`, `ErrorMessage` is populated
+- While the circuit breaker is open → `IsSuccess = false`, status 503
 
 ## Logging
 
-Retry denemelerini `ILogger` ile loglar. Detay attempt sayisi + reason.
+Retry attempts are logged with `ILogger`. The log detail includes the attempt count and the reason.
 
 ## Multi-Tenant
 
-Birden fazla upstream servis icin `IHttpClientFactory` named client pattern
-kullanin — her biri icin ayri `AddKckHttpResilience()` cagrisi ile
-`TypedClient` kaydedin.
+For multiple upstream services, use the `IHttpClientFactory` named client
+pattern. Register a `TypedClient` for each one with its own
+`AddKckHttpResilience()` call.

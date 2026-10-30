@@ -1,11 +1,11 @@
 # Web (ASP.NET Core)
 
-Framework-level ASP.NET Core entegrasyonu — startup extension'lari,
-current user provider, HTTP context accessor helper.
+Framework-level ASP.NET Core integration: startup extensions,
+a current user provider, and an HTTP context accessor helper.
 
-## Paketler
+## Packages
 
-| Paket | Hedef |
+| Package | Purpose |
 |---|---|
 | `Kck.AspNetCore` | `AddKckWebApi()`, `UseKckWebApi()`, current user accessor |
 
@@ -35,12 +35,12 @@ public class AuditService(ICurrentUserProvider user)
 }
 ```
 
-`ICurrentUserProvider` `HttpContextAccessor` uzerinden claim'leri okur — DI
-scope per request.
+`ICurrentUserProvider` reads claims through `HttpContextAccessor`. It is
+registered per request in the DI scope.
 
 ## CORS
 
-`EnableCors = true` iken:
+When `EnableCors = true`:
 
 ```csharp
 opt.CorsOrigins = ["https://app.myapp.com", "https://admin.myapp.com"];
@@ -48,12 +48,13 @@ opt.CorsAllowCredentials = true;
 opt.CorsAllowedHeaders = ["Content-Type", "Authorization"];
 ```
 
-`UseKckAspNetCore()` CORS middleware'i otomatik ekler (sirasi: Exception
+`UseKckAspNetCore()` adds the CORS middleware automatically (order: Exception
 handler → CORS → AuthN → AuthZ → Endpoints).
 
 ## HTTP Logging
 
-Production'da default **kapali** (performans + PII). Debug senaryolar icin:
+In production it is **off** by default (performance and PII). For debugging
+scenarios:
 
 ```csharp
 opt.EnableHttpLogging = true;
@@ -61,13 +62,13 @@ opt.HttpLoggingFields = HttpLoggingFields.Request | HttpLoggingFields.Response;
 opt.HttpLoggingMediaTypes = ["application/json"];
 ```
 
-## Middleware Sirasi
+## Middleware Order
 
-`UseKckAspNetCore()` asagidaki sirayi garanti eder:
+`UseKckAspNetCore()` guarantees the following order:
 
 1. Exception handler (from `Kck.Exceptions.AspNetCore`)
 2. HTTPS redirect
-3. Static files (opsiyonel)
+3. Static files (optional)
 4. Routing
 5. CORS
 6. Authentication
@@ -77,13 +78,13 @@ opt.HttpLoggingMediaTypes = ["application/json"];
 
 ## WebApi Bundle
 
-Daha yuksek-seviye opinionated setup icin [`Kck.Bundle.WebApi`](../../src/Bundles/Kck.Bundle.WebApi):
+For a higher-level, opinionated setup, use [`Kck.Bundle.WebApi`](../../src/Bundles/Kck.Bundle.WebApi):
 
 ```csharp
 services.AddKckWebApi(opt => { /* ... */ });
 ```
 
-Bu bundle:
+This bundle:
 
 - Mediator pipeline
 - Exception handler
@@ -91,4 +92,4 @@ Bu bundle:
 - OpenTelemetry (ASP.NET + HttpClient + EF)
 - JWT authentication
 
-tek cagriyla opinionated defaults ile kaydeder.
+registers all of the above with opinionated defaults in a single call.

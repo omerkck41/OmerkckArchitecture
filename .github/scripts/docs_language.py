@@ -1,8 +1,8 @@
 """Fails when a published documentation file that must be English contains Turkish text (ADR-0029 D2/D5, plan G2.1).
 
-The files to check are listed in .github/docs-english.txt; files are added as they are translated, and at the end of
-plan phase F2 the list covers every published page. Code blocks, inline code and HTML comments are ignored. A line is
-reported when it has a letter used only in Turkish or a common Turkish word (also written without diacritics).
+The files to check are listed in .github/docs-english.txt, and every page docfx publishes must be listed (historical
+ADRs 0001-0028 excepted), so a new page cannot skip the check. Code blocks, inline code and HTML comments are ignored.
+A line is reported when it has a letter used only in Turkish or a common Turkish word (also without diacritics).
 
 Usage: docs_language.py [--list .github/docs-english.txt] [--root .]
 """
@@ -98,6 +98,22 @@ def check_files(root: Path, files: list[str], allowed_words: frozenset[str] | se
 # Proper names that contain Turkish letters.
 ALLOWED_WORDS = frozenset({"Ömer", "KÜÇÜK", "Küçük"})
 
+# Published by docfx (docfx.json "build.content"); historical ADRs 0001-0028 keep their original language (ADR-0029).
+PUBLISHED_ROOT_FILES = ("README.md", "CHANGELOG.md", "CONTRIBUTING.md")
+UNPUBLISHED_DOC_FOLDERS = ("docs/plans/", "docs/archive/", "docs/memory/")
+HISTORICAL_ADR = re.compile(r"^docs/adr/00(?:0[1-9]|1\d|2[0-8])-")
+
+
+def unlisted_published_pages(root: Path, listed: list[str]) -> list[str]:
+    """Returns the published Markdown pages that are neither in the English list nor historical ADRs."""
+    pages = [name for name in PUBLISHED_ROOT_FILES if (root / name).is_file()]
+    pages += sorted(p.relative_to(root).as_posix() for p in (root / "docs").rglob("*.md"))
+    listed_set = set(listed)
+    return [page for page in pages
+            if page not in listed_set
+            and not page.startswith(UNPUBLISHED_DOC_FOLDERS)
+            and not HISTORICAL_ADR.match(page)]
+
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
@@ -110,6 +126,8 @@ def main(argv: list[str] | None = None) -> int:
     root = args.root.resolve()
     files = read_list(inside(root, args.list))
     problems = check_files(root, files, ALLOWED_WORDS)
+    problems += [f"{page}: published page missing from {args.list.name} (write it in English and add it)"
+                 for page in unlisted_published_pages(root, files)]
     for problem in problems:
         path, _, rest = problem.partition(":")
         line, _, text = rest.partition(":")
