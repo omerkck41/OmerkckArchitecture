@@ -32,48 +32,63 @@ public sealed class DirectTransactionCommitAnalyzer : DiagnosticAnalyzer
 
     private static void OnCompilationStart(CompilationStartAnalysisContext context)
     {
-        var transactionType = context.Compilation.GetTypeByMetadataName(TransactionTypeName);
+        var compilation = context.Compilation;
+        var transactionType = compilation.GetTypeByMetadataName(TransactionTypeName);
         if (transactionType is null)
             return; // no EF Core: nothing can be committed
 
-        var handlerType = context.Compilation.GetTypeByMetadataName(HandlerTypeName);
-        var builderType = context.Compilation.GetTypeByMetadataName(BuilderTypeName);
-        var commits = new ConcurrentQueue<(Location Location, string Method)>();
-        var usesDomainEvents = 0;
+        var state = new CompilationState(
+            transactionType,
+            compilation.GetTypeByMetadataName(HandlerTypeName),
+            compilation.GetTypeByMetadataName(DispatcherTypeName),
+            compilation.GetTypeByMetadataName(BuilderTypeName));
 
-        context.RegisterOperationAction(operationContext =>
-        {
-            var method = ((IInvocationOperation)operationContext.Operation).TargetMethod;
-            if (method.Name is "Commit" or "CommitAsync" && IsOrImplements(method.ContainingType, transactionType))
-                commits.Enqueue((operationContext.Operation.Syntax.GetLocation(), method.Name));
-            else if (method.Name is "AddDomainEventHandlers" or "AddDomainEventDispatch"
-                     && SymbolEqualityComparer.Default.Equals(method.ContainingType, builderType))
-                Interlocked.Exchange(ref usesDomainEvents, 1);
-        }, OperationKind.Invocation);
-
-        var dispatcherType = context.Compilation.GetTypeByMetadataName(DispatcherTypeName);
-        if (handlerType is not null || dispatcherType is not null)
-        {
-            context.RegisterSymbolAction(symbolContext =>
-            {
-                if (((INamedTypeSymbol)symbolContext.Symbol).AllInterfaces
-                    .Any(i => SymbolEqualityComparer.Default.Equals(i.OriginalDefinition, handlerType)
-                              || SymbolEqualityComparer.Default.Equals(i, dispatcherType)))
-                    Interlocked.Exchange(ref usesDomainEvents, 1);
-            }, SymbolKind.NamedType);
-        }
-
-        context.RegisterCompilationEndAction(endContext =>
-        {
-            if (Volatile.Read(ref usesDomainEvents) == 0)
-                return;
-
-            foreach (var (location, method) in commits)
-                endContext.ReportDiagnostic(Diagnostic.Create(Descriptors.DirectTransactionCommit, location, method));
-        });
+        context.RegisterOperationAction(state.OnInvocation, OperationKind.Invocation);
+        context.RegisterSymbolAction(state.OnNamedType, SymbolKind.NamedType);
+        context.RegisterCompilationEndAction(state.OnCompilationEnd);
     }
 
-    private static bool IsOrImplements(INamedTypeSymbol type, INamedTypeSymbol interfaceType) =>
-        SymbolEqualityComparer.Default.Equals(type, interfaceType)
-        || type.AllInterfaces.Any(i => SymbolEqualityComparer.Default.Equals(i, interfaceType));
+    // Per compilation: the direct commits seen, and whether anything shows the compilation uses domain events.
+    private sealed class CompilationState(
+        INamedTypeSymbol transactionType,
+        INamedTypeSymbol? handlerType,
+        INamedTypeSymbol? dispatcherType,
+        INamedTypeSymbol? builderType)
+    {
+        private readonly ConcurrentQueue<(Location Location, string Method)> _commits = new();
+        private int _usesDomainEvents;
+
+        public void OnInvocation(OperationAnalysisContext context)
+        {
+            var method = ((IInvocationOperation)context.Operation).TargetMethod;
+            if (method.Name is "Commit" or "CommitAsync" && IsOrImplements(method.ContainingType, transactionType))
+                _commits.Enqueue((context.Operation.Syntax.GetLocation(), method.Name));
+            else if (method.Name is "AddDomainEventHandlers" or "AddDomainEventDispatch"
+                     && SymbolEqualityComparer.Default.Equals(method.ContainingType, builderType))
+                Interlocked.Exchange(ref _usesDomainEvents, 1);
+        }
+
+        public void OnNamedType(SymbolAnalysisContext context)
+        {
+            if (((INamedTypeSymbol)context.Symbol).AllInterfaces.Any(IsDomainEventContract))
+                Interlocked.Exchange(ref _usesDomainEvents, 1);
+        }
+
+        public void OnCompilationEnd(CompilationAnalysisContext context)
+        {
+            if (Volatile.Read(ref _usesDomainEvents) == 0)
+                return;
+
+            foreach (var (location, method) in _commits)
+                context.ReportDiagnostic(Diagnostic.Create(Descriptors.DirectTransactionCommit, location, method));
+        }
+
+        private bool IsDomainEventContract(INamedTypeSymbol @interface) =>
+            SymbolEqualityComparer.Default.Equals(@interface.OriginalDefinition, handlerType)
+            || SymbolEqualityComparer.Default.Equals(@interface, dispatcherType);
+
+        private static bool IsOrImplements(INamedTypeSymbol type, INamedTypeSymbol interfaceType) =>
+            SymbolEqualityComparer.Default.Equals(type, interfaceType)
+            || type.AllInterfaces.Any(i => SymbolEqualityComparer.Default.Equals(i, interfaceType));
+    }
 }
