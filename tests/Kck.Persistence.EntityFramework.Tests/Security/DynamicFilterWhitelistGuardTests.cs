@@ -103,6 +103,6 @@ public class DynamicFilterWhitelistGuardTests
 
     private sealed class MethodCallWhitelist : Kck.Persistence.Abstractions.Security.FilterPropertyWhitelist<TestEntity>
     {
-        public MethodCallWhitelist() => Allow(e => e.ToString()!);
+        public MethodCallWhitelist() => Allow(e => e.Name.Trim()); // a method call, not a property access
     }
 }
