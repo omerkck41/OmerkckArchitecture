@@ -3,7 +3,7 @@
 
 namespace ReadmeSnippets.DocsPoliciesDeprecation_1;
 
-#line 35 "docs/policies/deprecation.md"
+#line 38 "docs/policies/deprecation.md"
 [Obsolete(
     "Description: WHY it is obsolete + the ALTERNATIVE API. " +
     "Removed in vX.Y.",

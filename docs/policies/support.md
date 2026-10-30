@@ -8,19 +8,20 @@ OmerkckArchitecture (`Kck.*`) packages.
 The library follows Microsoft's .NET support policy:
 
 - **LTS** (Long Term Support, 3 years): the library supports it **for its entire lifecycle**.
-- **STS** (Standard Term Support, 18 months): the library targets it **for the duration of its support window**.
+- **STS** (Standard Term Support, 24 months since .NET 9): the library targets it **for the duration of its support
+  window**.
 - As the end of an LTS period approaches, the old LTS is removed gradually once the new LTS is released.
 
-## Current Support Matrix (as of 2026-05-04)
+## Current Support Matrix (as of 2026-10-30)
 
 | TFM | Type | Microsoft End of Support | Library Status |
 |---|---|---|---|
 | `net8.0` | LTS | 2026-11-10 | **Removed** (ADR-0019, v2.0) |
-| `net10.0` | STS (LTS candidate) | 2027-11-09 | **Primary target** |
+| `net10.0` | LTS | 2028-11-14 | **Only target** |
 
-> .NET 10 was announced as STS at release, but it may be changed to LTS if Microsoft
-> updates its support page. For the official status, see:
-> https://dotnet.microsoft.com/platform/support/policy/dotnet-core
+Source: [endoflife.date/dotnet](https://endoflife.date/dotnet) (accessed 2026-10-30): .NET 10 released 2025-11-11 as
+LTS, end of support 2028-11-14. The official policy is on
+[Microsoft's support page](https://dotnet.microsoft.com/platform/support/policy/dotnet-core).
 
 ## Target Framework Decision
 

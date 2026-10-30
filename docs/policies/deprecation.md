@@ -29,6 +29,9 @@ OmerkckArchitecture (Kck.\*).
 | `KCK0800-0899` | EventBus                          |
 | `KCK0900-0999` | Localization/Documents/Other      |
 
+Exception: `KCK0200` was issued to `Kck.Pipeline.MediatR` (ADR-0021) although it falls in the Caching range. An
+issued ID is never reused.
+
 ## Attribute Template
 
 ```csharp

@@ -32,7 +32,7 @@ Every provider follows this pattern:
 1. **Abstraction**: `Kck.<Area>.Abstractions` defines the interfaces and contracts
 2. **Provider**: `Kck.<Area>.<Tech>` implements the abstraction with a concrete technology
 3. **DI Extension**: `AddKck<Area><Tech>()` registers it with a single call
-4. **Options**: configuration through `IOptionsMonitor<T>`
+4. **Options**: an options class configured in the registration call
 
 ## Switching Abstractions
 
@@ -43,8 +43,9 @@ To switch to a different provider, change the registration order or use
 
 ## Configuration
 
-All providers use `IOptionsMonitor<T>`, chosen for runtime reload support
-([ADR-0004](../adr/0004-ioptions-monitor-migration.md)).
+Most providers read their options through `IOptionsMonitor<T>`, chosen for runtime reload support
+([ADR-0004](../adr/0004-ioptions-monitor-migration.md)). Some options are read once at registration and need a
+restart to change, for example the Hangfire worker count and the HTTP resilience policy.
 
 ```csharp
 services.AddKckCachingRedis(

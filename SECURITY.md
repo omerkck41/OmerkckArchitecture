@@ -4,13 +4,16 @@ Security policy for OmerkckArchitecture (the Kck.* package family).
 
 ## Supported Versions
 
-This library is at version `v3.x`. Security patches are provided for the following versions:
+The current major version is `4.x`. Security patches are provided for the following versions:
 
-| Version         | Supported           |
-| --------------- | ------------------- |
-| 3.x (latest)    | YES ✅              |
-| 2.x             | Security-only ⚠️   |
-| < 2.0           | NO ❌               |
+| Version         | Supported                                                        |
+| --------------- | ---------------------------------------------------------------- |
+| 4.x (latest)    | YES ✅                                                           |
+| 3.x             | Security and critical fixes only ⚠️ (`release/3.x`, latest 3.6.x) |
+| < 3.0           | NO ❌                                                            |
+
+The 3.x maintenance line follows ADR-0028 (K9). Fixes ship in the latest minor of a supported major; upgrade within the
+major to receive them.
 
 ## Reporting a Vulnerability
 

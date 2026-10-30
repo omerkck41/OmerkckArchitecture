@@ -22,8 +22,8 @@ to use each test category.
 **Purpose:** Quickly verify the behavior of a type or method.
 
 **Tools:**
-- xUnit `[Fact]` / `[Theory]`
-- `FluentAssertions` (assertion chains)
+- xUnit v2 `[Fact]` / `[Theory]` (not v3: Stryker.NET reports 0% with it)
+- `AwesomeAssertions` (assertion chains; `using AwesomeAssertions;` — FluentAssertions 8+ has a commercial licence)
 - `NSubstitute` (interface mocks)
 - EF Core: `Microsoft.EntityFrameworkCore.InMemory` provider
 
@@ -101,21 +101,22 @@ dotnet run -c Release --project tests/Kck.Benchmarks -- --filter "*Paginate*"
 **CI:** Benchmarks do not run in CI (benchmark results are not deterministic).
 CI regression detection (bencher.dev or a benchmark GitHub action) may be added in the future.
 
-## Mutation Testing (Stryker.NET) — Not Yet Available
+## Mutation Testing (Stryker.NET)
 
-Section 7.4: start a mutation score on critical abstractions (Result, Paginate, Filter) —
-target >70%. Marked as **trial mode**, not yet implemented.
+One Stryker config per module (`stryker-*.json` at the repository root). `.github/workflows/mutation.yml` runs every
+module weekly (Sunday 02:00 UTC) and on manual dispatch; it does not run on pull requests, because a full run would
+block delivery. A module fails below its `break` threshold (60% in `stryker-config.json`).
 
-## Property-Based Testing — Not Yet Available
+## Property-Based Testing (CsCheck)
 
-Section 7.3: property tests with FsCheck/CsCheck for `Paginate.Create` math, the `Filter`
-parser, and `PathSanitizer`. Marked as **trial mode**.
+`CsCheck` property tests cover invariants such as paging math and path handling (for example in
+`Kck.Core.Abstractions.Tests`, `Kck.Persistence.EntityFramework.Tests` and `Kck.FileStorage.FluentFtp.Tests`).
 
 ## Coverage Policy
 
 Details: [`docs/policies/test-coverage.md`](policies/test-coverage.md)
 
-- Current threshold: **line 40% / branch 35%** (regression prevention)
+- Current threshold: **line 70% / branch 67%** (it only goes up)
 - Roadmap: gradual increases, which require writing tests
 
 ## References
