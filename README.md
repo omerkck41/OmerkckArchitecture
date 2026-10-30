@@ -111,30 +111,31 @@ The library targets `net10.0` and later only ([ADR-0019](docs/adr/0019-drop-net8
 
 ## Why Kck?
 
-Kck aims to be **lighter** than ABP, **broader** than FastEndpoints, and **compatible** with Aspire:
+Kck aims to be **lighter** than ABP, **broader** than FastEndpoints, and **compatible** with Aspire. Versions checked on
+2026-10-30 ([sources](https://github.com/omerkck41/OmerkckArchitecture/blob/main/decisions/2026-10-30-persistence-comparison-sources.md)):
 
-| Topic | Kck | ABP Framework | FastEndpoints | Microsoft .NET Aspire |
+| Topic | Kck 4.x | ABP Framework 10.7 | FastEndpoints 8.3 | Aspire 13.6 |
 |---|---|---|---|---|
-| **Licence** | MIT | LGPL (Pro: paid) | MIT | MIT |
-| **Approach** | Modular, opt-in | All-in-one, opinionated | Endpoint-only | Orchestration |
-| **DI conventions** | `Microsoft.Extensions.*` native | ABP DI extensions | `Microsoft.Extensions.*` | `Microsoft.Extensions.*` |
-| **Source generation / proxies** | None (plain C#) | Many (UoW interceptor, dynamic proxy) | None | None |
-| **Target frameworks** | net10.0 | net8 + net9 | net8 + net9 + net10 | net8 + net9 + net10 |
-| **Native AOT** | Partly (abstractions + Mediator, in-memory cache / event bus / feature flags, Argon2, TOTP, JWT, Localization(.Json), Polly, Http.Resilience; native AOT smoke in CI) | No | Yes | Yes |
-| **Providers** | 30+ official | 15+ official (Pro) | N/A | N/A (orchestration) |
-| **Batteries included** | Through opt-in modules | All-in-one | HTTP only | None |
-| **Source Link + symbols** | Yes | Yes | Yes | Yes |
-| **Learning curve** | Low to medium | High | Low | Medium |
+| **Licence** | MIT | LGPL-3.0 | MIT | MIT |
+| **What it is** | Opt-in packages: abstractions, providers, bundles | Application framework (modules, DDD, multi-tenancy) | Endpoint framework for ASP.NET Core | Orchestration and observability for distributed apps |
+| **DI** | `Microsoft.Extensions.*` | `Microsoft.Extensions.*` with conventional registration | `Microsoft.Extensions.*` | `Microsoft.Extensions.*` |
+| **Runtime proxies** | None | Castle DynamicProxy interceptors (unit of work, auditing, authorization) | — | — |
+| **Target frameworks** | net10.0 | netstandard2.0/2.1, net8.0, net9.0, net10.0 | net8.0, net9.0, net10.0 | net8.0, net9.0, net10.0 |
+| **Native AOT** | Partly (abstractions + Mediator, in-memory cache / event bus / feature flags, Argon2, TOTP, JWT, Localization(.Json), Polly, Http.Resilience; native AOT smoke in CI) | Not documented | Yes, with `FastEndpoints.Generator` | Not applicable (orchestration) |
+| **Packages** | 37 providers, 17 abstractions, 3 bundles | Many framework and application modules | Core plus add-ons (security, OpenAPI, testing) | AppHost plus integrations |
+
+For persistence specifically (soft delete, audit fields, domain events), see
+[Persistence: Kck compared](docs/persistence-comparison.md) with EF Core alone, ABP and Ardalis.Specification.
 
 **Choose Kck if you:**
 - want to stay close to ASP.NET Core (DI, options, hosting conventions);
-- want to add and remove modules one by one rather than ABP's "everything automatic" approach;
-- avoid source-generation or runtime-proxy magic (debuggability matters);
+- want to add and remove modules one by one rather than adopting a whole application framework;
+- want no runtime proxies (what you call is what runs; debuggability matters);
 - want a framework built for modern .NET 10 APIs (AOT, `Guid.CreateVersion7()`);
 - value ADRs, per-provider guides and a zero-warning build.
 
 **Choose something else if you:**
-- want one package that covers everything → ABP;
+- want one framework that covers multi-tenancy, user-aware auditing and an outbox from day one → ABP;
 - only write HTTP endpoint APIs → FastEndpoints is lighter;
 - need microservice orchestration → Aspire (it also works together with Kck).
 

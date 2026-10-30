@@ -9,7 +9,7 @@ internal static class Snippet
 {
     internal static async Task RunAsync(IServiceCollection services, string connectionString)
     {
-#line 51 "docs/providers/persistence.md"
+#line 52 "docs/providers/persistence.md"
 services.AddKckPersistence(p => p
     .UseEntityFramework<AppDbContext>(o => o.UseSqlServer(connectionString))
     .AddDomainEventHandlers(typeof(Program).Assembly));
@@ -18,7 +18,7 @@ services.AddKckPersistence(p => p
     }
 }
 
-#line 36 "docs/providers/persistence.md"
+#line 37 "docs/providers/persistence.md"
 public sealed record OrderPlaced(Guid OrderId) : IDomainEvent
 {
     public Guid EventId { get; } = Guid.NewGuid();
