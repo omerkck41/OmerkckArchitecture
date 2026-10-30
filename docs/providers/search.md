@@ -6,68 +6,68 @@ Abstraction for full-text search. Currently only an Elasticsearch provider exist
 
 | Package | Purpose |
 |---|---|
-| `Kck.Search.Abstractions` | `ISearchService`, `SearchQuery`, `SearchResult<T>` |
+| `Kck.Search.Abstractions` | `ISearchService<T>`, `SearchRequest`, `SearchResult<T>` |
 | `Kck.Search.Elasticsearch` | Elasticsearch 8.x (Elastic.Clients.Elasticsearch) |
 
 ## Setup
 
+One registration per document type:
+
 ```csharp
-services.AddKckSearchElasticsearch(opt =>
+services.AddKckSearchElasticsearch<Product>(opt =>
 {
-    opt.Uri = builder.Configuration["Elasticsearch:Uri"]!;
-    opt.UserName = builder.Configuration["Elasticsearch:User"];
+    opt.ConnectionString = builder.Configuration["Elasticsearch:Uri"]!;
+    opt.Username = builder.Configuration["Elasticsearch:User"];
     opt.Password = builder.Configuration["Elasticsearch:Password"];
     opt.DefaultIndex = "products";
 });
 ```
 
-## Defining an Index
-
-The Elasticsearch mapping lives on the domain side, not in the service layer. Define it with SpatNest
-or the Elastic.Clients fluent API, for example in a startup migration
-script:
-
-```csharp
-await client.Indices.CreateAsync<Product>(c => c
-    .Index("products")
-    .Mappings(m => m.Properties(p => p
-        .Text(t => t.Name.Keyword())
-        .Number(n => n.Price)
-    )));
-```
+The options are validated at startup. `DisableSslVerification` exists for local clusters with self-signed
+certificates; never set it in production.
 
 ## Usage
 
 ```csharp
-public class ProductSearchService(ISearchService search)
+using Kck.Search.Abstractions;
+
+public class ProductSearchService(ISearchService<Product> search)
 {
-    public async Task<SearchResult<Product>> FindAsync(string query, CancellationToken ct)
-    {
-        return await search.SearchAsync<Product>(new SearchQuery
+    public Task<SearchResult<Product>> FindAsync(string query, int page, CancellationToken ct) =>
+        search.SearchAsync(new SearchRequest
         {
-            Index = "products",
-            Query = query,
-            From = 0,
+            Query = query,          // Elasticsearch query-string syntax, e.g. "name:phone AND price:<500"
+            From = page * 20,
             Size = 20,
-            Fields = ["name", "description"]
+            SortField = "price",
+            SortAscending = true
         }, ct);
-    }
 
-    public Task IndexAsync(Product product, CancellationToken ct)
-        => search.IndexAsync(product, $"product:{product.Id}", "products", ct);
+    public Task IndexAsync(Product product, CancellationToken ct) =>
+        search.IndexDocumentAsync("products", product.Id.ToString(), product, ct);
 
-    public Task DeleteAsync(int id, CancellationToken ct)
-        => search.DeleteAsync($"product:{id}", "products", ct);
+    public Task DeleteAsync(int id, CancellationToken ct) =>
+        search.DeleteDocumentAsync("products", id.ToString(), ct);
 }
 ```
+
+`SearchRequest.IndexName` overrides `DefaultIndex`. `BulkIndexAsync`, `UpdateDocumentAsync`, `GetByIdAsync` and the
+index operations (`CreateIndexAsync`, `IndexExistsAsync`, `DeleteIndexAsync`) complete the API.
+
+## Defining an Index
+
+`CreateIndexAsync(name)` creates an index with `NumberOfShards` and `NumberOfReplicas` and dynamic mapping. For an
+explicit mapping, create the index yourself with the `Elastic.Clients.Elasticsearch` client (for example in a startup
+step) before indexing documents.
 
 ## Result
 
 ```csharp
-public record SearchResult<T>(
-    IReadOnlyList<T> Items,
-    long TotalCount,
-    long TookMs);
+public sealed class SearchResult<T> where T : class
+{
+    public required IReadOnlyList<T> Items { get; init; }
+    public long TotalCount { get; init; }
+}
 ```
 
 ## Index Strategies
@@ -78,7 +78,7 @@ public record SearchResult<T>(
 
 ## Performance
 
-- Bulk index: `IndexBulkAsync` (not in the abstraction yet; candidate to add)
+- Bulk index: `BulkIndexAsync(index, documents)`
 - Query cache: Elasticsearch manages its own query cache
 - Refresh interval: default `1s` in production. For a high ingest rate, use `5s`
   or `-1` (manual refresh)
@@ -87,4 +87,3 @@ public record SearchResult<T>(
 
 - OpenSearch variant
 - Vector search (k-NN) support
-- Bulk operations API

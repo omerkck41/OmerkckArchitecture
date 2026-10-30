@@ -15,61 +15,70 @@ Built on Polly (Microsoft.Extensions.Http.Resilience).
 ```csharp
 services.AddKckHttpResilience(opt =>
 {
-    opt.BaseAddress = "https://api.upstream.com";
-    opt.Timeout = TimeSpan.FromSeconds(30);
-    opt.MaxRetries = 3;
-    opt.CircuitBreakerFailureThreshold = 5;
-    opt.CircuitBreakerDurationOfBreak = TimeSpan.FromSeconds(30);
+    opt.Timeout = TimeSpan.FromSeconds(30);                    // per attempt; the whole call gets 3x
+    opt.MaxRetryAttempts = 3;
+    opt.MedianFirstRetryDelay = TimeSpan.FromSeconds(1);
+    opt.CircuitBreakerDuration = TimeSpan.FromSeconds(30);
 });
 ```
+
+`AddKckHttpResilience` registers `IApiClient` as a typed `HttpClient` with the standard resilience handler of
+`Microsoft.Extensions.Http.Resilience` (rate limiter, total timeout, retry, circuit breaker, attempt timeout). The
+client has no base address: pass absolute URLs.
 
 ## Usage
 
 ```csharp
+using Kck.Http.Abstractions;
+
 public class UpstreamService(IApiClient client)
 {
-    public async Task<ApiResponse<Product>> GetProductAsync(int id, CancellationToken ct)
-    {
-        return await client.GetAsync<Product>($"/products/{id}", ct);
-    }
+    public Task<ApiResponse<Product>> GetProductAsync(int id, CancellationToken ct) =>
+        client.GetAsync<Product>($"https://api.upstream.com/products/{id}", ct);
 
-    public async Task<ApiResponse<Order>> PostOrderAsync(Order order, CancellationToken ct)
-    {
-        return await client.PostAsync<Order, Order>("/orders", order, ct);
-    }
+    public Task<ApiResponse<Order>> PostOrderAsync(Order order, CancellationToken ct) =>
+        client.PostAsync<Order>("https://api.upstream.com/orders", order, ct);
 }
 ```
 
+`SendAsync<T>(method, url, body, headers, ct)` adds request headers. Bodies are serialized with `System.Text.Json`
+(`ResilienceOptions.SerializerOptions`, or web defaults).
+
 ## Resilience Policies
 
-The provider applies the following policies in layers:
-
-| Policy | Behavior |
+| Option | Maps to |
 |---|---|
-| Timeout | `Timeout` for each request (default 30s) |
-| Retry | On a transient error (5xx, timeout), retries `MaxRetries` times with exponential backoff |
-| Circuit Breaker | After consecutive failures, requests are rejected for `CircuitBreakerDurationOfBreak` |
+| `Timeout` (30 s) | attempt timeout; the total request timeout is 3 x `Timeout` |
+| `MaxRetryAttempts` (3) | retries on transient failures (5xx, 408, 429, network errors) with exponential backoff |
+| `MedianFirstRetryDelay` (1 s) | the base retry delay |
+| `CircuitBreakerDuration` (30 s) | the circuit breaker's sampling window is 2 x this value; the break duration is the standard handler's default |
+
+`CircuitBreakerFailureThreshold` is declared but not applied in this version: the standard handler's failure-ratio
+defaults decide when the circuit opens. Keep `CircuitBreakerDuration` at least as long as `Timeout`: the standard
+handler requires the sampling window (2 x `CircuitBreakerDuration`) to be at least twice the attempt timeout and
+rejects the configuration otherwise.
 
 ## ApiResponse\<T>
 
 ```csharp
-public record ApiResponse<T>(
-    bool IsSuccess,
-    T? Data,
-    string? ErrorMessage,
-    int StatusCode);
+public sealed class ApiResponse<T>
+{
+    public bool IsSuccess { get; init; }
+    public T? Data { get; init; }
+    public int StatusCode { get; init; }
+    public string? ErrorMessage { get; init; }
+}
 ```
 
-- HTTP 2xx → `IsSuccess = true`, `Data` is populated
-- HTTP 4xx/5xx (after retries) → `IsSuccess = false`, `ErrorMessage` is populated
-- While the circuit breaker is open → `IsSuccess = false`, status 503
+- HTTP 2xx: `IsSuccess = true`, `Data` is the deserialized body.
+- Any other status (after retries): `IsSuccess = false`, `ErrorMessage` is the response body, and the failure is logged.
+- Exceptions from the resilience pipeline (an open circuit, the attempt or total timeout after the last retry) and
+  network errors are not converted: they propagate to the caller. With the defaults, the total timeout (90 s) fires
+  before `HttpClient`'s own 100 s timeout, so expect `TimeoutRejectedException` rather than a response.
+- Only an `HttpClient` timeout (a `TaskCanceledException` not caused by your cancellation token) becomes
+  `IsSuccess = false` with status 408.
 
-## Logging
+## Several Upstream Services
 
-Retry attempts are logged with `ILogger`. The log detail includes the attempt count and the reason.
-
-## Multi-Tenant
-
-For multiple upstream services, use the `IHttpClientFactory` named client
-pattern. Register a `TypedClient` for each one with its own
-`AddKckHttpResilience()` call.
+`AddKckHttpResilience` registers a single `IApiClient`. For several upstreams with their own base address or policy,
+register your own typed clients with `services.AddHttpClient<TClient>(...)` and `.AddStandardResilienceHandler(...)`.

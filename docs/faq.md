@@ -4,24 +4,24 @@
 
 ### Which package should I install?
 
-For a quick start, add `Kck.Bundle.WebApi` or `Kck.Bundle.MinimalApi`. A single package brings
-all the core providers. If you only need specific modules, prefer the individual provider
-packages (`Kck.Caching.Redis`, `Kck.EventBus.RabbitMq`, and so on).
+To start a new service, use the template: `dotnet new install Kck.Templates`, then `dotnet new kck-webapi`
+([Get started](getting-started/README.md)). To add Kck to an existing app, `Kck.Bundle.WebApi` or
+`Kck.Bundle.MinimalApi` registers a set of core providers in one call. If you only need specific modules, install the
+individual provider packages (`Kck.Caching.Redis`, `Kck.EventBus.RabbitMq`, and so on).
 
 ### "No service for type 'ICacheService' has been registered" error
 
-You skipped `AddKckCaching()` or the caching section of the bundle. In `Program.cs`:
+No caching provider is registered. In `Program.cs`, add one:
 
 ```csharp
-builder.Services.AddKckCaching(opts => opts.KeyPrefix = "myapp:");
-builder.Services.AddKckInMemoryCache();  // or AddKckRedisCache(...)
+builder.Services.AddKckCachingInMemory(opt => opt.KeyPrefix = "myapp:");
+// or: builder.Services.AddKckCachingRedis(redis => redis.Configuration = "localhost:6379");
 ```
 
 ### Does the order of AddKck* calls matter?
 
-Register the abstraction first, then the provider: `AddKckCaching()` → `AddKckRedisCache()`. In the
-Mediator pipeline, however, watch the order of behaviors: `AddKckMediatorPipeline()` runs the
-behaviors in the order of the `.Use…Behavior()` calls on the builder.
+Not for provider registrations: each `AddKck*` call registers its own services. In the Mediator pipeline, the
+behaviors run in the order of the `.Use…Behavior()` calls on the `AddKckMediatorPipeline()` builder.
 
 ---
 
@@ -29,10 +29,13 @@ behaviors in the order of the `.Use…Behavior()` calls on the builder.
 
 ### I can't use a parameterized constructor in my class derived from the abstract Entity<TId>
 
-Entity has a `protected Entity(TId id)` constructor. Call it in the derived class:
+Every entity base has a `protected` constructor that takes the ID. Call it from the derived class, and keep a private
+parameterless constructor for EF Core:
 
 ```csharp
-public class Product : Entity<Guid>
+using Kck.Core.Abstractions.Entities;
+
+public class Product : FullEntity<Guid>
 {
     private Product() { }
     public Product(Guid id, string name) : base(id) { Name = name; }
@@ -40,35 +43,31 @@ public class Product : Entity<Guid>
 }
 ```
 
-### "The entity type requires a primary key" error in an EF Core migration
+### Is the soft-delete filter applied automatically?
 
-EF Core does not automatically recognize `Entity<TId>.Id` as the primary key. Specify it in
-`OnModelCreating` or in a fluent configuration:
+Repository queries always leave out soft-deleted rows unless `QueryOptions.IncludeDeleted` is set. Your own
+`DbContext` queries (`db.Orders...`) are filtered only when you call `modelBuilder.ApplyGlobalSoftDeleteQueryFilter()`
+(4.6.0+) at the end of `OnModelCreating`. See [Persistence](providers/persistence.md#global-soft-delete-filter-460).
 
-```csharp
-modelBuilder.Entity<Product>().HasKey(p => p.Id);
-```
-
-We recommend configuring it in a separate file with `IEntityTypeConfiguration<T>`.
-
-### Is the SoftDelete filter applied automatically?
-
-No. `EfRepository` does not add a global filter to its default queries. You must add
-`HasQueryFilter(e => !e.IsDeleted)` to your `DbContext` yourself. This is a deliberate design
-decision: screens that show deleted records, such as an admin panel, may not need the filter.
-
-### Using IQueryable with Paginate<T>
+### Paging with IPaginate<T>
 
 ```csharp
-// CORRECT — Where/OrderBy first, then ToPaginateAsync
-var result = await _repo.GetListAsync(
-    predicate: p => p.IsActive,
-    orderBy: q => q.OrderBy(p => p.Name),
-    index: 0, size: 20, cancellationToken: ct);
+using Kck.Persistence.Abstractions.Repositories;
+using Kck.Persistence.Abstractions.UnitOfWork;
+
+public sealed class OrderList(IUnitOfWork uow)
+{
+    public Task<IPaginate<Order>> PageAsync(int index, CancellationToken ct) =>
+        uow.Repository<Order, Guid>().GetListAsync(
+            QueryOptions.None,
+            predicate: o => o.Total > 0,
+            orderBy: q => q.OrderByDescending(o => o.CreatedDate),
+            index: index, size: 20, cancellationToken: ct);
+}
 ```
 
-The `ToPaginateAsync` extension method runs a separate `COUNT(*)` query for `totalCount`.
-On large tables, use `QueryOptions` to `Select` only the fields you need for better performance.
+Paging runs a separate `COUNT(*)` query for the total. On large tables, page over a projection with
+`Query(...).Select(...).ToPaginateAsync(index, size)` so that only the needed columns are read.
 
 ---
 
@@ -76,13 +75,13 @@ On large tables, use `QueryOptions` to `Select` only the fields you need for bet
 
 ### Redis "Connection refused" error
 
-`RedisConnectionHostedService` connects when the application starts. If the connection fails,
-the application still starts, but `ICacheService` calls throw `InvalidOperationException`.
+`Kck.Caching.Redis` connects in a hosted service when the application starts. If the connection fails, startup
+fails with the StackExchange.Redis error.
 
 Checklist:
-1. Is `CacheOptions.RedisConnectionString` correct?
+1. Is the connection string (`RedisCacheOptions.Configuration`) correct for this environment?
 2. Is the Redis server reachable? (`redis-cli ping`)
-3. If `ASPNETCORE_ENVIRONMENT=Development`, check `appsettings.Development.json`.
+3. With `ASPNETCORE_ENVIRONMENT=Development`, check `appsettings.Development.json`.
 
 ### What is the difference between InMemory cache and Redis cache?
 
@@ -104,16 +103,20 @@ share the same Redis instance. Recommendation: use the `"{appname}:{env}:"` form
 
 ### My IntegrationEvent was published but the handler did not run
 
-1. Did you call `Subscribe<TEvent, THandler>()`? The DI container registers the handler, but
-   you must also subscribe separately (usually at startup).
-2. Is the handler registered in DI? Register handlers through the `AddKckEventBus()` builder.
-3. If you use RabbitMQ/Azure, verify that the exchange/queue names match.
+- InMemory: the handler must be registered, usually with `RegisterHandlersFromAssembly(...)` on the
+  `AddKckEventBus()` builder, and `Subscribe<TEvent, THandler>()` must not be called for that event (it switches the
+  event to handlers resolved by class). A handler exception is logged, not thrown.
+- RabbitMQ / Azure Service Bus: call `bus.Subscribe<TEvent, THandler>()` after `Build()` and before `Run()`, and
+  register the handler class itself (`services.AddTransient<THandler>()`). See
+  [Event Bus](providers/event-bus.md#subscribing-rabbitmq-azure-service-bus).
+- Check that the exchange, topic and subscription names match between publisher and consumer.
 
 ### Are messages lost if the RabbitMQ connection drops?
 
-`InMemoryEventBus` is fire-and-forget: there is no persistence. If you use `RabbitMqEventBus`,
-make sure you define the exchange and queue with `durable: true` for durability.
-For critical business processes, consider integrating the Outbox pattern (see: Phase E list).
+The InMemory bus keeps nothing: an event is handled in the publishing process or not at all. The RabbitMQ bus declares
+durable queues and acknowledges a message only after its handlers succeed. A publish while the broker is unreachable
+fails, so for critical business processes write the event to an outbox table in the same transaction as the data and
+publish it from a background job.
 
 ---
 
@@ -143,17 +146,15 @@ services.AddKckMediatorPipeline(p => p
 
 ### JWT token "IDX10223: Lifetime validation failed" error
 
-There is a difference between the server clock and the token creation time. Check the `ClockSkew` tolerance:
-
-```csharp
-options.TokenValidationParameters.ClockSkew = TimeSpan.FromMinutes(5);
-```
+The token has expired, or the clocks of the issuing and validating servers differ. `ITokenService.ValidateTokenAsync`
+(`Kck.Security.Jwt`) validates with zero clock skew, so keep server clocks synchronized (NTP). The ASP.NET Core JWT
+bearer handler has its own `TokenValidationParameters.ClockSkew` (5 minutes by default).
 
 ### Argon2 hash verification is slow
 
-This is expected. Argon2 is deliberately slow (a design that counters DoS attacks).
-Adjust the `Argon2Options.Iterations` and `MemorySize` values for your environment.
-Minimum recommended: `Iterations=3, MemorySize=65536`.
+This is expected: Argon2 is deliberately expensive, which slows down password guessing. Tune
+`Argon2Options.Iterations` and `MemorySize` for your hardware; the defaults are `Iterations = 3`,
+`MemorySize = 65536` (64 MiB).
 
 ---
 
@@ -161,20 +162,20 @@ Minimum recommended: `Iterations=3, MemorySize=65536`.
 
 ### NU1004 — lock file package version mismatch
 
-Typical cause: a different SDK version or a change to Directory.Packages.props.
+Typical cause: a different SDK version, or a change to `Directory.Packages.props` that was restored for a single
+project only.
 
 ```bash
-dotnet restore --force-evaluate  # regenerates the lock files
-git add "**packages.lock.json"
+dotnet restore --force-evaluate  # at the solution root: regenerates every lock file
+dotnet restore --locked-mode     # verifies them, as CI does
 ```
 
-Pin the SDK version (global.json). Details: [ADR-0011](adr/0011-multi-target-net8-net10.md).
+Use the SDK pinned in `global.json`; lock files contain SDK-coupled packages.
 
 ### CS0433 — Azure.Core conflict
 
-It can occur when `Azure.Identity >= 1.21.0` and `Azure.Core >= 1.54.0` are used together.
-Upgrade to `Azure.Identity 1.21.0+` in `Directory.Packages.props`. Details:
-[MEMORY: Azure CS0433](https://github.com/omerkck41/OmerkckArchitecture/blob/main/SECURITY.md).
+It occurs when `Azure.Core` 1.54.0 or later is combined with an older `Azure.Identity` (1.13.x). Upgrade
+`Azure.Identity` to 1.21.0 or later in `Directory.Packages.props`.
 
 ### "Coverage threshold not met" CI error
 
@@ -186,22 +187,20 @@ dotnet reportgenerator -reports:"**/coverage.cobertura.xml" -targetdir:coverage-
 cat coverage-report/Summary.txt
 ```
 
-Thresholds: `Line ≥50%, Branch ≥45%`. Details: [docs/policies/test-coverage.md](policies/test-coverage.md).
+Thresholds: line 70%, branch 67% (they only go up). Details: [docs/policies/test-coverage.md](policies/test-coverage.md).
 
 ---
 
 ## Versioning & NuGet
 
-### I forgot to tag the new version and NuGet shows the old version
+### How is a new version published?
 
-MinVer calculates the version from the tag. If there is no tag, it adds a `-preview.N` suffix. To publish:
-
-```bash
-git tag v2.1.0
-git push origin v2.1.0   # CI pushes to NuGet automatically
-```
+MinVer calculates the version from the latest `v*.*.*` tag; commits after a tag build as a pre-release of the next
+patch (for example `4.6.1-alpha.0.3`). Pushing a release tag starts the publish workflow, which waits for maintainer
+approval in the `nuget` environment before anything reaches nuget.org (ADR-0027). nuget.org cannot delete a package
+(only unlist it), so only maintainers push release tags.
 
 ### The package readme does not appear on NuGet.org
 
-`<PackageReadmeFile>README.md</PackageReadmeFile>` must be defined in `Directory.Build.props`
-(added as of Phase C). Older versions must be republished.
+Each package ships its own `README.nuget.md` (`PackageReadmeFile` in `Directory.Build.props`). A readme change
+appears on nuget.org with the next published version; already published versions keep their readme.

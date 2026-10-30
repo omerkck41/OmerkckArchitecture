@@ -20,41 +20,41 @@ For single-process scenarios. It is not distributed.
 services.AddKckCachingInMemory(opt =>
 {
     opt.KeyPrefix = "myapp:";
-    opt.DefaultTtl = TimeSpan.FromMinutes(5);
+    opt.DefaultExpiration = TimeSpan.FromMinutes(5);
 });
 ```
 
 ## Redis
 
 For distributed caching. The Redis connection is opened as an `IHostedService`
-([ADR-0006](../adr/0006-redis-async-hosted-service.md)).
+([ADR-0006](../adr/0006-redis-async-hosted-service.md)). The first callback is
+`Microsoft.Extensions.Caching.StackExchangeRedis.RedisCacheOptions`: set `Configuration`, `ConfigurationOptions` or
+`ConnectionMultiplexerFactory`; registration throws when none is set.
 
 ```csharp
-services.AddKckCachingRedis(opt =>
-{
-    opt.ConnectionString = builder.Configuration["Redis:ConnectionString"]!;
-    opt.KeyPrefix = "myapp:";
-    opt.DefaultTtl = TimeSpan.FromMinutes(10);
-});
+services.AddKckCachingRedis(
+    redis => redis.Configuration = builder.Configuration["Redis:ConnectionString"],
+    cache =>
+    {
+        cache.KeyPrefix = "myapp:";
+        cache.DefaultExpiration = TimeSpan.FromMinutes(10);
+    });
 ```
 
 ## Usage
 
 ```csharp
-public class ProductService(ICacheService cache)
+public class ProductService(ICacheService cache, IProductRepository products)
 {
-    public async Task<Product> GetAsync(int id)
-    {
-        return await cache.GetOrSetAsync(
+    public Task<Product?> GetAsync(int id, CancellationToken ct) =>
+        cache.GetOrSetAsync(
             $"product:{id}",
-            async () => await _repo.FindAsync(id),
-            TimeSpan.FromMinutes(10));
-    }
+            () => products.FindAsync(id, ct),
+            TimeSpan.FromMinutes(10),
+            ct);
 
-    public async Task InvalidateAllAsync()
-    {
-        await cache.RemoveByPrefixAsync("product:");
-    }
+    public Task InvalidateAllAsync(CancellationToken ct) =>
+        cache.RemoveByPrefixAsync("product:", ct);
 }
 ```
 
@@ -63,8 +63,8 @@ public class ProductService(ICacheService cache)
 | Method | Description |
 |---|---|
 | `GetAsync<T>(key)` | Returns null if the key does not exist |
-| `SetAsync<T>(key, value, ttl?)` | Optional TTL |
-| `GetOrSetAsync<T>(key, factory, ttl?)` | Cache stampede protected |
+| `SetAsync<T>(key, value, expiration?)` | Without an expiration, `DefaultExpiration` (5 minutes) applies |
+| `GetOrSetAsync<T>(key, factory, expiration?)` | Cache stampede protected |
 | `RemoveAsync(key)` | Single removal |
 | `RemoveByPrefixAsync(prefix)` | Bulk removal (Redis: chunked, 1000 per batch) |
 | `ExistsAsync(key)` | Boolean check |
@@ -73,7 +73,8 @@ public class ProductService(ICacheService cache)
 
 - Redis `RemoveByPrefixAsync`: chunked at 1000 keys per batch, so removing a large
   prefix works even when the keys do not fit in a single call
-- InMemory `GetOrSetAsync`: stampede protection with `SemaphoreSlim`
+- `GetOrSetAsync` (both providers): stampede protection with a 64-stripe `SemaphoreSlim` array, so concurrent misses
+  of one key run the factory once per process
 - If the Redis `KeyPrefix` is left empty: `myapp:products:1` becomes `products:1`
 
 ## Selection Criteria

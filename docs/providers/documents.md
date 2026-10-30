@@ -20,28 +20,34 @@ services.AddKckDocumentsClosedXml();
 Usage:
 
 ```csharp
+using Kck.Documents.Abstractions;
+
 public class ReportService(IExcelService excel)
 {
-    public async Task<byte[]> ExportSalesAsync(IEnumerable<Sale> sales)
+    public async Task<byte[]> ExportSalesAsync(IEnumerable<Sale> sales, CancellationToken ct)
     {
         var worksheet = new ExcelWorksheet
         {
             Name = "Sales 2026",
             Headers = ["Id", "Amount", "Date"],
-            Rows = sales.Select(s => new object?[] { s.Id, s.Amount, s.Date })
+            Rows = sales.Select(s => (IReadOnlyList<object?>)[s.Id, s.Amount, s.Date]).ToList()
         };
 
-        return await excel.WriteAsync([worksheet]);
+        DocumentResult result = await excel.CreateAsync([worksheet], ct);
+        return result.Content; // also FileName and ContentType for a download response
+    }
+
+    public async Task<int> CountRowsAsync(string path, CancellationToken ct)
+    {
+        await using var stream = File.OpenRead(path);
+        var rows = await excel.ReadAsync(stream, ct); // first worksheet, one list of cell values per row
+        return rows.Count;
     }
 }
 ```
 
-Reading:
-
-```csharp
-await using var stream = File.OpenRead("input.xlsx");
-var rows = await excel.ReadAsync(stream);
-```
+For a list of objects, `CreateFromDataAsync(items, "Sheet1")` writes one column per public property; `ICsvExporter`
+(also registered by `AddKckDocumentsClosedXml`) does the same as CSV.
 
 ## ImageSharp
 
@@ -52,19 +58,19 @@ services.AddKckDocumentsImageSharp();
 Usage:
 
 ```csharp
+using Kck.Documents.Abstractions;
+
 public class AvatarService(IImageProcessor images)
 {
-    public async Task<byte[]> MakeThumbnailAsync(Stream input)
-    {
-        return await images.ResizeAsync(input, new ImageProcessingOptions
+    public Task<byte[]> MakeThumbnailAsync(Stream input, CancellationToken ct) =>
+        images.ResizeAsync(input, new ImageProcessingOptions
         {
             Width = 128,
             Height = 128,
             MaintainAspectRatio = true,
             OutputFormat = "webp",
             Quality = 85
-        });
-    }
+        }, ct);
 }
 ```
 

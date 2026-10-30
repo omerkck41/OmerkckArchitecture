@@ -8,7 +8,7 @@ interface is implemented with the following technologies.
 | Package | Purpose |
 |---|---|
 | `Kck.BackgroundJobs.Abstractions` | `IJobScheduler`, `IBackgroundJob`, `IRecurringJob`, `CronExpressions` |
-| `Kck.BackgroundJobs.Hangfire` | Hangfire (SQL Server / PostgreSQL / InMemory) |
+| `Kck.BackgroundJobs.Hangfire` | Hangfire with in-memory storage |
 | `Kck.BackgroundJobs.Quartz` | Quartz.NET (in-process scheduler) |
 
 ## Hangfire
@@ -16,20 +16,17 @@ interface is implemented with the following technologies.
 ```csharp
 services.AddKckBackgroundJobsHangfire(options =>
 {
-    options.ConnectionString = builder.Configuration.GetConnectionString("Hangfire");
-    options.ServerName = "api-worker-01";
+    options.WorkerCount = 4;   // default: Environment.ProcessorCount
 });
 ```
 
-For the dashboard:
+`AddKckBackgroundJobsHangfire` adds the Hangfire server and `IJobScheduler`. The only supported `StorageType` is
+`InMemory` (the default): jobs do not survive a restart and are not shared between instances; any other value throws
+`NotSupportedException`. `ConnectionString` is not used yet. For durable jobs, use Quartz with a persistent job store or
+configure Hangfire storage yourself. ADR-0002 removed `Hangfire.MySqlStorage` (abandoned package).
 
-```csharp
-app.UseHangfireDashboard("/jobs");
-```
-
-> Note: `Hangfire.MySqlStorage` was removed because the package is abandoned
-> ([ADR-0002](../adr/0002-hangfire-storage.md)). SQL Server, PostgreSQL, or
-> InMemory are supported.
+The Hangfire dashboard is in the `Hangfire.AspNetCore` package, which this package does not reference; add it and call
+`app.UseHangfireDashboard("/jobs")` with an authorization filter.
 
 ## Quartz
 
@@ -47,6 +44,8 @@ Quartz.NET 4 is used. For migration notes from Quartz 3, see [v3-to-v4](../migra
 ## Writing a Job
 
 ```csharp
+using Kck.BackgroundJobs.Abstractions;
+
 public class EmailCleanupJob : IBackgroundJob
 {
     public Task ExecuteAsync(CancellationToken ct = default)
@@ -68,13 +67,11 @@ services.AddKckJob<EmailCleanupJob>();
 ```csharp
 public class CheckoutHandler(IJobScheduler scheduler)
 {
-    public async Task HandleAsync()
+    public async Task HandleAsync(CancellationToken ct)
     {
-        await scheduler.EnqueueAsync<EmailCleanupJob>();
-        await scheduler.ScheduleAsync<EmailCleanupJob>(TimeSpan.FromMinutes(5));
-        await scheduler.AddOrUpdateRecurringAsync<EmailCleanupJob>(
-            "daily-cleanup",
-            CronExpressions.EveryDay);
+        await scheduler.EnqueueAsync<EmailCleanupJob>(ct);
+        await scheduler.ScheduleAsync<EmailCleanupJob>(TimeSpan.FromMinutes(5), ct);
+        await scheduler.AddOrUpdateRecurringAsync<EmailCleanupJob>("daily-cleanup", CronExpressions.EveryDay, ct);
     }
 }
 ```
@@ -88,6 +85,7 @@ public class CheckoutHandler(IJobScheduler scheduler)
 | `EveryMinute` | `* * * * *` |
 | `EveryHour` | `0 * * * *` |
 | `Every5Minutes` | `*/5 * * * *` |
+| `Every15Minutes` | `*/15 * * * *` |
 | `EveryDay` | `0 0 * * *` |
 | `EveryWeek` | `0 0 * * 1` |
 | `EveryMonth` | `0 0 1 * *` |
@@ -96,8 +94,8 @@ public class CheckoutHandler(IJobScheduler scheduler)
 
 | Criterion | Hangfire | Quartz |
 |---|---|---|
-| Storage | SQL Server / PostgreSQL / Memory | In-process (persistence optional) |
-| Dashboard | Built-in | Third-party |
-| Distributed | Yes (worker pool) | Yes (clustering) |
+| Storage | In-memory only (this package) | In-memory by default; persistent job store optional |
+| Dashboard | `Hangfire.AspNetCore` (add it yourself) | Third-party |
+| Distributed | No (in-memory storage) | Yes (clustering with a persistent store) |
 | Cron | Cron + TimeSpan | Full Quartz cron |
 | Best for | Web app job queue | Scheduler-heavy workload |

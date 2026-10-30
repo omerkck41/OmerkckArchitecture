@@ -9,26 +9,34 @@ They are split so that the abstraction does not leak into the provider layer
 | Package | Purpose |
 |---|---|
 | `Kck.Exceptions.Abstractions` | Domain exception hierarchy |
-| `Kck.Exceptions.AspNetCore` | Middleware + `IExceptionHandler` |
+| `Kck.Exceptions.AspNetCore` | Exception middleware with ProblemDetails responses |
 
 ## Domain Exception Hierarchy
 
 | Type | HTTP Status | Usage |
 |---|---|---|
 | `BadRequestException` | 400 | Invalid input |
-| `CustomArgumentException` | 400 | Validation error |
-| `NotFoundException` | 404 | Record not found |
-| `ConflictException` | 409 | Duplicate / conflict |
-| `ForbiddenException` | 403 | Not authorized |
-| `RequestTimeoutException` | 408 | Timeout |
+| `CustomArgumentException` | 400 | Invalid argument |
+| `CustomInvalidOperationException` | 400 | Operation not valid in the current state |
+| `UnauthorizedException` | 401 | Not authenticated |
 | `SecurityTokenException` | 401 | Invalid auth token |
-| `CustomInvalidOperationException` | 500 | Unexpected state |
+| `ForbiddenException` | 403 | Not authorized |
 | `FilterSecurityException` | 403 | Query filter violation |
+| `NotFoundException` | 404 | Record not found |
+| `RequestTimeoutException` | 408 | Timeout |
+| `ConflictException` | 409 | Duplicate / conflict |
+| `ValidationException` | 422 | Per-field validation errors (see below) |
+| `TooManyRequestsException` | 429 | Rate limited |
 
-All of them derive from the `CustomException` base. You can extend it for your
-own domain exceptions:
+All of them derive from `CustomException` (namespace `Kck.Exceptions`). The status code comes from the
+`[HttpStatusCode]` attribute on the type, or from the `explicitStatusCode` constructor argument; a `CustomException`
+with neither is a 500. Extend it for your own domain exceptions:
 
 ```csharp
+using Kck.Exceptions;
+using Kck.Exceptions.Attributes;
+
+[HttpStatusCode(StatusCodes.Status422UnprocessableEntity)]
 public sealed class InsufficientBalanceException(Guid accountId)
     : CustomException($"Account {accountId} has insufficient balance");
 ```
@@ -36,55 +44,45 @@ public sealed class InsufficientBalanceException(Guid accountId)
 ## ASP.NET Core Middleware
 
 ```csharp
-services.AddKckExceptionHandling();
+using Kck.Exceptions.AspNetCore.Extensions;
+
+builder.Services.AddKckExceptionHandling();
 // ...
-app.UseKckExceptionHandler();
+app.UseKckExceptionHandling(); // first in the pipeline, so it sees every exception
 ```
 
-The middleware serializes exceptions in RFC 7807 ProblemDetails format:
+The middleware writes `application/problem+json` (RFC 7807 shape). For a `CustomException`, `title` is the exception
+type name and `detail` its message:
 
 ```json
 {
   "type": "https://httpstatuses.com/404",
-  "title": "Not Found",
+  "title": "NotFoundException",
   "status": 404,
   "detail": "User with id 42 was not found",
-  "traceId": "00-..."
+  "instance": "/users/42",
+  "traceId": "0HN..."
 }
 ```
 
-## ValidationException Handler
+Any other exception becomes a 500 with the fixed detail `An unexpected error occurred.`, so internal messages do not
+leak. `OperationCanceledException` is not handled (the request was aborted). If the response has already started,
+the exception is logged and rethrown. `UseKckExceptionHandling()` also enables `UseStatusCodePages()`.
 
-If you use FluentValidation, validation errors are thrown as `ValidationException`
-and caught by a separate `IExceptionHandler`. It returns 400 plus a per-field error
-list.
+## ValidationException
 
-## Custom Handler
+`ValidationException` carries a list of `ValidationExceptionModel { Property, Errors }` and is answered with 422,
+`"title": "Validation Error"` and an `errors` list per field. The Mediator `ValidationBehavior`
+([pipeline](pipeline.md)) throws it when FluentValidation validators fail; you can also throw it yourself.
 
-```csharp
-public class MyCustomHandler : IExceptionHandler
-{
-    public async ValueTask<bool> TryHandleAsync(
-        HttpContext ctx, Exception ex, CancellationToken ct)
-    {
-        if (ex is MyDomainException mde)
-        {
-            ctx.Response.StatusCode = 422;
-            await ctx.Response.WriteAsJsonAsync(new { mde.Message }, ct);
-            return true;
-        }
-        return false;
-    }
-}
+## Custom Responses
 
-services.AddSingleton<IExceptionHandler, MyCustomHandler>();
-```
-
-Handlers are tried in order. The first one that returns `true` wins and the rest are skipped.
+The handlers are fixed (`ValidationExceptionHandler`, then `GlobalExceptionHandler`); there is no handler
+registration point. Map your own failures to a `CustomException` subclass with the status code you want. For a fully
+custom response, put your own middleware or ASP.NET Core `IExceptionHandler` (with `app.UseExceptionHandler()`) before
+`UseKckExceptionHandling()`.
 
 ## Logging
 
-The middleware logs the error with `ILogger`:
-- 4xx: `Warning` (client error)
-- 5xx: `Error` (server error)
-- It includes the TraceId (for distributed tracing)
+Every caught exception is logged at `Error` with the request's TraceId (`TraceIdentifier`). The handler then logs it
+once more: a `CustomException` at `Warning` with its type name, any other exception at `Error`.

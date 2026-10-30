@@ -17,8 +17,8 @@ Abstraction for file storage and transfer, with FTP, Azure Blob Storage and Amaz
 services.AddKckFileStorageFluentFtp(opt =>
 {
     opt.Host = builder.Configuration["Ftp:Host"]!;
-    opt.UserName = builder.Configuration["Ftp:User"]!;
-    opt.Password = builder.Configuration["Ftp:Password"]!;
+    opt.Username = builder.Configuration["Ftp:User"];
+    opt.Password = builder.Configuration["Ftp:Password"];
     opt.Port = 21;
     opt.UseSsl = true;
     opt.PoolSize = 5;
@@ -32,41 +32,48 @@ FTP connections are pooled (bounded channel, same pattern as `SmtpConnectionPool
 
 A disposed client is discarded automatically, and a disconnected client is reopened.
 
+The options are validated at startup (`ValidateOnStart`). The registration adds `IFtpService` and, for code that
+only needs storage operations, `IFileStorageService`.
+
 ## Usage
 
 ```csharp
-public class ReportUploader(IFtpService ftp)
+using Kck.FileStorage.Abstractions;
+
+public class ReportUploader(IFileStorageService storage)
 {
-    public async Task UploadAsync(Stream content, string remotePath, CancellationToken ct)
-    {
-        await ftp.UploadAsync(content, remotePath, ct);
-    }
+    public Task UploadAsync(Stream content, string fileName, CancellationToken ct) =>
+        storage.UploadAsync(new FileUploadRequest
+        {
+            Content = content,
+            FileName = Path.GetFileName(fileName), // never trust a client-supplied path
+            DestinationPath = "reports",
+            Overwrite = true
+        }, ct);
 
-    public async Task<Stream> DownloadAsync(string remotePath, CancellationToken ct)
-    {
-        return await ftp.DownloadAsync(remotePath, ct);
-    }
+    public Task<Stream> DownloadAsync(string path, CancellationToken ct) => storage.DownloadAsync(path, ct);
 
-    public async Task DeleteAsync(string remotePath, CancellationToken ct)
-    {
-        await ftp.DeleteAsync(remotePath, ct);
-    }
+    public Task<bool> ExistsAsync(string path, CancellationToken ct) => storage.ExistsAsync(path, ct);
 
-    public async Task<bool> ExistsAsync(string remotePath, CancellationToken ct)
-    {
-        return await ftp.ExistsAsync(remotePath, ct);
-    }
+    public Task<IReadOnlyList<FileMetadata>> ListAsync(string directory, CancellationToken ct) =>
+        storage.ListAsync(directory, ct);
+
+    public Task DeleteAsync(string path, CancellationToken ct) => storage.DeleteAsync(path, ct);
 }
 ```
 
-## Path Normalization
+`IFtpService` adds `CreateDirectoryAsync`, `DeleteDirectoryAsync` and `MoveAsync`.
 
-`PathHelper.Combine("upload/", "/file.txt")` → `upload/file.txt`. You do not
-need to handle trailing or leading slashes yourself.
+## Path Helpers
+
+`PathHelper.Combine("upload", "2026", "file.txt")` → `upload/2026/file.txt` (backslashes become forward slashes).
+`PathHelper.IsValidPath(path)` rejects `..` and `~` segments and invalid characters; `PathHelper.Sanitize(path)` removes
+them.
 
 ## Security
 
-- **Use SFTP / FTPS in production.** Plain FTP is open to man-in-the-middle attacks.
+- **Use FTPS in production** (`UseSsl = true`). Plain FTP is open to man-in-the-middle attacks; FluentFTP does not
+  support SFTP.
 - Store credentials in Key Vault / Secrets Manager, not in appsettings.
-- Path traversal protection: never write user input directly into an FTP path.
-  Sanitize it with `Path.GetFileName()`.
+- Path traversal protection: never write user input directly into a storage path. Take the file name with
+  `Path.GetFileName()` and check paths with `PathHelper.IsValidPath()`.

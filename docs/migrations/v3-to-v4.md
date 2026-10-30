@@ -53,13 +53,24 @@ If you have your own `IReadRepository` implementation, implement the new signatu
 
 It read claims without verifying the signature. Use `ValidateTokenAsync` for authorization:
 
+<!-- snippet: skip (before: removed in 4.0) -->
 ```csharp
 // Before (3.x)
 var claims = tokenService.GetClaimsFromToken(token);
+```
 
+```csharp
 // After (4.0)
-var result = await tokenService.ValidateTokenAsync(token, ct);
-if (result.IsValid) { /* result.Claims */ }
+using Kck.Security.Abstractions.Token;
+
+public sealed class TokenCheck(ITokenService tokenService)
+{
+    public async Task<bool> IsValidAsync(string token, CancellationToken ct)
+    {
+        var result = await tokenService.ValidateTokenAsync(token, ct);
+        return result.IsValid; // claims: result.UserId, result.Roles, result.Claims
+    }
+}
 ```
 
 If you only need an unsigned read for logging/debugging, use `Microsoft.IdentityModel.JsonWebTokens.JsonWebToken`
@@ -67,10 +78,13 @@ yourself; do not use that value for authorization decisions.
 
 ## 4. InMemory event bus
 
+<!-- snippet: skip (before: removed in 4.0) -->
 ```csharp
 // Before (3.x)
 services.AddKckEventBusInMemory(typeof(Program).Assembly);
+```
 
+```csharp
 // After (4.0)
 services.AddKckEventBus(b => b
     .UseInMemory()

@@ -5,7 +5,7 @@ namespace ReadmeSnippets.PipelineMediator_1;
 
 internal static class Snippet
 {
-    internal static async Task RunAsync(WebApplicationBuilder builder)
+    internal static async Task RunAsync(WebApplicationBuilder builder, CancellationToken ct)
     {
 #line 15 "src/Providers/Kck.Pipeline.Mediator/README.nuget.md"
 // Program.cs

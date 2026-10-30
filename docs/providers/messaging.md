@@ -57,29 +57,29 @@ If `AWS_PROFILE` or an IAM role is set in the environment, `AccessKey` and
 ## Sending
 
 ```csharp
+using Kck.Messaging.Abstractions;
+
 public class OrderConfirmationService(IEmailProvider email)
 {
-    public Task SendAsync(Order order, CancellationToken ct)
-    {
-        return email.SendAsync(new EmailMessage
+    public Task SendAsync(Order order, Stream receiptPdf, CancellationToken ct) =>
+        email.SendAsync(new EmailMessage
         {
             From = "noreply@example.com",
             FromName = "MyApp",
-            Recipients =
-            [
-                new EmailRecipient(order.CustomerEmail, order.CustomerName, RecipientType.To)
-            ],
+            Recipients = [new EmailRecipient(order.CustomerEmail, Type: RecipientType.To)],
             Subject = $"Order #{order.Id} confirmed",
             Body = "<h1>Thanks for your purchase</h1>",
             IsHtml = true,
             Attachments =
             [
-                new EmailAttachment("receipt.pdf", receiptStream, "application/pdf")
+                new EmailAttachment { FileName = "receipt.pdf", Content = receiptPdf, ContentType = "application/pdf" }
             ]
         }, ct);
-    }
 }
 ```
+
+Each provider registers `IEmailProvider`. (`IEmailService` has the same `SendAsync` shape but no built-in
+implementation.)
 
 ## Selection Criteria
 
@@ -95,5 +95,4 @@ public class OrderConfirmationService(IEmailProvider email)
 - Providers **do not implement retry**. This is the caller's responsibility.
 - For critical emails, the outbox pattern is recommended (write to the database,
   send with a background job).
-- The outbox provider was marked optional in PHASE 4. If it is added, it will
-  integrate through the `IEmailOutbox` abstraction.
+- There is no built-in email outbox.
