@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [4.6.0] — 2026-10-30
+
 ### Added
 - `Kck.Core.Abstractions` — `IDomainEventHandler<TEvent>`: handles one domain event type (ADR-0030).
 - `Kck.Persistence.EntityFramework` — `AddDomainEventHandlers(params Assembly[])`: registers every concrete
