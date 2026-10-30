@@ -2,7 +2,8 @@ namespace Kck.Core.Abstractions.Entities;
 
 /// <summary>
 /// Soft-delete contract. Entities are logically deleted rather than physically removed.
-/// Add <c>HasQueryFilter(e =&gt; !e.IsDeleted)</c> in EF Core to exclude them from default queries.
+/// With Kck.Persistence.EntityFramework, call <c>modelBuilder.ApplyGlobalSoftDeleteQueryFilter()</c> to exclude them
+/// from default queries (a named EF Core filter that <c>QueryOptions.IncludeDeleted</c> lifts).
 /// </summary>
 public interface ISoftDeletable
 {

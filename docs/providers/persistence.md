@@ -132,6 +132,38 @@ var order = await repo.GetAsync(o => o.Id == id, new QueryOptions(IncludeDeleted
 > `QueryOptions.WithDeleted` tracking yapmaz. Yukle-degistir-`SaveChanges` akisinda
 > `new QueryOptions(IncludeDeleted: true, AsTracking: true)` kullanin.
 
+### Global soft-delete filtresi (4.6.0+)
+
+`modelBuilder.ApplyGlobalSoftDeleteQueryFilter()` soft-delete edilmis satirlari context'in her sorgusundan (repository
+disindaki `db.Orders...` dahil) gizleyen **adlandirilmis** bir EF Core filtresi ekler:
+`ModelBuilderExtensions.SoftDeleteQueryFilterName` (`"KckSoftDelete"`). `IncludeDeleted` iceren repository sorgulari
+yalniz bu filtreyi kaldirir; kendi sorgularinizda `IgnoreQueryFilters([ModelBuilderExtensions.SoftDeleteQueryFilterName])`.
+
+```csharp
+protected override void OnModelCreating(ModelBuilder modelBuilder)
+{
+    modelBuilder.Entity<Order>().HasQueryFilter("Tenant", o => o.TenantId == _tenantId); // adlandirilmis olmali
+    modelBuilder.ApplyGlobalSoftDeleteQueryFilter();
+}
+```
+
+- `ApplyGlobalSoftDeleteQueryFilter()`'i `OnModelCreating`'in **en sonunda** cagirin: yalniz o anda modelde olan
+  entity'lere filtre ekler (sonra `ApplyConfigurationsFromAssembly` ile eklenenler filtresiz kalir).
+- EF Core adsiz ve adlandirilmis filtreleri ayni entity'de birlestiremez. Soft-delete olan bir entity'de **onceden**
+  adsiz `HasQueryFilter(...)` varsa `ApplyGlobalSoftDeleteQueryFilter` filtrenize ad vermenizi isteyen
+  `InvalidOperationException` firlatir; **sonradan** eklenen adsiz filtrede EF'in kendi hatasi ("Both anonymous and named
+  query filters...") model kurulurken gelir. Iki durumda da filtrenize ad verin.
+- Tek bir entity'yi global filtreden cikarmak icin:
+  `modelBuilder.Entity<Log>().HasQueryFilter(ModelBuilderExtensions.SoftDeleteQueryFilterName, null);`
+- `IncludeDeleted`, soft-delete filtresini sorgunun tamaminda kaldirir: `includes` ile yuklenen ve predicate'te
+  gezilen soft-delete'li alt kayitlar da silinmisler dahil gelir. Diger adlandirilmis/adsiz filtreler (tenant) kalir.
+- Global filtre varken zaten soft-delete edilmis bir kaydi `DeleteAsync` ile tekrar silmek kaydi bulur ve yeniden
+  soft-delete eder (`DeletedDate` guncellenir) — global filtresiz context'lerdeki davranisla ayni; 4.6.0 oncesi
+  "bulunamadi" hatasi veriyordu.
+
+4.6.0 oncesi: soft-delete olan bir entity'deki adsiz filtre (orn. tenant filtresi) iz birakmadan soft-delete
+filtresiyle degistiriliyordu; `IncludeDeleted` global filtre varken silinmis satirlari hic getirmiyordu.
+
 ## Paging
 
 `GetListAsync` / `GetListByDynamicAsync` `IPaginate<T>` doner (`Items`, `Index`, `Size`, `Count`, `Pages`). Kendi

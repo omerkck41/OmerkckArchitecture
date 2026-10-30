@@ -4,6 +4,7 @@ using Kck.Core.Abstractions.Paging;
 using Kck.Persistence.Abstractions.Dynamic;
 using Kck.Persistence.Abstractions.Repositories;
 using Kck.Persistence.Abstractions.Security;
+using Kck.Persistence.EntityFramework.Extensions;
 using Kck.Persistence.EntityFramework.Interceptors;
 using Kck.Persistence.EntityFramework.Paging;
 using Kck.Persistence.EntityFramework.Security;
@@ -49,7 +50,11 @@ public class EfRepository<T, TId>(
         if (!options.AsTracking)
             query = query.AsNoTracking();
 
-        if (!options.IncludeDeleted)
+        // The repository's own filter, plus the model's named soft-delete filter when the context applies
+        // ApplyGlobalSoftDeleteQueryFilter. Only that named filter is lifted: other filters (tenant...) stay.
+        if (options.IncludeDeleted)
+            query = query.IgnoreQueryFilters([ModelBuilderExtensions.SoftDeleteQueryFilterName]);
+        else
             query = query.Where(e => !((ISoftDeletable)e).IsDeleted);
 
         if (filter is not null)
