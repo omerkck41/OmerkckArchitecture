@@ -1,37 +1,31 @@
-# Dokuman Dizini
+# Kck documentation
 
-Bu dizin framework'un kullanim rehberlerini, mimari kararlarini ve
-gelistirici referanslarini tutar.
+Kck is a modular .NET 10 framework: **Abstractions** declare contracts, **Providers** implement them against concrete
+technologies, **Bundles** compose defaults for a hosting model. Its persistence module adds what teams usually
+hand-write around EF Core: soft delete that follows your delete rules, audit fields, and domain events dispatched after
+the transaction commits.
 
-## Icindekiler
+## Get started
 
-### Kullanim Rehberleri
-- [Provider rehberleri](providers/) — 17 kategoride paket bazli kullanim
+- [Your first Kck API in five minutes](getting-started/README.md) — `dotnet new kck-webapi`, a token, an order, a
+  rollback that discards its event, a soft delete, the tests.
 
-### Mimari Kararlar
-- [ADR (Architecture Decision Records)](adr/) — bagBulcun teknik kararlar
+## Reference
 
-## Ana Bolumler
+- [Provider guides](providers/README.md) — one guide per area (persistence, caching, security, messaging, ...)
+- [Architecture decision records](adr/README.md) — why the framework is built the way it is
+- [Configuration schema](configuration-schema.md) — the `Kck:*` configuration keys
+- API reference — generated from the source, in the site's top navigation
 
-| Konu | Link |
-|---|---|
-| **Provider index** | [providers/README.md](providers/README.md) |
-| **ADR index** | [adr/README.md](adr/README.md) |
-| **Ornekler** | [../samples/](../samples/) — WebApi, MinimalApi, WorkerService |
-| **Katki** | [../CONTRIBUTING.md](../CONTRIBUTING.md) |
+## Policies and upgrades
 
-## Hizli Baslangic
+- [Versioning](policies/versioning.md), [deprecation](policies/deprecation.md), [support](policies/support.md)
+- [Migration guides](migrations/README.md) — v3 → v4 and earlier
+- [Licensing](licensing.md) — dependency licence policy
+- [Test strategy](test-strategy.md) and [coverage policy](policies/test-coverage.md)
+- [FAQ](faq.md)
 
-1. [Ana README](../README.md) — framework'e genel bakis
-2. [Bundle seciminiz](providers/README.md#kategoriler) — amaca uygun paket grubu
-3. [Ornek projeler](../samples/) — calisir kod ornekleri
+## Contributing
 
-## Arastirma
-
-Ne aradiginiz net degilse:
-
-- **"Hangi cache secmeliyim?"** → [caching.md](providers/caching.md#secim-kriterleri)
-- **"JWT nasil konfigure ederim?"** → [security.md](providers/security.md#jwt)
-- **"Background job nasil yazarim?"** → [background-jobs.md](providers/background-jobs.md)
-- **"Miras sistemi devraldim, nereden baslasam?"** → [persistence.md](providers/persistence.md) +
-  [observability.md](providers/observability.md)
+[CONTRIBUTING.md](../CONTRIBUTING.md) — build, test, and the rules for pull requests. Documentation is written in
+English; `.github/docs-english.txt` lists the pages already checked in CI.

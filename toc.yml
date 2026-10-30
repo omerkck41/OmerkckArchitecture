@@ -1,5 +1,7 @@
 - name: Overview
   href: README.md
+- name: Get started
+  href: docs/getting-started/README.md
 - name: Changelog
   href: CHANGELOG.md
 - name: Contributing
