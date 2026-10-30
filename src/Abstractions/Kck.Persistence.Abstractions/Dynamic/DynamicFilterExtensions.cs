@@ -137,19 +137,32 @@ public static class DynamicFilterExtensions
         }
     }
 
-    private static object FromString(string text, Type type) =>
-        type == typeof(string) ? text
-        : type.IsEnum ? Enum.Parse(type, text, ignoreCase: true)
-        : type == typeof(Guid) ? Guid.Parse(text)
+    // Types Convert.ChangeType does not parse (or parses with the wrong DateTimeKind).
+    private static readonly Dictionary<Type, Func<string, object>> TextParsers = new()
+    {
+        [typeof(Guid)] = text => Guid.Parse(text),
         // UTC like the audit dates: a date without an offset is taken as UTC, one with an offset is converted (Npgsql
         // accepts only DateTimeKind.Utc for timestamptz).
-        : type == typeof(DateTime)
-            ? DateTime.Parse(text, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal)
-        : type == typeof(DateTimeOffset) ? DateTimeOffset.Parse(text, CultureInfo.InvariantCulture)
-        : type == typeof(DateOnly) ? DateOnly.Parse(text, CultureInfo.InvariantCulture)
-        : type == typeof(TimeOnly) ? TimeOnly.Parse(text, CultureInfo.InvariantCulture)
-        : type == typeof(TimeSpan) ? TimeSpan.Parse(text, CultureInfo.InvariantCulture)
-        : Convert.ChangeType(text, type, CultureInfo.InvariantCulture);
+        [typeof(DateTime)] = text =>
+            DateTime.Parse(text, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal),
+        [typeof(DateTimeOffset)] = text => DateTimeOffset.Parse(text, CultureInfo.InvariantCulture),
+        [typeof(DateOnly)] = text => DateOnly.Parse(text, CultureInfo.InvariantCulture),
+        [typeof(TimeOnly)] = text => TimeOnly.Parse(text, CultureInfo.InvariantCulture),
+        [typeof(TimeSpan)] = text => TimeSpan.Parse(text, CultureInfo.InvariantCulture),
+    };
+
+    private static object FromString(string text, Type type)
+    {
+        if (type == typeof(string))
+            return text;
+
+        if (type.IsEnum)
+            return Enum.Parse(type, text, ignoreCase: true);
+
+        return TextParsers.TryGetValue(type, out var parse)
+            ? parse(text)
+            : Convert.ChangeType(text, type, CultureInfo.InvariantCulture);
+    }
 
     [RequiresUnreferencedCode("Builds LINQ sort expressions from string field names using Expression.Property.")]
     private static IQueryable<T> ApplySort<T>(IQueryable<T> query, IEnumerable<Sort> sort)
