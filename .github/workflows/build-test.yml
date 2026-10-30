@@ -218,8 +218,11 @@ jobs:
         if: matrix.os == 'ubuntu-latest'
         run: |
           dotnet tool restore
+          # Samples are application code, not framework code (docs/policies/test-coverage.md): Kck.Sample.Orders.Tests
+          # loads the sample, so its assemblies are filtered out here.
           dotnet reportgenerator \
             -reports:'**/coverage.cobertura.xml' \
+            -assemblyfilters:'-Kck.Sample.*' \
             -targetdir:./coverage-report \
             -reporttypes:'Cobertura;TextSummary;MarkdownSummaryGithub'
           cat ./coverage-report/Summary.txt
