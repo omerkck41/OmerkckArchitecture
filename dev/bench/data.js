@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1793449103216,
+  "lastUpdate": 1793449669623,
   "repoUrl": "https://github.com/omerkck41/OmerkckArchitecture",
   "entries": {
     "Benchmark": [
@@ -14350,6 +14350,102 @@ window.BENCHMARK_DATA = {
             "value": 10.540982807986438,
             "unit": "ns",
             "range": "± 0.25356098699634566"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "106805727+omerkck41@users.noreply.github.com",
+            "name": "Ömer KÜÇÜK",
+            "username": "omerkck41"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "21d2b50c753efe0765c02a1c40efe1fe892d577a",
+          "message": "feat: run specifications, opt-in totp attempt limit, deprecations (#279)\n\nRemaining review findings, batch 3. These are the library features and\ndeprecations the maintainer chose.\n\n## Added\n- **Specifications:** `Specification<T>` existed, but no repository\nmethod ran it. New extensions in\n`Kck.Persistence.EntityFramework.Specifications` run it against any\nrepository:\n  - `ListAsync(spec)`\n  - `FirstOrDefaultAsync(spec)`\n  - `CountAsync(spec)`, which ignores paging so it gives the total\n  - `WithSpecification(spec)`\n\nCriteria, includes (expression or string), order, paging,\n`IncludeDeleted()` and `AsTracking()` all apply. The repository's query\nstill applies the soft-delete filter. The change only adds code; no\nexisting API changes.\n- **TOTP attempt limit (opt-in):** `TotpOptions.MaxFailedAttempts`\n(default 0, no limit) and `FailedAttemptWindow` (default 5 minutes, at\nmost 1 day).\n- Each attempt is counted before its code is checked, and the counter is\ncreated under a lock, so parallel requests cannot check more codes than\nthe limit.\n  - A success resets the count.\n- `TotpOptionsValidator` checks the options at start-up. An invalid\nwindow would otherwise make every failed code throw, which turns the\nlimit off.\n\n## Deprecated\n- `IEmailService` (KCK0600): no package implements it; every provider\nregisters `IEmailProvider`.\n- `IFeatureEvaluator` (KCK0901): no package calls it.\n\nBoth are removed in v5.0. Neither is used in `src/` or `tests/`.\n\n## Docs\n- Hybrid cache: Redis is required (use InMemory without it), and L1\neviction is per instance.\n- Persistence: a Specifications section.\n- TOTP: the limit's semantics, and that the cache must have no\n`SizeLimit`.\n- Messaging package READMEs now name `IEmailProvider`.\n- The comparison table is updated.\n- `ICurrentUserProvider` gets no code: the docs already ship a working\n`HttpContext` implementation. Kck JWTs use the URI claim types, so it\nworks whether or not `MapInboundClaims` is set.\n\n## Verification\n- `dotnet build -c Release`: 0 errors. `dotnet test -c Release --filter\n\"Category!=Integration\"`: 41/41 test projects green.\n- Each new test was written first and seen RED, or checked with a\nmutation probe:\n  - Specification: with include, order and count broken, 5/6 tests fail.\n  - TOTP: with the reset removed, the reset test fails.\n  - TOTP validation: 4 cases seen RED.\n- Characterization test: with `UseUtcDateTimes()`, `.Date`, `.Year`,\nrange filters and ordering still translate to SQL on SQLite.\n- Adversarial review (opus): no KRITIK or YUKSEK findings. I fixed the\nORTA findings (the parallel-attempt overshoot, the non-atomic counter\ncreation, the unvalidated window) and the DUSUK documentation findings.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-authored-by: Claude Opus 5.5 <noreply@anthropic.com>",
+          "timestamp": "2026-10-31T12:20:12Z",
+          "tree_id": "57f97397fb3deebdff5a6057edb0739c13a2e27d",
+          "url": "https://github.com/omerkck41/OmerkckArchitecture/commit/21d2b50c753efe0765c02a1c40efe1fe892d577a"
+        },
+        "date": 1793449668965,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Success_Factory",
+            "value": 5.355353125371039,
+            "unit": "ns",
+            "range": "± 0.1540355562953133"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Failure_Factory",
+            "value": 6.551005130305009,
+            "unit": "ns",
+            "range": "± 0.1869042817754533"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Success",
+            "value": 1.016711666352219,
+            "unit": "ns",
+            "range": "± 0.13665135915756732"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Failure",
+            "value": 0.39030704718942827,
+            "unit": "ns",
+            "range": "± 0.13443168103043493"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Serialize_Reflection",
+            "value": 320.20907243092853,
+            "unit": "ns",
+            "range": "± 3.367943494911074"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Deserialize_Reflection",
+            "value": 581.2310292561849,
+            "unit": "ns",
+            "range": "± 3.7635734245616366"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 0)",
+            "value": 8.994646561145782,
+            "unit": "ns",
+            "range": "± 0.09106902950405124"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 5)",
+            "value": 8.097705592002187,
+            "unit": "ns",
+            "range": "± 0.04844337878725996"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 0)",
+            "value": 8.370787620544434,
+            "unit": "ns",
+            "range": "± 0.07734407674424866"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 5)",
+            "value": 8.030157913382237,
+            "unit": "ns",
+            "range": "± 0.12268598118542873"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 0)",
+            "value": 8.186238016646643,
+            "unit": "ns",
+            "range": "± 0.08265790768612391"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 5)",
+            "value": 8.173580476870903,
+            "unit": "ns",
+            "range": "± 0.1181053224455594"
           }
         ]
       }
