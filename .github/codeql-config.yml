@@ -1,6 +1,7 @@
 name: "Kck CodeQL config"
 
-# Generated code and build artifacts are not first-party source.
+# Generated code and build artifacts are not first-party source. GitHub applies paths-ignore to C# only without a
+# build; the built analysis drops build-output results in .github/scripts/codeql_sarif_filter.py instead.
 paths-ignore:
   - "**/obj/**"
   - "**/bin/**"

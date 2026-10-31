@@ -52,10 +52,9 @@ public class EfRepository<T, TId>(
 
         // The repository's own filter, plus the model's named soft-delete filter when the context applies
         // ApplyGlobalSoftDeleteQueryFilter. Only that named filter is lifted: other filters (tenant...) stay.
-        if (options.IncludeDeleted)
-            query = query.IgnoreQueryFilters([ModelBuilderExtensions.SoftDeleteQueryFilterName]);
-        else
-            query = query.Where(e => !((ISoftDeletable)e).IsDeleted);
+        query = options.IncludeDeleted
+            ? query.IgnoreQueryFilters([ModelBuilderExtensions.SoftDeleteQueryFilterName])
+            : query.Where(e => !((ISoftDeletable)e).IsDeleted);
 
         if (filter is not null)
             query = query.Where(filter);
