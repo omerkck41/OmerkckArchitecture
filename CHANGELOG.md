@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [4.8.0] — 2026-10-31
+
 ### Added
 - `Kck.Persistence.EntityFramework` — `ModelConfigurationBuilder.UseUtcDateTimes()` (call it in `ConfigureConventions`):
   `DateTime` values are read back as UTC (SQLite and SQL Server `datetime2` return them unspecified, so JSON lacked the

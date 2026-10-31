@@ -13,17 +13,8 @@ on:
       - 'toc.yml'
       - 'api/index.md'
   # Pull requests build the site too, so a broken link fails before merge (plan G2.1 c); only main deploys.
+  # No path filter: "Build DocFX" is a required check, and a required check that never runs blocks the PR.
   pull_request:
-    paths:
-      - 'src/**'
-      - 'docs/**'
-      - 'api/index.md'
-      - 'README.md'
-      - 'CHANGELOG.md'
-      - 'CONTRIBUTING.md'
-      - 'docfx.json'
-      - 'toc.yml'
-      - '.github/workflows/docs.yml'
   workflow_dispatch:
 
 concurrency:
