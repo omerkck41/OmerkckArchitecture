@@ -7,7 +7,7 @@ internal static class Snippet
 {
     internal static async Task RunAsync(WebApplicationBuilder builder, IServiceCollection services)
     {
-#line 45 "docs/providers/event-bus.md"
+#line 90 "docs/providers/event-bus.md"
 services.AddKckEventBus(b => b.UseAzureServiceBus(opt =>
 {
     opt.ConnectionString = builder.Configuration["AzureServiceBus:ConnectionString"]!;

@@ -21,6 +21,7 @@ public static class KckEventBusRabbitMqServiceCollectionExtensions
         configure(options);
 
         ArgumentException.ThrowIfNullOrWhiteSpace(options.HostName, nameof(options.HostName)); // NOSONAR S3236 - explicit name gives "HostName"; CallerArgumentExpression would give "options.HostName"
+        ArgumentOutOfRangeException.ThrowIfLessThan(options.MaxDeliveryCount, 1, nameof(options.MaxDeliveryCount)); // NOSONAR S3236 - explicit name gives "MaxDeliveryCount"
 
         builder.Services.TryAddSingleton(options);
         builder.Services.TryAddSingleton<RabbitMqEventBus>();

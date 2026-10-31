@@ -79,6 +79,7 @@ docs/migrations/_template.md
 docs/migrations/entity-hierarchy-v3.md
 docs/migrations/mediatR-to-mediator.md
 docs/migrations/v3-to-v4.md
+docs/migrations/v4-to-v5.md
 docs/policies/deprecation.md
 docs/policies/support.md
 docs/policies/test-coverage.md

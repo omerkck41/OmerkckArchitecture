@@ -7,6 +7,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- `Kck.EventBus.RabbitMq` — `RabbitMqOptions.PrefetchCount` (default `10`, `0` = unlimited), `DeadLetterEnabled`
+  (default `true`), `DeadLetterExchangeName` (default `{QueuePrefix}.dlx`, one per service) and `DeadLetterQueueName`
+  (default `{QueuePrefix}.dlq`).
+
+### Changed
+- `Kck.EventBus.RabbitMq` — **breaking for existing queues.** The consumer declares a per-service fanout dead-letter
+  exchange (`{QueuePrefix}.dlx`, so services sharing `ExchangeName` do not receive each other's rejected messages) and
+  a durable dead-letter queue, and declares each consumer queue with `x-dead-letter-exchange`. RabbitMQ refuses to
+  re-declare a queue with other arguments, so a queue created by 4.x makes start-up fail with an
+  `InvalidOperationException` (406 `PRECONDITION_FAILED`) that names the queue and the remedies: use a new
+  `QueuePrefix`, or set `DeadLetterEnabled = false` and apply the dead-letter exchange through a broker policy, or
+  delete the queue (drain it first). See `docs/migrations/v4-to-v5.md`.
+- `Kck.EventBus.RabbitMq` — the consumer channel takes at most `PrefetchCount` (10) unacknowledged messages; before,
+  the broker pushed the whole queue into the process. Set `PrefetchCount = 0` for the old behaviour.
+- `Kck.EventBus.RabbitMq` — the `rabbitmq-eventbus` health check reports whether the bus is ready to consume instead of
+  opening a new connection on every probe: it is Unhealthy until the host has started the consumers, while the
+  connection recovers, and when a channel-level error (for example a `consumer_timeout` or a 406) closed the consumer
+  channel, which the client does not reopen (restart the host).
+- `Kck.EventBus.RabbitMq` — a handler's `OperationCanceledException` (for example an `HttpClient` timeout) is a failed
+  delivery: the message is negatively acknowledged and counted against `MaxDeliveryCount`. Before, it stayed
+  unacknowledged; only host shutdown does that now.
+- `Kck.EventBus.RabbitMq` — `UseRabbitMq` throws `ArgumentOutOfRangeException` when `MaxDeliveryCount` is below 1.
+
 ### Fixed
 - `Kck.Caching.Redis`, `Kck.Caching.Hybrid` — with `RedisCacheOptions.InstanceName` set, `ExistsAsync` always returned
   false and `RemoveByPrefixAsync` deleted nothing: Redis stores keys as `InstanceName` + key, but both looked the key up
@@ -51,6 +75,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   reachable only through the SDK) and a `DestinationPath` with a leading `/` (it used to be trimmed); an empty
   `DestinationPath` or `directoryPath` still means the root. The FTP provider's
   internal `PathSanitizer` had the same rule and is replaced by `PathHelper.Validate` (no behaviour change there).
+- `Kck.EventBus.RabbitMq` — **a failing message was redelivered forever.** `MaxDeliveryCount` was checked against the
+  `x-death` header, which a requeued `basic.nack` never adds, so the count was always 0: one message whose handler
+  always threw was redelivered 12,281 times in 8 seconds with `MaxDeliveryCount = 5`. When the limit was reached the
+  log said "dead-lettered", but the queue had no dead-letter exchange, so the message would have been dropped.
+  Deliveries are now counted per `MessageId` in the consuming process (`MessageId` must be unique per message; Kck sets
+  it to `IntegrationEvent.Id`; a message without one is delivered at most twice); after `MaxDeliveryCount` deliveries
+  in total, the first one included, the message is rejected without requeue and lands in the dead-letter queue, and a
+  warning names the message, the attempts and the dead-letter exchange. Redelivery is immediate (no back-off), so a
+  transient dependency outage can dead-letter the messages delivered during it; the guide describes the redrive.
+- `Kck.EventBus.RabbitMq` — after the broker closed the publish channel (any channel-level error, for example a 404 or
+  406 on that channel), every `PublishAsync` threw `AlreadyClosedException` until the process restarted: the client does
+  not reopen a channel closed by a channel-level error, and the bus only checked the connection. `PublishAsync` now
+  opens a new channel when the old one is closed and logs the close reason.
+- `Kck.EventBus.RabbitMq` — a `PublishAsync` during the client's automatic connection recovery opened a second
+  connection, leaving two once the first one recovered. It now waits for the recovered connection (on the `RetryCount`
+  / `RetryDelay` schedule) and throws `InvalidOperationException` if it is still down after the last attempt.
+  `DisposeAsync` now disposes the channels and the connection even when they are already closed, and the bus throws
+  `ObjectDisposedException` after it.
 
 ## [4.8.0] — 2026-10-31
 
