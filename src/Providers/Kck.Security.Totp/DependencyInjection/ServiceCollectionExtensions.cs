@@ -1,6 +1,8 @@
 using Kck.Security.Abstractions.Mfa;
 using Kck.Security.Totp;
+using Kck.Security.Totp.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Options;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -21,6 +23,8 @@ public static class KckSecurityTotpServiceCollectionExtensions
         else
             services.Configure<TotpOptions>(_ => { });
 
+        services.TryAddSingleton<IValidateOptions<TotpOptions>, TotpOptionsValidator>();
+        services.AddOptions<TotpOptions>().ValidateOnStart();
         services.AddMemoryCache();
         services.TryAddSingleton<IMfaProvider, TotpMfaProvider>();
         return services;

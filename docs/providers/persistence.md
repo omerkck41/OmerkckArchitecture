@@ -247,6 +247,41 @@ public sealed class RecentOrders(IUnitOfWork uow)
 }
 ```
 
+## Specifications
+
+A `Specification<T>` keeps a reusable query (criteria, includes, order, paging, `IncludeDeleted()`, `AsTracking()`)
+in one class. From 4.8.0 `Kck.Persistence.EntityFramework.Specifications` runs it against any repository:
+`ListAsync(spec)`, `FirstOrDefaultAsync(spec)`, `CountAsync(spec)` (criteria only, paging ignored, for a total) and
+`WithSpecification(spec)` for the `IQueryable<T>`. The repository's query still applies the soft-delete filter. A
+specification has one order key (`ApplyOrderBy` wins over `ApplyOrderByDescending`); when paging, order by a key
+that is unique, or rows with equal keys can repeat or be skipped between pages.
+
+```csharp
+using Kck.Persistence.Abstractions.Specifications;
+using Kck.Persistence.Abstractions.UnitOfWork;
+using Kck.Persistence.EntityFramework.Specifications;
+
+public sealed class RecentOrdersOf : Specification<Order>
+{
+    public RecentOrdersOf(string customerEmail, int page, int size)
+    {
+        Where(o => o.CustomerEmail == customerEmail);
+        ApplyOrderByDescending(o => o.CreatedDate);
+        ApplyPaging(skip: page * size, take: size);
+    }
+}
+
+public sealed class CustomerOrders(IUnitOfWork uow)
+{
+    public async Task<(List<Order> Items, int Total)> PageAsync(string customerEmail, int page, CancellationToken ct)
+    {
+        var orders = uow.Repository<Order, Guid>();
+        var spec = new RecentOrdersOf(customerEmail, page, size: 20);
+        return (await orders.ListAsync(spec, ct), await orders.CountAsync(spec, ct));
+    }
+}
+```
+
 ## Dynamic queries
 
 `GetListByDynamicAsync(DynamicQuery)` works only for entity types with an `IFilterPropertyWhitelist<T>` registration; a

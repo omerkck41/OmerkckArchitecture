@@ -2,13 +2,27 @@
 #nullable enable
 
 namespace ReadmeSnippets.DocsProvidersPersistence_9;
-using Kck.Persistence.EntityFramework.Extensions;
-using Microsoft.EntityFrameworkCore;
+using Kck.Persistence.Abstractions.UnitOfWork;
 
-#line 331 "docs/providers/persistence.md"
-public sealed class ShopDbContext(DbContextOptions<ShopDbContext> options) : DbContext(options)
+#line 297 "docs/providers/persistence.md"
+public sealed class PlaceOrder(IUnitOfWork uow)
 {
-    protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder) =>
-        configurationBuilder.UseUtcDateTimes();
+    public async Task RunAsync(Order order, CancellationToken ct)
+    {
+        await uow.BeginTransactionAsync(ct);
+        try
+        {
+            await uow.Repository<Order, Guid>().AddAsync(order, ct);
+            // ... work across several repositories
+            await uow.SaveChangesAsync(cancellationToken: ct);
+        }
+        catch
+        {
+            await uow.RollbackAsync(ct);
+            throw;
+        }
+
+        await uow.CommitAsync(ct); // commits, then dispatches the domain events saved inside the transaction
+    }
 }
 #line default

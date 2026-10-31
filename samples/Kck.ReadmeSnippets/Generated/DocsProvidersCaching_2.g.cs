@@ -7,7 +7,7 @@ internal static class Snippet
 {
     internal static async Task RunAsync(WebApplicationBuilder builder, IServiceCollection services)
     {
-#line 35 "docs/providers/caching.md"
+#line 36 "docs/providers/caching.md"
 services.AddKckCachingRedis(
     redis => redis.Configuration = builder.Configuration["Redis:ConnectionString"],
     cache =>

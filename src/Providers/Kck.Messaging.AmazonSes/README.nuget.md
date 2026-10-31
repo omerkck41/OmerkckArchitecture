@@ -1,6 +1,6 @@
 # Kck.Messaging.AmazonSes
 
-Amazon SES-backed `IEmailService` for transactional email delivery with template and raw message support.
+Amazon SES-backed `IEmailProvider` for transactional email delivery with template and raw message support.
 
 ## Installation
 

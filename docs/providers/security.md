@@ -96,7 +96,7 @@ authentication is configured separately (`AddAuthentication().AddJwtBearer(...)`
 
 ## TOTP (2FA)
 
-TOTP needs a singleton `IMemoryCache` for replay protection:
+TOTP needs a singleton `IMemoryCache` without a `SizeLimit` (its entries have no size) for replay protection:
 
 ```csharp
 services.AddMemoryCache();
@@ -105,6 +105,8 @@ services.AddKckTotp(opt =>
     opt.CodeLength = 6;          // default
     opt.StepSeconds = 30;        // default
     opt.VerificationWindow = 1;  // steps accepted before and after the current one
+    opt.MaxFailedAttempts = 5;   // opt-in (default 0 = no limit), per secret...
+    opt.FailedAttemptWindow = TimeSpan.FromMinutes(5); // ...in a window from the first attempt (at most 1 day)
 });
 ```
 
@@ -129,8 +131,12 @@ Replay protection: a code accepted once is rejected for the rest of its validity
 its window.
 
 > **Security:** with `VerificationWindow = 1`, three codes are valid at any moment, so a 6-digit code can be guessed
-> by brute force. Rate-limit the verification endpoint per account and lock the account (or require a fresh login)
-> after a few failed attempts; `ValidateCodeAsync` does not count failures.
+> by brute force. From 4.8.0, `MaxFailedAttempts` limits the codes checked per secret: each attempt is counted before
+> its code is checked, and over the limit every code for that secret, a correct one too, is rejected until the window
+> that began at the first attempt ends. A successful code resets the count, so an attacker guessing alongside the
+> real user gets a new budget at each sign-in. The count is per process, like the replay record, and an attacker who
+> keeps guessing also keeps the user out for that window. Rate-limit the verification endpoint per account as well, and lock the account (or require a
+> fresh login) after repeated failures.
 
 ## Token Blacklist (Revoke / Logout)
 

@@ -1,6 +1,6 @@
 # Kck.Messaging.MailKit
 
-MailKit SMTP-backed `IEmailService` for sending transactional emails via any SMTP server with TLS/STARTTLS support.
+MailKit SMTP-backed `IEmailProvider` for sending transactional emails via any SMTP server with TLS/STARTTLS support.
 
 ## Installation
 

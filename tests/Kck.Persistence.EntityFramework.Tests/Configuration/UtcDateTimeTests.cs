@@ -40,6 +40,24 @@ public sealed class UtcDateTimeTests
     }
 
     [Fact]
+    public async Task UseUtcDateTimes_DateMembersAndRanges_AreTranslated()
+    {
+        // The converter keeps the column type, so date members and comparisons still run in SQL.
+        using var harness = new SqliteHarness<UtcContext>(o => new UtcContext(o));
+        var created = new DateTime(2026, 10, 31, 9, 15, 0, DateTimeKind.Utc);
+        harness.Context.Entities.Add(new TestEntity { Id = Guid.NewGuid(), CreatedDate = created, DeletedDate = created });
+        await harness.Context.SaveChangesAsync();
+
+        await using var read = harness.NewContext();
+        var day = new DateTime(2026, 10, 31, 0, 0, 0, DateTimeKind.Utc);
+
+        (await read.Entities.CountAsync(e => e.CreatedDate.Date == day)).Should().Be(1);
+        (await read.Entities.CountAsync(e => e.CreatedDate.Year == 2026 && e.CreatedDate.Hour == 9)).Should().Be(1);
+        (await read.Entities.CountAsync(e => e.DeletedDate >= day && e.DeletedDate < day.AddDays(1))).Should().Be(1);
+        (await read.Entities.OrderBy(e => e.CreatedDate).Select(e => e.CreatedDate).FirstAsync()).Kind.Should().Be(DateTimeKind.Utc);
+    }
+
+    [Fact]
     public async Task UseUtcDateTimes_LocalValue_IsStoredAsUtc()
     {
         using var harness = new SqliteHarness<UtcContext>(o => new UtcContext(o));

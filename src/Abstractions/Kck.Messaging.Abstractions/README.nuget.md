@@ -1,6 +1,6 @@
 # Kck.Messaging.Abstractions
 
-Email messaging abstractions for transactional email delivery — `IEmailService` with `EmailMessage`, `EmailRecipient`, and `EmailAttachment` models compatible with MailKit, SendGrid, or Amazon SES.
+Email messaging abstractions for transactional email delivery — `IEmailProvider` with `EmailMessage`, `EmailRecipient`, and `EmailAttachment` models compatible with MailKit, SendGrid, or Amazon SES.
 
 ## Installation
 
@@ -39,7 +39,7 @@ public class OrderConfirmationHandler(IEmailProvider email)
         }, ct);
 }
 
-// IEmailService has the same SendAsync shape but no built-in implementation.
+// IEmailService is obsolete (KCK0600) and has no implementation; use IEmailProvider.
 ```
 
 ## Configuration

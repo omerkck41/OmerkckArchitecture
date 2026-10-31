@@ -14,6 +14,8 @@ services.AddKckTotp(opt =>
     opt.CodeLength = 6;          // default
     opt.StepSeconds = 30;        // default
     opt.VerificationWindow = 1;  // steps accepted before and after the current one
+    opt.MaxFailedAttempts = 5;   // opt-in (default 0 = no limit), per secret...
+    opt.FailedAttemptWindow = TimeSpan.FromMinutes(5); // ...in a window from the first attempt (at most 1 day)
 });
 #line default
         await Task.CompletedTask;

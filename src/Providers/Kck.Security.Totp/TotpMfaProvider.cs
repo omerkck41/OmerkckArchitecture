@@ -11,6 +11,7 @@ public sealed class TotpMfaProvider : IMfaProvider
 {
     private readonly TotpOptions _options;
     private readonly IMemoryCache _replayCache;
+    private readonly Lock _attemptsLock = new();
 
     public TotpMfaProvider(IOptionsMonitor<TotpOptions> options, IMemoryCache replayCache)
     {
@@ -37,6 +38,16 @@ public sealed class TotpMfaProvider : IMfaProvider
 
     public Task<bool> ValidateCodeAsync(string secretKey, string code, CancellationToken ct = default)
     {
+        var secretHashBytes = SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(secretKey));
+        var secretHash = Convert.ToHexStringLower(secretHashBytes);
+        var failuresKey = $"totp:failed:{secretHash}";
+        var limited = _options.MaxFailedAttempts > 0;
+
+        // Each attempt is counted before its code is checked, so parallel requests cannot check more codes than the
+        // limit. Over the limit, codes are rejected without checking until the window ends; a success resets the count.
+        if (limited && ReserveAttempt(failuresKey) > _options.MaxFailedAttempts)
+            return Task.FromResult(false);
+
         var totp = new OtpNet.Totp(
             Base32Encoding.ToBytes(secretKey),
             step: _options.StepSeconds,
@@ -50,8 +61,6 @@ public sealed class TotpMfaProvider : IMfaProvider
             return Task.FromResult(false);
 
         // Replay protection: same time step + secret can only be used once
-        var secretHashBytes = SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(secretKey));
-        var secretHash = Convert.ToHexStringLower(secretHashBytes);
         var replayKey = $"totp:replay:{secretHash}:{timeStepMatched}";
         if (_replayCache.TryGetValue(replayKey, out _))
             return Task.FromResult(false);
@@ -59,7 +68,33 @@ public sealed class TotpMfaProvider : IMfaProvider
         // Cache used code — TTL = (VerificationWindow + 1) * StepSeconds
         var ttl = TimeSpan.FromSeconds((double)(_options.VerificationWindow + 1) * _options.StepSeconds);
         _replayCache.Set(replayKey, true, ttl);
+        if (limited)
+            _replayCache.Remove(failuresKey);
 
         return Task.FromResult(true);
+    }
+
+    // Returns this attempt's number in the current window. The lock makes creating the counter atomic: GetOrCreate
+    // alone can create it twice under concurrency and lose an attempt.
+    private int ReserveAttempt(string failuresKey)
+    {
+        FailedAttempts failures;
+        lock (_attemptsLock)
+        {
+            failures = _replayCache.GetOrCreate(failuresKey, entry =>
+            {
+                entry.AbsoluteExpirationRelativeToNow = _options.FailedAttemptWindow;
+                return new FailedAttempts();
+            })!;
+        }
+
+        return failures.Increment();
+    }
+
+    private sealed class FailedAttempts
+    {
+        private int _count;
+
+        public int Increment() => Interlocked.Increment(ref _count);
     }
 }

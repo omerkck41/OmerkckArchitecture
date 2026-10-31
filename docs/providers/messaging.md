@@ -78,8 +78,8 @@ public class OrderConfirmationService(IEmailProvider email)
 }
 ```
 
-Each provider registers `IEmailProvider`. (`IEmailService` has the same `SendAsync` shape but no built-in
-implementation.)
+Each provider registers `IEmailProvider`. (`IEmailService` has the same `SendAsync` shape but no implementation; it
+is obsolete since 4.8.0, KCK0600.)
 
 ## Selection Criteria
 
