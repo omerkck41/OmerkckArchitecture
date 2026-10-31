@@ -29,6 +29,10 @@ public static class OrderEndpoints
         Title = title,
         Detail = detail,
     };
+
+    /// <summary>The order was paid, shipped or cancelled by another request since this one read it.</summary>
+    internal static ProblemDetails ChangedConflict() =>
+        Conflict("Order changed", "Another request changed the order since it was read; read it again and retry.");
 }
 
 public sealed record OrderResponse(

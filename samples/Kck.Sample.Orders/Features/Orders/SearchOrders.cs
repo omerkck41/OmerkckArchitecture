@@ -19,13 +19,15 @@ public sealed class OrderFilterWhitelist : FilterPropertyWhitelist<Order>
         Allow(o => o.Status);
         Allow(o => o.CustomerId);
         Allow(o => o.CreatedDate);
+        Allow(o => o.Id);
     }
 }
 
 /// <summary>
 /// POST /orders/search?index=0&amp;size=10 with a <see cref="DynamicQuery"/> body, for example
 /// <c>{"filter":{"field":"Status","operator":"eq","value":"Paid"},"sort":[{"field":"CreatedDate","dir":"desc"}]}</c>.
-/// A field outside <see cref="OrderFilterWhitelist"/> returns 400.
+/// A field outside <see cref="OrderFilterWhitelist"/> returns 400. Without a sort the newest orders come first, as in
+/// GET /orders, and any sort ends with the id: paging over an order that is not unique can repeat or skip rows.
 /// </summary>
 public static class SearchOrders
 {
@@ -36,6 +38,13 @@ public static class SearchOrders
         IUnitOfWork unitOfWork,
         CancellationToken cancellationToken)
     {
+        var sort = query.Sort.ToList();
+        if (sort.Count == 0)
+            sort = [new Sort(nameof(Order.CreatedDate), "desc"), new Sort(nameof(Order.Id), "desc")];
+        else if (!sort[^1].Field.Equals(nameof(Order.Id), StringComparison.OrdinalIgnoreCase))
+            sort.Add(new Sort(nameof(Order.Id), "asc"));
+        query.Sort = sort;
+
         IPaginate<Order> page;
         try
         {

@@ -6,10 +6,13 @@ using Kck.Core.Abstractions.Paging;
 using Kck.Persistence.Abstractions.Dynamic;
 using Kck.Persistence.Abstractions.Repositories;
 using Kck.Persistence.Abstractions.UnitOfWork;
+using Kck.Sample.Orders.Data;
 using Kck.Sample.Orders.Domain;
 using Kck.Sample.Orders.Features.Customers;
 using Kck.Sample.Orders.Features.Orders;
 using Kck.Sample.Orders.Features.Products;
+using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -268,5 +271,111 @@ public sealed class OrdersTests : IAsyncLifetime
 
         first!.Should().Contain(p => p.Sku == "A-1" && p.Name == "Notebook");
         second.Should().BeEquivalentTo(first);
+    }
+
+    [Fact]
+    public async Task CancelOrder_ReturnsTheReservedStock()
+    {
+        var order = await _client.PlaceOrderAndReadAsync(("A-1", 2), ("A-1", 1), ("B-2", 1));
+
+        (await _client.DeleteAsync($"/orders/{order.Id}")).StatusCode.Should().Be(HttpStatusCode.NoContent);
+
+        (await _factory.StockAsync("A-1")).Should().Be(100);
+        (await _factory.StockAsync("B-2")).Should().Be(5);
+    }
+
+    [Fact]
+    public async Task PayOrder_StatusChangedSinceRead_FailsOnSave()
+    {
+        // Two requests paying the same order: the one that read the order before the other saved must not save.
+        var order = await _client.PlaceOrderAndReadAsync(("A-1", 1));
+        await using var scope = _factory.Services.CreateAsyncScope();
+        var unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
+        var stale = (await unitOfWork.Repository<Order, Guid>().GetAsync(o => o.Id == order.Id))!;
+        (await _client.PostAsync($"/orders/{order.Id}/pay", null)).EnsureSuccessStatusCode();
+
+        stale.TryPay().Should().BeTrue();
+        var save = () => unitOfWork.SaveChangesAsync();
+
+        await save.Should().ThrowAsync<DbUpdateConcurrencyException>();
+    }
+
+    [Theory]
+    [InlineData("ship")]   // shipped in the meantime: no longer cancellable
+    [InlineData("cancel")] // cancelled in the meantime: the stock must not come back twice
+    public async Task CancelOrder_OrderChangedSinceRead_FailsOnSave(string change)
+    {
+        var order = await _client.PlaceOrderAndReadAsync(("A-1", 1));
+        (await _client.PostAsync($"/orders/{order.Id}/pay", null)).EnsureSuccessStatusCode();
+        await using var scope = _factory.Services.CreateAsyncScope();
+        var unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
+        var orders = unitOfWork.Repository<Order, Guid>();
+        var stale = (await orders.GetAsync(o => o.Id == order.Id))!;
+        var changed = change == "ship"
+            ? await _client.PostAsync($"/orders/{order.Id}/ship", null)
+            : await _client.DeleteAsync($"/orders/{order.Id}");
+        changed.EnsureSuccessStatusCode();
+
+        await orders.DeleteAsync(stale);
+        var save = () => unitOfWork.SaveChangesAsync();
+
+        await save.Should().ThrowAsync<DbUpdateConcurrencyException>();
+    }
+
+    [Fact]
+    public async Task PayOrder_PaidSinceRead_Returns409()
+    {
+        var order = await _client.PlaceOrderAndReadAsync(("A-1", 1));
+        await using var scope = _factory.Services.CreateAsyncScope();
+        var unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
+        await unitOfWork.Repository<Order, Guid>().GetAsync(o => o.Id == order.Id); // the handler reads this instance
+        (await _client.PostAsync($"/orders/{order.Id}/pay", null)).EnsureSuccessStatusCode();
+
+        var result = await ChangeOrderStatus.PayAsync(order.Id, unitOfWork, CancellationToken.None);
+
+        result.Result.Should().BeOfType<Conflict<ProblemDetails>>().Which.Value!.Title.Should().Be("Order changed");
+    }
+
+    [Fact]
+    public async Task CancelOrder_ShippedSinceRead_Returns409AndKeepsTheStock()
+    {
+        var order = await _client.PlaceOrderAndReadAsync(("A-1", 1));
+        (await _client.PostAsync($"/orders/{order.Id}/pay", null)).EnsureSuccessStatusCode();
+        await using var scope = _factory.Services.CreateAsyncScope();
+        var unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
+        await unitOfWork.Repository<Order, Guid>().GetAsync(o => o.Id == order.Id); // still Paid in this scope
+        (await _client.PostAsync($"/orders/{order.Id}/ship", null)).EnsureSuccessStatusCode();
+
+        var result = await CancelOrder.HandleAsync(
+            order.Id, unitOfWork, scope.ServiceProvider.GetRequiredService<OrdersDbContext>(), CancellationToken.None);
+
+        result.Result.Should().BeOfType<Conflict<ProblemDetails>>().Which.Value!.Title.Should().Be("Order changed");
+        (await _factory.StockAsync("A-1")).Should().Be(99);
+        (await _client.GetFromJsonAsync<OrderResponse>($"/orders/{order.Id}"))!.Status.Should().Be(nameof(OrderStatus.Shipped));
+    }
+
+    [Fact]
+    public async Task SearchOrders_SortOnNonUniqueField_EndsWithTheId()
+    {
+        // Paging over a sort that is not unique can repeat or skip rows between pages; the id makes it total.
+        var query = new DynamicQuery([new Sort("Status", "asc")], null);
+        await using var scope = _factory.Services.CreateAsyncScope();
+
+        await SearchOrders.HandleAsync(query, 0, 10, scope.ServiceProvider.GetRequiredService<IUnitOfWork>(), CancellationToken.None);
+
+        query.Sort.Select(s => (s.Field, s.Dir)).Should().Equal(("Status", "asc"), ("Id", "asc"));
+    }
+
+    [Fact]
+    public async Task SearchOrders_WithoutSort_ReturnsNewestFirst()
+    {
+        var first = await _client.PlaceOrderAndReadAsync(("A-1", 1));
+        var second = await _client.PlaceOrderAndReadAsync(("A-1", 1));
+        var third = await _client.PlaceOrderAndReadAsync(("A-1", 1));
+
+        var response = await _client.PostAsJsonAsync("/orders/search", new DynamicQuery());
+
+        var page = await response.Content.ReadFromJsonAsync<Paginate<OrderSummary>>();
+        page!.Items.Select(o => o.Id).Should().Equal(third.Id, second.Id, first.Id);
     }
 }

@@ -30,6 +30,10 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
             order.HasMany(o => o.Lines).WithOne().HasForeignKey(l => l.OrderId).OnDelete(DeleteBehavior.Cascade);
             order.HasOne<Customer>().WithMany().HasForeignKey(o => o.CustomerId).OnDelete(DeleteBehavior.Restrict);
             order.Navigation(o => o.Lines).AutoInclude();
+
+            // Saving an order that another request cancelled since it was read throws DbUpdateConcurrencyException
+            // (CancelOrder returns 409), so the stock is not returned twice.
+            order.Property(o => o.IsDeleted).IsConcurrencyToken();
         });
         modelBuilder.Entity<OrderLine>(line =>
         {

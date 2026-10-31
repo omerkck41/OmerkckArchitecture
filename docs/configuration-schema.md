@@ -61,3 +61,7 @@ in code with `services.Configure<JwtOptions>(...)` or call `AddKckJwt(...)` your
 
 The bundles' default classes also declare `Persistence`, `Caching`, `Observability` and `Security:Jwt:Algorithm` /
 `Security:Hashing`, but never read them; since 4.7.0 they are obsolete (KCK0002). Configure those providers in code.
+If your project binds a defaults class itself (`GetSection("Kck").Get<KckWebApiDefaults>()`) with
+`EnableConfigurationBindingGenerator`, the generated binding code sets these properties and reports KCK0002 (the
+generator suppresses only the standard obsolete warnings). Bind the keys you read to your own options class, or add
+`KCK0002` to `NoWarn` in that project until v5.0 removes the properties.
