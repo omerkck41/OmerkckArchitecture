@@ -62,6 +62,8 @@ v1.0.0 — API can be removed (major bump)
 | KCK0300      | `RsaKeySource.SecretsManager` (`Kck.Security.Jwt`) — never implemented; options validation rejects it. Set `RsaKeyBase64` | 4.7.0 | v5.0 (earliest) |
 | KCK0700      | `HangfireOptions.ConnectionString` — never read; use `HangfireOptions.ConfigureStorage` | 4.7.0 | v5.0 (earliest) |
 | KCK0900      | `ResilienceOptions.CircuitBreakerFailureThreshold` (`Kck.Http.Abstractions`) — never applied; use `CircuitBreakerFailureRatio` / `CircuitBreakerMinimumThroughput` | 4.7.0 | v5.0 (earliest) |
+| KCK0600      | `IEmailService` (`Kck.Messaging.Abstractions`) — never implemented; every provider registers `IEmailProvider` | 4.8.0 | v5.0 (earliest) |
+| KCK0901      | `IFeatureEvaluator` (`Kck.FeatureFlags.Abstractions`) — never called; use `IFeatureFlagService.IsEnabledAsync(name, context)` | 4.8.0 | v5.0 (earliest) |
 | (none)       | `Kck.EventBus.InMemory` old registration methods (`AddKckEventBusInMemory` x2) — marked without a DiagnosticId | 2.x | **removed: v4.0** |
 
 > Note (2026-10-26): By number range KCK0200 falls in the Caching category, but it was used for Pipeline. Changing the

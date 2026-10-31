@@ -11,6 +11,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `Kck.Persistence.EntityFramework` — `ModelConfigurationBuilder.UseUtcDateTimes()` (call it in `ConfigureConventions`):
   `DateTime` values are read back as UTC (SQLite and SQL Server `datetime2` return them unspecified, so JSON lacked the
   "Z" suffix) and local values are written as UTC. The `kck-webapi` template and `Kck.Sample.Orders` use it.
+- `Kck.Persistence.EntityFramework` — `Specification<T>` can now be run: `ListAsync(spec)`, `FirstOrDefaultAsync(spec)`,
+  `CountAsync(spec)` and `WithSpecification(spec)` extensions on any repository (`Kck.Persistence.EntityFramework.Specifications`).
+  Criteria, includes, order, paging, `IncludeDeleted()` and `AsTracking()` apply; `CountAsync` ignores paging.
+- `Kck.Security.Totp` — opt-in limit on checked codes per secret: `TotpOptions.MaxFailedAttempts` (default 0, no
+  limit) and `FailedAttemptWindow` (default 5 minutes, at most 1 day). Each attempt is counted before its code is
+  checked, so parallel requests cannot exceed the limit; over it every code for that secret is rejected until the
+  window ends, and a successful code resets the count. Counted in the process's `IMemoryCache`. `AddKckTotp` now
+  validates `TotpOptions` at start-up (`TotpOptionsValidator`).
+
+### Deprecated
+- `IEmailService` (KCK0600): no package implements it; providers register `IEmailProvider`. Removed in v5.0.
+- `IFeatureEvaluator` (KCK0901): no package calls it; use `IFeatureFlagService.IsEnabledAsync(name, context)`. Removed
+  in v5.0.
 
 ### Fixed
 - `Kck.BackgroundJobs.Quartz` — a 5-field crontab expression (every `CronExpressions` constant) failed with

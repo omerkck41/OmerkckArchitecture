@@ -2,27 +2,28 @@
 #nullable enable
 
 namespace ReadmeSnippets.DocsProvidersPersistence_8;
+using Kck.Persistence.Abstractions.Specifications;
 using Kck.Persistence.Abstractions.UnitOfWork;
+using Kck.Persistence.EntityFramework.Specifications;
 
-#line 262 "docs/providers/persistence.md"
-public sealed class PlaceOrder(IUnitOfWork uow)
+#line 264 "docs/providers/persistence.md"
+public sealed class RecentOrdersOf : Specification<Order>
 {
-    public async Task RunAsync(Order order, CancellationToken ct)
+    public RecentOrdersOf(string customerEmail, int page, int size)
     {
-        await uow.BeginTransactionAsync(ct);
-        try
-        {
-            await uow.Repository<Order, Guid>().AddAsync(order, ct);
-            // ... work across several repositories
-            await uow.SaveChangesAsync(cancellationToken: ct);
-        }
-        catch
-        {
-            await uow.RollbackAsync(ct);
-            throw;
-        }
+        Where(o => o.CustomerEmail == customerEmail);
+        ApplyOrderByDescending(o => o.CreatedDate);
+        ApplyPaging(skip: page * size, take: size);
+    }
+}
 
-        await uow.CommitAsync(ct); // commits, then dispatches the domain events saved inside the transaction
+public sealed class CustomerOrders(IUnitOfWork uow)
+{
+    public async Task<(List<Order> Items, int Total)> PageAsync(string customerEmail, int page, CancellationToken ct)
+    {
+        var orders = uow.Repository<Order, Guid>();
+        var spec = new RecentOrdersOf(customerEmail, page, size: 20);
+        return (await orders.ListAsync(spec, ct), await orders.CountAsync(spec, ct));
     }
 }
 #line default

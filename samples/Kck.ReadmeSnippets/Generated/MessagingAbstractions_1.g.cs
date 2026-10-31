@@ -42,5 +42,5 @@ public class OrderConfirmationHandler(IEmailProvider email)
         }, ct);
 }
 
-// IEmailService has the same SendAsync shape but no built-in implementation.
+// IEmailService is obsolete (KCK0600) and has no implementation; use IEmailProvider.
 #line default

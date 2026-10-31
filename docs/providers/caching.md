@@ -11,6 +11,7 @@ are common to all providers.
 | `Kck.Caching.Abstractions` | `ICacheService`, `CacheOptions`, `CacheServiceBase` |
 | `Kck.Caching.InMemory` | `Microsoft.Extensions.Caching.Memory` |
 | `Kck.Caching.Redis` | StackExchange.Redis |
+| `Kck.Caching.Hybrid` | `Microsoft.Extensions.Caching.Hybrid`: in-process L1 over Redis L2 |
 
 ## InMemory
 
@@ -40,6 +41,14 @@ services.AddKckCachingRedis(
         cache.DefaultExpiration = TimeSpan.FromMinutes(10);
     });
 ```
+
+## Hybrid
+
+An in-process L1 cache in front of Redis (L2): reads are served from memory while the entry is fresh there, and
+every instance shares the Redis copy. Redis is required: `ExistsAsync` and `RemoveByPrefixAsync` go to Redis, so
+there is no Redis-less mode. Without Redis, use `Kck.Caching.InMemory` (a hybrid without L2 would be the same
+cache). `RemoveAsync` and `RemoveByPrefixAsync` clear Redis and this instance's L1 only: other instances can serve
+their L1 copy until `DefaultLocalExpiration`, so keep it short for data that changes. Setup and options: the package [README](https://github.com/omerkck41/OmerkckArchitecture/tree/main/src/Providers/Kck.Caching.Hybrid).
 
 ## Usage
 
@@ -82,9 +91,9 @@ The reference app caches its product catalogue this way:
 
 ## Selection Criteria
 
-| Criterion | InMemory | Redis |
-|---|---|---|
-| Scope | Single process | Cluster |
-| Latency | < 1 ms | 1-5 ms |
-| Persistence | None | Optional (RDB/AOF) |
-| Use case | Unit test, CLI, single-instance | Web app, microservice |
+| Criterion | InMemory | Redis | Hybrid |
+|---|---|---|---|
+| Scope | Single process | Cluster | Cluster |
+| Latency | < 1 ms | 1-5 ms | < 1 ms (L1 hit), 1-5 ms (L2) |
+| Persistence | None | Optional (RDB/AOF) | As Redis |
+| Use case | Unit test, CLI, single-instance | Web app, microservice | Hot, read-heavy keys on several instances |

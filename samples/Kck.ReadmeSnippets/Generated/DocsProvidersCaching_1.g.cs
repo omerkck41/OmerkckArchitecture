@@ -7,7 +7,7 @@ internal static class Snippet
 {
     internal static async Task RunAsync(IServiceCollection services)
     {
-#line 20 "docs/providers/caching.md"
+#line 21 "docs/providers/caching.md"
 services.AddKckCachingInMemory(opt =>
 {
     opt.KeyPrefix = "myapp:";

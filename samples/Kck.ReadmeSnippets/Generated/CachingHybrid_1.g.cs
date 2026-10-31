@@ -7,7 +7,7 @@ internal static class Snippet
 {
     internal static async Task RunAsync(WebApplicationBuilder builder, CancellationToken ct)
     {
-#line 14 "src/Providers/Kck.Caching.Hybrid/README.nuget.md"
+#line 15 "src/Providers/Kck.Caching.Hybrid/README.nuget.md"
 // Program.cs - L1 in memory, L2 Redis (Microsoft.Extensions.Caching.Hybrid)
 builder.Services.AddKckCachingHybrid(
     redis => redis.Configuration = "localhost:6379",
@@ -24,7 +24,7 @@ builder.Services.AddKckCachingHybrid(
     }
 }
 
-#line 25 "src/Providers/Kck.Caching.Hybrid/README.nuget.md"
+#line 26 "src/Providers/Kck.Caching.Hybrid/README.nuget.md"
 public class ProductService(ICacheService cache, IProductRepository products)
 {
     public Task<Product?> GetAsync(int id, CancellationToken ct) =>

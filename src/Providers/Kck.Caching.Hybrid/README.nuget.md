@@ -1,6 +1,7 @@
 # Kck.Caching.Hybrid
 
 Two-level hybrid cache provider combining an in-process L1 memory cache with a distributed L2 Redis cache for optimal read performance.
+Redis is required (`ExistsAsync` and `RemoveByPrefixAsync` use it); without Redis, use `Kck.Caching.InMemory`.
 
 ## Installation
 

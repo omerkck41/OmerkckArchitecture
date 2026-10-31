@@ -1,6 +1,6 @@
 # Kck.Messaging.SendGrid
 
-SendGrid API-backed `IEmailService` for reliable transactional and marketing email delivery at scale.
+SendGrid API-backed `IEmailProvider` for reliable transactional and marketing email delivery at scale.
 
 ## Installation
 

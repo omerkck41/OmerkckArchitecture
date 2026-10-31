@@ -16,7 +16,7 @@ claim about another project links to its documentation in
 | Domain events | — | You write the dispatch | Local events run inside the transaction, before commit; a failing handler rolls back | — | Dispatched after commit; a failing handler does not undo the saved data. The events are retried by the next save in the same request (at least once); if the request ends first they are lost — no outbox |
 | Outbox / inbox | — | You write it | Built in for distributed events (EF Core, MongoDB) | — | — |
 | Repository and unit of work | `DbContext` | You write it | Built in (interceptor-based UoW) | `RepositoryBase` for EF Core | `IUnitOfWork.Repository<T, TId>()` |
-| Reusable query specifications | — | You write it | `Specification<T>` with `And` / `Or` / `Not`, used by repositories | Its core feature, with an evaluator | `Specification<T>` base class, but no repository method applies it yet; dynamic queries with a property whitelist |
+| Reusable query specifications | — | You write it | `Specification<T>` with `And` / `Or` / `Not`, used by repositories | Its core feature, with an evaluator | `Specification<T>` with criteria, includes, order and paging, run by `ListAsync` / `CountAsync` extensions (4.8.0; no `And` / `Or`); dynamic queries with a property whitelist |
 | Multi-tenancy | Filter with a tenant id | You write it | Built in (`IMultiTenant`) | — | — (add a named tenant filter; it coexists with soft delete) |
 | Licence | MIT | Yours | LGPL-3.0 | MIT (the README announces a move to a commercial licence) | MIT |
 

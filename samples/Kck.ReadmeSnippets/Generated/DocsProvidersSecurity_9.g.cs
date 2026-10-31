@@ -7,7 +7,7 @@ internal static class Snippet
 {
     internal static async Task RunAsync(IServiceCollection services)
     {
-#line 169 "docs/providers/security.md"
+#line 175 "docs/providers/security.md"
 services.AddKckUserSecrets();
 
 // .NET Secret Manager
