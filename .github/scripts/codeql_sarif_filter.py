@@ -50,9 +50,11 @@ def filter_file(path: Path) -> int:
     """Filters one SARIF file in place; fails when it does not exist (the analysis wrote nowhere else)."""
     if not path.is_file():
         sys.exit(f"no SARIF file at {path}")
-    sarif = json.loads(path.read_text(encoding="utf-8"))
+    with path.open(encoding="utf-8") as source:
+        sarif = json.load(source)
     removed = filter_sarif(sarif)
-    path.write_text(json.dumps(sarif), encoding="utf-8")
+    with path.open("w", encoding="utf-8") as target:
+        json.dump(sarif, target)
     return removed
 
 
