@@ -5,7 +5,7 @@ namespace ReadmeSnippets.DocsProvidersPersistence_10;
 using Kck.Persistence.EntityFramework.Extensions;
 using Microsoft.EntityFrameworkCore;
 
-#line 366 "docs/providers/persistence.md"
+#line 374 "docs/providers/persistence.md"
 public sealed class ShopDbContext(DbContextOptions<ShopDbContext> options) : DbContext(options)
 {
     protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder) =>

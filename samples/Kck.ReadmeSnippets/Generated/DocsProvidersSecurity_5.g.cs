@@ -7,7 +7,7 @@ internal static class Snippet
 {
     internal static async Task RunAsync(IServiceCollection services)
     {
-#line 102 "docs/providers/security.md"
+#line 107 "docs/providers/security.md"
 services.AddMemoryCache();
 services.AddKckTotp(opt =>
 {

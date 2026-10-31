@@ -94,6 +94,11 @@ public class AuthService(ITokenService tokens)
 [ADR-0003](../adr/0003-jwt-handler-migration.md)). `AddKckJwt` provides the token service only; ASP.NET Core
 authentication is configured separately (`AddAuthentication().AddJwtBearer(...)`) with the matching public key.
 
+`ValidateTokenAsync` returns `UserId`, `Email`, `Roles` (every role claim, in token order) and `Claims`: each claim
+type of the token with its first value, so `CustomClaims` round-trip (`result.Claims["tenant"]`). For a multi-valued
+type such as role, `Claims` holds the first value only; use `Roles`. Before 5.0.0, two or more roles came back as one
+``List`1[System.Object]`` entry and `Claims` was always empty.
+
 ## TOTP (2FA)
 
 TOTP needs a singleton `IMemoryCache` without a `SizeLimit` (its entries have no size) for replay protection:
@@ -179,7 +184,9 @@ services.AddKckUserSecrets();
 ```
 
 Read-only: `SetSecretAsync` throws `NotSupportedException`. Combining environment variables
-and User Secrets works well for local development.
+and User Secrets works well for local development. `GetSecretAsync<T>` deserializes the value as JSON, except
+`T = string`, which returns the value as it is (a plain value such as an API key is not JSON); the Azure Key Vault
+provider has the same contract.
 
 ### Azure Key Vault
 

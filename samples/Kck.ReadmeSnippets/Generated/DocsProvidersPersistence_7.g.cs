@@ -6,7 +6,7 @@ using Kck.Persistence.Abstractions.Repositories;
 using Kck.Persistence.Abstractions.UnitOfWork;
 using Kck.Persistence.EntityFramework.Paging;
 
-#line 241 "docs/providers/persistence.md"
+#line 249 "docs/providers/persistence.md"
 public sealed class RecentOrders(IUnitOfWork uow)
 {
     public Task<IPaginate<Order>> FirstPageAsync(CancellationToken ct) =>

@@ -9,7 +9,12 @@ namespace Kck.FileStorage.AwsS3;
 
 /// <summary>
 /// <see cref="IFileStorageService"/> implementation backed by Amazon S3.
-/// Supports explicit access-key credentials and IAM role / environment-variable authentication.
+/// Supports explicit access-key credentials and IAM role / environment-variable authentication. Every path argument
+/// is checked with <see cref="PathHelper.Validate"/> before a request is built: a path containing <c>..</c>, an
+/// absolute path, a percent sign or a control character is rejected with <see cref="ArgumentException"/> (the same
+/// rule as the Blob and FTP providers; S3 keeps <c>..</c> literally in the key, so no object outside
+/// <c>KeyPrefix</c> was reachable, but the key was still written). An empty <c>DestinationPath</c> or
+/// <c>directoryPath</c> means the bucket root (under <c>KeyPrefix</c> when one is set).
 /// </summary>
 public sealed class AwsS3StorageService : IFileStorageService, IDisposable
 {
@@ -29,6 +34,9 @@ public sealed class AwsS3StorageService : IFileStorageService, IDisposable
     /// <inheritdoc/>
     public async Task UploadAsync(FileUploadRequest request, CancellationToken ct = default)
     {
+        ValidateOptionalPath(request.DestinationPath);
+        PathHelper.Validate(request.FileName);
+
         var key = BuildKey(request.DestinationPath, request.FileName);
         var putRequest = new PutObjectRequest
         {
@@ -43,6 +51,8 @@ public sealed class AwsS3StorageService : IFileStorageService, IDisposable
     /// <inheritdoc/>
     public async Task<Stream> DownloadAsync(string path, CancellationToken ct = default)
     {
+        PathHelper.Validate(path);
+
         var response = await _s3.GetObjectAsync(_bucket, ApplyPrefix(path), ct).ConfigureAwait(false);
         return response.ResponseStream;
     }
@@ -50,12 +60,16 @@ public sealed class AwsS3StorageService : IFileStorageService, IDisposable
     /// <inheritdoc/>
     public async Task DeleteAsync(string path, CancellationToken ct = default)
     {
+        PathHelper.Validate(path);
+
         await _s3.DeleteObjectAsync(_bucket, ApplyPrefix(path), ct).ConfigureAwait(false);
     }
 
     /// <inheritdoc/>
     public async Task<bool> ExistsAsync(string path, CancellationToken ct = default)
     {
+        PathHelper.Validate(path);
+
         try
         {
             await _s3.GetObjectMetadataAsync(_bucket, ApplyPrefix(path), ct).ConfigureAwait(false);
@@ -70,6 +84,8 @@ public sealed class AwsS3StorageService : IFileStorageService, IDisposable
     /// <inheritdoc/>
     public async Task<IReadOnlyList<FileMetadata>> ListAsync(string directoryPath, CancellationToken ct = default)
     {
+        ValidateOptionalPath(directoryPath);
+
         var prefix = ApplyPrefix(directoryPath.TrimEnd('/') + "/"); // NOSONAR S1075 - S3 key delimiter is always '/', not platform-dependent
         var request = new ListObjectsV2Request { BucketName = _bucket, Prefix = prefix };
         var results = new List<FileMetadata>();
@@ -100,6 +116,13 @@ public sealed class AwsS3StorageService : IFileStorageService, IDisposable
         var dir = path.Trim('/');
         var relative = string.IsNullOrEmpty(dir) ? fileName : $"{dir}/{fileName}";
         return ApplyPrefix(relative);
+    }
+
+    // An empty destination or directory means the bucket (or KeyPrefix) root; any other path argument must be a relative path.
+    private static void ValidateOptionalPath(string path)
+    {
+        if (!string.IsNullOrEmpty(path))
+            PathHelper.Validate(path);
     }
 
     private string ApplyPrefix(string path) =>

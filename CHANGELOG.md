@@ -19,6 +19,38 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   members.
 - `Kck.Exceptions.AspNetCore` — an error in a request the client had already aborted is logged and its status set, but
   no body is written: the write with the canceled token turned the original error into an `OperationCanceledException`.
+- `Kck.Persistence.EntityFramework` — every read of an entity that is not `ISoftDeletable` (a plain `Entity<TId>` or
+  `AuditableEntity<TId>`) threw `InvalidOperationException` ("The LINQ expression ... could not be translated"):
+  `Query()` applied the soft-delete filter `!((ISoftDeletable)e).IsDeleted` to every entity type. `CountAsync`,
+  `GetByIdAsync`, `GetListAsync`, `AnyAsync`, `GetAsync` and `BulkUpdateAsync` failed; only the delete and revert
+  paths, which lift the filter, worked. The filter and `QueryOptions.IncludeDeleted` now apply to soft-deletable types
+  only; for any other type `IncludeDeleted` has no effect and `RevertSoftDeleteAsync` returns the row unchanged.
+- `Kck.Caching.Abstractions`, `Kck.Caching.InMemory`, `Kck.Caching.Redis`, `Kck.Caching.Hybrid` — `GetOrSetAsync<T>`
+  with a value type (`int`, `bool`, `Guid`, ...) never ran the factory and returned `0`/`false`/`Guid.Empty`: the miss
+  check was `existing is not null`, which is always true for a value type. `CacheServiceBase` now asks the store whether
+  the key exists (new `protected virtual TryGetAsync<T>`, returning `(bool Found, T? Value)`; InMemory and Redis
+  override it) and `GetOrSetAsync` is `virtual`. A cached `null` is still a miss, as before. `Kck.Caching.Hybrid`
+  overrides `GetOrSetAsync` with `HybridCache.GetOrCreateAsync`, so it gets HybridCache's stampede protection and its
+  L1+L2 write, as its documentation already said (HybridCache also caches a `null` result for the entry's lifetime).
+- `Kck.Security.Jwt` — `ValidateTokenAsync` returned a token with two or more roles as a single role named
+  ``System.Collections.Generic.List`1[System.Object]``, and `TokenValidationResult.Claims` was always empty. Roles are
+  now read from the validated identity, and `Claims` holds every claim type with its first value, so `CustomClaims`
+  round-trip; for a multi-valued type such as role, use `Roles`.
+- `Kck.Security.Secrets.UserSecrets` — `GetSecretAsync<string>` threw `JsonException` on a plain (non-JSON) value such
+  as an API key. A string is now returned as it is, as `Kck.Security.Secrets.AzureKeyVault` already did. A value
+  stored as a JSON string literal (with its quotes) is now returned with the quotes; store the plain value.
+- `Kck.FileStorage.AzureBlob`, `Kck.FileStorage.AwsS3` — **path traversal.** Neither provider validated its path
+  arguments. In Azure Blob the blob name is part of the request URI and `..` is resolved by `Uri`: with the service
+  bound to container `alpha`, `ExistsAsync("../beta/secret.txt")` and `DownloadAsync` read `beta`'s blob, and
+  `UploadAsync` with `DestinationPath = "../beta"` wrote into `beta` (reproduced on Azurite). In S3 the key is sent
+  literally, so `KeyPrefix` was not escaped, but keys such as `tenantA/../tenantB/x` were written. Every path argument
+  (`path`, `directoryPath`, `FileName`, and a non-empty `DestinationPath`) now goes through the new
+  `PathHelper.Validate` in `Kck.FileStorage.Abstractions`, which rejects a path that contains `..` anywhere, an absolute
+  path, a percent sign and control characters with `ArgumentException` before any request is built. This also rejects
+  what used to pass: a name containing `..` (for example `report..v2.pdf`; an object already stored under such a name is
+  reachable only through the SDK) and a `DestinationPath` with a leading `/` (it used to be trimmed); an empty
+  `DestinationPath` or `directoryPath` still means the root. The FTP provider's
+  internal `PathSanitizer` had the same rule and is replaced by `PathHelper.Validate` (no behaviour change there).
 
 ## [4.8.0] — 2026-10-31
 

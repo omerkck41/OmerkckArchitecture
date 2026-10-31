@@ -36,21 +36,43 @@ public abstract class CacheServiceBase : ICacheService
     public abstract Task RemoveByPrefixAsync(string prefix, CancellationToken ct = default);
 
     /// <summary>
-    /// Returns the cached value for <paramref name="key"/> if present; otherwise invokes <paramref name="factory"/>,
-    /// stores the result, and returns it. Uses per-stripe locking to prevent cache stampedes.
+    /// Looks <paramref name="key"/> up and reports whether the store has an entry for it, so that a stored default
+    /// value (<c>0</c>, <see langword="false"/>, <see cref="Guid.Empty"/>) is not taken for a miss. The default
+    /// implementation treats a <see langword="null"/> result of <see cref="GetAsync{T}"/> as "not found" and, when the
+    /// value equals <c>default(T)</c>, asks <see cref="ExistsAsync"/> whether the key is stored (a second round trip on
+    /// that path only). A provider that can report presence in one call overrides it (InMemory and Redis do).
     /// </summary>
-    public async Task<T?> GetOrSetAsync<T>(string key, Func<Task<T>> factory, TimeSpan? expiration = null, CancellationToken ct = default)
+    protected virtual async ValueTask<(bool Found, T? Value)> TryGetAsync<T>(string key, CancellationToken ct = default)
     {
-        var existing = await GetAsync<T>(key, ct).ConfigureAwait(false);
-        if (existing is not null)
+        var value = await GetAsync<T>(key, ct).ConfigureAwait(false);
+        if (value is null)
+            return (false, value);
+
+        if (!EqualityComparer<T>.Default.Equals(value, default!))
+            return (true, value);
+
+        // 0, false, Guid.Empty...: only the store can tell a stored default from a missing key.
+        return (await ExistsAsync(key, ct).ConfigureAwait(false), value);
+    }
+
+    /// <summary>
+    /// Returns the cached value for <paramref name="key"/> if present; otherwise invokes <paramref name="factory"/>,
+    /// stores the result, and returns it. Uses per-stripe locking to prevent cache stampedes. Presence comes from
+    /// <see cref="TryGetAsync{T}"/>, so a cached <c>0</c> or <see langword="false"/> is a hit; a cached
+    /// <see langword="null"/> is still treated as a miss and the factory runs again.
+    /// </summary>
+    public virtual async Task<T?> GetOrSetAsync<T>(string key, Func<Task<T>> factory, TimeSpan? expiration = null, CancellationToken ct = default)
+    {
+        var (found, existing) = await TryGetAsync<T>(key, ct).ConfigureAwait(false);
+        if (found && existing is not null)
             return existing;
 
         var semaphore = GetStripe(BuildKey(key));
         await semaphore.WaitAsync(ct).ConfigureAwait(false);
         try
         {
-            existing = await GetAsync<T>(key, ct).ConfigureAwait(false);
-            if (existing is not null)
+            (found, existing) = await TryGetAsync<T>(key, ct).ConfigureAwait(false);
+            if (found && existing is not null)
                 return existing;
 
             var value = await factory().ConfigureAwait(false);

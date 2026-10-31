@@ -127,5 +127,22 @@ public sealed class RedisCacheIntegrationTests : IAsyncLifetime
         (await sut.ExistsAsync("other:b")).Should().BeTrue();
     }
 
+    [Fact]
+    public async Task GetOrSetAsync_ValueTypes_MissRunsTheFactoryOnce_ThenHits()
+    {
+        // K2 (2026-10-31 health analysis, probe P1): int/bool/Guid misses returned 0/false/empty without the factory.
+        var intCalls = 0;
+        var guid = Guid.NewGuid();
+
+        var first = await _sut.GetOrSetAsync("vt:int", () => { intCalls++; return Task.FromResult(42); });
+        var second = await _sut.GetOrSetAsync("vt:int", () => { intCalls++; return Task.FromResult(-1); });
+
+        first.Should().Be(42);
+        second.Should().Be(42);
+        intCalls.Should().Be(1);
+        (await _sut.GetOrSetAsync("vt:bool", () => Task.FromResult(true))).Should().BeTrue();
+        (await _sut.GetOrSetAsync("vt:guid", () => Task.FromResult(guid))).Should().Be(guid);
+    }
+
     private sealed record TestCacheItem(string Name, int Value);
 }

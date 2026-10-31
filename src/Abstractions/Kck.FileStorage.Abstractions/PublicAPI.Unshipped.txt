@@ -1,1 +1,2 @@
 #nullable enable
+static Kck.FileStorage.Abstractions.PathHelper.Validate(string! path) -> void

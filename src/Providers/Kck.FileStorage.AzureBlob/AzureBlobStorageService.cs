@@ -8,7 +8,11 @@ namespace Kck.FileStorage.AzureBlob;
 
 /// <summary>
 /// <see cref="IFileStorageService"/> implementation backed by Azure Blob Storage.
-/// Supports connection-string and Managed Identity authentication.
+/// Supports connection-string and Managed Identity authentication. Every path argument is checked with
+/// <see cref="PathHelper.Validate"/> before a request is built: a path containing <c>..</c>, an absolute path, a
+/// percent sign or a control character is rejected with <see cref="ArgumentException"/>, because the blob name becomes
+/// part of the request URI and <c>..</c> would resolve to another container. An empty <c>DestinationPath</c> or
+/// <c>directoryPath</c> means the container root.
 /// </summary>
 public sealed class AzureBlobStorageService : IFileStorageService
 {
@@ -29,6 +33,9 @@ public sealed class AzureBlobStorageService : IFileStorageService
     /// <inheritdoc/>
     public async Task UploadAsync(FileUploadRequest request, CancellationToken ct = default)
     {
+        ValidateOptionalPath(request.DestinationPath);
+        PathHelper.Validate(request.FileName);
+
         var blobName = BuildBlobName(request.DestinationPath, request.FileName);
         var blob = _container.GetBlobClient(blobName);
         await blob.UploadAsync(request.Content, overwrite: request.Overwrite, ct).ConfigureAwait(false);
@@ -37,6 +44,8 @@ public sealed class AzureBlobStorageService : IFileStorageService
     /// <inheritdoc/>
     public async Task<Stream> DownloadAsync(string path, CancellationToken ct = default)
     {
+        PathHelper.Validate(path);
+
         var blob = _container.GetBlobClient(path);
         var response = await blob.DownloadStreamingAsync(cancellationToken: ct).ConfigureAwait(false);
         return response.Value.Content;
@@ -45,6 +54,8 @@ public sealed class AzureBlobStorageService : IFileStorageService
     /// <inheritdoc/>
     public async Task DeleteAsync(string path, CancellationToken ct = default)
     {
+        PathHelper.Validate(path);
+
         var blob = _container.GetBlobClient(path);
         await blob.DeleteIfExistsAsync(cancellationToken: ct).ConfigureAwait(false);
     }
@@ -52,6 +63,8 @@ public sealed class AzureBlobStorageService : IFileStorageService
     /// <inheritdoc/>
     public async Task<bool> ExistsAsync(string path, CancellationToken ct = default)
     {
+        PathHelper.Validate(path);
+
         var blob = _container.GetBlobClient(path);
         var response = await blob.ExistsAsync(ct).ConfigureAwait(false);
         return response.Value;
@@ -60,6 +73,8 @@ public sealed class AzureBlobStorageService : IFileStorageService
     /// <inheritdoc/>
     public async Task<IReadOnlyList<FileMetadata>> ListAsync(string directoryPath, CancellationToken ct = default)
     {
+        ValidateOptionalPath(directoryPath);
+
         var prefix = directoryPath.TrimEnd('/') + "/";
         var results = new List<FileMetadata>();
 
@@ -101,5 +116,12 @@ public sealed class AzureBlobStorageService : IFileStorageService
     {
         var dir = path.Trim('/');
         return string.IsNullOrEmpty(dir) ? fileName : $"{dir}/{fileName}";
+    }
+
+    // An empty destination or directory means the container root; any other path argument must be a relative path.
+    private static void ValidateOptionalPath(string path)
+    {
+        if (!string.IsNullOrEmpty(path))
+            PathHelper.Validate(path);
     }
 }

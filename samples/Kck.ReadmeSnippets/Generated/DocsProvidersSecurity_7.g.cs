@@ -7,7 +7,7 @@ internal static class Snippet
 {
     internal static async Task RunAsync(WebApplicationBuilder builder, IServiceCollection services)
     {
-#line 144 "docs/providers/security.md"
+#line 149 "docs/providers/security.md"
 services.AddKckTokenBlacklistRedis(opt =>
 {
     opt.ConnectionString = builder.Configuration["Redis:ConnectionString"]!;
