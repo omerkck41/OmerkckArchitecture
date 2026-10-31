@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1793448151638,
+  "lastUpdate": 1793449103216,
   "repoUrl": "https://github.com/omerkck41/OmerkckArchitecture",
   "entries": {
     "Benchmark": [
@@ -14254,6 +14254,102 @@ window.BENCHMARK_DATA = {
             "value": 10.103107888783727,
             "unit": "ns",
             "range": "± 0.19671941148051295"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "106805727+omerkck41@users.noreply.github.com",
+            "name": "Ömer KÜÇÜK",
+            "username": "omerkck41"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "0a3124e7f5482a85b2cdd92faf9531401c57adef",
+          "message": "fix: english options validation messages and docs (#278)\n\nThe library is English-only, but some options validation messages and\nXML docs were still in Turkish.\n\n## Changes\n- 13 options validators now report in English: JWT, Argon2, Azure\nService Bus, Azure App Configuration, Azure Key Vault, Azure Blob, AWS\nS3, FluentFTP, Amazon SES, MailKit, SendGrid, Elasticsearch, and Redis\ntoken blacklist.\n- The message layout is unchanged: the `• Field: problem` line, the `→\nFix:` line and the Docs link.\n  - Each header now reads `XOptions is invalid:`.\n- The remaining Turkish XML docs and comments in\n`Kck.Exceptions.AspNetCore` and `RedisCacheService` are translated.\n- No logic, names or public API changed.\n\n## Verification\n- After the change, a grep over `src/**/*.cs` (excluding obj and bin)\nfinds no Turkish characters.\n- `dotnet build -c Release`: 0 warnings, 0 errors. `dotnet test -c\nRelease --filter \"Category!=Integration\"`: 41/41 test projects green.\nBoth ran before the rebase.\n- After the rebase onto main: `Kck.Exceptions.AspNetCore.Tests` 12/12\nand `Kck.Security.Jwt.Tests` 42/42.\n- `readme_snippets.py --check` and `docs_language.py`: clean.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-authored-by: Claude Opus 5.5 <noreply@anthropic.com>",
+          "timestamp": "2026-10-31T12:11:05Z",
+          "tree_id": "78a1c0c6a0ffc7e78f645f2c13c29be3396f312f",
+          "url": "https://github.com/omerkck41/OmerkckArchitecture/commit/0a3124e7f5482a85b2cdd92faf9531401c57adef"
+        },
+        "date": 1793449102613,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Success_Factory",
+            "value": 6.2294137347489595,
+            "unit": "ns",
+            "range": "± 0.17942278606156073"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Failure_Factory",
+            "value": 9.25587896257639,
+            "unit": "ns",
+            "range": "± 0.33458137912000185"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Success",
+            "value": 1.6390082112380437,
+            "unit": "ns",
+            "range": "± 0.0032466827619246122"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Failure",
+            "value": 0.5877566505223513,
+            "unit": "ns",
+            "range": "± 0.004247272164985918"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Serialize_Reflection",
+            "value": 471.26086813608805,
+            "unit": "ns",
+            "range": "± 4.593323860987238"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Deserialize_Reflection",
+            "value": 782.643275124686,
+            "unit": "ns",
+            "range": "± 5.924897922647676"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 0)",
+            "value": 10.488694044558898,
+            "unit": "ns",
+            "range": "± 0.31934710055213805"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 5)",
+            "value": 9.99127492432793,
+            "unit": "ns",
+            "range": "± 0.08445953203812548"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 0)",
+            "value": 10.092697421567781,
+            "unit": "ns",
+            "range": "± 0.4405392304487544"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 5)",
+            "value": 10.288808697462082,
+            "unit": "ns",
+            "range": "± 0.18643833891473616"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 0)",
+            "value": 12.392429778973261,
+            "unit": "ns",
+            "range": "± 0.24280174471155075"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 5)",
+            "value": 10.540982807986438,
+            "unit": "ns",
+            "range": "± 0.25356098699634566"
           }
         ]
       }
