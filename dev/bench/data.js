@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1793402661161,
+  "lastUpdate": 1793447023678,
   "repoUrl": "https://github.com/omerkck41/OmerkckArchitecture",
   "entries": {
     "Benchmark": [
@@ -14062,6 +14062,102 @@ window.BENCHMARK_DATA = {
             "value": 5.70930803673608,
             "unit": "ns",
             "range": "± 0.09995333434958299"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "106805727+omerkck41@users.noreply.github.com",
+            "name": "Ömer KÜÇÜK",
+            "username": "omerkck41"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "64e5cdfe205f850bdd27de62207052e6bce6e028",
+          "message": "fix: quartz crontab, cancellation, bulk update, utc dates, null sort (#276)\n\nRemaining review findings, batch 1 (all in `CHANGELOG.md`\n`[Unreleased]`).\n\n## Fixed\n- **Quartz + crontab:** every `CronExpressions` constant failed in\nQuartz (`FormatException`, no seconds field). `CrontabConverter`\nconverts 5-field crontab: seconds first, `?` in the unused day field,\ndays of week renumbered (names and numbers, lists, ranges, steps).\n`L`/`#` and both-day restrictions throw `ArgumentException`; 6/7-field\nQuartz expressions are unchanged.\n- **ExceptionMiddleware:** an `HttpClient` timeout\n(`TaskCanceledException`) skipped the problem response. Only a\ncancellation of the request itself (`RequestAborted`) passes through\nnow.\n- **DynamicQuery:** `\"sort\": null` in JSON caused a\n`NullReferenceException`; the setter stores an empty collection.\n\n## Added\n- `ModelConfigurationBuilder.UseUtcDateTimes()`: `DateTime` values read\nback as UTC (SQLite / `datetime2` returned `Unspecified`, so JSON had no\n`Z`). Used by the `kck-webapi` template and the Orders sample.\n\n## Changed — behaviour\n- `BulkUpdateAsync` skips soft-deleted rows, like the repository's\nreads.\n\n## Verification\n- `dotnet build -c Release`: 0 errors. `dotnet test -c Release --filter\n\"Category!=Integration\"`: 41/41 test projects green.\n- RED first for the new tests (Quartz conversion 14/15, then 6 more\nafter the review), then GREEN.\n- `readme_snippets.py --check`, `docs_language.py`: clean.\n- Independent code review (opus): one ORTA finding (letters mixed with\nnumbers in the day of week were not renumbered) fixed with tests; DUSUK\nwording fixes applied.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-authored-by: Claude Opus 5.5 <noreply@anthropic.com>",
+          "timestamp": "2026-10-31T11:36:22Z",
+          "tree_id": "f4057cfc68dbd342a8f67941678a5ed2abc6347a",
+          "url": "https://github.com/omerkck41/OmerkckArchitecture/commit/64e5cdfe205f850bdd27de62207052e6bce6e028"
+        },
+        "date": 1793447021358,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Success_Factory",
+            "value": 6.727383005122344,
+            "unit": "ns",
+            "range": "± 0.20971658706595267"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Failure_Factory",
+            "value": 7.9223562106490135,
+            "unit": "ns",
+            "range": "± 0.07539388855874148"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Success",
+            "value": 1.6320890518171447,
+            "unit": "ns",
+            "range": "± 0.00172384290998609"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Failure",
+            "value": 0.5844687904630389,
+            "unit": "ns",
+            "range": "± 0.00384425253003638"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Serialize_Reflection",
+            "value": 510.46439970456635,
+            "unit": "ns",
+            "range": "± 3.297244537678272"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Deserialize_Reflection",
+            "value": 821.128774370466,
+            "unit": "ns",
+            "range": "± 4.171764139161288"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 0)",
+            "value": 10.430289462208748,
+            "unit": "ns",
+            "range": "± 0.12291315753369322"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 5)",
+            "value": 10.607196177045504,
+            "unit": "ns",
+            "range": "± 0.17862235389624648"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 0)",
+            "value": 10.562536362806956,
+            "unit": "ns",
+            "range": "± 0.10014756842544124"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 5)",
+            "value": 11.552555907766024,
+            "unit": "ns",
+            "range": "± 0.1423759641741428"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 0)",
+            "value": 10.870201419790586,
+            "unit": "ns",
+            "range": "± 0.22940425055842018"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 5)",
+            "value": 10.784738414486249,
+            "unit": "ns",
+            "range": "± 0.20956843682101806"
           }
         ]
       }
