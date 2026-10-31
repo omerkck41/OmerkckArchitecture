@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1793459487839,
+  "lastUpdate": 1793476022803,
   "repoUrl": "https://github.com/omerkck41/OmerkckArchitecture",
   "entries": {
     "Benchmark": [
@@ -14830,6 +14830,102 @@ window.BENCHMARK_DATA = {
             "value": 9.798655132097858,
             "unit": "ns",
             "range": "± 0.06967613663502895"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "106805727+omerkck41@users.noreply.github.com",
+            "name": "Ömer KÜÇÜK",
+            "username": "omerkck41"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "e538d04598c1dd83713626d4d255b90b9a369d49",
+          "message": "docs: provider health plan, SixLabors removal plan, SkiaSharp decision (#284)\n\n## Summary\n- `docs/plans/2026-10-31-provider-saglik-ve-atil-kod-plani.md` — health\nscorecard for 38 providers and 3 bundles, findings K1–K7 (six proven by\nprobes), dead-code and structure findings, phases F0–F5, acceptance\nexamples Ö1–Ö17, user decisions D1–D6.\n- `docs/plans/2026-10-31-sixlabors-kaldirma-plani.md` — removal of\nSixLabors.ImageSharp: S1 new `Kck.Documents.SkiaSharp`, S2 migration\nguide, S4 removal plus CI licence-key wiring cleanup, S5 maintainer\nsteps (secret, nuget deprecate).\n- `decisions/2026-10-31-image-library-replacement.md` — currency-check\nrecord: SkiaSharp 4.154.0 (MIT) selected; alternatives, criteria and\nsources dated 2026-10-31.\n\n## Release policy (maintainer decision)\nSingle release: every phase accumulates on `main` under `[Unreleased]`;\none **v5.0.0** tag at the end. Breaking content: the ImageSharp package\nand never-implemented abstractions are removed directly, the 16 pending\n`[Obsolete]` members go, and 25 packages drop the unnecessary\n`Microsoft.AspNetCore.App` framework reference.\n\n## Verification\n- Documentation only, no code changes. Relative links in the three files\nresolve (0 broken); the published-docs language check is unaffected\n(`docs/plans` and `decisions` are excluded from docfx).\n- Evidence behind the findings: seven probes run outside the repository\n(kept locally under `tasks/probes/`), Release build with 0 errors,\n1250/1250 tests with Docker.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-authored-by: Claude Fable 5.1 <noreply@anthropic.com>",
+          "timestamp": "2026-10-31T22:39:42+03:00",
+          "tree_id": "1d1c185e5c47f30d9bc5256832d89120e5185c15",
+          "url": "https://github.com/omerkck41/OmerkckArchitecture/commit/e538d04598c1dd83713626d4d255b90b9a369d49"
+        },
+        "date": 1793476022157,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Success_Factory",
+            "value": 6.531620805754381,
+            "unit": "ns",
+            "range": "± 0.19633314747576766"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Failure_Factory",
+            "value": 13.965206090893064,
+            "unit": "ns",
+            "range": "± 1.0032674625759994"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Success",
+            "value": 1.6393761686407602,
+            "unit": "ns",
+            "range": "± 0.004519659198843776"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Failure",
+            "value": 0.5836312494107655,
+            "unit": "ns",
+            "range": "± 0.0028882927849436957"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Serialize_Reflection",
+            "value": 463.51269146374295,
+            "unit": "ns",
+            "range": "± 2.2650031420057855"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Deserialize_Reflection",
+            "value": 797.7465565999349,
+            "unit": "ns",
+            "range": "± 8.122075897262686"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 0)",
+            "value": 10.019685800586428,
+            "unit": "ns",
+            "range": "± 0.07006391024569021"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 5)",
+            "value": 10.770070942885736,
+            "unit": "ns",
+            "range": "± 0.2834857774414448"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 0)",
+            "value": 10.636311692992846,
+            "unit": "ns",
+            "range": "± 0.24774535746211226"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 5)",
+            "value": 11.487896746397018,
+            "unit": "ns",
+            "range": "± 0.26036543003070794"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 0)",
+            "value": 11.464663702580664,
+            "unit": "ns",
+            "range": "± 0.29736678591398696"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 5)",
+            "value": 11.57931285883699,
+            "unit": "ns",
+            "range": "± 0.15196302848388196"
           }
         ]
       }
