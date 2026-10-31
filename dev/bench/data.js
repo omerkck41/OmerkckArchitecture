@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1793456656011,
+  "lastUpdate": 1793459487839,
   "repoUrl": "https://github.com/omerkck41/OmerkckArchitecture",
   "entries": {
     "Benchmark": [
@@ -14734,6 +14734,102 @@ window.BENCHMARK_DATA = {
             "value": 7.857339101915176,
             "unit": "ns",
             "range": "± 0.06927465223780074"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "106805727+omerkck41@users.noreply.github.com",
+            "name": "Ömer KÜÇÜK",
+            "username": "omerkck41"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "f669d9ccf21ae85f90be1def6d6c95aedeb14211",
+          "message": "fix: remaining side findings (cache instance name, hidden members, ci) (#283)\n\nThis PR closes every side finding still open from the reviews in this\nseries.\n\n## Bugs\n- **Cache `InstanceName` (Redis and Hybrid):** RedisCache stores keys as\n`InstanceName` + key. `ExistsAsync` and `RemoveByPrefixAsync`, however,\nqueried Redis without the instance name, so with an `InstanceName` set\nthey always returned false or deleted nothing.\n- Both services now add the instance name; Hybrid strips it again for\nits in-process L1.\n- A new constructor overload takes `IOptions<RedisCacheOptions>`, and\nthe container picks it.\n- The old constructor stays, so package validation against 4.8.0 passes.\n- **Hidden entity members:** if an entity hides `DomainEvents` or\n`ClearDomainEvents` with `new`, `SaveChanges` throws\n`AmbiguousMatchException`. The interceptor now resolves these members on\n`Entity<TId>`.\n- **`ExceptionMiddleware`:** when the client has already aborted the\nrequest, another error is still logged, but no response is written.\nBefore, the write with the canceled token turned the original error into\nan `OperationCanceledException`.\n\n## CI hardening\n- `SixLaborsLicenseKey` is now set only on the steps that build (Build,\nPublish AOT, Stryker, docfx metadata) in 6 workflows. Before, it was set\nat workflow level, so every step and third-party action could read it.\n- `SONAR_TOKEN` now reaches the scanner through step `env` instead of\nbeing written inline in `run:`.\n- The CodeQL SARIF filter now resolves `artifactLocation.index`. The\ndecision record documents that only the primary location decides. The\nscript test methods are now typed (`-> None`).\n\n## Verification\n- `dotnet build -c Release`: 0 errors. `dotnet test -c Release --filter\n\"Category!=Integration\"`: 41/41 test projects green.\n- Script tests: 82/82.\n- `dotnet pack` with package validation against 4.8.0: exit 0.\n- RED first:\n  - `AmbiguousMatchException` reproduced by a test.\n- The middleware test failed with `TaskCanceledException` before the\nfix.\n  - The new cache tests did not compile without the overload.\n- Mutation probe: with the instance-name prefix and the L1 stripping\nremoved, 4 cache tests fail.\n- Not run locally (needs Docker, runs in CI): new `InstanceName`\nintegration tests against real Redis for both providers.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\n---------\n\nCo-authored-by: Claude Opus 5.5 <noreply@anthropic.com>",
+          "timestamp": "2026-10-31T18:04:36+03:00",
+          "tree_id": "384a4e26f57916c70986a975e03353fe70329284",
+          "url": "https://github.com/omerkck41/OmerkckArchitecture/commit/f669d9ccf21ae85f90be1def6d6c95aedeb14211"
+        },
+        "date": 1793459486615,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Success_Factory",
+            "value": 6.028511588390057,
+            "unit": "ns",
+            "range": "± 0.03862873470294544"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Failure_Factory",
+            "value": 8.43693886165108,
+            "unit": "ns",
+            "range": "± 0.0835980112613267"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Success",
+            "value": 1.6350404645005863,
+            "unit": "ns",
+            "range": "± 0.003068933563592524"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Failure",
+            "value": 0.5831898748874664,
+            "unit": "ns",
+            "range": "± 0.011247648998591018"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Serialize_Reflection",
+            "value": 460.93333530426025,
+            "unit": "ns",
+            "range": "± 3.850928871235454"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Deserialize_Reflection",
+            "value": 778.1302926381429,
+            "unit": "ns",
+            "range": "± 5.2078253838890065"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 0)",
+            "value": 10.52107889826099,
+            "unit": "ns",
+            "range": "± 0.04576604069846948"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 5)",
+            "value": 9.719601986805598,
+            "unit": "ns",
+            "range": "± 0.07041176960286077"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 0)",
+            "value": 9.827931980292002,
+            "unit": "ns",
+            "range": "± 0.05255396962439521"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 5)",
+            "value": 9.720079062076715,
+            "unit": "ns",
+            "range": "± 0.04126122365563563"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 0)",
+            "value": 9.73655070066452,
+            "unit": "ns",
+            "range": "± 0.06428406136211737"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 5)",
+            "value": 9.798655132097858,
+            "unit": "ns",
+            "range": "± 0.06967613663502895"
           }
         ]
       }
