@@ -97,6 +97,18 @@ public sealed class OrdersEndpointTests : IAsyncLifetime
     }
 
     [Fact]
+    public async Task CancelOrder_ReturnsTheReservedStock()
+    {
+        var placed = await (await _client.PostAsJsonAsync("/orders", Request(new PlaceOrderLine("A-1", 2), new PlaceOrderLine("B-2", 1))))
+            .Content.ReadFromJsonAsync<OrderResponse>();
+
+        (await _client.DeleteAsync($"/orders/{placed!.Id}")).StatusCode.Should().Be(HttpStatusCode.NoContent);
+
+        (await StockAsync("A-1")).Should().Be(100);
+        (await StockAsync("B-2")).Should().Be(5);
+    }
+
+    [Fact]
     public async Task ListOrders_25Orders_ReturnsTheSecondPage()
     {
         for (var i = 0; i < 25; i++)

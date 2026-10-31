@@ -19,13 +19,15 @@ public sealed class OrderFilterWhitelist : FilterPropertyWhitelist<Order>
         Allow(o => o.Status);
         Allow(o => o.CustomerId);
         Allow(o => o.CreatedDate);
+        Allow(o => o.Id);
     }
 }
 
 /// <summary>
 /// POST /orders/search?index=0&amp;size=10 with a <see cref="DynamicQuery"/> body, for example
 /// <c>{"filter":{"field":"Status","operator":"eq","value":"Paid"},"sort":[{"field":"CreatedDate","dir":"desc"}]}</c>.
-/// A field outside <see cref="OrderFilterWhitelist"/> returns 400.
+/// A field outside <see cref="OrderFilterWhitelist"/> returns 400. Without a sort the newest orders come first, as in
+/// GET /orders: paging over an unsorted query can repeat or skip rows between pages.
 /// </summary>
 public static class SearchOrders
 {
@@ -36,6 +38,9 @@ public static class SearchOrders
         IUnitOfWork unitOfWork,
         CancellationToken cancellationToken)
     {
+        if (!query.Sort.Any())
+            query.Sort = [new Sort(nameof(Order.CreatedDate), "desc"), new Sort(nameof(Order.Id), "desc")];
+
         IPaginate<Order> page;
         try
         {

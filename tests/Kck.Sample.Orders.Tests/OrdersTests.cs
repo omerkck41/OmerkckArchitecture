@@ -269,4 +269,66 @@ public sealed class OrdersTests : IAsyncLifetime
         first!.Should().Contain(p => p.Sku == "A-1" && p.Name == "Notebook");
         second.Should().BeEquivalentTo(first);
     }
+
+    [Fact]
+    public async Task CancelOrder_ReturnsTheReservedStock()
+    {
+        var order = await _client.PlaceOrderAndReadAsync(("A-1", 2), ("A-1", 1), ("B-2", 1));
+
+        (await _client.DeleteAsync($"/orders/{order.Id}")).StatusCode.Should().Be(HttpStatusCode.NoContent);
+
+        (await _factory.StockAsync("A-1")).Should().Be(100);
+        (await _factory.StockAsync("B-2")).Should().Be(5);
+    }
+
+    [Fact]
+    public async Task PayOrder_StatusChangedSinceRead_FailsOnSave()
+    {
+        // Two requests paying the same order: the one that read the order before the other saved must not save.
+        var order = await _client.PlaceOrderAndReadAsync(("A-1", 1));
+        await using var scope = _factory.Services.CreateAsyncScope();
+        var unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
+        var stale = (await unitOfWork.Repository<Order, Guid>().GetAsync(o => o.Id == order.Id))!;
+        (await _client.PostAsync($"/orders/{order.Id}/pay", null)).EnsureSuccessStatusCode();
+
+        stale.TryPay().Should().BeTrue();
+        var save = () => unitOfWork.SaveChangesAsync();
+
+        await save.Should().ThrowAsync<DbUpdateConcurrencyException>();
+    }
+
+    [Theory]
+    [InlineData("ship")]   // shipped in the meantime: no longer cancellable
+    [InlineData("cancel")] // cancelled in the meantime: the stock must not come back twice
+    public async Task CancelOrder_OrderChangedSinceRead_FailsOnSave(string change)
+    {
+        var order = await _client.PlaceOrderAndReadAsync(("A-1", 1));
+        (await _client.PostAsync($"/orders/{order.Id}/pay", null)).EnsureSuccessStatusCode();
+        await using var scope = _factory.Services.CreateAsyncScope();
+        var unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
+        var orders = unitOfWork.Repository<Order, Guid>();
+        var stale = (await orders.GetAsync(o => o.Id == order.Id))!;
+        var changed = change == "ship"
+            ? await _client.PostAsync($"/orders/{order.Id}/ship", null)
+            : await _client.DeleteAsync($"/orders/{order.Id}");
+        changed.EnsureSuccessStatusCode();
+
+        await orders.DeleteAsync(stale);
+        var save = () => unitOfWork.SaveChangesAsync();
+
+        await save.Should().ThrowAsync<DbUpdateConcurrencyException>();
+    }
+
+    [Fact]
+    public async Task SearchOrders_WithoutSort_ReturnsNewestFirst()
+    {
+        var first = await _client.PlaceOrderAndReadAsync(("A-1", 1));
+        var second = await _client.PlaceOrderAndReadAsync(("A-1", 1));
+        var third = await _client.PlaceOrderAndReadAsync(("A-1", 1));
+
+        var response = await _client.PostAsJsonAsync("/orders/search", new DynamicQuery());
+
+        var page = await response.Content.ReadFromJsonAsync<Paginate<OrderSummary>>();
+        page!.Items.Select(o => o.Id).Should().Equal(third.Id, second.Id, first.Id);
+    }
 }

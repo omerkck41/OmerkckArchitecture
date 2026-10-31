@@ -2,10 +2,14 @@ using Kck.Persistence.Abstractions.UnitOfWork;
 using Kck.Sample.Orders.Domain;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace Kck.Sample.Orders.Features.Orders;
 
-/// <summary>POST /orders/{id}/pay and /orders/{id}/ship. A move the current status does not allow returns 409.</summary>
+/// <summary>
+/// POST /orders/{id}/pay and /orders/{id}/ship. A move the current status does not allow returns 409, and so does an
+/// order that another request changed since it was read.
+/// </summary>
 public static class ChangeOrderStatus
 {
     public static Task<Results<Ok<OrderResponse>, NotFound, Conflict<ProblemDetails>>> PayAsync(
@@ -31,7 +35,15 @@ public static class ChangeOrderStatus
         if (!move(order))
             return TypedResults.Conflict(OrderEndpoints.Conflict("Status change not allowed", $"{rule} The order is {order.Status}."));
 
-        await unitOfWork.SaveChangesAsync(cancellationToken: cancellationToken);
+        try
+        {
+            await unitOfWork.SaveChangesAsync(cancellationToken: cancellationToken);
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            return TypedResults.Conflict(OrderEndpoints.ChangedConflict());
+        }
+
         return TypedResults.Ok(OrderResponse.From(order));
     }
 }

@@ -23,6 +23,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   itself (`RequestAborted`) passes through now; any other is handled like an error (500 with problem+json).
 - `Kck.Persistence.Abstractions` — a `DynamicQuery` deserialized from `"sort": null` had a null `Sort`, and
   `ToDynamic` / the search guard threw `NullReferenceException`. Setting `Sort` to null now stores an empty collection.
+- `Kck.Templates` (`kck-webapi --IncludeSample`) — cancelling an order now returns its reserved stock, in the same
+  transaction; a second, concurrent cancel of the same order gets 409 instead of returning the stock twice
+  (`IsDeleted` is a concurrency token). The `Kck.Sample.Orders` sample does the same, makes `Status` a concurrency
+  token too (two requests can no longer both pay an order, or cancel a shipped one) and sorts a search without a sort
+  newest first.
 
 ### Changed — behaviour
 - `Kck.Persistence.EntityFramework` — `BulkUpdateAsync` leaves soft-deleted rows out, like the repository's reads.
