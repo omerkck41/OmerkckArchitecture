@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1793449669623,
+  "lastUpdate": 1793450676868,
   "repoUrl": "https://github.com/omerkck41/OmerkckArchitecture",
   "entries": {
     "Benchmark": [
@@ -14446,6 +14446,102 @@ window.BENCHMARK_DATA = {
             "value": 8.173580476870903,
             "unit": "ns",
             "range": "± 0.1181053224455594"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "106805727+omerkck41@users.noreply.github.com",
+            "name": "Ömer KÜÇÜK",
+            "username": "omerkck41"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "a21f0fdcfa5234d42abca9de6ad5d3174a3e46e4",
+          "message": "docs(changelog): 4.8.0 release notes (#280)\n\nPrepares the 4.8.0 release. The release notes are the `[Unreleased]`\nentries from #276–#279.\n\n## Changes\n- `CHANGELOG.md`: `[Unreleased]` becomes `[4.8.0] — 2026-10-31`. It is a\nminor release:\n- Added: `UseUtcDateTimes`, Specification extensions, the TOTP attempt\nlimit.\n  - Deprecated: KCK0600 and KCK0901.\n  - Plus fixes, and the `BulkUpdateAsync` soft-delete behaviour change.\n  - No breaking API change.\n- `.github/workflows/docs.yml`: the pull request trigger no longer has a\npath filter. \"Build DocFX\" is about to become a required check, and a\nrequired check that a path filter skips leaves the PR waiting forever.\nThis adds about 1–2 minutes of CI to each PR.\n- `.env.example`: `OTEL_SERVICE_NAME=kck-sample-orders` (maintainer's\nchange).\n\n## After merge (maintainer)\n- Branch protection: add `Build DocFX` to the required status checks.\n- Push the `v4.8.0` tag, then approve the `nuget` environment.\n\n## Verification\n- Main is green at 21d2b50: build-test, template-smoke, docs, sonar,\nlicense-audit and benchmark succeeded; codeql was still running.\n- `docs_language.py`, `readme_snippets.py --check` and the workflow YAML\nparse are clean. actionlint/zizmor run in CI (`workflow-lint`).\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-authored-by: Claude Opus 5.5 <noreply@anthropic.com>",
+          "timestamp": "2026-10-31T12:38:12Z",
+          "tree_id": "0a217f30b18dba48addb5fadd6ca1432249a786b",
+          "url": "https://github.com/omerkck41/OmerkckArchitecture/commit/a21f0fdcfa5234d42abca9de6ad5d3174a3e46e4"
+        },
+        "date": 1793450676176,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Success_Factory",
+            "value": 7.231413702170054,
+            "unit": "ns",
+            "range": "± 0.052873582425254834"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Failure_Factory",
+            "value": 9.892086104110435,
+            "unit": "ns",
+            "range": "± 0.3636537358269754"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Success",
+            "value": 1.640240174646561,
+            "unit": "ns",
+            "range": "± 0.0027392116495095825"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Failure",
+            "value": 0.5794853034118811,
+            "unit": "ns",
+            "range": "± 0.0031775738792725176"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Serialize_Reflection",
+            "value": 478.3372448407687,
+            "unit": "ns",
+            "range": "± 0.973953757062831"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Deserialize_Reflection",
+            "value": 813.0444218771798,
+            "unit": "ns",
+            "range": "± 2.2409679020609814"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 0)",
+            "value": 12.723335687319437,
+            "unit": "ns",
+            "range": "± 0.19001421220489853"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 5)",
+            "value": 12.423459976911545,
+            "unit": "ns",
+            "range": "± 0.28593081939446807"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 0)",
+            "value": 12.031403075043972,
+            "unit": "ns",
+            "range": "± 0.19221007446486632"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 5)",
+            "value": 13.513858692986625,
+            "unit": "ns",
+            "range": "± 0.08860886592784957"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 0)",
+            "value": 12.200182718038558,
+            "unit": "ns",
+            "range": "± 0.2349902721549631"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 5)",
+            "value": 12.642865259448687,
+            "unit": "ns",
+            "range": "± 0.15151614309180136"
           }
         ]
       }
