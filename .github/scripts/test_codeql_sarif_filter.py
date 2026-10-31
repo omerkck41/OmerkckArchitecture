@@ -56,23 +56,30 @@ class FilterTests(unittest.TestCase):
         self.assertEqual(csf.filter_sarif(sarif), 0)
         self.assertEqual(len(sarif["runs"][0]["results"]), 1)
 
-    def test_files_in_a_directory_are_rewritten(self):
+    def test_file_is_rewritten(self):
         with tempfile.TemporaryDirectory() as tmp:
             path = Path(tmp) / "csharp.sarif"
             path.write_text(json.dumps({"runs": [{"results": [result("src/A/obj/X.g.cs"), result("src/A/B.cs")]}]}),
                             encoding="utf-8")
 
-            removed = csf.filter_directory(Path(tmp))
+            removed = csf.filter_file(path)
 
             self.assertEqual(removed, 1)
             kept = json.loads(path.read_text(encoding="utf-8"))["runs"][0]["results"]
             self.assertEqual([r["locations"][0]["physicalLocation"]["artifactLocation"]["uri"] for r in kept],
                              ["src/A/B.cs"])
 
-    def test_empty_directory_fails(self):
+    def test_missing_file_fails(self):
         with tempfile.TemporaryDirectory() as tmp:
             with self.assertRaises(SystemExit):
-                csf.filter_directory(Path(tmp))
+                csf.filter_file(Path(tmp) / "csharp.sarif")
+
+    def test_workflow_analyzes_csharp_only(self):
+        # The script rewrites the fixed csharp.sarif; another language would be uploaded unfiltered.
+        workflow = (Path(__file__).resolve().parents[1] / "workflows" / "codeql.yml").read_text(encoding="utf-8")
+
+        self.assertIn("language: [csharp]", workflow)
+        self.assertEqual(csf.SARIF_FILE, Path("sarif-results") / "csharp.sarif")
 
 
 if __name__ == "__main__":

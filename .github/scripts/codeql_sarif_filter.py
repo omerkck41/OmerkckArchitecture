@@ -5,7 +5,7 @@ no effect (GitHub applies it to compiled languages only without a build). The bu
 output under obj/ (System.Text.Json contexts, the OpenAPI XML comment generator), and CodeQL reports on that code,
 which is not ours to fix. This script drops those results; every result in first-party source is kept.
 
-Usage: codeql_sarif_filter.py (run from the workspace; reads and rewrites sarif-results/*.sarif)
+Usage: codeql_sarif_filter.py (run from the workspace; rewrites sarif-results/csharp.sarif)
 """
 from __future__ import annotations
 
@@ -17,8 +17,9 @@ from pathlib import Path
 log = logging.getLogger("codeql-sarif-filter")
 
 BUILD_OUTPUT_DIRS = frozenset({"obj", "bin"})
-# Fixed, not an argument: the analyze step writes here (output: sarif-results), and no caller picks the path to write.
-SARIF_DIR = Path("sarif-results")
+# Fixed, not an argument or a directory listing: the analyze step writes <language>.sarif to output: sarif-results, and
+# the workflow analyzes C# only. No input picks the path that is written.
+SARIF_FILE = Path("sarif-results") / "csharp.sarif"
 
 
 def is_generated(uri: str) -> bool:
@@ -45,25 +46,20 @@ def filter_sarif(sarif: dict) -> int:
     return removed
 
 
-def filter_directory(directory: Path) -> int:
-    """Filters every .sarif file in the directory; fails when there is none (the analysis wrote nowhere else)."""
-    files = sorted(directory.glob("*.sarif"))
-    if not files:
-        sys.exit(f"no .sarif file in {directory}")
-    removed = 0
-    for path in files:
-        sarif = json.loads(path.read_text(encoding="utf-8"))
-        count = filter_sarif(sarif)
-        path.write_text(json.dumps(sarif), encoding="utf-8")
-        log.info("%s: removed %d result(s) in build output", path.name, count)
-        removed += count
+def filter_file(path: Path) -> int:
+    """Filters one SARIF file in place; fails when it does not exist (the analysis wrote nowhere else)."""
+    if not path.is_file():
+        sys.exit(f"no SARIF file at {path}")
+    sarif = json.loads(path.read_text(encoding="utf-8"))
+    removed = filter_sarif(sarif)
+    path.write_text(json.dumps(sarif), encoding="utf-8")
     return removed
 
 
 def main() -> int:
     logging.basicConfig(level=logging.INFO, format="%(message)s")
-    removed = filter_directory(SARIF_DIR)
-    log.info("removed %d result(s) in total", removed)
+    removed = filter_file(SARIF_FILE)
+    log.info("%s: removed %d result(s) in build output", SARIF_FILE, removed)
     return 0
 
 
