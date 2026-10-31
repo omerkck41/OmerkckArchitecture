@@ -64,4 +64,27 @@ public sealed class HybridCacheIntegrationTests : IAsyncLifetime
         (await cache.ExistsAsync("tenant:a:2")).Should().BeFalse();
         (await cache.ExistsAsync("tenant:b:1")).Should().BeTrue();
     }
+
+    [Fact]
+    public async Task InstanceName_ExistsAndRemoveByPrefix_FindTheStoredKeys()
+    {
+        var services = new ServiceCollection();
+        services.AddLogging();
+        services.AddKckCachingHybrid(redis =>
+        {
+            redis.Configuration = _redis.GetConnectionString();
+            redis.InstanceName = "app:";
+        });
+        await using var provider = services.BuildServiceProvider();
+        var cache = provider.GetRequiredService<ICacheService>();
+        await cache.SetAsync("inst:a", "1");
+        await cache.SetAsync("other:b", "2");
+
+        (await cache.ExistsAsync("inst:a")).Should().BeTrue();
+        await cache.RemoveByPrefixAsync("inst");
+
+        (await cache.ExistsAsync("inst:a")).Should().BeFalse();
+        (await cache.GetAsync<string>("inst:a")).Should().BeNull(); // L1 evicted too
+        (await cache.ExistsAsync("other:b")).Should().BeTrue();
+    }
 }

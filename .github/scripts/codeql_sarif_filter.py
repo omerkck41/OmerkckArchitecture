@@ -28,11 +28,21 @@ def is_generated(uri: str) -> bool:
     return any(segment in BUILD_OUTPUT_DIRS for segment in path.split("/")[:-1])
 
 
-def _location_uri(result: dict) -> str | None:
+def _location_uri(result: dict, artifacts: list[dict]) -> str | None:
+    """The file of the result's primary location: its uri, or the uri of the run artifact its index names.
+
+    Only the primary location decides; a result whose primary location is first-party is kept whatever its flow.
+    """
     locations = result.get("locations") or []
     if not locations:
         return None
-    return locations[0].get("physicalLocation", {}).get("artifactLocation", {}).get("uri")
+    artifact = locations[0].get("physicalLocation", {}).get("artifactLocation", {})
+    if "uri" in artifact:
+        return artifact["uri"]
+    index = artifact.get("index")
+    if isinstance(index, int) and 0 <= index < len(artifacts):
+        return artifacts[index].get("location", {}).get("uri")
+    return None
 
 
 def filter_sarif(sarif: dict) -> int:
@@ -40,7 +50,8 @@ def filter_sarif(sarif: dict) -> int:
     removed = 0
     for run in sarif.get("runs", []):
         results = run.get("results", [])
-        kept = [r for r in results if not ((uri := _location_uri(r)) and is_generated(uri))]
+        artifacts = run.get("artifacts", [])
+        kept = [r for r in results if not ((uri := _location_uri(r, artifacts)) and is_generated(uri))]
         removed += len(results) - len(kept)
         run["results"] = kept
     return removed

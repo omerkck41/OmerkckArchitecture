@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using Kck.Caching.Abstractions;
 using Microsoft.Extensions.Caching.Hybrid;
+using Microsoft.Extensions.Caching.StackExchangeRedis;
 using Microsoft.Extensions.Options;
 using StackExchange.Redis;
 
@@ -18,6 +19,25 @@ public sealed class HybridCacheService(
     IOptionsMonitor<HybridCacheOptions> options) : CacheServiceBase
 {
     private readonly HybridCacheOptions _opts = options.CurrentValue;
+
+    // The L2 RedisCache stores each key as InstanceName + key; HybridCache's L1 uses the key alone. ExistsAsync and
+    // RemoveByPrefixAsync talk to Redis directly, so they add the name there and strip it again for L1.
+    private readonly string _instanceName = string.Empty;
+
+    /// <summary>
+    /// The constructor the container uses: <paramref name="redisOptions"/> supplies the <c>InstanceName</c> that the
+    /// L2 Redis cache prepends to every key.
+    /// </summary>
+    public HybridCacheService(
+        HybridCache hybridCache,
+        IConnectionMultiplexer redis,
+        IOptionsMonitor<HybridCacheOptions> options,
+        IOptions<RedisCacheOptions> redisOptions)
+        : this(hybridCache, redis, options)
+    {
+        ArgumentNullException.ThrowIfNull(redisOptions);
+        _instanceName = redisOptions.Value.InstanceName ?? string.Empty;
+    }
 
     protected override CacheOptions Options { get; } = new CacheOptions
     {
@@ -72,7 +92,7 @@ public sealed class HybridCacheService(
     public override async ValueTask<bool> ExistsAsync(string key, CancellationToken ct = default)
     {
         ct.ThrowIfCancellationRequested();
-        return await redis.GetDatabase().KeyExistsAsync(BuildKey(key)).ConfigureAwait(false);
+        return await redis.GetDatabase().KeyExistsAsync(_instanceName + BuildKey(key)).ConfigureAwait(false);
     }
 
     private const int DeleteChunkSize = 1000;
@@ -83,7 +103,7 @@ public sealed class HybridCacheService(
     /// </summary>
     public override async Task RemoveByPrefixAsync(string prefix, CancellationToken ct = default)
     {
-        var fullPrefix = BuildKey(prefix);
+        var fullPrefix = _instanceName + BuildKey(prefix);
         var db = redis.GetDatabase();
 
         foreach (var server in redis.GetEndPoints().Select(e => redis.GetServer(e)))
@@ -94,7 +114,7 @@ public sealed class HybridCacheService(
             await foreach (var key in server.KeysAsync(pattern: $"{fullPrefix}*").WithCancellation(ct))
             {
                 batch.Add(key);
-                keysToEvict.Add(key.ToString());
+                keysToEvict.Add(key.ToString()[_instanceName.Length..]);
 
                 if (batch.Count >= DeleteChunkSize)
                 {

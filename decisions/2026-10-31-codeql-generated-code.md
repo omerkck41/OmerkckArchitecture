@@ -19,5 +19,9 @@
     segmentli sonuçları siler, birim testli) + aynı sabitlenmiş `upload-sarif`. Yeni bağımlılık yok. Seç.
   - C — `query-filters` ile kuralları kapatmak: birinci taraf koddaki aynı kural bulgularını da susturur. Ele.
   - D — uyarıları elle "dismiss": üretilmiş satır numaraları değişince yeniden açılır. Ele.
+- Süzme kuralı: yalnız sonucun **birincil** konumu (`locations[0]`, `uri` ya da `run.artifacts[index]`) karar verir.
+  Kaynağı birinci taraf olup çıkışı (sink) `obj/` içinde kalan bir akış bulgusu düşer; tersi kalır. Üretilmiş koddaki
+  bir sink'i düzeltemeyiz, bu yüzden kabul edildi. Betik yalnız sabit `sarif-results/csharp.sarif`'i yeniden yazar
+  (Sonar S2083: yazma yolu argümandan ya da dizin listesinden gelmez); iş akışının yalnız C# analiz ettiği testle sabit.
 - `rules/deprecated-registry.md`: kayıt yok. Yeni teknoloji yok (mevcut sabitlenmiş action'ın belgelenmiş girdisi).
 - Kalan 3 not (birinci taraf kod: `cs/linq/missed-where` ×2, `cs/missed-ternary-operator`) kodda düzeltildi.

@@ -91,5 +91,43 @@ public sealed class HybridCacheServiceTests
             Arg.Any<CancellationToken>());
     }
 
+    // The L2 RedisCache stores every key as InstanceName + key; HybridCache's own L1 keys have no InstanceName.
+    private HybridCacheService WithInstanceName(string instanceName) => new(
+        _hybridCache, _redis,
+        new StaticOptionsMonitor<HybridCacheOptions>(new HybridCacheOptions { KeyPrefix = "test:" }),
+        Microsoft.Extensions.Options.Options.Create(
+            new Microsoft.Extensions.Caching.StackExchangeRedis.RedisCacheOptions { InstanceName = instanceName }));
+
+    [Fact]
+    public async Task ExistsAsync_WithInstanceName_ChecksTheStoredKey()
+    {
+        var db = Substitute.For<IDatabase>();
+        _redis.GetDatabase(Arg.Any<int>(), Arg.Any<object?>()).Returns(db);
+        db.KeyExistsAsync(new RedisKey("app:test:exists"), Arg.Any<CommandFlags>()).Returns(true);
+
+        var result = await WithInstanceName("app:").ExistsAsync("exists");
+
+        result.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task RemoveByPrefixAsync_WithInstanceName_ScansStoredKeysAndEvictsL1KeysWithoutIt()
+    {
+        var server = Substitute.For<IServer>();
+        var db = Substitute.For<IDatabase>();
+        _redis.GetEndPoints(Arg.Any<bool>()).Returns([new System.Net.DnsEndPoint("localhost", 6379)]);
+        _redis.GetServer(Arg.Any<System.Net.EndPoint>(), Arg.Any<object?>()).Returns(server);
+        _redis.GetDatabase(Arg.Any<int>(), Arg.Any<object?>()).Returns(db);
+        server.KeysAsync(Arg.Any<int>(), new RedisValue("app:test:orders:*"), Arg.Any<int>(), Arg.Any<long>(), Arg.Any<int>(),
+                Arg.Any<CommandFlags>())
+            .Returns(new[] { new RedisKey("app:test:orders:1") }.ToAsyncEnumerable());
+
+        await WithInstanceName("app:").RemoveByPrefixAsync("orders:");
+
+        await db.Received(1).KeyDeleteAsync(Arg.Is<RedisKey[]>(k => k.Single() == "app:test:orders:1"), Arg.Any<CommandFlags>());
+        await _hybridCache.Received(1).RemoveAsync(
+            Arg.Is<IEnumerable<string>>(k => k.Single() == "test:orders:1"), Arg.Any<CancellationToken>());
+    }
+
     private sealed record TestDto(string Name, int Value);
 }

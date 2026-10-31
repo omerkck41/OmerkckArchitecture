@@ -24,9 +24,9 @@ concurrency:
 permissions:
   contents: read
 
+# ImageSharp 4 validates a Six Labors license at Release build time (decisions/2026-10-14-sdk-10.0.402-imagesharp-4.md);
+# SixLaborsLicenseKey is set only on the steps that build or load the projects, not on every step and action.
 env:
-  # ImageSharp 4 validates a Six Labors license at Release build time; see decisions/2026-10-14-sdk-10.0.402-imagesharp-4.md
-  SixLaborsLicenseKey: ${{ secrets.SIXLABORS_LICENSE_KEY }}
   DOTNET_NOLOGO: true
   DOTNET_CLI_TELEMETRY_OPTOUT: true
 
@@ -54,6 +54,8 @@ jobs:
         run: dotnet restore --locked-mode
 
       - name: Build (generates XML docs, needed by DocFX metadata)
+        env:
+          SixLaborsLicenseKey: ${{ secrets.SIXLABORS_LICENSE_KEY }}
         run: dotnet build --configuration Release --no-restore
 
       # Pinned in .config/dotnet-tools.json (checked by the license gate); decisions/2026-10-29-ci-tools-pinned.md
@@ -61,6 +63,8 @@ jobs:
         run: dotnet tool restore
 
       - name: Generate API metadata
+        env:
+          SixLaborsLicenseKey: ${{ secrets.SIXLABORS_LICENSE_KEY }}
         run: dotnet docfx metadata docfx.json --logLevel verbose
 
       # Warnings fail the build: broken file links and bookmarks in the published pages. API metadata warnings (crefs

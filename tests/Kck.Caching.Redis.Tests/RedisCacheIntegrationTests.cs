@@ -99,5 +99,33 @@ public sealed class RedisCacheIntegrationTests : IAsyncLifetime
         (await _sut.ExistsAsync("other:c")).Should().BeTrue();
     }
 
+    [Fact]
+    public async Task InstanceName_ExistsAndRemoveByPrefix_FindTheStoredKeys()
+    {
+        // Built by the container, as AddKckCachingRedis does, with an InstanceName set.
+        var services = new ServiceCollection();
+        services.AddStackExchangeRedisCache(o =>
+        {
+            o.Configuration = _redis.GetConnectionString();
+            o.InstanceName = "app:";
+        });
+        services.AddSingleton<IConnectionMultiplexer>(_muxer);
+        services.AddSingleton<Microsoft.Extensions.Options.IOptionsMonitor<CacheOptions>>(
+            new StaticOptionsMonitor<CacheOptions>(new CacheOptions { KeyPrefix = "test:", DefaultExpiration = TimeSpan.FromMinutes(5) }));
+        services.AddSingleton<RedisCacheService>();
+        await using var provider = services.BuildServiceProvider();
+        var sut = provider.GetRequiredService<RedisCacheService>();
+
+        await sut.SetAsync("inst:a", "1");
+        await sut.SetAsync("other:b", "2");
+
+        (await sut.ExistsAsync("inst:a")).Should().BeTrue();
+        (await _muxer.GetDatabase().KeyExistsAsync("app:test:inst:a")).Should().BeTrue();
+        await sut.RemoveByPrefixAsync("inst");
+        (await sut.ExistsAsync("inst:a")).Should().BeFalse();
+        (await sut.GetAsync<string>("inst:a")).Should().BeNull();
+        (await sut.ExistsAsync("other:b")).Should().BeTrue();
+    }
+
     private sealed record TestCacheItem(string Name, int Value);
 }

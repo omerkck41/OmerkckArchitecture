@@ -54,6 +54,11 @@ public sealed partial class ExceptionMiddleware
             var handler = _handlerFactory.GetHandler(ex);
             var errorResponse = handler.Handle(ex, context);
 
+            // The client is gone: the handler has logged the error and there is no one to send the response to. Writing
+            // with the canceled token would only turn the original error into an OperationCanceledException.
+            if (context.RequestAborted.IsCancellationRequested)
+                return;
+
             context.Response.Clear();
             context.Response.StatusCode = errorResponse.Status;
             context.Response.ContentType = "application/problem+json";

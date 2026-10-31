@@ -19,10 +19,6 @@ permissions:
   security-events: write
   actions: read
 
-env:
-  # ImageSharp 4 validates a Six Labors license at Release build time; see decisions/2026-10-14-sdk-10.0.402-imagesharp-4.md
-  SixLaborsLicenseKey: ${{ secrets.SIXLABORS_LICENSE_KEY }}
-
 jobs:
   analyze:
     name: Analyze (${{ matrix.language }})
@@ -51,7 +47,11 @@ jobs:
           queries: security-and-quality
           config-file: ./.github/codeql-config.yml
 
+      # ImageSharp 4 validates a Six Labors license at Release build time (decisions/2026-10-14-sdk-10.0.402-imagesharp-4.md);
+      # the key goes only to steps that build, not to every step and action of the workflow.
       - name: Build
+        env:
+          SixLaborsLicenseKey: ${{ secrets.SIXLABORS_LICENSE_KEY }}
         run: |
           dotnet restore
           dotnet build --configuration Release --no-restore

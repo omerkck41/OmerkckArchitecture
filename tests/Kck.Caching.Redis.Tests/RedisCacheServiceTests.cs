@@ -5,6 +5,7 @@ using Kck.Caching.Abstractions;
 using Kck.Caching.Redis;
 using Kck.Testing;
 using Microsoft.Extensions.Caching.Distributed;
+using Microsoft.Extensions.DependencyInjection;
 using NSubstitute;
 using StackExchange.Redis;
 using Xunit;
@@ -112,6 +113,58 @@ public sealed class RedisCacheServiceTests
             Arg.Is<DistributedCacheEntryOptions>(o =>
                 o.AbsoluteExpirationRelativeToNow == TimeSpan.FromMinutes(5)),
             Arg.Any<CancellationToken>());
+    }
+
+    // RedisCache stores every key as InstanceName + key; the direct Redis commands must use the same name.
+    private RedisCacheService WithInstanceName(string instanceName) => new(
+        _cache, _redis, new StaticOptionsMonitor<CacheOptions>(new CacheOptions { KeyPrefix = "test:" }),
+        Microsoft.Extensions.Options.Options.Create(
+            new Microsoft.Extensions.Caching.StackExchangeRedis.RedisCacheOptions { InstanceName = instanceName }));
+
+    [Fact]
+    public async Task ExistsAsync_WithInstanceName_ChecksTheStoredKey()
+    {
+        var db = Substitute.For<IDatabase>();
+        _redis.GetDatabase(Arg.Any<int>(), Arg.Any<object?>()).Returns(db);
+        db.KeyExistsAsync(new RedisKey("app:test:exists"), Arg.Any<CommandFlags>()).Returns(true);
+
+        var result = await WithInstanceName("app:").ExistsAsync("exists");
+
+        result.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task RemoveByPrefixAsync_WithInstanceName_ScansTheStoredKeys()
+    {
+        var server = Substitute.For<IServer>();
+        _redis.GetEndPoints(Arg.Any<bool>()).Returns([new System.Net.DnsEndPoint("localhost", 6379)]);
+        _redis.GetServer(Arg.Any<System.Net.EndPoint>(), Arg.Any<object?>()).Returns(server);
+        _redis.GetDatabase(Arg.Any<int>(), Arg.Any<object?>()).Returns(Substitute.For<IDatabase>());
+        server.KeysAsync(Arg.Any<int>(), Arg.Any<RedisValue>(), Arg.Any<int>(), Arg.Any<long>(), Arg.Any<int>(), Arg.Any<CommandFlags>())
+            .Returns(AsyncEnumerable.Empty<RedisKey>());
+
+        await WithInstanceName("app:").RemoveByPrefixAsync("orders:");
+
+        server.Received(1).KeysAsync(Arg.Any<int>(), new RedisValue("app:test:orders:*"), Arg.Any<int>(), Arg.Any<long>(),
+            Arg.Any<int>(), Arg.Any<CommandFlags>());
+    }
+
+    [Fact]
+    public async Task Container_WithRedisCacheOptions_UsesTheInstanceName()
+    {
+        var services = new ServiceCollection();
+        services.AddStackExchangeRedisCache(o => o.InstanceName = "app:");
+        services.AddSingleton(_redis);
+        services.AddSingleton<Microsoft.Extensions.Options.IOptionsMonitor<CacheOptions>>(
+            new StaticOptionsMonitor<CacheOptions>(new CacheOptions { KeyPrefix = "test:" }));
+        services.AddSingleton<RedisCacheService>();
+        var db = Substitute.For<IDatabase>();
+        _redis.GetDatabase(Arg.Any<int>(), Arg.Any<object?>()).Returns(db);
+        await using var provider = services.BuildServiceProvider();
+
+        await provider.GetRequiredService<RedisCacheService>().ExistsAsync("k");
+
+        await db.Received(1).KeyExistsAsync(new RedisKey("app:test:k"), Arg.Any<CommandFlags>());
     }
 
     private sealed record TestDto(string Name, int Value);
