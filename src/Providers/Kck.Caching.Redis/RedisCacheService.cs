@@ -46,9 +46,9 @@ public sealed class RedisCacheService(
     /// <inheritdoc/>
     public override async ValueTask<bool> ExistsAsync(string key, CancellationToken ct = default)
     {
-        // LS-FAZ-5 (5.6): EXISTS komutu ile sadece varlik kontrolu — payload network'e cikmaz.
-        // StackExchange.Redis KeyExistsAsync CancellationToken almıyor (API limiti); mevcut
-        // RemoveByPrefixAsync.KeyDeleteAsync ile uyumlu pattern.
+        // LS-FAZ-5 (5.6): EXISTS only checks presence — the payload never leaves the server.
+        // StackExchange.Redis KeyExistsAsync takes no CancellationToken (API limit); consistent with the existing
+        // RemoveByPrefixAsync.KeyDeleteAsync pattern.
         ct.ThrowIfCancellationRequested();
         return await redis.GetDatabase().KeyExistsAsync(BuildKey(key)).ConfigureAwait(false);
     }

@@ -1,8 +1,8 @@
 namespace Kck.Exceptions.AspNetCore.Handlers;
 
 /// <summary>
-/// Verilen exception tipine uygun <see cref="IKckExceptionHandler"/>'ı çözer.
-/// ValidationExceptionHandler (en spesifik) ilk kontrol edilir, ardından GlobalExceptionHandler.
+/// Resolves the <see cref="IKckExceptionHandler"/> that matches the given exception type.
+/// ValidationExceptionHandler (the most specific) is checked first, then GlobalExceptionHandler.
 /// </summary>
 public sealed class ExceptionHandlerFactory
 {
@@ -18,13 +18,13 @@ public sealed class ExceptionHandlerFactory
     }
 
     /// <summary>
-    /// Exception tipine göre en uygun handler'ı döner.
+    /// Returns the most suitable handler for the exception type.
     /// </summary>
     public IKckExceptionHandler GetHandler(Exception exception)
     {
         ArgumentNullException.ThrowIfNull(exception);
 
-        // En spesifik handler ilk kontrol edilir
+        // The most specific handler is checked first
         if (_validationHandler.CanHandle(exception))
         {
             return _validationHandler;
@@ -35,7 +35,7 @@ public sealed class ExceptionHandlerFactory
             return _globalHandler;
         }
 
-        // CustomException olmayan hatalar da GlobalExceptionHandler tarafından işlenir (fallback)
+        // Errors that are not a CustomException are also handled by GlobalExceptionHandler (fallback)
         return _globalHandler;
     }
 }

@@ -13,14 +13,14 @@ public sealed class AwsS3OptionsValidator : IValidateOptions<AwsS3Options>
         if (string.IsNullOrWhiteSpace(options.Region))
             errors.Add(
                 """
-                  • Region: boş veya null
+                  • Region: null or empty
                     → Fix: opt.Region = "eu-central-1";
                 """);
 
         if (string.IsNullOrWhiteSpace(options.BucketName))
             errors.Add(
                 """
-                  • BucketName: boş veya null
+                  • BucketName: null or empty
                     → Fix: opt.BucketName = "my-bucket";
                 """);
 
@@ -29,8 +29,8 @@ public sealed class AwsS3OptionsValidator : IValidateOptions<AwsS3Options>
         if (hasKey != hasSecret)
             errors.Add(
                 """
-                  • AccessKey / SecretKey: ikisi birlikte tanımlanmalı ya da ikisi de boş bırakılmalı
-                    → IAM role kullanıyorsanız her ikisini de null bırakın
+                  • AccessKey / SecretKey: set both or leave both empty
+                    → If you use an IAM role, leave both null
                 """);
 
         if (!string.IsNullOrWhiteSpace(options.ServiceUrl)
@@ -38,8 +38,8 @@ public sealed class AwsS3OptionsValidator : IValidateOptions<AwsS3Options>
                  && (serviceUri.Scheme == Uri.UriSchemeHttp || serviceUri.Scheme == Uri.UriSchemeHttps)))
             errors.Add(
                 """
-                  • ServiceUrl: mutlak bir http(s) adresi olmalı
-                    → Fix: opt.ServiceUrl = "http://localhost:9000"; (Amazon S3 için null bırakın)
+                  • ServiceUrl: must be an absolute http(s) address
+                    → Fix: opt.ServiceUrl = "http://localhost:9000"; (leave null for Amazon S3)
                 """);
 
         if (errors.Count == 0)
@@ -47,7 +47,7 @@ public sealed class AwsS3OptionsValidator : IValidateOptions<AwsS3Options>
 
         return ValidateOptionsResult.Fail(
             $"""
-            [Kck.FileStorage.AwsS3] AwsS3Options geçersiz:
+            [Kck.FileStorage.AwsS3] AwsS3Options is invalid:
             {string.Join(Environment.NewLine, errors)}
               Docs: https://github.com/omerkck41/OmerkckArchitecture/blob/main/docs/providers/file-storage.md
             """);

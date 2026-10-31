@@ -12,7 +12,7 @@ public sealed class AzureKeyVaultOptionsValidator : IValidateOptions<AzureKeyVau
         {
             errors.Add(
                 """
-                  • VaultUri: boş veya null
+                  • VaultUri: null or empty
                     → Fix: opt.VaultUri = "https://<vault-name>.vault.azure.net/"
                 """);
         }
@@ -21,7 +21,7 @@ public sealed class AzureKeyVaultOptionsValidator : IValidateOptions<AzureKeyVau
         {
             errors.Add(
                 $"""
-                  • VaultUri: "{options.VaultUri}" geçerli bir HTTPS URI değil
+                  • VaultUri: "{options.VaultUri}" is not a valid HTTPS URI
                     → Fix: opt.VaultUri = "https://<vault-name>.vault.azure.net/"
                 """);
         }
@@ -31,7 +31,7 @@ public sealed class AzureKeyVaultOptionsValidator : IValidateOptions<AzureKeyVau
 
         return ValidateOptionsResult.Fail(
             $"""
-            [Kck.Security.Secrets.AzureKeyVault] AzureKeyVaultOptions geçersiz:
+            [Kck.Security.Secrets.AzureKeyVault] AzureKeyVaultOptions is invalid:
             {string.Join(Environment.NewLine, errors)}
               Docs: https://github.com/omerkck41/OmerkckArchitecture/blob/main/docs/providers/security.md
             """);

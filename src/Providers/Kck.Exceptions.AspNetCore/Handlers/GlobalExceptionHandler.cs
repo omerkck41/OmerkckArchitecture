@@ -9,9 +9,9 @@ using Microsoft.Extensions.Logging;
 namespace Kck.Exceptions.AspNetCore.Handlers;
 
 /// <summary>
-/// <see cref="CustomException"/> ve alt sınıflarını işleyen genel exception handler.
-/// <see cref="HttpStatusCodeAttribute"/> veya <see cref="CustomException.ExplicitStatusCode"/> ile
-/// HTTP durum kodu belirlenir. Bulunamazsa 500 döner.
+/// General exception handler for <see cref="CustomException"/> and its subclasses.
+/// <see cref="HttpStatusCodeAttribute"/> or <see cref="CustomException.ExplicitStatusCode"/>
+/// the HTTP status code is determined. Returns 500 if none is found.
 /// </summary>
 public sealed partial class GlobalExceptionHandler : IKckExceptionHandler
 {
@@ -50,7 +50,7 @@ public sealed partial class GlobalExceptionHandler : IKckExceptionHandler
                 traceId: traceId);
         }
 
-        // Fallback — bu dal normalde çağrılmaz (CanHandle kontrolü nedeniyle)
+        // Fallback — normally never reached (because of the CanHandle check)
         LogUnhandledGlobalException(_logger, exception, traceId);
 
         return new UnifiedApiErrorResponse(
@@ -75,7 +75,7 @@ public sealed partial class GlobalExceptionHandler : IKckExceptionHandler
     [RequiresUnreferencedCode("Reads HttpStatusCodeAttribute from runtime exception types via reflection.")]
     private static int ResolveStatusCode(Exception exception)
     {
-        // 1. ExplicitStatusCode varsa onu kullan
+        // 1. Use ExplicitStatusCode if present
         if (exception is CustomException { ExplicitStatusCode: not null } customEx)
         {
             return customEx.ExplicitStatusCode.Value;
@@ -88,7 +88,7 @@ public sealed partial class GlobalExceptionHandler : IKckExceptionHandler
             return cached;
         }
 
-        // 3. HttpStatusCodeAttribute oku
+        // 3. Read HttpStatusCodeAttribute
         var attr = exceptionType.GetCustomAttribute<HttpStatusCodeAttribute>();
         var statusCode = attr?.StatusCode ?? StatusCodes.Status500InternalServerError;
         StatusCodeCache.TryAdd(exceptionType, statusCode);
