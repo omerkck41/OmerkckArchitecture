@@ -5,7 +5,7 @@ no effect (GitHub applies it to compiled languages only without a build). The bu
 output under obj/ (System.Text.Json contexts, the OpenAPI XML comment generator), and CodeQL reports on that code,
 which is not ours to fix. This script drops those results; every result in first-party source is kept.
 
-Usage: codeql_sarif_filter.py <directory with .sarif files>
+Usage: codeql_sarif_filter.py (run from the workspace; reads and rewrites sarif-results/*.sarif)
 """
 from __future__ import annotations
 
@@ -17,6 +17,8 @@ from pathlib import Path
 log = logging.getLogger("codeql-sarif-filter")
 
 BUILD_OUTPUT_DIRS = frozenset({"obj", "bin"})
+# Fixed, not an argument: the analyze step writes here (output: sarif-results), and no caller picks the path to write.
+SARIF_DIR = Path("sarif-results")
 
 
 def is_generated(uri: str) -> bool:
@@ -58,14 +60,12 @@ def filter_directory(directory: Path) -> int:
     return removed
 
 
-def main(argv: list[str]) -> int:
+def main() -> int:
     logging.basicConfig(level=logging.INFO, format="%(message)s")
-    if len(argv) != 1:
-        sys.exit(__doc__)
-    removed = filter_directory(Path(argv[0]))
+    removed = filter_directory(SARIF_DIR)
     log.info("removed %d result(s) in total", removed)
     return 0
 
 
 if __name__ == "__main__":
-    sys.exit(main(sys.argv[1:]))
+    sys.exit(main())
