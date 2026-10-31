@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1793453304962,
+  "lastUpdate": 1793456656011,
   "repoUrl": "https://github.com/omerkck41/OmerkckArchitecture",
   "entries": {
     "Benchmark": [
@@ -14638,6 +14638,102 @@ window.BENCHMARK_DATA = {
             "value": 5.3669382790103555,
             "unit": "ns",
             "range": "± 0.13756943802035093"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "106805727+omerkck41@users.noreply.github.com",
+            "name": "Ömer KÜÇÜK",
+            "username": "omerkck41"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "c2a4fef9a4580b420a6fd392875985fe862f880a",
+          "message": "ci(codeql): drop build-output results; fix three code quality notes (#282)\n\nCloses the 22 open code scanning alerts.\n\n## Why 19 alerts were in generated code\n19 alerts sit under `obj/`. They are in source-generator output:\n- System.Text.Json contexts (`cs/useless-cast-to-self`)\n- the `Microsoft.AspNetCore.OpenApi` XML comment generator\n(`cs/constant-condition`, `cs/useless-assignment-to-local`,\n`cs/linq/missed-select`, `cs/nested-if-statements`)\n\n`.github/codeql-config.yml` already has `paths-ignore: **/obj/**`.\nGitHub, however, applies `paths-ignore` to compiled languages only when\nthey are analyzed without a build\n([docs](https://docs.github.com/en/code-security/code-scanning/creating-an-advanced-setup-for-code-scanning/customizing-your-advanced-setup-for-code-scanning)),\nand this workflow builds C#.\n\n## Fix\n- `analyze` now runs with `upload: failure-only` and `output:\nsarif-results`. The action documents this input \"for users\npost-processing the SARIF file before uploading it\".\n- `.github/scripts/codeql_sarif_filter.py` removes results whose path\nhas an `obj/` or `bin/` segment. It has unit tests and runs in the\nexisting `license-audit` unittest step.\n- `upload-sarif` uploads the result with the same pinned action and\ncategory, so no new dependency is added.\n- Alternatives I rejected (see\n`decisions/2026-10-31-codeql-generated-code.md`):\n  - `build-mode: none` lowers accuracy from Best to Good.\n  - `query-filters` would also silence these rules in our own code.\n- Dismissing the alerts would not last: they reopen when the generated\nline numbers change.\n- The 3 alerts in first-party code (persistence: `cs/linq/missed-where`\n×2, `cs/missed-ternary-operator`) are fixed in code. The behaviour is\nunchanged.\n\n## Verification\n- `dotnet build -c Release`: 0 errors. `dotnet test -c Release --filter\n\"Category!=Integration\"`: 41/41 test projects green; persistence\n380/380.\n- Script tests: 80/80. The new test file was seen RED before the script\nexisted.\n- To check after merge: the CodeQL run on main should close the 22\nalerts as fixed.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\n---------\n\nCo-authored-by: Claude Opus 5.5 <noreply@anthropic.com>",
+          "timestamp": "2026-10-31T17:17:16+03:00",
+          "tree_id": "06fe1150a96bfee0cdad03fb5dcd0b33e12506ba",
+          "url": "https://github.com/omerkck41/OmerkckArchitecture/commit/c2a4fef9a4580b420a6fd392875985fe862f880a"
+        },
+        "date": 1793456654673,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Success_Factory",
+            "value": 4.972003728648027,
+            "unit": "ns",
+            "range": "± 0.1284126113951252"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Failure_Factory",
+            "value": 6.522418166510761,
+            "unit": "ns",
+            "range": "± 0.15186237634376723"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Success",
+            "value": 1.0739634901933048,
+            "unit": "ns",
+            "range": "± 0.09244229529646485"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Failure",
+            "value": 0.5133489874693064,
+            "unit": "ns",
+            "range": "± 0.002255128691043454"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Serialize_Reflection",
+            "value": 302.6133920805795,
+            "unit": "ns",
+            "range": "± 2.213877487665454"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Deserialize_Reflection",
+            "value": 556.4650431412917,
+            "unit": "ns",
+            "range": "± 4.693195778428622"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 0)",
+            "value": 8.181091642723633,
+            "unit": "ns",
+            "range": "± 0.11137398030358599"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 5)",
+            "value": 7.998158101524625,
+            "unit": "ns",
+            "range": "± 0.09771504606309223"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 0)",
+            "value": 8.193610478937625,
+            "unit": "ns",
+            "range": "± 0.1496098620459394"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 5)",
+            "value": 7.885347946484884,
+            "unit": "ns",
+            "range": "± 0.16695646986728194"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 0)",
+            "value": 8.029489525904259,
+            "unit": "ns",
+            "range": "± 0.021062919616107834"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 5)",
+            "value": 7.857339101915176,
+            "unit": "ns",
+            "range": "± 0.06927465223780074"
           }
         ]
       }
