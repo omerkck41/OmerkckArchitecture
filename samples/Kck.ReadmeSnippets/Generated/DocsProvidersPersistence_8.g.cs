@@ -6,7 +6,7 @@ using Kck.Persistence.Abstractions.Specifications;
 using Kck.Persistence.Abstractions.UnitOfWork;
 using Kck.Persistence.EntityFramework.Specifications;
 
-#line 270 "docs/providers/persistence.md"
+#line 272 "docs/providers/persistence.md"
 public sealed class RecentOrdersOf : Specification<Order>
 {
     public RecentOrdersOf(string customerEmail, int page, int size)

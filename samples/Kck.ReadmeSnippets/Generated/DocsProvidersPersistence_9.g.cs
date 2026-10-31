@@ -4,7 +4,7 @@
 namespace ReadmeSnippets.DocsProvidersPersistence_9;
 using Kck.Persistence.Abstractions.UnitOfWork;
 
-#line 303 "docs/providers/persistence.md"
+#line 305 "docs/providers/persistence.md"
 public sealed class PlaceOrder(IUnitOfWork uow)
 {
     public async Task RunAsync(Order order, CancellationToken ct)
