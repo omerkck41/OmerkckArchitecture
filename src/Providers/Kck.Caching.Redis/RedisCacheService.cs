@@ -89,7 +89,7 @@ public sealed class RedisCacheService(
         {
             var batch = new List<RedisKey>(DeleteChunkSize);
 
-            await foreach (var key in server.KeysAsync(pattern: $"{fullPrefix}*").WithCancellation(ct))
+            await foreach (var key in server.KeysAsync(pattern: $"{EscapeGlob(fullPrefix)}*").WithCancellation(ct))
             {
                 batch.Add(key);
                 if (batch.Count >= DeleteChunkSize)
@@ -102,5 +102,19 @@ public sealed class RedisCacheService(
             if (batch.Count > 0)
                 await db.KeyDeleteAsync(batch.ToArray()).ConfigureAwait(false);
         }
+    }
+
+    // SCAN MATCH is a glob: a literal * ? [ ] or \ in the instance name or prefix must not match other keys.
+    private static string EscapeGlob(string value)
+    {
+        var escaped = new System.Text.StringBuilder(value.Length);
+        foreach (var c in value)
+        {
+            if (c is '*' or '?' or '[' or ']' or '\\')
+                escaped.Append('\\');
+            escaped.Append(c);
+        }
+
+        return escaped.ToString();
     }
 }

@@ -12,11 +12,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   false and `RemoveByPrefixAsync` deleted nothing: Redis stores keys as `InstanceName` + key, but both looked the key up
   without it. They now add the instance name (Hybrid strips it again for its in-process L1). A new constructor overload
   takes `IOptions<RedisCacheOptions>`; the container picks it, and the old one keeps working without an instance name.
+  `RemoveByPrefixAsync` also escapes `* ? [ ] \` in the instance name and prefix: the SCAN pattern is a glob, so
+  `InstanceName = "svc?"` could delete another instance's keys on a shared Redis.
 - `Kck.Persistence.EntityFramework` — an entity that hides `DomainEvents` or `ClearDomainEvents` with `new` made
   `SaveChanges` throw `AmbiguousMatchException`. Domain events are now read and cleared through `Entity<TId>`'s own
   members.
-- `Kck.Exceptions.AspNetCore` — an error in a request the client had already aborted is logged but no longer written:
-  the write with the canceled token turned the original error into an `OperationCanceledException`.
+- `Kck.Exceptions.AspNetCore` — an error in a request the client had already aborted is logged and its status set, but
+  no body is written: the write with the canceled token turned the original error into an `OperationCanceledException`.
 
 ## [4.8.0] — 2026-10-31
 

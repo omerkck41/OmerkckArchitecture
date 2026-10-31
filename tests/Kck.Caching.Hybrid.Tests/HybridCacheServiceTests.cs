@@ -129,5 +129,21 @@ public sealed class HybridCacheServiceTests
             Arg.Is<IEnumerable<string>>(k => k.Single() == "test:orders:1"), Arg.Any<CancellationToken>());
     }
 
+    [Fact]
+    public async Task RemoveByPrefixAsync_GlobCharactersInTheName_AreEscaped()
+    {
+        var server = Substitute.For<IServer>();
+        _redis.GetEndPoints(Arg.Any<bool>()).Returns([new System.Net.DnsEndPoint("localhost", 6379)]);
+        _redis.GetServer(Arg.Any<System.Net.EndPoint>(), Arg.Any<object?>()).Returns(server);
+        _redis.GetDatabase(Arg.Any<int>(), Arg.Any<object?>()).Returns(Substitute.For<IDatabase>());
+        server.KeysAsync(Arg.Any<int>(), Arg.Any<RedisValue>(), Arg.Any<int>(), Arg.Any<long>(), Arg.Any<int>(), Arg.Any<CommandFlags>())
+            .Returns(AsyncEnumerable.Empty<RedisKey>());
+
+        await WithInstanceName("svc?[1]:").RemoveByPrefixAsync("a*b");
+
+        server.Received(1).KeysAsync(Arg.Any<int>(), new RedisValue(@"svc\?\[1\]:test:a\*b*"), Arg.Any<int>(), Arg.Any<long>(),
+            Arg.Any<int>(), Arg.Any<CommandFlags>());
+    }
+
     private sealed record TestDto(string Name, int Value);
 }

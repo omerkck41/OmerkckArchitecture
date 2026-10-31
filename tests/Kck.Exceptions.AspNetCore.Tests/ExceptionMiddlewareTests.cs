@@ -114,6 +114,7 @@ public class ExceptionMiddlewareTests
 
         await act.Should().NotThrowAsync();
         context.Response.Body.Length.Should().Be(0);
+        context.Response.StatusCode.Should().Be(500); // metrics and request logs still see the failure
     }
 
     [Fact]

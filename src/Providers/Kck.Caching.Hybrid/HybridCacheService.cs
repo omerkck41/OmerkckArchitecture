@@ -111,7 +111,7 @@ public sealed class HybridCacheService(
             var batch = new List<RedisKey>(DeleteChunkSize);
             var keysToEvict = new List<string>(DeleteChunkSize);
 
-            await foreach (var key in server.KeysAsync(pattern: $"{fullPrefix}*").WithCancellation(ct))
+            await foreach (var key in server.KeysAsync(pattern: $"{EscapeGlob(fullPrefix)}*").WithCancellation(ct))
             {
                 batch.Add(key);
                 keysToEvict.Add(key.ToString()[_instanceName.Length..]);
@@ -133,4 +133,17 @@ public sealed class HybridCacheService(
         }
     }
 
+    // SCAN MATCH is a glob: a literal * ? [ ] or \ in the instance name or prefix must not match other keys.
+    private static string EscapeGlob(string value)
+    {
+        var escaped = new System.Text.StringBuilder(value.Length);
+        foreach (var c in value)
+        {
+            if (c is '*' or '?' or '[' or ']' or '\\')
+                escaped.Append('\\');
+            escaped.Append(c);
+        }
+
+        return escaped.ToString();
+    }
 }
