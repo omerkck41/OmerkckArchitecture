@@ -7,10 +7,10 @@ vertical slice under `Features/`, and every behaviour below is covered by
 | Shows | Where |
 |---|---|
 | Order and stock reservation in one transaction; 409 and nothing saved when stock runs out | `Features/Orders/PlaceOrder.cs` |
-| Status changes Placed → Paid → Shipped, 409 for any other move | `Domain/Order.cs`, `Features/Orders/ChangeOrderStatus.cs` |
-| Soft delete that follows the delete rules: an order takes its lines along (`Cascade`); a customer with orders cannot be deleted (`Restrict`) | `Data/OrdersDbContext.cs`, `Features/Orders/CancelOrder.cs`, `Features/Customers/CustomerEndpoints.cs` |
+| Status changes Placed → Paid → Shipped, 409 for any other move or when another request changed the order first (concurrency tokens) | `Domain/Order.cs`, `Data/OrdersDbContext.cs`, `Features/Orders/ChangeOrderStatus.cs` |
+| Soft delete that follows the delete rules: an order takes its lines along (`Cascade`); a customer with orders cannot be deleted (`Restrict`); cancelling returns the stock | `Data/OrdersDbContext.cs`, `Features/Orders/CancelOrder.cs`, `Features/Customers/CustomerEndpoints.cs` |
 | A domain event dispatched after the commit, turned into an integration event on the in-memory bus | `Features/Orders/OrderPlacedHandler.cs` |
-| Dynamic search limited to whitelisted fields | `Features/Orders/SearchOrders.cs` |
+| Dynamic search limited to whitelisted fields, newest first when no sort is given | `Features/Orders/SearchOrders.cs` |
 | Paging | `Features/Orders/ListOrders.cs` |
 | A cached product catalogue (`ICacheService`) | `Features/Products/ListProducts.cs` |
 | OpenTelemetry traces and metrics, exported when `OTEL_EXPORTER_OTLP_ENDPOINT` is set | `Program.cs` |

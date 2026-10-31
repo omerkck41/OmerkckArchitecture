@@ -27,6 +27,12 @@ public sealed class OrdersDbContext(DbContextOptions<OrdersDbContext> options) :
             order.HasOne<Customer>().WithMany().HasForeignKey(o => o.CustomerId).OnDelete(DeleteBehavior.Restrict);
             order.Property(o => o.Status).HasConversion<string>().HasMaxLength(16);
             order.Navigation(o => o.Lines).AutoInclude();
+
+            // Concurrency tokens (RowVersion is SQL Server only, see below): saving an order that another request paid,
+            // shipped or cancelled since it was read throws DbUpdateConcurrencyException, which the handlers return as
+            // 409. Without them two requests could both pay an order, or cancel a shipped one.
+            order.Property(o => o.Status).IsConcurrencyToken();
+            order.Property(o => o.IsDeleted).IsConcurrencyToken();
         });
         modelBuilder.Entity<OrderLine>(line =>
         {

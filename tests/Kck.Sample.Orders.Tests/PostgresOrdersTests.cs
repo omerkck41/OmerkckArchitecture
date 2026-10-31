@@ -3,7 +3,12 @@ using System.Net.Http.Json;
 using AwesomeAssertions;
 using Kck.Core.Abstractions.Paging;
 using Kck.Persistence.Abstractions.Dynamic;
+using Kck.Persistence.Abstractions.UnitOfWork;
+using Kck.Sample.Orders.Data;
+using Kck.Sample.Orders.Domain;
 using Kck.Sample.Orders.Features.Orders;
+using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Testcontainers.PostgreSql;
@@ -89,5 +94,23 @@ public sealed class PostgresOrdersTests : IAsyncLifetime
         var cancelled = await _client.GetFromJsonAsync<OrderResponse>($"/orders/{order.Id}?includeDeleted=true");
         cancelled!.IsDeleted.Should().BeTrue();
         cancelled.Lines.Should().HaveCount(2).And.OnlyContain(l => l.IsDeleted);
+        (await _factory.StockAsync("A-1")).Should().Be(100);
+    }
+
+    [Fact]
+    public async Task CancelOrder_ShippedSinceRead_Returns409AndKeepsTheStock()
+    {
+        var order = await _client.PlaceOrderAndReadAsync(("A-1", 1));
+        (await _client.PostAsync($"/orders/{order.Id}/pay", null)).EnsureSuccessStatusCode();
+        await using var scope = _factory.Services.CreateAsyncScope();
+        var unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
+        await unitOfWork.Repository<Order, Guid>().GetAsync(o => o.Id == order.Id); // still Paid in this scope
+        (await _client.PostAsync($"/orders/{order.Id}/ship", null)).EnsureSuccessStatusCode();
+
+        var result = await CancelOrder.HandleAsync(
+            order.Id, unitOfWork, scope.ServiceProvider.GetRequiredService<OrdersDbContext>(), CancellationToken.None);
+
+        result.Result.Should().BeOfType<Conflict<ProblemDetails>>();
+        (await _factory.StockAsync("A-1")).Should().Be(99);
     }
 }
