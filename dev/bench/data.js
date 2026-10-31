@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1793447023678,
+  "lastUpdate": 1793448151638,
   "repoUrl": "https://github.com/omerkck41/OmerkckArchitecture",
   "entries": {
     "Benchmark": [
@@ -14158,6 +14158,102 @@ window.BENCHMARK_DATA = {
             "value": 10.784738414486249,
             "unit": "ns",
             "range": "± 0.20956843682101806"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "106805727+omerkck41@users.noreply.github.com",
+            "name": "Ömer KÜÇÜK",
+            "username": "omerkck41"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "4a107bbe09f85d04f7956b969b71e5238518a054",
+          "message": "fix(samples): concurrency tokens, stock return on cancel, search sort (#277)\n\nRemaining review findings, batch 2: the Orders sample and the\n`kck-webapi` template.\n\n## Changes\n- **Concurrency (sample):** `Order.Status` and `Order.IsDeleted` are EF\nconcurrency tokens (`RowVersion` is SQL Server only). A pay, ship or\ncancel that read the order before another request changed it now gets\n409 (\"Order changed\") instead of saving over it. Before, two requests\ncould both pay an order, or cancel a shipped one.\n- **Stock on cancel (sample + template):** cancelling an order returns\nits reserved stock in the same transaction. A second, concurrent cancel\ngets 409 and does not return the stock twice (`IsDeleted` token).\n- **Search sort (sample):** a search without a sort returns the newest\norders first, and any sort ends with the id, so paging does not repeat\nor skip rows.\n- **Docs:** KCK0002 with `EnableConfigurationBindingGenerator`. I\nchecked this with a real build: the generator suppresses only\nCS0612/CS0618, so binding `KckWebApiDefaults` yourself reports KCK0002.\n\n## Verification\n- `dotnet build -c Release`: 0 errors.\n- `dotnet test -c Release --filter \"Category!=Integration\"`: 41/41 test\nprojects green; sample tests 25/25.\n- Tests were written first and seen RED. For the handler-level 409\ntests, I ran a mutation probe: with the `DbUpdateConcurrencyException`\ncatch disabled, both tests fail.\n- The new PostgreSQL test (`PostgresOrdersTests`) needs Docker. It runs\nin CI, not locally.\n- The template change is not built locally. The template's NuGet\ndependencies (`UseUtcDateTimes`) are not released yet, so template-smoke\nin CI covers it.\n- Independent code review (opus): no KRITIK or YUKSEK findings. I\napplied the ORTA findings (handler-level tests, PostgreSQL coverage) and\nthe search tie-breaker.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\n---------\n\nCo-authored-by: Claude Opus 5.5 <noreply@anthropic.com>",
+          "timestamp": "2026-10-31T11:55:34Z",
+          "tree_id": "04ed5d91d347016967879a048558a13295cde1dd",
+          "url": "https://github.com/omerkck41/OmerkckArchitecture/commit/4a107bbe09f85d04f7956b969b71e5238518a054"
+        },
+        "date": 1793448151011,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Success_Factory",
+            "value": 6.170729961532813,
+            "unit": "ns",
+            "range": "± 0.08524722466713572"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Failure_Factory",
+            "value": 8.864378191530704,
+            "unit": "ns",
+            "range": "± 0.2043169501947873"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Success",
+            "value": 1.6456228867173195,
+            "unit": "ns",
+            "range": "± 0.0034105618391863557"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Failure",
+            "value": 0.5866652222780081,
+            "unit": "ns",
+            "range": "± 0.002716740390146799"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Serialize_Reflection",
+            "value": 462.97936464945474,
+            "unit": "ns",
+            "range": "± 4.220939510080837"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Deserialize_Reflection",
+            "value": 781.4220984141032,
+            "unit": "ns",
+            "range": "± 5.7600528097273855"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 0)",
+            "value": 10.420079797506332,
+            "unit": "ns",
+            "range": "± 0.13237099081953174"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 5)",
+            "value": 10.072521529027394,
+            "unit": "ns",
+            "range": "± 0.10184919081536523"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 0)",
+            "value": 10.131843612591426,
+            "unit": "ns",
+            "range": "± 0.1098266414459153"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 5)",
+            "value": 9.990552473281111,
+            "unit": "ns",
+            "range": "± 0.1334713635119964"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 0)",
+            "value": 10.321712210774422,
+            "unit": "ns",
+            "range": "± 0.13455131061153588"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 5)",
+            "value": 10.103107888783727,
+            "unit": "ns",
+            "range": "± 0.19671941148051295"
           }
         ]
       }
