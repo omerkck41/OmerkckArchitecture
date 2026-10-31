@@ -80,7 +80,7 @@ public class CheckoutHandler(IJobScheduler scheduler)
     {
         await scheduler.EnqueueAsync<EmailCleanupJob>(ct);
         await scheduler.ScheduleAsync<EmailCleanupJob>(TimeSpan.FromMinutes(5), ct);
-        // Hangfire: a 5-field crontab constant. Quartz: its own format, seconds first ("0 0 0 * * ?").
+        // A 5-field crontab constant works with both providers (Quartz converts it).
         await scheduler.AddOrUpdateRecurringAsync<EmailCleanupJob>("daily-cleanup", CronExpressions.EveryDay, ct);
     }
 }
@@ -88,9 +88,11 @@ public class CheckoutHandler(IJobScheduler scheduler)
 
 ## Cron Constants
 
-`CronExpressions` provides ready-made constants in the 5-field crontab format, which Hangfire accepts. Quartz expects
-its own format with a seconds field first (for example `0 0 0 * * ?` for every day at midnight): passing a
-`CronExpressions` constant to the Quartz scheduler fails with a `FormatException`.
+`CronExpressions` provides ready-made constants in the 5-field crontab format, and both schedulers accept any 5-field
+crontab expression. From 4.8.0 the Quartz scheduler converts it to Quartz's format (a seconds field first, '?' in the
+unused day field, days of week renumbered from Sunday = 1), so `0 0 * * 1` still means Monday. A crontab expression
+that restricts both the day of month and the day of week cannot be expressed in Quartz and throws
+`ArgumentException`, as does `L` or `#` in the day of week. A 6- or 7-field expression is passed to Quartz unchanged (for example `0 0 6 ? * MON-FRI`).
 
 | Constant | Expression |
 |---|---|

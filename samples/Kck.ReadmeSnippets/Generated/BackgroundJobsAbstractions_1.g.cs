@@ -37,9 +37,8 @@ public class ReportScheduler(IJobScheduler scheduler)
     {
         await scheduler.EnqueueAsync<DailyReportJob>(ct);                                    // now
         await scheduler.ScheduleAsync<DailyReportJob>(TimeSpan.FromMinutes(5), ct);          // delayed
-        // The cron format is the provider's: Quartz needs seconds first ("0 0 8 * * ?" = 08:00 daily);
-        // the CronExpressions constants are 5-field crontab expressions for Hangfire.
-        await scheduler.AddOrUpdateRecurringAsync<DailyReportJob>("daily-report", "0 0 8 * * ?", ct);
+        // 5-field crontab (as the CronExpressions constants) works with Hangfire and Quartz ("0 8 * * *" = 08:00 daily).
+        await scheduler.AddOrUpdateRecurringAsync<DailyReportJob>("daily-report", "0 8 * * *", ct);
     }
 }
 #line default

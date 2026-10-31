@@ -23,8 +23,7 @@ internal static class BulkOperationHelper
     /// </summary>
     /// <exception cref="ArgumentException">A value is not assignable to its property type.</exception>
     public static async Task BulkUpdateAsync<T, TId>(
-        DbSet<T> dbSet,
-        Expression<Func<T, bool>> predicate,
+        IQueryable<T> rows,
         (Expression<Func<T, object>> Property, object? Value)[] updates,
         CancellationToken cancellationToken = default)
         where T : Entity<TId>
@@ -32,7 +31,7 @@ internal static class BulkOperationHelper
         // Validate everything before touching the database so a bad entry never yields a partial update.
         var typedUpdates = updates.Select(ToTypedUpdate).ToArray();
 
-        await dbSet.Where(predicate)
+        await rows
             .ExecuteUpdateAsync(setters =>
             {
                 foreach (var (property, propertyType, value) in typedUpdates)

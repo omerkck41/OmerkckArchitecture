@@ -89,6 +89,16 @@ public sealed class DynamicQueryJsonValueTests
         Run("""{"field":"Name","operator":"contains","value":"b"}""").Should().Equal("b");
 
     [Fact]
+    public void DynamicQuery_SortNullInJson_IsEmpty()
+    {
+        // An API client may send "sort": null; the guard and ToDynamic iterate Sort.
+        var query = JsonSerializer.Deserialize<DynamicQuery>("""{"filter":null,"sort":null}""", JsonSerializerOptions.Web)!;
+
+        query.Sort.Should().BeEmpty();
+        Data.AsQueryable().ToDynamic(query).Should().HaveCount(2);
+    }
+
+    [Fact]
     public void ToDynamic_StringOnInt_IsParsed()
     {
         var query = new DynamicQuery([], new Filter("Quantity", FilterOperator.Eq, "5"));

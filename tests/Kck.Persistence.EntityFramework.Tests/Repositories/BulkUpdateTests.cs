@@ -78,6 +78,23 @@ public class BulkUpdateTests
     }
 
     [Fact]
+    public async Task BulkUpdateAsync_SoftDeletedRow_IsNotUpdated()
+    {
+        // Like the repository's reads: soft-deleted rows are left out, with or without the global soft-delete filter
+        // (TestDbContext has none).
+        using var harness = await SeedAsync();
+        var deleted = await harness.Context.TestEntities.SingleAsync(e => e.Name == "b");
+        deleted.IsDeleted = true;
+        await harness.Context.SaveChangesAsync();
+        var repo = new EfRepository<TestEntity, Guid>(harness.Context);
+
+        await repo.BulkUpdateAsync(e => e.Value > 0, [(e => e.Value, 7)]);
+
+        var rows = await AllAsync(harness);
+        rows.Select(r => (r.Name, r.Value)).Should().Equal(("a", 7), ("b", 2));
+    }
+
+    [Fact]
     public async Task BulkUpdateAsync_NullForNonNullableValueType_Throws()
     {
         using var harness = await SeedAsync();
