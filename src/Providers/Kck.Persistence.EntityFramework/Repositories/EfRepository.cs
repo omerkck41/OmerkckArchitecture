@@ -23,6 +23,10 @@ public class EfRepository<T, TId>(
     // Deletes and reverts find the row whether or not it is already soft-deleted.
     private static readonly QueryOptions TrackingWithDeleted = new(IncludeDeleted: true, AsTracking: true);
 
+    // The soft-delete filter applies to soft-deletable types only: for any other T the cast cannot be translated to
+    // SQL (K1, 2026-10-31: every read of a plain Entity<TId> threw), and IncludeDeleted has nothing to lift.
+    private static readonly bool IsSoftDeletable = typeof(ISoftDeletable).IsAssignableFrom(typeof(T));
+
     protected DbContext Context { get; } = context;
     protected DbSet<T> DbSet => Context.Set<T>();
 
@@ -52,9 +56,12 @@ public class EfRepository<T, TId>(
 
         // The repository's own filter, plus the model's named soft-delete filter when the context applies
         // ApplyGlobalSoftDeleteQueryFilter. Only that named filter is lifted: other filters (tenant...) stay.
-        query = options.IncludeDeleted
-            ? query.IgnoreQueryFilters([ModelBuilderExtensions.SoftDeleteQueryFilterName])
-            : query.Where(e => !((ISoftDeletable)e).IsDeleted);
+        if (IsSoftDeletable)
+        {
+            query = options.IncludeDeleted
+                ? query.IgnoreQueryFilters([ModelBuilderExtensions.SoftDeleteQueryFilterName])
+                : query.Where(e => !((ISoftDeletable)e).IsDeleted);
+        }
 
         if (filter is not null)
             query = query.Where(filter);

@@ -44,8 +44,16 @@ public sealed class RedisCacheService(
     /// <inheritdoc/>
     public override async ValueTask<T?> GetAsync<T>(string key, CancellationToken ct = default) where T : default
     {
+        var (_, value) = await TryGetAsync<T>(key, ct).ConfigureAwait(false);
+        return value;
+    }
+
+    /// <summary>A missing key has no payload at all, so presence is known before deserialising (K2).</summary>
+    protected override async ValueTask<(bool Found, T? Value)> TryGetAsync<T>(string key, CancellationToken ct = default)
+        where T : default
+    {
         var data = await cache.GetStringAsync(BuildKey(key), ct).ConfigureAwait(false);
-        return data is null ? default : JsonSerializer.Deserialize<T>(data);
+        return data is null ? (false, default) : (true, JsonSerializer.Deserialize<T>(data));
     }
 
     /// <inheritdoc/>

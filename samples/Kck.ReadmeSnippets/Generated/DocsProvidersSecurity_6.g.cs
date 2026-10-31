@@ -4,7 +4,7 @@
 namespace ReadmeSnippets.DocsProvidersSecurity_6;
 using Kck.Security.Abstractions.Mfa;
 
-#line 118 "docs/providers/security.md"
+#line 123 "docs/providers/security.md"
 public class MfaService(IMfaProvider totp)
 {
     // Show SetupResult.ProvisioningUri as a QR code; store SecretKey encrypted.

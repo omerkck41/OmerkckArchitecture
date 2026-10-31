@@ -28,6 +28,10 @@ public sealed class ConfigurationSecretsManager(IConfiguration configuration) : 
         if (value is null)
             return Task.FromResult(default(T));
 
+        // A string secret is returned as it is, like AzureKeyVaultSecretsManager does: a plain value is not JSON.
+        if (typeof(T) == typeof(string))
+            return Task.FromResult((T?)(object)value);
+
         var result = JsonSerializer.Deserialize<T>(value);
         return Task.FromResult(result);
     }

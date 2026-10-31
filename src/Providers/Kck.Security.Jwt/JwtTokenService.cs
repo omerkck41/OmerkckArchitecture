@@ -115,18 +115,20 @@ public sealed partial class JwtTokenService : ITokenService, IDisposable
                 return new KckTokenValidationResult { IsValid = false, ErrorMessage = "Token has been revoked" };
             }
 
-            // 3. Return claims
-            var claims = principal.Claims;
-            var userId = claims.TryGetValue(ClaimTypes.NameIdentifier, out var uid) ? uid?.ToString() : null;
-            var email = claims.TryGetValue(ClaimTypes.Email, out var em) ? em?.ToString() : null;
-            var roles = claims.Where(c => c.Key == ClaimTypes.Role).Select(c => c.Value?.ToString() ?? "").ToList();
+            // 3. Return claims. They are read from the identity: TokenValidationResult.Claims folds a repeated type
+            // into one List<object> (K3, 2026-10-31). Claims keeps the first value of each type; Roles has them all.
+            var identity = principal.ClaimsIdentity;
+            var claims = new Dictionary<string, string>();
+            foreach (var claim in identity.Claims)
+                claims.TryAdd(claim.Type, claim.Value);
 
             return new KckTokenValidationResult
             {
                 IsValid = true,
-                UserId = userId,
-                Email = email,
-                Roles = roles
+                UserId = identity.FindFirst(ClaimTypes.NameIdentifier)?.Value,
+                Email = identity.FindFirst(ClaimTypes.Email)?.Value,
+                Roles = identity.FindAll(ClaimTypes.Role).Select(c => c.Value).ToList(),
+                Claims = claims
             };
         }
         catch (Exception ex) when (ex is SecurityTokenException

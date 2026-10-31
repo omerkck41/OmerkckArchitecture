@@ -1,10 +1,11 @@
 using AwesomeAssertions;
-using Kck.FileStorage.FluentFtp;
+using Kck.FileStorage.Abstractions;
 using Xunit;
 
 namespace Kck.FileStorage.FluentFtp.Tests;
 
-public class PathSanitizerTests
+// The FTP provider's path rule (formerly its internal PathSanitizer) is PathHelper.Validate, shared with Blob and S3.
+public class PathValidationTests
 {
     [Theory]
     [InlineData("../../etc/passwd")]
@@ -13,7 +14,7 @@ public class PathSanitizerTests
     [InlineData("normal/../../../escape")]
     public void Validate_WithTraversalAttempt_ShouldThrow(string maliciousPath)
     {
-        var act = () => PathSanitizer.Validate(maliciousPath);
+        var act = () => PathHelper.Validate(maliciousPath);
 
         act.Should().Throw<ArgumentException>();
     }
@@ -24,7 +25,7 @@ public class PathSanitizerTests
     [InlineData("data/exports/2026/file.csv")]
     public void Validate_WithSafePath_ShouldNotThrow(string safePath)
     {
-        var act = () => PathSanitizer.Validate(safePath);
+        var act = () => PathHelper.Validate(safePath);
 
         act.Should().NotThrow();
     }
@@ -35,7 +36,7 @@ public class PathSanitizerTests
     [InlineData(null)]
     public void Validate_WithNullOrWhitespace_ShouldThrow(string? path)
     {
-        var act = () => PathSanitizer.Validate(path!);
+        var act = () => PathHelper.Validate(path!);
 
         act.Should().Throw<ArgumentException>();
     }

@@ -70,10 +70,21 @@ public class ReportUploader(IFileStorageService storage)
 `PathHelper.IsValidPath(path)` rejects `..` and `~` segments and invalid characters; `PathHelper.Sanitize(path)` removes
 them.
 
+`PathHelper.Validate(path)` throws `ArgumentException` for a null or white-space path, a path that contains `..`
+anywhere (also `report..v2.pdf`), an absolute path (leading `/` or `\`), a percent sign (URL-encoded traversal such as
+`%2e%2e`) or a control character. The FTP, Azure Blob and S3 providers call it on every path argument (`path`,
+`directoryPath`, `FileName`, `DestinationPath`) before a request is built, so such a path never reaches the service;
+for Blob and S3 an empty `DestinationPath` or `directoryPath` means the container or bucket root (under `KeyPrefix` for
+S3). In Azure Blob the blob name is part of the request URI, where `..` would otherwise resolve
+to another container of the same account (before 5.0.0, `DownloadAsync("../beta/secret.txt")` on a service bound to
+container `alpha` returned `beta`'s blob).
+
 ## Security
 
 - **Use FTPS in production** (`UseSsl = true`). Plain FTP is open to man-in-the-middle attacks; FluentFTP does not
   support SFTP.
 - Store credentials in Key Vault / Secrets Manager, not in appsettings.
 - Path traversal protection: never write user input directly into a storage path. Take the file name with
-  `Path.GetFileName()` and check paths with `PathHelper.IsValidPath()`.
+  `Path.GetFileName()` and check paths with `PathHelper.IsValidPath()`. The providers themselves reject `..`, absolute,
+  percent-encoded and control-character paths with `ArgumentException` (`PathHelper.Validate`), so a request with such
+  a path fails before it reaches the service.

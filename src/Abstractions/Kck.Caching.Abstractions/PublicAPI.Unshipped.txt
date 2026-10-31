@@ -1,1 +1,4 @@
 #nullable enable
+*REMOVED*Kck.Caching.Abstractions.CacheServiceBase.GetOrSetAsync<T>(string! key, System.Func<System.Threading.Tasks.Task<T>!>! factory, System.TimeSpan? expiration = null, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<T?>!
+virtual Kck.Caching.Abstractions.CacheServiceBase.GetOrSetAsync<T>(string! key, System.Func<System.Threading.Tasks.Task<T>!>! factory, System.TimeSpan? expiration = null, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<T?>!
+virtual Kck.Caching.Abstractions.CacheServiceBase.TryGetAsync<T>(string! key, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.ValueTask<(bool Found, T? Value)>

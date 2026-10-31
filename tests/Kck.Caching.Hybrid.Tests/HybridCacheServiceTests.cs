@@ -91,6 +91,34 @@ public sealed class HybridCacheServiceTests
             Arg.Any<CancellationToken>());
     }
 
+    [Fact]
+    public async Task GetOrSetAsync_GoesThroughHybridCacheGetOrCreate_WithTheConfiguredExpirations()
+    {
+        // K2: HybridCache's own stampede protection and L1+L2 write replace the base class's get-then-set.
+#pragma warning disable CA2012 // NSubstitute configures the ValueTask-returning method; the ValueTask itself is not consumed
+        _hybridCache.GetOrCreateAsync(
+                "test:k",
+                Arg.Any<Func<Task<int>>>(),
+                Arg.Any<Func<Func<Task<int>>, CancellationToken, ValueTask<int>>>(),
+                Arg.Any<HybridCacheEntryOptions?>(),
+                Arg.Any<IEnumerable<string>?>(),
+                Arg.Any<CancellationToken>())
+            .Returns(new ValueTask<int>(42));
+#pragma warning restore CA2012
+
+        var result = await _sut.GetOrSetAsync("k", () => Task.FromResult(7), TimeSpan.FromMinutes(3));
+
+        result.Should().Be(42);
+        await _hybridCache.Received(1).GetOrCreateAsync(
+            "test:k",
+            Arg.Any<Func<Task<int>>>(),
+            Arg.Any<Func<Func<Task<int>>, CancellationToken, ValueTask<int>>>(),
+            Arg.Is<HybridCacheEntryOptions>(o =>
+                o.Expiration == TimeSpan.FromMinutes(3) && o.LocalCacheExpiration == TimeSpan.FromMinutes(1)),
+            Arg.Any<IEnumerable<string>?>(),
+            Arg.Any<CancellationToken>());
+    }
+
     // The L2 RedisCache stores every key as InstanceName + key; HybridCache's own L1 keys have no InstanceName.
     private HybridCacheService WithInstanceName(string instanceName) => new(
         _hybridCache, _redis,

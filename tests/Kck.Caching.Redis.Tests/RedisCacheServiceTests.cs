@@ -184,5 +184,46 @@ public sealed class RedisCacheServiceTests
         await db.Received(1).KeyExistsAsync(new RedisKey("app:test:k"), Arg.Any<CommandFlags>());
     }
 
+    // K2 (2026-10-31 health analysis, probe P1): a miss on a value type returned default(T) and never ran the
+    // factory, because "existing is not null" is always true for int/bool/Guid.
+    [Fact]
+    public async Task GetOrSetAsync_IntMiss_CallsFactoryOnceAndStoresValue()
+    {
+        _cache.GetAsync("test:vt:int", Arg.Any<CancellationToken>()).Returns(default(byte[]?));
+        var calls = 0;
+
+        var result = await _sut.GetOrSetAsync("vt:int", () => { calls++; return Task.FromResult(42); });
+
+        result.Should().Be(42);
+        calls.Should().Be(1);
+        await _cache.Received(1).SetAsync(
+            "test:vt:int",
+            Arg.Is<byte[]>(b => Encoding.UTF8.GetString(b) == "42"),
+            Arg.Any<DistributedCacheEntryOptions>(),
+            Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task GetOrSetAsync_BoolAndGuidMiss_ReturnTheFactoryValue()
+    {
+        _cache.GetAsync(Arg.Any<string>(), Arg.Any<CancellationToken>()).Returns(default(byte[]?));
+        var guid = Guid.NewGuid();
+
+        (await _sut.GetOrSetAsync("vt:bool", () => Task.FromResult(true))).Should().BeTrue();
+        (await _sut.GetOrSetAsync("vt:guid", () => Task.FromResult(guid))).Should().Be(guid);
+    }
+
+    [Fact]
+    public async Task GetOrSetAsync_StoredDefaultValue_IsAHit()
+    {
+        _cache.GetAsync("test:vt:zero", Arg.Any<CancellationToken>()).Returns(Encoding.UTF8.GetBytes("0"));
+        var calls = 0;
+
+        var result = await _sut.GetOrSetAsync("vt:zero", () => { calls++; return Task.FromResult(99); });
+
+        result.Should().Be(0);
+        calls.Should().Be(0, "0 is a stored value, not a miss");
+    }
+
     private sealed record TestDto(string Name, int Value);
 }

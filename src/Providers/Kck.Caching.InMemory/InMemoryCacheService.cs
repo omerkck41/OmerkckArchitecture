@@ -28,6 +28,14 @@ public sealed class InMemoryCacheService(
         return ValueTask.FromResult(value);
     }
 
+    /// <summary>Presence comes from <see cref="IMemoryCache"/> itself, so a stored default value is a hit (K2).</summary>
+    protected override ValueTask<(bool Found, T? Value)> TryGetAsync<T>(string key, CancellationToken ct = default)
+        where T : default
+    {
+        var found = cache.TryGetValue(BuildKey(key), out T? value);
+        return ValueTask.FromResult((found, value));
+    }
+
     /// <inheritdoc/>
     public override Task SetAsync<T>(string key, T value, TimeSpan? expiration = null, CancellationToken ct = default)
     {

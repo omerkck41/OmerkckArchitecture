@@ -100,4 +100,63 @@ public sealed class HybridCacheRoundTripTests
 
         l2.Entries.Should().BeEmpty();
     }
+
+    // K2 (2026-10-31 health analysis, probe P1): GetOrSetAsync<int/bool/Guid> on a miss returned default(T) without
+    // running the factory. It now goes through HybridCache.GetOrCreateAsync, which also fills L1 and L2.
+    [Fact]
+    public Task GetOrSetAsync_IntMiss_RunsTheFactoryOnceAndStoresValue() => AssertValueTypeRoundTrip("vt:int", 42);
+
+    [Fact]
+    public Task GetOrSetAsync_BoolMiss_RunsTheFactoryOnceAndStoresValue() => AssertValueTypeRoundTrip("vt:bool", true);
+
+    [Fact]
+    public Task GetOrSetAsync_GuidMiss_RunsTheFactoryOnceAndStoresValue() =>
+        AssertValueTypeRoundTrip("vt:guid", Guid.NewGuid());
+
+    [Fact]
+    public async Task GetOrSetAsync_ReferenceTypeMiss_RunsTheFactoryOnceAndStoresValue()
+    {
+        var l2 = new DictionaryDistributedCache();
+        var (sut, provider) = CreateSut(l2);
+        await using var _ = provider;
+        var calls = 0;
+
+        var first = await sut.GetOrSetAsync("dto", () => { calls++; return Task.FromResult(new TestDto("hello", 42)); });
+        var second = await sut.GetOrSetAsync("dto", () => { calls++; return Task.FromResult(new TestDto("other", 0)); });
+
+        first.Should().Be(new TestDto("hello", 42));
+        second.Should().Be(new TestDto("hello", 42));
+        calls.Should().Be(1);
+        await WaitForL2Entry(l2, "test:dto");
+    }
+
+    private static async Task AssertValueTypeRoundTrip<T>(string key, T expected) where T : struct
+    {
+        var l2 = new DictionaryDistributedCache();
+        var (sut, provider) = CreateSut(l2);
+        await using var _ = provider;
+        var calls = 0;
+        Task<T> Factory()
+        {
+            calls++;
+            return Task.FromResult(expected);
+        }
+
+        var first = await sut.GetOrSetAsync(key, Factory);
+        var second = await sut.GetOrSetAsync(key, Factory);
+
+        first.Should().Be(expected);
+        second.Should().Be(expected);
+        calls.Should().Be(1, "the factory runs on the miss only");
+        await WaitForL2Entry(l2, "test:" + key);
+    }
+
+    // HybridCache releases the caller before its L2 write completes, so the L2 check allows a short delay.
+    private static async Task WaitForL2Entry(DictionaryDistributedCache l2, string key)
+    {
+        for (var i = 0; i < 100 && !l2.Entries.ContainsKey(key); i++)
+            await Task.Delay(20);
+
+        l2.Entries.Should().ContainKey(key, "GetOrSetAsync writes the value to L2 as well");
+    }
 }

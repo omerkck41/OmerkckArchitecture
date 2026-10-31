@@ -71,6 +71,39 @@ public sealed class JwtTokenServiceMutationTests : IDisposable
     }
 
     [Fact]
+    public async Task CreateAndValidate_TwoRolesAndACustomClaim_RoundTripIntoResult()
+    {
+        // K3 (2026-10-31 health analysis, probe P2): two roles came back as a single
+        // "System.Collections.Generic.List`1[System.Object]" entry and Claims stayed empty.
+        var sut = Build(Options());
+        var token = await sut.CreateAccessTokenAsync(Request() with
+        {
+            Roles = ["admin", "editor"],
+            CustomClaims = new Dictionary<string, string> { ["tenant"] = "t1" }
+        });
+
+        var result = await sut.ValidateTokenAsync(token.AccessToken);
+
+        result.IsValid.Should().BeTrue();
+        result.Roles.Should().Equal("admin", "editor");
+        result.Claims.Should().ContainKey("tenant").WhoseValue.Should().Be("t1");
+    }
+
+    [Fact]
+    public async Task ValidateToken_ClaimsHoldEveryTypeWithItsFirstValue()
+    {
+        // A multi-valued type (role) keeps its first value in Claims; the whole list is in Roles.
+        var sut = Build(Options());
+        var token = await sut.CreateAccessTokenAsync(Request("u-1") with { Roles = ["admin", "editor"] });
+
+        var result = await sut.ValidateTokenAsync(token.AccessToken);
+
+        result.Claims[ClaimTypes.NameIdentifier].Should().Be("u-1");
+        result.Claims[ClaimTypes.Email].Should().Be("test@test.com");
+        result.Claims[ClaimTypes.Role].Should().Be("admin");
+    }
+
+    [Fact]
     public async Task CreateAndValidate_UserIdAndEmailRoundTripIntoResult()
     {
         var sut = Build(Options());

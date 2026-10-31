@@ -60,6 +60,18 @@ public class ConfigurationSecretsManagerTests
     }
 
     [Fact]
+    public async Task GetSecretAsync_Typed_String_ShouldReturnThePlainValue()
+    {
+        // Probe P3 (2026-10-31): a plain value is not JSON, so GetSecretAsync<string> threw JsonException.
+        // AzureKeyVaultSecretsManager already returns strings as they are; both providers now agree.
+        var sut = CreateSut(("Api:Key", "plain"));
+
+        var value = await sut.GetSecretAsync<string>("Api:Key");
+
+        value.Should().Be("plain");
+    }
+
+    [Fact]
     public async Task GetSecretAsync_Typed_MissingKey_ShouldReturnDefault()
     {
         var sut = CreateSut();

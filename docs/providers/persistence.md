@@ -127,6 +127,14 @@ deletes rows. A soft delete follows the same rule as `DbContext.Remove` with the
 soft delete covers*), even when the interceptor is not registered. `RevertSoftDeleteAsync` restores only the row
 itself; dependants soft-deleted with it stay deleted.
 
+An entity that does not implement `ISoftDeletable` (a plain `Entity<TId>` or `AuditableEntity<TId>`) is read and
+deleted like any other row: the soft-delete filter is not applied, `QueryOptions.IncludeDeleted` has no effect,
+`DeleteAsync` deletes the row and `RevertSoftDeleteAsync` returns it unchanged. Before 5.0.0, every read of such an
+entity (`GetByIdAsync`, `CountAsync`, `GetListAsync`, `AnyAsync`, `GetAsync`) threw "The LINQ expression ... could not
+be translated", because the filter was applied to every entity type. Known limit: a repository of a base type that is
+not soft-deletable, in a TPH hierarchy whose subtypes are, applies no soft-delete filter either, so a subtype row that
+`DeleteAsync` soft-deleted is still returned by the base-type repository; use a repository of the subtype for such reads.
+
 ### What a soft delete covers (4.3.0+)
 
 A soft delete covers the rows a permanent delete would delete: EF's cascade over tracked (loaded) dependants, according

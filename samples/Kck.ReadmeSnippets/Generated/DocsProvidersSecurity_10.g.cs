@@ -7,7 +7,7 @@ internal static class Snippet
 {
     internal static async Task RunAsync(IServiceCollection services)
     {
-#line 187 "docs/providers/security.md"
+#line 194 "docs/providers/security.md"
 services.AddKckAzureKeyVault(opt =>
 {
     opt.VaultUri = "https://my-vault.vault.azure.net/";

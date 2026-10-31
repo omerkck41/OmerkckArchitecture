@@ -76,7 +76,7 @@ The reference app caches its product catalogue this way:
 |---|---|
 | `GetAsync<T>(key)` | Returns null if the key does not exist |
 | `SetAsync<T>(key, value, expiration?)` | Without an expiration, `DefaultExpiration` (5 minutes) applies |
-| `GetOrSetAsync<T>(key, factory, expiration?)` | Cache stampede protected |
+| `GetOrSetAsync<T>(key, factory, expiration?)` | Cache stampede protected; a cached `0`/`false`/`Guid.Empty` is a hit, a cached `null` is a miss (the factory runs again; Hybrid: a `null` result is cached) |
 | `RemoveAsync(key)` | Single removal |
 | `RemoveByPrefixAsync(prefix)` | Bulk removal (Redis: chunked, 1000 per batch) |
 | `ExistsAsync(key)` | Boolean check |
@@ -85,8 +85,12 @@ The reference app caches its product catalogue this way:
 
 - Redis `RemoveByPrefixAsync`: chunked at 1000 keys per batch, so removing a large
   prefix works even when the keys do not fit in a single call
-- `GetOrSetAsync` (both providers): stampede protection with a 64-stripe `SemaphoreSlim` array, so concurrent misses
-  of one key run the factory once per process
+- `GetOrSetAsync` (InMemory, Redis): stampede protection with a 64-stripe `SemaphoreSlim` array, so concurrent misses
+  of one key run the factory once per process. Hybrid goes through `HybridCache.GetOrCreateAsync` instead: one factory
+  run per key across callers, the result written to L1 and L2 (a `null` result is cached too, for the entry's lifetime)
+- `CacheServiceBase` (your own provider): `GetOrSetAsync` decides a hit with `TryGetAsync<T>`, which returns
+  `(bool Found, T? Value)`. The default implementation treats a `null` from `GetAsync` as a miss, which is wrong for
+  value types; override it when the store can report presence (InMemory and Redis do)
 - If the Redis `KeyPrefix` is left empty: `myapp:products:1` becomes `products:1`
 
 ## Selection Criteria

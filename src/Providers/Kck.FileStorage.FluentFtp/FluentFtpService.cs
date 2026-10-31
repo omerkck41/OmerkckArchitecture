@@ -19,8 +19,8 @@ public sealed partial class FluentFtpService(
     /// </summary>
     public async Task UploadAsync(FileUploadRequest request, CancellationToken ct = default)
     {
-        PathSanitizer.Validate(request.DestinationPath);
-        PathSanitizer.Validate(request.FileName);
+        PathHelper.Validate(request.DestinationPath);
+        PathHelper.Validate(request.FileName);
 
         var client = await pool.RentAsync(ct).ConfigureAwait(false);
         try
@@ -48,7 +48,7 @@ public sealed partial class FluentFtpService(
     /// </summary>
     public async Task<Stream> DownloadAsync(string path, CancellationToken ct = default)
     {
-        PathSanitizer.Validate(path);
+        PathHelper.Validate(path);
 
         var client = await pool.RentAsync(ct).ConfigureAwait(false);
         try
@@ -69,7 +69,7 @@ public sealed partial class FluentFtpService(
     /// </summary>
     public async Task DeleteAsync(string path, CancellationToken ct = default)
     {
-        PathSanitizer.Validate(path);
+        PathHelper.Validate(path);
 
         var client = await pool.RentAsync(ct).ConfigureAwait(false);
         try
@@ -88,7 +88,7 @@ public sealed partial class FluentFtpService(
     /// </summary>
     public async Task<bool> ExistsAsync(string path, CancellationToken ct = default)
     {
-        PathSanitizer.Validate(path);
+        PathHelper.Validate(path);
 
         var client = await pool.RentAsync(ct).ConfigureAwait(false);
         try
@@ -107,7 +107,7 @@ public sealed partial class FluentFtpService(
     /// </summary>
     public async Task<IReadOnlyList<FileMetadata>> ListAsync(string directoryPath, CancellationToken ct = default)
     {
-        PathSanitizer.Validate(directoryPath);
+        PathHelper.Validate(directoryPath);
 
         var client = await pool.RentAsync(ct).ConfigureAwait(false);
         try
@@ -137,7 +137,7 @@ public sealed partial class FluentFtpService(
     /// </summary>
     public async Task CreateDirectoryAsync(string path, CancellationToken ct = default)
     {
-        PathSanitizer.Validate(path);
+        PathHelper.Validate(path);
 
         var client = await pool.RentAsync(ct).ConfigureAwait(false);
         try
@@ -156,7 +156,7 @@ public sealed partial class FluentFtpService(
     /// </summary>
     public async Task DeleteDirectoryAsync(string path, CancellationToken ct = default)
     {
-        PathSanitizer.Validate(path);
+        PathHelper.Validate(path);
 
         var client = await pool.RentAsync(ct).ConfigureAwait(false);
         try
@@ -175,8 +175,8 @@ public sealed partial class FluentFtpService(
     /// </summary>
     public async Task MoveAsync(string sourcePath, string destinationPath, CancellationToken ct = default)
     {
-        PathSanitizer.Validate(sourcePath);
-        PathSanitizer.Validate(destinationPath);
+        PathHelper.Validate(sourcePath);
+        PathHelper.Validate(destinationPath);
 
         var client = await pool.RentAsync(ct).ConfigureAwait(false);
         try

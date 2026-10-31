@@ -220,6 +220,47 @@ public sealed class InMemoryCacheServiceTests : IDisposable
         result.Should().Be("v0", "cached value should still be accessible after high-cardinality load");
     }
 
+    // K2 (2026-10-31 health analysis, probe P1): a miss on a value type returned default(T) and never ran the
+    // factory, because "existing is not null" is always true for int/bool/Guid.
+    [Fact]
+    public Task GetOrSetAsync_IntMiss_CallsFactoryOnceAndCachesValue() => AssertValueTypeRoundTrip("vt:int", 42);
+
+    [Fact]
+    public Task GetOrSetAsync_BoolMiss_CallsFactoryOnceAndCachesValue() => AssertValueTypeRoundTrip("vt:bool", true);
+
+    [Fact]
+    public Task GetOrSetAsync_GuidMiss_CallsFactoryOnceAndCachesValue() =>
+        AssertValueTypeRoundTrip("vt:guid", Guid.NewGuid());
+
+    [Fact]
+    public async Task GetOrSetAsync_StoredDefaultValue_IsAHit()
+    {
+        await _sut.SetAsync("vt:zero", 0);
+        var calls = 0;
+
+        var result = await _sut.GetOrSetAsync("vt:zero", () => { calls++; return Task.FromResult(99); });
+
+        result.Should().Be(0);
+        calls.Should().Be(0, "0 is a stored value, not a miss");
+    }
+
+    private async Task AssertValueTypeRoundTrip<T>(string key, T expected) where T : struct
+    {
+        var calls = 0;
+        Task<T> Factory()
+        {
+            calls++;
+            return Task.FromResult(expected);
+        }
+
+        var first = await _sut.GetOrSetAsync(key, Factory);
+        var second = await _sut.GetOrSetAsync(key, Factory);
+
+        first.Should().Be(expected);
+        second.Should().Be(expected);
+        calls.Should().Be(1, "the factory runs on the miss only");
+    }
+
     [Fact]
     public void AddKckCachingInMemory_WithConfigure_ShouldRegisterService()
     {

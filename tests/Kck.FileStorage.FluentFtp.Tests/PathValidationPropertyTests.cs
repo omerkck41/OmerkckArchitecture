@@ -1,14 +1,15 @@
 using CsCheck;
 using AwesomeAssertions;
-using Kck.FileStorage.FluentFtp;
+using Kck.FileStorage.Abstractions;
 using Xunit;
 
 namespace Kck.FileStorage.FluentFtp.Tests;
 
 /// <summary>
-/// Faz-B3: CsCheck property-based tests for PathSanitizer security invariants.
+/// Faz-B3: CsCheck property-based tests for the path validation invariants (PathHelper.Validate, formerly the FTP
+/// provider's internal PathSanitizer).
 /// </summary>
-public sealed class PathSanitizerPropertyTests
+public sealed class PathValidationPropertyTests
 {
     private static readonly Gen<string> SafeSegmentGen =
         Gen.String[Gen.Char.AlphaNumeric, 1, 12];
@@ -22,7 +23,7 @@ public sealed class PathSanitizerPropertyTests
     {
         SafePathGen.Sample(path =>
         {
-            var act = () => PathSanitizer.Validate(path);
+            var act = () => PathHelper.Validate(path);
             act.Should().NotThrow($"path '{path}' contains only safe alphanumeric segments");
         });
     }
@@ -34,7 +35,7 @@ public sealed class PathSanitizerPropertyTests
             .Sample((prefix, suffix) =>
             {
                 var traversal = $"{prefix}/../{suffix}";
-                var act = () => PathSanitizer.Validate(traversal);
+                var act = () => PathHelper.Validate(traversal);
                 act.Should().Throw<ArgumentException>($"path '{traversal}' contains traversal");
             });
     }
@@ -45,7 +46,7 @@ public sealed class PathSanitizerPropertyTests
         SafeSegmentGen.Sample(segment =>
         {
             var absolute = $"/{segment}/file.txt";
-            var act = () => PathSanitizer.Validate(absolute);
+            var act = () => PathHelper.Validate(absolute);
             act.Should().Throw<ArgumentException>($"absolute path '{absolute}' must be rejected");
         });
     }
@@ -57,7 +58,7 @@ public sealed class PathSanitizerPropertyTests
             .Sample((prefix, suffix) =>
             {
                 var encoded = $"{prefix}/%2e%2e/{suffix}";
-                var act = () => PathSanitizer.Validate(encoded);
+                var act = () => PathHelper.Validate(encoded);
                 act.Should().Throw<ArgumentException>($"percent-encoded path must be rejected");
             });
     }
@@ -68,7 +69,7 @@ public sealed class PathSanitizerPropertyTests
         Gen.Char['\x01', '\x1F'].Sample(controlChar =>
         {
             var path = $"safe/{controlChar}file.txt";
-            var act = () => PathSanitizer.Validate(path);
+            var act = () => PathHelper.Validate(path);
             act.Should().Throw<ArgumentException>($"control char 0x{(int)controlChar:X2} must be rejected");
         });
     }

@@ -79,6 +79,25 @@ public sealed class HybridCacheService(
     }
 
     /// <summary>
+    /// Read-through via <c>HybridCache.GetOrCreateAsync</c>: HybridCache's own stampede protection (one factory run
+    /// per key across callers), and the result is written to L1 and L2 with the configured expirations. The base
+    /// class's get-then-set is not used (K2: it also mistook a value-type miss for a hit).
+    /// </summary>
+    public override async Task<T?> GetOrSetAsync<T>(
+        string key, Func<Task<T>> factory, TimeSpan? expiration = null, CancellationToken ct = default)
+        where T : default
+    {
+        var entry = new HybridCacheEntryOptions
+        {
+            Expiration = expiration ?? _opts.DefaultExpiration,
+            LocalCacheExpiration = _opts.DefaultLocalExpiration
+        };
+        return await hybridCache.GetOrCreateAsync(
+                BuildKey(key), factory, static (f, _) => new ValueTask<T>(f()), entry, cancellationToken: ct)
+            .ConfigureAwait(false);
+    }
+
+    /// <summary>
     /// Removes an entry from both L1 and L2 via HybridCache.
     /// </summary>
     public override async Task RemoveAsync(string key, CancellationToken ct = default)
