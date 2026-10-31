@@ -37,6 +37,43 @@ public class DomainEventDispatchInterceptorTests
         dispatcher.Received.Should().ContainSingle();
     }
 
+    // An application may hide the base members with `new`; the interceptor must still use Entity<TId>'s own.
+    private sealed class HidingEntity : Kck.Core.Abstractions.Entities.Entity<Guid>
+    {
+        public new IReadOnlyList<Kck.Core.Abstractions.Entities.IDomainEvent> DomainEvents => [.. base.DomainEvents];
+
+        public int HiddenClearCalls { get; private set; }
+
+        // Deliberately does not clear: the interceptor must clear the base list.
+        public new void ClearDomainEvents() => HiddenClearCalls++;
+    }
+
+    private sealed class HidingContext(DbContextOptions<HidingContext> options) : DbContext(options)
+    {
+        public DbSet<HidingEntity> Items => Set<HidingEntity>();
+    }
+
+    [Fact]
+    public async Task SavedChangesAsync_EntityHidesDomainEventMembers_DispatchesAndClearsTheBaseList()
+    {
+        var dispatcher = new CapturingDispatcher();
+        var options = new DbContextOptionsBuilder<HidingContext>()
+            .UseInMemoryDatabase(Guid.NewGuid().ToString())
+            .AddInterceptors(new DomainEventDispatchInterceptor(dispatcher, Substitute.For<ILogger<DomainEventDispatchInterceptor>>()))
+            .Options;
+        await using var ctx = new HidingContext(options);
+        var entity = new HidingEntity { Id = Guid.NewGuid() };
+        entity.AddDomainEvent(new TestDomainEvent());
+        ctx.Items.Add(entity);
+
+        await ctx.SaveChangesAsync();
+
+        dispatcher.Received.Should().ContainSingle();
+        Kck.Core.Abstractions.Entities.Entity<Guid> asBase = entity; // the base list, not the hiding property
+        asBase.DomainEvents.Should().BeEmpty();
+        entity.HiddenClearCalls.Should().Be(0);
+    }
+
     [Fact]
     public async Task SavedChangesAsync_NoDomainEvents_DoesNotDispatch()
     {

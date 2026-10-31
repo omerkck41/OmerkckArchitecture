@@ -2,6 +2,7 @@ using System.Diagnostics;
 using System.Text.Json;
 using Kck.Caching.Abstractions;
 using Microsoft.Extensions.Caching.Distributed;
+using Microsoft.Extensions.Caching.StackExchangeRedis;
 using Microsoft.Extensions.Options;
 using StackExchange.Redis;
 
@@ -18,6 +19,25 @@ public sealed class RedisCacheService(
     IConnectionMultiplexer redis,
     IOptionsMonitor<CacheOptions> options) : CacheServiceBase
 {
+    // RedisCache stores each key as InstanceName + key. ExistsAsync and RemoveByPrefixAsync talk to Redis directly, so
+    // they add the same name; without it they never find a key when an InstanceName is set.
+    private readonly string _instanceName = string.Empty;
+
+    /// <summary>
+    /// The constructor the container uses: <paramref name="redisOptions"/> supplies the <c>InstanceName</c> that
+    /// <see cref="IDistributedCache"/> prepends to every key.
+    /// </summary>
+    public RedisCacheService(
+        IDistributedCache cache,
+        IConnectionMultiplexer redis,
+        IOptionsMonitor<CacheOptions> options,
+        IOptions<RedisCacheOptions> redisOptions)
+        : this(cache, redis, options)
+    {
+        ArgumentNullException.ThrowIfNull(redisOptions);
+        _instanceName = redisOptions.Value.InstanceName ?? string.Empty;
+    }
+
     /// <inheritdoc/>
     protected override CacheOptions Options { get; } = options.CurrentValue;
 
@@ -50,7 +70,7 @@ public sealed class RedisCacheService(
         // StackExchange.Redis KeyExistsAsync takes no CancellationToken (API limit); consistent with the existing
         // RemoveByPrefixAsync.KeyDeleteAsync pattern.
         ct.ThrowIfCancellationRequested();
-        return await redis.GetDatabase().KeyExistsAsync(BuildKey(key)).ConfigureAwait(false);
+        return await redis.GetDatabase().KeyExistsAsync(_instanceName + BuildKey(key)).ConfigureAwait(false);
     }
 
     private const int DeleteChunkSize = 1000;
@@ -61,7 +81,7 @@ public sealed class RedisCacheService(
     /// </summary>
     public override async Task RemoveByPrefixAsync(string prefix, CancellationToken ct = default)
     {
-        var fullPrefix = BuildKey(prefix);
+        var fullPrefix = _instanceName + BuildKey(prefix);
         var db = redis.GetDatabase();
         var endpoints = redis.GetEndPoints();
 
@@ -69,7 +89,7 @@ public sealed class RedisCacheService(
         {
             var batch = new List<RedisKey>(DeleteChunkSize);
 
-            await foreach (var key in server.KeysAsync(pattern: $"{fullPrefix}*").WithCancellation(ct))
+            await foreach (var key in server.KeysAsync(pattern: $"{EscapeGlob(fullPrefix)}*").WithCancellation(ct))
             {
                 batch.Add(key);
                 if (batch.Count >= DeleteChunkSize)
@@ -82,5 +102,19 @@ public sealed class RedisCacheService(
             if (batch.Count > 0)
                 await db.KeyDeleteAsync(batch.ToArray()).ConfigureAwait(false);
         }
+    }
+
+    // SCAN MATCH is a glob: a literal * ? [ ] or \ in the instance name or prefix must not match other keys.
+    private static string EscapeGlob(string value)
+    {
+        var escaped = new System.Text.StringBuilder(value.Length);
+        foreach (var c in value)
+        {
+            if (c is '*' or '?' or '[' or ']' or '\\')
+                escaped.Append('\\');
+            escaped.Append(c);
+        }
+
+        return escaped.ToString();
     }
 }

@@ -336,10 +336,24 @@ public sealed partial class DomainEventDispatchInterceptor : SaveChangesIntercep
     }
 
     private static IReadOnlyCollection<IDomainEvent>? DomainEventsOf(object entity) =>
-        entity.GetType().GetProperty(nameof(Entity<object>.DomainEvents))?.GetValue(entity) as IReadOnlyCollection<IDomainEvent>;
+        EntityBase(entity.GetType())?.GetProperty(nameof(Entity<object>.DomainEvents))?.GetValue(entity)
+            as IReadOnlyCollection<IDomainEvent>;
 
     private static void Invoke(object entity, string method, Type[] parameterTypes, params object[] arguments) =>
-        entity.GetType().GetMethod(method, parameterTypes)?.Invoke(entity, arguments);
+        EntityBase(entity.GetType())?.GetMethod(method, parameterTypes)?.Invoke(entity, arguments);
+
+    // Members are looked up on Entity<TId> itself: a derived class that hides them with `new` would make a lookup on
+    // the runtime type ambiguous (AmbiguousMatchException) or reach the hiding member instead of the event list.
+    private static Type? EntityBase(Type type)
+    {
+        for (var current = type; current is not null; current = current.BaseType)
+        {
+            if (current.IsGenericType && current.GetGenericTypeDefinition() == typeof(Entity<>))
+                return current;
+        }
+
+        return null;
+    }
 
     private sealed record EntityEvents(object Entity, IReadOnlyList<IDomainEvent> Events);
 }

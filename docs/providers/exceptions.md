@@ -66,8 +66,9 @@ type name and `detail` its message:
 ```
 
 Any other exception becomes a 500 with the fixed detail `An unexpected error occurred.`, so internal messages do not
-leak. An `OperationCanceledException` is rethrown only when the request itself was aborted; another one (an `HttpClient` timeout) becomes a 500. If the response has already started,
-the exception is logged and rethrown. `UseKckExceptionHandling()` also enables `UseStatusCodePages()`.
+leak. An `OperationCanceledException` is rethrown only when the request itself was aborted; another one (an
+`HttpClient` timeout) becomes a 500. Another error in an aborted request is logged, but no response is written: the
+client is gone. If the response has already started, the exception is logged and rethrown. `UseKckExceptionHandling()` also enables `UseStatusCodePages()`.
 
 ## ValidationException
 

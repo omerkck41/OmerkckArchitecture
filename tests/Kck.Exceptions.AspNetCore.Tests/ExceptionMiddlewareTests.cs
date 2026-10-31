@@ -100,6 +100,24 @@ public class ExceptionMiddlewareTests
     }
 
     [Fact]
+    public async Task InvokeAsync_OtherException_ClientAborted_IsHandledWithoutWriting()
+    {
+        // The client is gone: the error is still handled (and logged by the handler), but nothing is written, so the
+        // original failure is not turned into an OperationCanceledException by the write.
+        using var aborted = new CancellationTokenSource();
+        await aborted.CancelAsync();
+        var middleware = CreateMiddleware(_ => throw new InvalidOperationException("Database unavailable"));
+        var context = CreateHttpContext();
+        context.RequestAborted = aborted.Token;
+
+        var act = () => middleware.InvokeAsync(context);
+
+        await act.Should().NotThrowAsync();
+        context.Response.Body.Length.Should().Be(0);
+        context.Response.StatusCode.Should().Be(500); // metrics and request logs still see the failure
+    }
+
+    [Fact]
     public async Task InvokeAsync_TaskCanceledException_RequestNotAborted_ShouldReturn500()
     {
         // An HttpClient timeout: canceled, but not by the client of this request.
