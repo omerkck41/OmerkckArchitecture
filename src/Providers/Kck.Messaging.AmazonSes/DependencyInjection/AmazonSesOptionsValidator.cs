@@ -11,20 +11,20 @@ public sealed class AmazonSesOptionsValidator : IValidateOptions<AmazonSesOption
         if (string.IsNullOrWhiteSpace(options.Region))
             errors.Add(
                 """
-                  • Region: boş veya null
+                  • Region: null or empty
                     → Fix: opt.Region = "eu-central-1"
                 """);
 
-        // Explicit credentials optional (IAM role / env vars fallback desteklenir).
-        // Ama biri varsa diğeri de zorunlu.
+        // Explicit credentials optional (IAM role / env vars fallback is supported).
+        // But if one is set, the other is required.
         var hasAccessKey = !string.IsNullOrWhiteSpace(options.AccessKey);
         var hasSecretKey = !string.IsNullOrWhiteSpace(options.SecretKey);
         if (hasAccessKey != hasSecretKey)
             errors.Add(
                 """
-                  • AccessKey / SecretKey: ikisi birlikte tanımlanmalı ya da ikisi de boş bırakılmalı
+                  • AccessKey / SecretKey: set both or leave both empty
                     → Fix: opt.AccessKey = "AKIA...";  opt.SecretKey = "...";
-                    → Alternatif: IAM role veya ortam değişkenleri (AWS_ACCESS_KEY_ID) kullan
+                    → Alternative: use an IAM role or environment variables (AWS_ACCESS_KEY_ID)
                 """);
 
         if (errors.Count == 0)
@@ -32,7 +32,7 @@ public sealed class AmazonSesOptionsValidator : IValidateOptions<AmazonSesOption
 
         return ValidateOptionsResult.Fail(
             $"""
-            [Kck.Messaging.AmazonSes] AmazonSesOptions geçersiz:
+            [Kck.Messaging.AmazonSes] AmazonSesOptions is invalid:
             {string.Join(Environment.NewLine, errors)}
               Docs: https://github.com/omerkck41/OmerkckArchitecture/blob/main/docs/providers/messaging.md
             """);

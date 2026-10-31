@@ -11,23 +11,23 @@ public sealed class AzureServiceBusOptionsValidator : IValidateOptions<AzureServ
         if (string.IsNullOrWhiteSpace(options.ConnectionString))
             errors.Add(
                 """
-                  • ConnectionString: boş veya null
+                  • ConnectionString: null or empty
                     → Fix: opt.ConnectionString = "Endpoint=sb://...";
-                    → Alternatif: Azure Managed Identity kullanıyorsanız bağlantı dizesi yerine
-                      namespace endpoint: "sb://<namespace>.servicebus.windows.net/"
+                    → Alternative: with Azure Managed Identity, use the namespace endpoint instead of a connection string:
+                      "sb://<namespace>.servicebus.windows.net/"
                 """);
 
         if (string.IsNullOrWhiteSpace(options.TopicName))
             errors.Add(
                 """
-                  • TopicName: boş veya null
+                  • TopicName: null or empty
                     → Fix: opt.TopicName = "kck-eventbus"
                 """);
 
         if (string.IsNullOrWhiteSpace(options.SubscriptionName))
             errors.Add(
                 """
-                  • SubscriptionName: boş veya null
+                  • SubscriptionName: null or empty
                     → Fix: opt.SubscriptionName = "my-service"
                 """);
 
@@ -36,7 +36,7 @@ public sealed class AzureServiceBusOptionsValidator : IValidateOptions<AzureServ
 
         return ValidateOptionsResult.Fail(
             $"""
-            [Kck.EventBus.AzureServiceBus] AzureServiceBusOptions geçersiz:
+            [Kck.EventBus.AzureServiceBus] AzureServiceBusOptions is invalid:
             {string.Join(Environment.NewLine, errors)}
               Docs: https://github.com/omerkck41/OmerkckArchitecture/blob/main/docs/providers/event-bus.md
             """);

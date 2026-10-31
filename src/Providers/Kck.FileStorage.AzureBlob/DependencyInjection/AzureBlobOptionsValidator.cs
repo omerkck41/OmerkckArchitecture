@@ -16,21 +16,21 @@ public sealed class AzureBlobOptionsValidator : IValidateOptions<AzureBlobOption
         if (!hasCs && !hasAccount)
             errors.Add(
                 """
-                  • ConnectionString ve AccountName ikisi de boş
+                  • ConnectionString and AccountName are both empty
                     → Fix: opt.ConnectionString = "<connection-string>";
-                    → veya Managed Identity: opt.AccountName = "<account-name>";
+                    → or, for Managed Identity: opt.AccountName = "<account-name>";
                 """);
 
         if (hasCs && hasAccount)
             errors.Add(
                 """
-                  • ConnectionString ve AccountName ikisi birden tanımlı — yalnızca biri kullanılmalı
+                  • ConnectionString and AccountName are both set — use only one
                 """);
 
         if (string.IsNullOrWhiteSpace(options.ContainerName))
             errors.Add(
                 """
-                  • ContainerName: boş veya null
+                  • ContainerName: null or empty
                     → Fix: opt.ContainerName = "my-container";
                 """);
 
@@ -39,7 +39,7 @@ public sealed class AzureBlobOptionsValidator : IValidateOptions<AzureBlobOption
 
         return ValidateOptionsResult.Fail(
             $"""
-            [Kck.FileStorage.AzureBlob] AzureBlobOptions geçersiz:
+            [Kck.FileStorage.AzureBlob] AzureBlobOptions is invalid:
             {string.Join(Environment.NewLine, errors)}
               Docs: https://github.com/omerkck41/OmerkckArchitecture/blob/main/docs/providers/file-storage.md
             """);

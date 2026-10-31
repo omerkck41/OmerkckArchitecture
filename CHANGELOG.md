@@ -42,6 +42,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   token too (two requests can no longer both pay an order, or cancel a shipped one) and sorts a search without a sort
   newest first.
 
+### Changed
+- Options validation messages (JWT, Argon2, Azure Service Bus, Azure App Configuration, Azure Key Vault, Azure Blob,
+  AWS S3, FluentFTP, Amazon SES, MailKit, SendGrid, Elasticsearch, Redis token blacklist) and the remaining XML docs
+  (`Kck.Exceptions.AspNetCore`) are in English.
+
 ### Changed — behaviour
 - `Kck.Persistence.EntityFramework` — `BulkUpdateAsync` leaves soft-deleted rows out, like the repository's reads.
   Before, it updated them when the model did not use `ApplyGlobalSoftDeleteQueryFilter()`.

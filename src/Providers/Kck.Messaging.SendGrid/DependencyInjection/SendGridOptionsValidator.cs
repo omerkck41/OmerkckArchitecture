@@ -11,8 +11,8 @@ public sealed class SendGridOptionsValidator : IValidateOptions<SendGridOptions>
 
         return ValidateOptionsResult.Fail(
             """
-            [Kck.Messaging.SendGrid] SendGridOptions geçersiz:
-              • ApiKey: boş veya null
+            [Kck.Messaging.SendGrid] SendGridOptions is invalid:
+              • ApiKey: null or empty
                 → Fix: opt.ApiKey = Environment.GetEnvironmentVariable("SENDGRID_API_KEY")!
               Docs: https://github.com/omerkck41/OmerkckArchitecture/blob/main/docs/providers/messaging.md
             """);

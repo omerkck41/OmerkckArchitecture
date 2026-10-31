@@ -12,7 +12,7 @@ public sealed class ElasticsearchOptionsValidator : IValidateOptions<Elasticsear
         {
             errors.Add(
                 """
-                  • ConnectionString: boş veya null
+                  • ConnectionString: null or empty
                     → Fix: opt.ConnectionString = "https://localhost:9200"
                 """);
         }
@@ -21,7 +21,7 @@ public sealed class ElasticsearchOptionsValidator : IValidateOptions<Elasticsear
         {
             errors.Add(
                 $"""
-                  • ConnectionString: "{options.ConnectionString}" geçerli bir HTTP/HTTPS URI değil
+                  • ConnectionString: "{options.ConnectionString}" is not a valid HTTP/HTTPS URI
                     → Fix: opt.ConnectionString = "https://localhost:9200"
                 """);
         }
@@ -29,15 +29,15 @@ public sealed class ElasticsearchOptionsValidator : IValidateOptions<Elasticsear
         if (options.NumberOfShards < 1)
             errors.Add(
                 $"""
-                  • NumberOfShards: {options.NumberOfShards} (en az 1 olmalı)
+                  • NumberOfShards: {options.NumberOfShards} (must be at least 1)
                     → Fix: opt.NumberOfShards = 1
                 """);
 
         if (options.NumberOfReplicas < 0)
             errors.Add(
                 $"""
-                  • NumberOfReplicas: {options.NumberOfReplicas} (0 veya daha büyük olmalı)
-                    → Fix: opt.NumberOfReplicas = 0   // tek node için; prod: 1+
+                  • NumberOfReplicas: {options.NumberOfReplicas} (must be 0 or greater)
+                    → Fix: opt.NumberOfReplicas = 0   // single node; prod: 1+
                 """);
 
         if (errors.Count == 0)
@@ -45,7 +45,7 @@ public sealed class ElasticsearchOptionsValidator : IValidateOptions<Elasticsear
 
         return ValidateOptionsResult.Fail(
             $"""
-            [Kck.Search.Elasticsearch] ElasticsearchOptions geçersiz:
+            [Kck.Search.Elasticsearch] ElasticsearchOptions is invalid:
             {string.Join(Environment.NewLine, errors)}
               Docs: https://github.com/omerkck41/OmerkckArchitecture/blob/main/docs/providers/search.md
             """);

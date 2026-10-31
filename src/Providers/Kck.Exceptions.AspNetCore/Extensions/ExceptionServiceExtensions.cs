@@ -7,12 +7,12 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 namespace Kck.Exceptions.AspNetCore.Extensions;
 
 /// <summary>
-/// KCK exception handling DI kaydı ve middleware pipeline uzantıları.
+/// KCK exception handling DI registration and middleware pipeline extensions.
 /// </summary>
 public static class ExceptionServiceExtensions
 {
     /// <summary>
-    /// KCK exception handler'larını ve ProblemDetails servislerini DI container'a kaydeder.
+    /// Registers the KCK exception handlers and ProblemDetails services in the DI container.
     /// </summary>
     public static IServiceCollection AddKckExceptionHandling(this IServiceCollection services)
     {
@@ -24,7 +24,7 @@ public static class ExceptionServiceExtensions
     }
 
     /// <summary>
-    /// KCK exception middleware'ini pipeline'a ekler.
+    /// Adds the KCK exception middleware to the pipeline.
     /// </summary>
     public static IApplicationBuilder UseKckExceptionHandling(this IApplicationBuilder app)
     {

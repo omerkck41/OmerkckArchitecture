@@ -3,44 +3,44 @@ using System.Text.Json.Serialization;
 namespace Kck.Exceptions.AspNetCore.Models;
 
 /// <summary>
-/// RFC 7807 Problem Details standardına uyumlu hata yanıtı.
+/// Error response compliant with the RFC 7807 Problem Details standard.
 /// </summary>
 public sealed record UnifiedApiErrorResponse
 {
     /// <summary>
-    /// RFC 7807 — hata tipi URI'si.
+    /// RFC 7807 — error type URI.
     /// </summary>
     public string? Type { get; init; }
 
     /// <summary>
-    /// RFC 7807 — hata başlığı.
+    /// RFC 7807 — error title.
     /// </summary>
     public string Title { get; init; }
 
     /// <summary>
-    /// HTTP durum kodu.
+    /// HTTP status code.
     /// </summary>
     public int Status { get; init; }
 
     /// <summary>
-    /// Hata detay mesajı.
+    /// Error detail message.
     /// </summary>
     public string Detail { get; init; }
 
     /// <summary>
-    /// İstek yolu (request path).
+    /// Request path.
     /// </summary>
     public string? Instance { get; init; }
 
     /// <summary>
-    /// Validasyon hataları (opsiyonel).
-    /// Key: alan adı, Value: hata mesajları listesi.
+    /// Validation errors (optional).
+    /// Key: field name, Value: list of error messages.
     /// </summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public IDictionary<string, string[]>? Errors { get; init; }
 
     /// <summary>
-    /// Korelasyon/takip kimliği.
+    /// Correlation/tracking identifier.
     /// </summary>
     public string TraceId { get; init; }
 

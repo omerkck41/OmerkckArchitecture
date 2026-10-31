@@ -19,7 +19,7 @@ public sealed class Argon2OptionsValidator : IValidateOptions<Argon2Options>
             errors.Add(
                 $"""
                   • MemorySize: {options.MemorySize} KB (OWASP minimum {MinMemoryKb} KB = 19 MB)
-                    → Fix: opt.MemorySize = 65536   // 64 MB (önerilen)
+                    → Fix: opt.MemorySize = 65536   // 64 MB (recommended)
                 """);
 
         if (options.Iterations < MinIterations)
@@ -55,7 +55,7 @@ public sealed class Argon2OptionsValidator : IValidateOptions<Argon2Options>
 
         return ValidateOptionsResult.Fail(
             $"""
-            [Kck.Security.Argon2] Argon2Options OWASP minimum değerlerin altında:
+            [Kck.Security.Argon2] Argon2Options is below the OWASP minimum values:
             {string.Join(Environment.NewLine, errors)}
               Ref: https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html
               Docs: https://github.com/omerkck41/OmerkckArchitecture/blob/main/docs/providers/security.md
