@@ -11,8 +11,8 @@ public sealed class RedisTokenBlacklistOptionsValidator : IValidateOptions<Redis
 
         return ValidateOptionsResult.Fail(
             """
-            [Kck.Security.TokenBlacklist.Redis] RedisTokenBlacklistOptions geçersiz:
-              • ConnectionString: boş veya null
+            [Kck.Security.TokenBlacklist.Redis] RedisTokenBlacklistOptions is invalid:
+              • ConnectionString: null or empty
                 → Fix: opt.ConnectionString = "localhost:6379"
               Docs: https://github.com/omerkck41/OmerkckArchitecture/blob/main/docs/providers/security.md
             """);

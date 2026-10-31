@@ -24,6 +24,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `Kck.Persistence.Abstractions` — a `DynamicQuery` deserialized from `"sort": null` had a null `Sort`, and
   `ToDynamic` / the search guard threw `NullReferenceException`. Setting `Sort` to null now stores an empty collection.
 
+### Changed
+- Options validation messages (JWT, Argon2, Azure Service Bus, Azure App Configuration, Azure Key Vault, Azure Blob,
+  AWS S3, FluentFTP, Amazon SES, MailKit, SendGrid, Elasticsearch, Redis token blacklist) and the remaining XML docs
+  (`Kck.Exceptions.AspNetCore`) are in English.
+
 ### Changed — behaviour
 - `Kck.Persistence.EntityFramework` — `BulkUpdateAsync` leaves soft-deleted rows out, like the repository's reads.
   Before, it updated them when the model did not use `ApplyGlobalSoftDeleteQueryFilter()`.

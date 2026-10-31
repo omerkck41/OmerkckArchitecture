@@ -7,7 +7,7 @@ namespace Kck.Exceptions.AspNetCore.Middleware;
 
 /// <summary>
 /// ASP.NET Core exception middleware.
-/// Pipeline'daki hataları yakalar, uygun handler ile RFC 7807 uyumlu JSON yanıtı oluşturur.
+/// Catches errors in the pipeline and builds an RFC 7807 compliant JSON response with the matching handler.
 /// </summary>
 public sealed partial class ExceptionMiddleware
 {

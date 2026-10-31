@@ -5,8 +5,8 @@ using Microsoft.Extensions.Logging;
 namespace Kck.Exceptions.AspNetCore.Handlers;
 
 /// <summary>
-/// <see cref="ValidationException"/> tipini işleyen handler.
-/// HTTP 422 Unprocessable Entity döner ve validasyon hatalarını errors alanına yazar.
+/// Handler for the <see cref="ValidationException"/> type.
+/// Returns HTTP 422 Unprocessable Entity and writes the validation errors to the errors field.
 /// </summary>
 public sealed partial class ValidationExceptionHandler : IKckExceptionHandler
 {

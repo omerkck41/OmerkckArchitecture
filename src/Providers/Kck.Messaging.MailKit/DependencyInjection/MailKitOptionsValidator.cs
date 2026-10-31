@@ -11,15 +11,15 @@ public sealed class MailKitOptionsValidator : IValidateOptions<MailKitOptions>
         if (string.IsNullOrWhiteSpace(options.Host))
             errors.Add(
                 """
-                  • Host: boş veya null
+                  • Host: null or empty
                     → Fix: opt.Host = "smtp.example.com"
                 """);
 
         if (options.Port is < 1 or > 65535)
             errors.Add(
                 $"""
-                  • Port: {options.Port} geçersiz (1–65535 arası olmalı)
-                    → Fix: opt.Port = 587   (STARTTLS) veya 465 (SSL)
+                  • Port: {options.Port} is invalid (must be between 1 and 65535)
+                    → Fix: opt.Port = 587   (STARTTLS) or 465 (SSL)
                 """);
 
         if (errors.Count == 0)
@@ -27,7 +27,7 @@ public sealed class MailKitOptionsValidator : IValidateOptions<MailKitOptions>
 
         return ValidateOptionsResult.Fail(
             $"""
-            [Kck.Messaging.MailKit] MailKitOptions geçersiz:
+            [Kck.Messaging.MailKit] MailKitOptions is invalid:
             {string.Join(Environment.NewLine, errors)}
               Docs: https://github.com/omerkck41/OmerkckArchitecture/blob/main/docs/providers/messaging.md
             """);

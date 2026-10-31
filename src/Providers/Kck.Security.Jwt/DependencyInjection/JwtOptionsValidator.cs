@@ -11,38 +11,38 @@ public sealed class JwtOptionsValidator : IValidateOptions<JwtOptions>
         if (string.IsNullOrWhiteSpace(options.Issuer))
             errors.Add(
                 """
-                  • Issuer: boş veya null
+                  • Issuer: null or empty
                     → Fix: opt.Issuer = "https://myapp.example.com"
                 """);
 
         if (string.IsNullOrWhiteSpace(options.Audience))
             errors.Add(
                 """
-                  • Audience: boş veya null
+                  • Audience: null or empty
                     → Fix: opt.Audience = "api://myapp"
                 """);
 
         if (options.AccessTokenExpiration <= TimeSpan.Zero)
             errors.Add(
                 $"""
-                  • AccessTokenExpiration: {options.AccessTokenExpiration} (pozitif bir değer olmalı)
+                  • AccessTokenExpiration: {options.AccessTokenExpiration} (must be positive)
                     → Fix: opt.AccessTokenExpiration = TimeSpan.FromMinutes(15)
                 """);
 
         if (options.RefreshTokenTtlDays < 1)
             errors.Add(
                 $"""
-                  • RefreshTokenTtlDays: {options.RefreshTokenTtlDays} (en az 1 gün olmalı)
+                  • RefreshTokenTtlDays: {options.RefreshTokenTtlDays} (must be at least 1 day)
                     → Fix: opt.RefreshTokenTtlDays = 7
                 """);
 
-        // RSA anahtar kaynağına göre ilgili alan zorunlu
+        // The matching field is required for the selected RSA key source
         switch (options.KeySource)
         {
             case RsaKeySource.File when string.IsNullOrWhiteSpace(options.RsaKeyPath):
                 errors.Add(
                     """
-                      • RsaKeyPath: KeySource=File seçildi ama RsaKeyPath boş
+                      • RsaKeyPath: KeySource=File but RsaKeyPath is empty
                         → Fix: opt.RsaKeyPath = "/secrets/rsa-private.pem"
                     """);
                 break;
@@ -58,7 +58,7 @@ public sealed class JwtOptionsValidator : IValidateOptions<JwtOptions>
             case RsaKeySource.Configuration when string.IsNullOrWhiteSpace(options.RsaKeyBase64):
                 errors.Add(
                     """
-                      • RsaKeyBase64: KeySource=Configuration seçildi ama RsaKeyBase64 boş
+                      • RsaKeyBase64: KeySource=Configuration but RsaKeyBase64 is empty
                         → Fix: opt.RsaKeyBase64 = Environment.GetEnvironmentVariable("JWT_RSA_KEY_B64")!
                     """);
                 break;
@@ -69,7 +69,7 @@ public sealed class JwtOptionsValidator : IValidateOptions<JwtOptions>
 
         return ValidateOptionsResult.Fail(
             $"""
-            [Kck.Security.Jwt] JwtOptions geçersiz:
+            [Kck.Security.Jwt] JwtOptions is invalid:
             {string.Join(Environment.NewLine, errors)}
               Docs: https://github.com/omerkck41/OmerkckArchitecture/blob/main/docs/providers/security.md
             """);

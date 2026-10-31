@@ -16,26 +16,26 @@ public sealed class AzureAppConfigFeatureFlagOptionsValidator : IValidateOptions
         if (!hasCs && !hasEp)
             return ValidateOptionsResult.Fail(
                 """
-                [Kck.FeatureFlags.AzureAppConfig] AzureAppConfigOptions geçersiz:
-                  • ConnectionString ve Endpoint ikisi de boş
+                [Kck.FeatureFlags.AzureAppConfig] AzureAppConfigOptions is invalid:
+                  • ConnectionString and Endpoint are both empty
                     → Fix: opt.ConnectionString = "<connection-string>";
-                    → veya Managed Identity için: opt.Endpoint = "https://<store>.azconfig.io";
+                    → or, for Managed Identity: opt.Endpoint = "https://<store>.azconfig.io";
                   Docs: https://github.com/omerkck41/OmerkckArchitecture/blob/main/docs/providers/feature-flags.md
                 """);
 
         if (hasCs && hasEp)
             return ValidateOptionsResult.Fail(
                 """
-                [Kck.FeatureFlags.AzureAppConfig] AzureAppConfigOptions geçersiz:
-                  • ConnectionString ve Endpoint ikisi birden tanımlı — yalnızca biri kullanılmalı
-                    → Managed Identity tercih ediliyorsa: opt.ConnectionString = null;
+                [Kck.FeatureFlags.AzureAppConfig] AzureAppConfigOptions is invalid:
+                  • ConnectionString and Endpoint are both set — use only one
+                    → If you prefer Managed Identity: opt.ConnectionString = null;
                 """);
 
         if (options.RefreshInterval <= TimeSpan.Zero)
             return ValidateOptionsResult.Fail(
                 $"""
-                [Kck.FeatureFlags.AzureAppConfig] AzureAppConfigOptions geçersiz:
-                  • RefreshInterval: {options.RefreshInterval} (pozitif olmalı)
+                [Kck.FeatureFlags.AzureAppConfig] AzureAppConfigOptions is invalid:
+                  • RefreshInterval: {options.RefreshInterval} (must be positive)
                     → Fix: opt.RefreshInterval = TimeSpan.FromSeconds(30);
                 """);
 
