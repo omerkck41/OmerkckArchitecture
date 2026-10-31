@@ -157,11 +157,12 @@ internal static class SoftDeleteHelper
     {
         foreach (var dependent in entries.Where(e => e.State == EntityState.Modified))
         {
-            foreach (var foreignKey in dependent.Metadata.GetForeignKeys())
+            foreach (var foreignKey in dependent.Metadata.GetForeignKeys()
+                         .Where(foreignKey => kept.Any(principal =>
+                             foreignKey.PrincipalEntityType.IsAssignableFrom(principal.Metadata)
+                             && ReferencesPrincipal(dependent, principal, foreignKey))))
             {
-                if (kept.Any(principal => foreignKey.PrincipalEntityType.IsAssignableFrom(principal.Metadata)
-                                          && ReferencesPrincipal(dependent, principal, foreignKey)))
-                    RestoreNulledForeignKey(dependent, foreignKey);
+                RestoreNulledForeignKey(dependent, foreignKey);
             }
         }
     }

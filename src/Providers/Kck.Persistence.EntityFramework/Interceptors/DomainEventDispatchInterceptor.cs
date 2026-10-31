@@ -324,18 +324,19 @@ public sealed partial class DomainEventDispatchInterceptor : SaveChangesIntercep
     {
         var collected = new List<EntityEvents>();
 
-        foreach (var entity in context.ChangeTracker.Entries().Select(e => e.Entity))
+        foreach (var (entity, events) in context.ChangeTracker.Entries()
+                     .Select(e => (e.Entity, Events: DomainEventsOf(e.Entity)))
+                     .Where(e => e.Events is { Count: > 0 }))
         {
-            if (entity.GetType().GetProperty(nameof(Entity<object>.DomainEvents))?.GetValue(entity)
-                    is not IReadOnlyCollection<IDomainEvent> { Count: > 0 } events)
-                continue;
-
-            collected.Add(new EntityEvents(entity, events.ToList()));
+            collected.Add(new EntityEvents(entity, events!.ToList()));
             Invoke(entity, nameof(Entity<object>.ClearDomainEvents), Type.EmptyTypes);
         }
 
         return collected;
     }
+
+    private static IReadOnlyCollection<IDomainEvent>? DomainEventsOf(object entity) =>
+        entity.GetType().GetProperty(nameof(Entity<object>.DomainEvents))?.GetValue(entity) as IReadOnlyCollection<IDomainEvent>;
 
     private static void Invoke(object entity, string method, Type[] parameterTypes, params object[] arguments) =>
         entity.GetType().GetMethod(method, parameterTypes)?.Invoke(entity, arguments);
