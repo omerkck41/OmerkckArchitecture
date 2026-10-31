@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1793476022803,
+  "lastUpdate": 1793483211494,
   "repoUrl": "https://github.com/omerkck41/OmerkckArchitecture",
   "entries": {
     "Benchmark": [
@@ -14926,6 +14926,102 @@ window.BENCHMARK_DATA = {
             "value": 11.57931285883699,
             "unit": "ns",
             "range": "± 0.15196302848388196"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "106805727+omerkck41@users.noreply.github.com",
+            "name": "Ömer KÜÇÜK",
+            "username": "omerkck41"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "99ae9da35c8a0c566bd63e76633b14c5459c23c6",
+          "message": "fix: proven provider defects (K1-K3, UserSecrets, K7 path traversal) (#285)\n\n## Summary\n\nF0 of the [2026-10-31 provider health\nplan](docs/plans/2026-10-31-provider-saglik-ve-atil-kod-plani.md) (§1\nK1, K2, K3, K7 and the UserSecrets finding; acceptance examples §5\nÖ1–Ö4, Ö17). Every fix started from a RED test that reproduces the\nprobe.\n\n| # | Package(s) | Defect | Fix |\n|---|---|---|---|\n| K1 | `Kck.Persistence.EntityFramework` | `Query()` applied\n`!((ISoftDeletable)e).IsDeleted` to every `T`; every read of a plain\n`Entity<TId>` threw \"could not be translated\" (SQLite/Postgres).\n`Count/GetById/GetList/Any/Get/BulkUpdate` all failed; only the\ndelete/revert paths (which lift the filter) worked. | Filter and\n`IncludeDeleted` apply to soft-deletable types only (`static readonly\nbool IsSoftDeletable`). |\n| K2 | `Kck.Caching.Abstractions`, `.InMemory`, `.Redis`, `.Hybrid` |\n`GetOrSetAsync<int/bool/Guid>` never ran the factory (`existing is not\nnull` is always true for a value type) and returned\n`0`/`false`/`Guid.Empty`. | `protected virtual ValueTask<(bool Found, T?\nValue)> TryGetAsync<T>` (InMemory: `TryGetValue`; Redis: payload null\ncheck); `GetOrSetAsync` is `virtual`; Hybrid overrides it with\n`HybridCache.GetOrCreateAsync` (its stampede protection + L1/L2 write,\nas the doc already claimed). A cached `null` is still a miss, as before.\n|\n| K3 | `Kck.Security.Jwt` | `ValidateTokenAsync` read roles from\n`TokenValidationResult.Claims`, which folds a repeated type into one\n`List<object>` → `Roles =\n[\"System.Collections.Generic.List`1[System.Object]\"]`; `Claims` was\nnever filled. | Roles from `ClaimsIdentity.FindAll(ClaimTypes.Role)`;\n`Claims` = every claim type with its first value (documented; use\n`Roles` for multi-valued). |\n| — | `Kck.Security.Secrets.UserSecrets` | `GetSecretAsync<string>`\nthrew `JsonException` on a plain value. | `T == string` returns the\nvalue as is (same as AzureKeyVault). |\n| K7 | `Kck.FileStorage.AzureBlob`, `Kck.FileStorage.AwsS3`,\n`Kck.FileStorage.Abstractions` (+ FluentFtp) | **Path traversal.** No\npath validation; Azure SDK puts the blob name in the URI and `Uri`\ncollapses `..`: bound to container `alpha`,\n`ExistsAsync/DownloadAsync(\"../beta/secret.txt\")` read `beta`,\n`UploadAsync(DestinationPath=\"../beta\")` wrote into `beta` (Azurite). S3\nkeeps `..` literally (no prefix escape) but wrote `tenantA/../tenantB/x`\nkeys. | New `PathHelper.Validate` (the FTP `PathSanitizer` logic moved\nto the abstractions package): `..`, absolute, `%`, control chars →\n`ArgumentException`. Called on every path argument of both providers\n(`FileName`, non-empty `DestinationPath`, `path`, `directoryPath`)\nbefore any request. FTP provider now calls the shared method (no\nbehaviour change). |\n\n## Evidence\n\n- RED → GREEN per item (SQLite, NSubstitute, real `HybridCache`,\nTestcontainers Redis, connection-refused endpoints for Blob/S3): K1 5/9\nred (the 4 delete/revert tests already passed: they lift the filter) +\n`BulkUpdateAsync` red, K2 red in all three providers and in an\noverride-free `CacheServiceBase` subclass, K3 2 red, UserSecrets 1 red,\nK7 Blob 9 red (network errors), S3 2 red witnessed with the provider\nreverted, compile-red for `PathHelper.Validate`, `ListAsync(\"\")` red\nbefore the root allowance.\n- `dotnet build -c Release`: 0 errors, no warnings beyond the 5\nintentional CA1716.\n- `dotnet test -c Release` (Docker on): **1324/1324** across 41 test\nprojects (baseline 1250 + 74 new).\n- Review: `/code-review` and `/adversarial-review` by two fresh\nreviewers, no critical/high. Fixed in this PR: base-class default\n`TryGetAsync` falls back to `ExistsAsync` for `default(T)`;\n`ListAsync(\"\")` root listing kept (S3 `KeyPrefix` root); positive-path\ntests for Blob/S3; docs/CHANGELOG wording. Documented as a known limit:\na repository of a non-soft-deletable TPH base type does not filter\nsoft-deleted subtype rows. Side findings left for a follow-up (not\ntouched): `CustomClaims` with the role claim type enters `Roles`; `jti`\nis still read from the merged claims dictionary.\n- Probes re-run against this branch: P1 `GetOrSetAsync<int>` → 42 / 1\ncall, `<bool>` → True / 1; P2 `Roles=[admin | editor]`,\n`Claims.Count=10`; P4 `Count/GetById/GetList/Any` → 1 / x / 1 / True; P3\n→ `'plain-secret-value'`; Azurite B1/B2/B3 → `ArgumentException: Path\ntraversal is not allowed` (B0 `ok.txt` → True); S3Mock S1/S2/S3 →\n`ArgumentException` (S0 → True).\n\n## API surface\n\n- `Kck.Caching.Abstractions`: `CacheServiceBase.GetOrSetAsync<T>`\nnon-virtual → `virtual` (`*REMOVED*` + new line in\n`PublicAPI.Unshipped.txt`), new `protected virtual TryGetAsync<T>`.\n- `Kck.FileStorage.Abstractions`: new `static\nPathHelper.Validate(string)`.\n- `Kck.FileStorage.FluentFtp`: internal `PathSanitizer` removed (its\ntests moved to `PathValidationTests` / `PathValidationPropertyTests`).\n\n## Notes\n\n- Blob/S3: an empty `DestinationPath` or `directoryPath` still means the\ncontainer/bucket root (S3: under `KeyPrefix`); any other path argument\nmust be a relative path. Newly rejected: names containing `..` anywhere\n(for example `report..v2.pdf`) and a `DestinationPath`/`directoryPath`\nwith a leading `/` (it used to be trimmed). Objects already stored under\nsuch names are reachable only through the SDK.\n- `samples/Kck.ReadmeSnippets/Generated/*.g.cs` regenerated\n(`readme_snippets.py`): prose added to the docs shifted the source line\nmarkers; no code block changed.\n- In-repo Azurite/S3Mock integration tests need `Testcontainers.Azurite`\n(+ base `Testcontainers`) in `Directory.Packages.props` — new package\nlines, so left for F4 as planned; this PR reproduces K7 with the\nrepo-external probes above.\n- No version bump: everything accumulates under `[Unreleased]` for the\nsingle 5.0.0 release.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\n---------\n\nCo-authored-by: Claude Fable 5.1 <noreply@anthropic.com>",
+          "timestamp": "2026-10-31T21:37:59Z",
+          "tree_id": "e3d6c2f496bf5917e8d915a5bddd064860c64489",
+          "url": "https://github.com/omerkck41/OmerkckArchitecture/commit/99ae9da35c8a0c566bd63e76633b14c5459c23c6"
+        },
+        "date": 1793483210863,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Success_Factory",
+            "value": 6.797949854532877,
+            "unit": "ns",
+            "range": "± 0.17083008342977785"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Failure_Factory",
+            "value": 11.658906178614673,
+            "unit": "ns",
+            "range": "± 0.7732907582031048"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Success",
+            "value": 1.6491543012005943,
+            "unit": "ns",
+            "range": "± 0.015980296628203196"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Failure",
+            "value": 0.5850209934370858,
+            "unit": "ns",
+            "range": "± 0.003309397749213878"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Serialize_Reflection",
+            "value": 461.8681042534964,
+            "unit": "ns",
+            "range": "± 4.695238611236584"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Deserialize_Reflection",
+            "value": 784.848699315389,
+            "unit": "ns",
+            "range": "± 6.776791987535839"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 0)",
+            "value": 11.936624420540673,
+            "unit": "ns",
+            "range": "± 0.17969130992218418"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 5)",
+            "value": 10.281502423807979,
+            "unit": "ns",
+            "range": "± 0.24802265075770302"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 0)",
+            "value": 10.731516313552856,
+            "unit": "ns",
+            "range": "± 0.22883898972977984"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 5)",
+            "value": 11.263930057485899,
+            "unit": "ns",
+            "range": "± 0.17449317002146575"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 0)",
+            "value": 10.40750542949689,
+            "unit": "ns",
+            "range": "± 0.4674690133448402"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 5)",
+            "value": 10.791563820838928,
+            "unit": "ns",
+            "range": "± 0.26131255158264505"
           }
         ]
       }
