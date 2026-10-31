@@ -69,7 +69,8 @@ public class DomainEventDispatchInterceptorTests
         await ctx.SaveChangesAsync();
 
         dispatcher.Received.Should().ContainSingle();
-        ((Kck.Core.Abstractions.Entities.Entity<Guid>)entity).DomainEvents.Should().BeEmpty();
+        Kck.Core.Abstractions.Entities.Entity<Guid> asBase = entity; // the base list, not the hiding property
+        asBase.DomainEvents.Should().BeEmpty();
         entity.HiddenClearCalls.Should().Be(0);
     }
 
