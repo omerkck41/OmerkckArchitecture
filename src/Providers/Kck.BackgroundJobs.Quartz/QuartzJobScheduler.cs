@@ -59,7 +59,7 @@ public sealed class QuartzJobScheduler(ISchedulerFactory schedulerFactory) : IJo
 
         var trigger = TriggerBuilder.Create()
             .WithIdentity($"{jobId}-trigger")
-            .WithCronSchedule(cronExpression)
+            .WithCronSchedule(CrontabConverter.ToQuartz(cronExpression))
             .Build();
 
         if (await scheduler.Exists(jobKey, ct).ConfigureAwait(false))

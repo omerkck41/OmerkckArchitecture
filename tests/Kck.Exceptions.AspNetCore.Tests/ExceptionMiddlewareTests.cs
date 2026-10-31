@@ -86,14 +86,30 @@ public class ExceptionMiddlewareTests
     }
 
     [Fact]
-    public async Task InvokeAsync_OperationCanceledException_ShouldRethrow()
+    public async Task InvokeAsync_OperationCanceledException_ClientAborted_ShouldRethrow()
     {
-        var middleware = CreateMiddleware(_ => throw new OperationCanceledException());
+        using var aborted = new CancellationTokenSource();
+        await aborted.CancelAsync();
+        var middleware = CreateMiddleware(_ => throw new OperationCanceledException(aborted.Token));
         var context = CreateHttpContext();
+        context.RequestAborted = aborted.Token;
 
         var act = () => middleware.InvokeAsync(context);
 
         await act.Should().ThrowAsync<OperationCanceledException>();
+    }
+
+    [Fact]
+    public async Task InvokeAsync_TaskCanceledException_RequestNotAborted_ShouldReturn500()
+    {
+        // An HttpClient timeout: canceled, but not by the client of this request.
+        var middleware = CreateMiddleware(_ => throw new TaskCanceledException("The request was canceled due to the configured HttpClient.Timeout"));
+        var context = CreateHttpContext();
+
+        await middleware.InvokeAsync(context);
+
+        context.Response.StatusCode.Should().Be(500);
+        context.Response.ContentType.Should().Be("application/problem+json");
     }
 
     [Fact]

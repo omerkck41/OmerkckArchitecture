@@ -40,7 +40,9 @@ public sealed partial class ExceptionMiddleware
         {
             await _next(context);
         }
-        catch (Exception ex) when (ex is not OperationCanceledException)
+        // Only a cancellation by the client of this request passes through; another one (an HttpClient timeout, a
+        // canceled downstream call) is a failure of this request and gets a problem response.
+        catch (Exception ex) when (ex is not OperationCanceledException || !context.RequestAborted.IsCancellationRequested)
         {
             // The handlers log the exception once, at a level that matches its status code (4xx Warning, 5xx Error).
             if (context.Response.HasStarted)

@@ -202,7 +202,8 @@ public class EfRepository<T, TId>(
         (Expression<Func<T, object>> Property, object? Value)[] updates,
         CancellationToken cancellationToken = default)
     {
-        await BulkOperationHelper.BulkUpdateAsync<T, TId>(DbSet, predicate, updates, cancellationToken)
+        // The repository's own rows: soft-deleted ones are left out, whether or not the model has the global filter.
+        await BulkOperationHelper.BulkUpdateAsync<T, TId>(Query(QueryOptions.None, predicate), updates, cancellationToken)
             .ConfigureAwait(false);
     }
 

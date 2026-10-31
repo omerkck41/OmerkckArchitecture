@@ -318,6 +318,25 @@ must not be called.
   ([KCK1001](../reference/diagnostics/KCK1001.md)) and a synchronous `SaveChanges`
   ([KCK1002](../reference/diagnostics/KCK1002.md)).
 
+## UTC dates
+
+Audit dates are written in UTC, but SQLite and SQL Server `datetime2` return every `DateTime` with
+`DateTimeKind.Unspecified`, so it serializes without the "Z" suffix. From 4.8.0, `UseUtcDateTimes()` reads every
+`DateTime` / `DateTime?` back as UTC (and converts a local value to UTC when writing):
+
+```csharp
+using Kck.Persistence.EntityFramework.Extensions;
+using Microsoft.EntityFrameworkCore;
+
+public sealed class ShopDbContext(DbContextOptions<ShopDbContext> options) : DbContext(options)
+{
+    protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder) =>
+        configurationBuilder.UseUtcDateTimes();
+}
+```
+
+PostgreSQL `timestamptz` already returns UTC; the convention does no harm there.
+
 ## Concurrency
 
 `FullEntity<TId>.RowVersion` is a `[Timestamp]` column, which only SQL Server generates. With SQLite or PostgreSQL the

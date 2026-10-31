@@ -30,10 +30,10 @@ public sealed class DailyReportJob(ILogger<DailyReportJob> logger) : IBackground
     }
 }
 
-// Schedule it — Quartz cron format, seconds first (the 5-field CronExpressions constants are for Hangfire)
+// Schedule it — 5-field crontab (converted for Quartz) or a Quartz expression (seconds first, "0 0 8 * * ?")
 public sealed class ReportSetup(IJobScheduler scheduler)
 {
     public Task StartAsync(CancellationToken ct) =>
-        scheduler.AddOrUpdateRecurringAsync<DailyReportJob>("daily-report", "0 0 8 * * ?", ct); // every day at 08:00
+        scheduler.AddOrUpdateRecurringAsync<DailyReportJob>("daily-report", "0 8 * * *", ct); // every day at 08:00
 }
 #line default

@@ -17,6 +17,10 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
     public DbSet<Order> Orders => Set<Order>();
 
 //#endif
+    // Dates are written in UTC (audit fields); read them back as UTC too, so JSON shows the "Z" suffix.
+    protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder) =>
+        configurationBuilder.UseUtcDateTimes();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
 //#if (IncludeSample)

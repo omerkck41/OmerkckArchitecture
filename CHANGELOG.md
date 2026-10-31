@@ -7,6 +7,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- `Kck.Persistence.EntityFramework` — `ModelConfigurationBuilder.UseUtcDateTimes()` (call it in `ConfigureConventions`):
+  `DateTime` values are read back as UTC (SQLite and SQL Server `datetime2` return them unspecified, so JSON lacked the
+  "Z" suffix) and local values are written as UTC. The `kck-webapi` template and `Kck.Sample.Orders` use it.
+
+### Fixed
+- `Kck.BackgroundJobs.Quartz` — a 5-field crontab expression (every `CronExpressions` constant) failed with
+  `FormatException`: Quartz needs a seconds field. The scheduler now converts it — seconds first, '?' in the unused
+  day field, days of week renumbered (crontab Sunday = 0 or 7, Quartz Sunday = 1), so `CronExpressions.EveryWeek`
+  fires on Monday. An expression that restricts both day fields, or uses `L` or `#` in the day of week, throws
+  `ArgumentException` (write a Quartz expression instead); 6- and 7-field Quartz expressions are unchanged.
+- `Kck.Exceptions.AspNetCore` — `ExceptionMiddleware` let every `OperationCanceledException` through, so an
+  `HttpClient` timeout (`TaskCanceledException`) produced no problem response. Only a cancellation of the request
+  itself (`RequestAborted`) passes through now; any other is handled like an error (500 with problem+json).
+- `Kck.Persistence.Abstractions` — a `DynamicQuery` deserialized from `"sort": null` had a null `Sort`, and
+  `ToDynamic` / the search guard threw `NullReferenceException`. Setting `Sort` to null now stores an empty collection.
+
+### Changed — behaviour
+- `Kck.Persistence.EntityFramework` — `BulkUpdateAsync` leaves soft-deleted rows out, like the repository's reads.
+  Before, it updated them when the model did not use `ApplyGlobalSoftDeleteQueryFilter()`.
+
 ## [4.7.0] — 2026-10-31
 
 ### Added

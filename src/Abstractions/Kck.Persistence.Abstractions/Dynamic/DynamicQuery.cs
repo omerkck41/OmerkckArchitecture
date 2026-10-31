@@ -7,9 +7,10 @@ namespace Kck.Persistence.Abstractions.Dynamic;
 public sealed class DynamicQuery
 {
     /// <summary>
-    /// The ordered collection of sort directives to apply to the query result.
+    /// The ordered collection of sort directives to apply to the query result; setting <c>null</c> (a JSON
+    /// <c>"sort": null</c>) stores an empty collection.
     /// </summary>
-    public IEnumerable<Sort> Sort { get; set; } = [];
+    public IEnumerable<Sort> Sort { get; set => field = value ?? []; } = [];
 
     /// <summary>
     /// The root filter node; <c>null</c> means no filtering is applied.
