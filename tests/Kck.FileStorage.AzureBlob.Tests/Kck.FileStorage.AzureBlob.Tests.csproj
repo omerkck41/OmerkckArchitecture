@@ -10,6 +10,8 @@
     <PackageReference Include="xunit.runner.visualstudio" />
     <PackageReference Include="AwesomeAssertions" />
     <PackageReference Include="NSubstitute" />
+    <!-- F4b: Azurite behaviour tests -->
+    <PackageReference Include="Testcontainers.Azurite" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="../../src/Providers/Kck.FileStorage.AzureBlob/Kck.FileStorage.AzureBlob.csproj" />

@@ -32,6 +32,17 @@ public sealed class AwsS3StorageService : IFileStorageService, IDisposable
     }
 
     /// <inheritdoc/>
+    /// <remarks>
+    /// With <see cref="FileUploadRequest.Overwrite"/> set to <see langword="false"/> the object is written with a
+    /// conditional request (<c>If-None-Match: *</c>), so an existing object is never replaced, also not by a
+    /// concurrent writer. The service must support S3 conditional writes, as Amazon S3 does; an S3-compatible service
+    /// that ignores the header overwrites the object. A 409 <c>ConditionalRequestConflict</c> (a concurrent conditional
+    /// write to the same key) is reported the same way as an existing object.
+    /// </remarks>
+    /// <exception cref="IOException">
+    /// <see cref="FileUploadRequest.Overwrite"/> is <see langword="false"/> and the object already exists, or a
+    /// concurrent conditional write to the same key conflicted.
+    /// </exception>
     public async Task UploadAsync(FileUploadRequest request, CancellationToken ct = default)
     {
         ValidateOptionalPath(request.DestinationPath);
@@ -45,7 +56,17 @@ public sealed class AwsS3StorageService : IFileStorageService, IDisposable
             InputStream = request.Content,
             AutoCloseStream = false
         };
-        await _s3.PutObjectAsync(putRequest, ct).ConfigureAwait(false);
+        if (!request.Overwrite)
+            putRequest.IfNoneMatch = "*";
+
+        try
+        {
+            await _s3.PutObjectAsync(putRequest, ct).ConfigureAwait(false);
+        }
+        catch (AmazonS3Exception ex) when (!request.Overwrite && IsExistingObjectConflict(ex))
+        {
+            throw new IOException($"The object '{key}' already exists and Overwrite is false.", ex);
+        }
     }
 
     /// <inheritdoc/>
@@ -86,7 +107,9 @@ public sealed class AwsS3StorageService : IFileStorageService, IDisposable
     {
         ValidateOptionalPath(directoryPath);
 
-        var prefix = ApplyPrefix(directoryPath.TrimEnd('/') + "/"); // NOSONAR S1075 - S3 key delimiter is always '/', not platform-dependent
+        // An empty directory is the bucket (or KeyPrefix) root: prefix "" or "<KeyPrefix>/", never "/".
+        var directory = directoryPath.Trim('/');
+        var prefix = ApplyPrefix(directory.Length == 0 ? "" : directory + "/"); // NOSONAR S1075 - S3 key delimiter is always '/', not platform-dependent
         var request = new ListObjectsV2Request { BucketName = _bucket, Prefix = prefix };
         var results = new List<FileMetadata>();
 
@@ -94,12 +117,13 @@ public sealed class AwsS3StorageService : IFileStorageService, IDisposable
         do
         {
             response = await _s3.ListObjectsV2Async(request, ct).ConfigureAwait(false);
-            foreach (var obj in response.S3Objects)
+            // SDK v4 leaves S3Objects null when the page has no objects.
+            foreach (var obj in response.S3Objects ?? [])
             {
                 results.Add(new FileMetadata
                 {
                     FileName = Path.GetFileName(obj.Key),
-                    FullPath = obj.Key,
+                    FullPath = RemovePrefix(obj.Key),
                     SizeInBytes = obj.Size ?? 0,
                     ModifiedAt = obj.LastModified
                 });
@@ -129,6 +153,22 @@ public sealed class AwsS3StorageService : IFileStorageService, IDisposable
         string.IsNullOrEmpty(_keyPrefix)
             ? path
             : $"{_keyPrefix.TrimEnd('/')}/{path.TrimStart('/')}";
+
+    // The inverse of ApplyPrefix for listed keys: FullPath is the path a caller passes back to Download/Exists/Delete.
+    private string RemovePrefix(string key)
+    {
+        var root = ApplyPrefix("");
+        return root.Length > 0 && key.StartsWith(root, StringComparison.Ordinal) ? key[root.Length..] : key;
+    }
+
+    /// <summary>
+    /// Whether a failed conditional upload (<c>If-None-Match: *</c>) means the object exists: 412 Precondition Failed,
+    /// or 409 <c>ConditionalRequestConflict</c> when a concurrent conditional write to the same key won.
+    /// </summary>
+    internal static bool IsExistingObjectConflict(AmazonS3Exception ex) =>
+        ex.StatusCode == System.Net.HttpStatusCode.PreconditionFailed
+        || (ex.StatusCode == System.Net.HttpStatusCode.Conflict
+            && string.Equals(ex.ErrorCode, "ConditionalRequestConflict", StringComparison.Ordinal));
 
     private static AmazonS3Client BuildClient(AwsS3Options opts)
     {

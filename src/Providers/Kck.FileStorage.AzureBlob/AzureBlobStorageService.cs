@@ -1,4 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
+using Azure;
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 using Azure.Identity;
@@ -41,6 +42,10 @@ public sealed class AzureBlobStorageService : IFileStorageService
     }
 
     /// <inheritdoc/>
+    /// <exception cref="IOException">
+    /// <see cref="FileUploadRequest.Overwrite"/> is <see langword="false"/> and the blob already exists (the blob is
+    /// left unchanged; the inner exception is the service's <c>BlobAlreadyExists</c> error).
+    /// </exception>
     public async Task UploadAsync(FileUploadRequest request, CancellationToken ct = default)
     {
         ValidateOptionalPath(request.DestinationPath);
@@ -49,7 +54,14 @@ public sealed class AzureBlobStorageService : IFileStorageService
 
         var blobName = BuildBlobName(request.DestinationPath, request.FileName);
         var blob = _container.GetBlobClient(blobName);
-        await blob.UploadAsync(request.Content, overwrite: request.Overwrite, ct).ConfigureAwait(false);
+        try
+        {
+            await blob.UploadAsync(request.Content, overwrite: request.Overwrite, ct).ConfigureAwait(false);
+        }
+        catch (RequestFailedException ex) when (!request.Overwrite && ex.ErrorCode == BlobErrorCode.BlobAlreadyExists)
+        {
+            throw new IOException($"The blob '{blobName}' already exists and Overwrite is false.", ex);
+        }
     }
 
     /// <inheritdoc/>
@@ -90,7 +102,9 @@ public sealed class AzureBlobStorageService : IFileStorageService
         ValidateOptionalPath(directoryPath);
         await EnsureContainerAsync(ct).ConfigureAwait(false);
 
-        var prefix = directoryPath.TrimEnd('/') + "/";
+        // An empty directory is the container root: no prefix, never "/".
+        var directory = directoryPath.Trim('/');
+        var prefix = directory.Length == 0 ? null : directory + "/";
         var results = new List<FileMetadata>();
 
         await foreach (var item in _container.GetBlobsAsync(Azure.Storage.Blobs.Models.BlobTraits.None, Azure.Storage.Blobs.Models.BlobStates.None, prefix, ct).ConfigureAwait(false))

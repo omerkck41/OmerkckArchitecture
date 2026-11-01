@@ -84,6 +84,9 @@
     <PackageVersion Include="Testcontainers.Redis" Version="4.16.0" />
     <PackageVersion Include="Testcontainers.RabbitMq" Version="4.16.0" />
     <PackageVersion Include="Testcontainers.Elasticsearch" Version="4.16.0" />
+    <!-- F4b: Azurite module (AzureBlob tests); core package for the generic S3Mock container (AwsS3 tests) -->
+    <PackageVersion Include="Testcontainers.Azurite" Version="4.16.0" />
+    <PackageVersion Include="Testcontainers" Version="4.16.0" />
     <!-- Faz-B3: Property-based testing -->
     <PackageVersion Include="CsCheck" Version="5.0.0" />
   </ItemGroup>

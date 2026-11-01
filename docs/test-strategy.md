@@ -79,18 +79,22 @@ dotnet test --filter "Category!=Integration"
 dotnet test --filter "Category=Integration"
 ```
 
-## Current Integration Test Coverage (LS-FAZ-4)
+## Current Integration Test Coverage
 
-| Test Project | Container | Status | Phase |
-|---|---|---|---|
-| `Kck.Persistence.EntityFramework.Tests` | `postgres:16-alpine` | **PoC** (LS-FAZ-4) | ✓ |
-| `Kck.Caching.Redis.Tests` | (mock — InMemory-like) | Awaiting rollout | LS-FAZ-4.5 |
-| `Kck.EventBus.RabbitMq.Tests` | (mock) | Awaiting rollout | LS-FAZ-4.5 |
-| `Kck.EventBus.AzureServiceBus.Tests` | (mock) | Awaiting rollout | LS-FAZ-4.5 |
-| `Kck.Search.Elasticsearch.Tests` | (mock) | Awaiting rollout | LS-FAZ-4.5 |
-| `Kck.Security.Secrets.AzureKeyVault.Tests` | (mock) | Awaiting rollout | LS-FAZ-4.5 |
+| Test Project | Container | What it proves |
+|---|---|---|
+| `Kck.Persistence.EntityFramework.Tests` | `postgres:16-alpine` | What the InMemory provider misses: concurrency tokens, transaction boundaries, mappings, domain-event dispatch on Npgsql |
+| `Kck.Sample.Orders.Tests` | `postgres:16-alpine` | The sample's transactional flows (commit, rollback, soft delete, 409 on a stale read) |
+| `Kck.Caching.Redis.Tests`, `Kck.Caching.Hybrid.Tests` | `redis:7-alpine` | The Redis cache and the HybridCache L2 path over StackExchange.Redis (package incompatibilities mocks cannot catch) |
+| `Kck.Security.TokenBlacklist.Redis.Tests` | `redis:7-alpine` | Blacklist writes (SETEX) and reads (KeyExists) through a real Redis |
+| `Kck.EventBus.RabbitMq.Tests` | `rabbitmq:3-management` | Delivery counting, dead-lettering and connection recovery against a live broker |
+| `Kck.Search.Elasticsearch.Tests` | `docker.elastic.co/elasticsearch/elasticsearch:9.0.1` | Index lifecycle, document CRUD, bulk indexing, search and the error contract of the write operations |
+| `Kck.FileStorage.AwsS3.Tests` | `adobe/s3mock:5.2.3` (generic `ContainerBuilder`, port 9090, wait for the "Started S3MockApplication" log line; S3Mock does not authenticate, the SDK signs with placeholder keys) | Upload/download round trip, `Overwrite = false` as a conditional write the service evaluates (`If-None-Match: *` → 412 → `IOException`), listing with metadata, recursive root and empty listing, missing-file download/delete, `KeyPrefix` applied to the stored key and removed from the listed `FullPath` (which round-trips to `DownloadAsync`), traversal rejected with nothing written |
+| `Kck.FileStorage.AzureBlob.Tests` | `mcr.microsoft.com/azure-storage/azurite:3.35.0` (`Testcontainers.Azurite`, started with `--skipApiVersionCheck`; well-known development account) | The same behaviour set, first-use container creation (and the missing-container error without it), and the K7 proof: a service bound to `alpha` cannot read, probe or write container `beta` through `../beta/...` |
 
-LS-FAZ-4.5 aims to roll the PoC pattern out to the other 5 test projects.
+The file storage containers are recorded in `decisions/2026-11-02-testcontainers-minio-azurite.md`.
+`Kck.EventBus.AzureServiceBus.Tests` and `Kck.Security.Secrets.AzureKeyVault.Tests` have unit tests with substitutes
+only; no container stands in for those cloud services.
 
 ## Benchmarks (BenchmarkDotNet)
 
