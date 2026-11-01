@@ -17,12 +17,6 @@
     <MinVerTagPrefix>v</MinVerTagPrefix>
   </PropertyGroup>
 
-  <!-- ImageSharp 4 license: the package only searches the project folder, so use a repo-root sixlabors.lic
-       (git-ignored) when present. CI passes the key via the SixLaborsLicenseKey env var instead. -->
-  <PropertyGroup Condition=" '$(SixLaborsLicenseKey)' == '' and '$(SixLaborsLicenseFile)' == '' and Exists('$(MSBuildThisFileDirectory)sixlabors.lic') ">
-    <SixLaborsLicenseFile>$(MSBuildThisFileDirectory)sixlabors.lic</SixLaborsLicenseFile>
-  </PropertyGroup>
-
   <!-- Source Link & Deterministic Build (LS-FAZ-1, Bolum 6.1) -->
   <PropertyGroup>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>

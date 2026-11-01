@@ -4,7 +4,7 @@
 namespace ReadmeSnippets.DocsProvidersDocuments_4;
 using Kck.Documents.Abstractions;
 
-#line 67 "docs/providers/documents.md"
+#line 66 "docs/providers/documents.md"
 public class ThumbnailService(IImageProcessor images)
 {
     public Task<byte[]> MakeThumbnailAsync(Stream input, CancellationToken ct) =>

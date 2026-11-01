@@ -7,7 +7,7 @@ internal static class Snippet
 {
     internal static async Task RunAsync(IServiceCollection services)
     {
-#line 18 "docs/providers/documents.md"
+#line 17 "docs/providers/documents.md"
 services.AddKckDocumentsClosedXml();
 #line default
         await Task.CompletedTask;

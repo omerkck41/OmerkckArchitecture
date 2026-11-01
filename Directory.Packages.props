@@ -115,8 +115,7 @@
   <ItemGroup Label="Infrastructure">
     <PackageVersion Include="ClosedXML" Version="0.105.0" />
     <PackageVersion Include="FluentFTP" Version="55.1.0" />
-    <PackageVersion Include="SixLabors.ImageSharp" Version="4.1.3" />
-    <!-- SkiaSharp (MIT) replaces ImageSharp in 5.0; the Linux native package is for apps/tests, not the provider.
+    <!-- SkiaSharp (MIT) is the image provider from 5.0; the Linux native package is for apps/tests, not the provider.
          decisions/2026-10-31-image-library-replacement.md -->
     <PackageVersion Include="SkiaSharp" Version="4.154.0" />
     <PackageVersion Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="4.154.0" />

@@ -529,11 +529,11 @@
           "Kck.Documents.Abstractions": "[1.0.0, )"
         }
       },
-      "kck.documents.imagesharp": {
+      "kck.documents.skiasharp": {
         "type": "Project",
         "dependencies": {
           "Kck.Documents.Abstractions": "[1.0.0, )",
-          "SixLabors.ImageSharp": "[4.1.3, )"
+          "SkiaSharp": "[4.154.0, )"
         }
       },
       "kck.documents.skiasharp": {
@@ -1137,13 +1137,14 @@
           "Serilog": "4.0.0"
         }
       },
-      "SixLabors.ImageSharp": {
+      "SkiaSharp": {
         "type": "CentralTransitive",
-        "requested": "[4.1.3, )",
-        "resolved": "4.1.3",
-        "contentHash": "VzzKPgdC0ZupEg937iKpg2cEGXudnFyQRwiHfIvtCKSlFUaxVbLjW3AztDhyk06z+4NzD7IAlMf7fqU57WXyBQ==",
+        "requested": "[4.154.0, )",
+        "resolved": "4.154.0",
+        "contentHash": "R3BuszJ3tUFmni37nZIRawXL0yx+XHyx7xi1716/0TybuEQFhnBx48Ig3rFpeVFQVytpGpJZZ+NLW9d9UPG7EA==",
         "dependencies": {
-          "System.IO.Hashing": "8.0.0"
+          "SkiaSharp.NativeAssets.Win32": "4.154.0",
+          "SkiaSharp.NativeAssets.macOS": "4.154.0"
         }
       },
       "SkiaSharp": {

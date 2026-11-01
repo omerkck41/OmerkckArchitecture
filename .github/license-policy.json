@@ -108,14 +108,6 @@
         "b887c399e6a9cba46af9500d167ad7232559def4915c2fcb5c2e0063e19daeec",
         "6639396f174c1d91b05855edfc28ac28c44a3b07b2a85436964620c5614b21d1"
       ]
-    },
-    {
-      "id": "SixLabors.ImageSharp",
-      "kind": "file",
-      "license": "Six Labors Split License 1.0",
-      "status": "exception",
-      "reason": "Apache-2.0 for this open-source project and for Kck consumers (transitive dependency clause); maintainer build key: Community license until 2028-01-12.",
-      "sha256": ["9144206b32fb82abcd4f543e212332513b5c792971ad12f1783dc19bf8b136a1"]
     }
   ]
 }

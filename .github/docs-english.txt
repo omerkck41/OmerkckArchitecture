@@ -36,7 +36,6 @@ src/Providers/Kck.Caching.Hybrid/README.nuget.md
 src/Providers/Kck.Caching.InMemory/README.nuget.md
 src/Providers/Kck.Caching.Redis/README.nuget.md
 src/Providers/Kck.Documents.ClosedXml/README.nuget.md
-src/Providers/Kck.Documents.ImageSharp/README.nuget.md
 src/Providers/Kck.Documents.SkiaSharp/README.nuget.md
 src/Providers/Kck.EventBus.AzureServiceBus/README.nuget.md
 src/Providers/Kck.EventBus.InMemory/README.nuget.md

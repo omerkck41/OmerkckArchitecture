@@ -1,6 +1,6 @@
 # Kck.Documents.Abstractions
 
-Provider-agnostic document processing contracts for Excel generation, CSV export, and image resizing — implement with ClosedXML or ImageSharp providers.
+Provider-agnostic document processing contracts for Excel generation, CSV export, and image resizing — implement with the ClosedXML or SkiaSharp providers.
 
 ## Installation
 
@@ -15,7 +15,7 @@ using Kck.Documents.Abstractions;
 
 // Program.cs — register concrete providers
 builder.Services.AddKckDocumentsClosedXml();   // IExcelService + ICsvExporter
-builder.Services.AddKckDocumentsImageSharp();  // IImageProcessor
+builder.Services.AddKckDocumentsSkiaSharp();  // IImageProcessor
 
 public sealed record OrderRow(Guid Id, string Customer, decimal Total);
 
@@ -52,7 +52,7 @@ There is no configuration section; behaviour is set per call.
 | Worksheet name | `CreateFromDataAsync(..., worksheetName)` | `"Sheet1"` |
 | CSV file name | `ExportAsync(..., fileName)` | `"export.csv"` |
 | Resize size / aspect ratio | `ImageProcessingOptions.Width`, `Height`, `MaintainAspectRatio` | aspect ratio kept |
-| Output format | `ImageProcessingOptions.OutputFormat` / `ConvertFormatAsync(..., targetFormat)` — ImageSharp provider: `png`, `gif`, `bmp`, `webp`, `jpeg` | `jpeg` |
+| Output format | `ImageProcessingOptions.OutputFormat` / `ConvertFormatAsync(..., targetFormat)` — SkiaSharp provider: `jpeg` (`jpg`), `png`, `webp` | `jpeg` |
 | Quality (JPEG / WebP) | `ImageProcessingOptions.Quality` | `80` |
 
 ## Resources
