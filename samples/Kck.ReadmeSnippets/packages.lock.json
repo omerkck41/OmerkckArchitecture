@@ -536,6 +536,13 @@
           "SkiaSharp": "[4.154.0, )"
         }
       },
+      "kck.documents.skiasharp": {
+        "type": "Project",
+        "dependencies": {
+          "Kck.Documents.Abstractions": "[1.0.0, )",
+          "SkiaSharp": "[4.154.0, )"
+        }
+      },
       "kck.eventbus.abstractions": {
         "type": "Project"
       },
@@ -1128,6 +1135,16 @@
         "contentHash": "wQsv14w9cqlfB5FX2MZpNsTawckN4a8dryuNGbebB/3Nh1pXnROHZov3swtu3Nj5oNG7Ba+xdu7Et/ulAUPanQ==",
         "dependencies": {
           "Serilog": "4.0.0"
+        }
+      },
+      "SkiaSharp": {
+        "type": "CentralTransitive",
+        "requested": "[4.154.0, )",
+        "resolved": "4.154.0",
+        "contentHash": "R3BuszJ3tUFmni37nZIRawXL0yx+XHyx7xi1716/0TybuEQFhnBx48Ig3rFpeVFQVytpGpJZZ+NLW9d9UPG7EA==",
+        "dependencies": {
+          "SkiaSharp.NativeAssets.Win32": "4.154.0",
+          "SkiaSharp.NativeAssets.macOS": "4.154.0"
         }
       },
       "SkiaSharp": {
