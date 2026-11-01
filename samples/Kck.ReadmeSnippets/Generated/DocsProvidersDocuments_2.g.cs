@@ -4,7 +4,7 @@
 namespace ReadmeSnippets.DocsProvidersDocuments_2;
 using Kck.Documents.Abstractions;
 
-#line 26 "docs/providers/documents.md"
+#line 25 "docs/providers/documents.md"
 public class ReportService(IExcelService excel)
 {
     public async Task<byte[]> ExportSalesAsync(IEnumerable<Sale> sales, CancellationToken ct)
