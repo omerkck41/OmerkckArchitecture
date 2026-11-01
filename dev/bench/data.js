@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1793548338256,
+  "lastUpdate": 1793549261192,
   "repoUrl": "https://github.com/omerkck41/OmerkckArchitecture",
   "entries": {
     "Benchmark": [
@@ -15118,6 +15118,102 @@ window.BENCHMARK_DATA = {
             "value": 8.085558830545498,
             "unit": "ns",
             "range": "± 0.03916219033231118"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "106805727+omerkck41@users.noreply.github.com",
+            "name": "Ömer KÜÇÜK",
+            "username": "omerkck41"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "ddd94d3c7b296cdf250b9a2ee09eae815133e282",
+          "message": "feat(documents): Kck.Documents.SkiaSharp image processor (S1, replaces ImageSharp in 5.0) (#287)\n\n## S1 — `Kck.Documents.SkiaSharp` (sibling plan\n`docs/plans/2026-10-31-sixlabors-kaldirma-plani.md` §5 S1 + S2)\n\nNew `IImageProcessor` provider on **SkiaSharp 4.154.0 (MIT)**, chosen in\n`decisions/2026-10-31-image-library-replacement.md` under the maintainer\nconstraint \"no Six Labors, no paid or key-licensed package\".\n`Kck.Documents.ImageSharp` stays in this PR and is removed in the next\nstep (S4) together with the CI licence wiring; no release until the\nsingle 5.0.0.\n\n### Behaviour (acceptance examples Ö1–Ö9, Ö11, Ö12, Ö14)\n\n| Area | SkiaSharp provider | Difference to ImageSharp |\n|---|---|---|\n| Output formats | jpeg/jpg, png, webp | gif and bmp output throw\n`NotSupportedException` (decision D1a) |\n| Input formats | JPEG, PNG, WebP, GIF, BMP, ICO | TIFF input is no\nlonger decodable (`InvalidDataException`) |\n| Empty format | keeps a jpeg/png/webp source; JPEG for the rest | same\nrule |\n| Dimensions | from the codec header, no pixel decode | ImageSharp\ndecoded the whole image |\n| Safety | `SkiaSharpOptions.MaxPixels` (50 MP) from the header, before\nallocation; resize target bound by the same limit | new |\n| Transparency → JPEG | white background | documented |\n| EXIF orientation | not applied (parity) | same |\n| Linux | consumers add `SkiaSharp.NativeAssets.Linux.NoDependencies`\n(glibc/musl); the test project references it | ImageSharp had no native\ndependency |\n\n### Evidence\n\n- 42 tests, 30 red against a stub before the implementation\n(`tasks/probes/2026-11-01-s1-skiasharp/`, local); test images are\nproduced with SkiaSharp itself, GIF/BMP inputs from hand-built byte\narrays, the 8000×8000 header case from a CRC-patched PNG.\n- Local run: `dotnet restore --locked-mode` clean; build 0 warnings / 0\nerrors; `dotnet pack` of the new package succeeds\n(`DisablePackageBaselineValidation` is required: without it NU1101,\nverified); licence gate 261 packages, 0 violations (all four SkiaSharp\npackages MIT); README/docs snippets compile.\n- Fresh code review + adversarial review (findings folded into the final\ncommit).\n\n### Follow-ups (tracked in the local todo)\n\nS4 removal PR (ImageSharp project, tests, CPM, `Directory.Build.props`\nlicence block, eight workflow env lines, licence-policy exception,\ndocs), S5 maintainer steps (GitHub secret, local licence file, nuget\ndeprecate), AOT smoke inclusion (Ö13), optional EXIF orientation.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\n---------\n\nCo-authored-by: Claude Fable 5.1 <noreply@anthropic.com>",
+          "timestamp": "2026-11-01T16:00:44Z",
+          "tree_id": "2607256f6377e9b2f551e6d881a89eec5e093614",
+          "url": "https://github.com/omerkck41/OmerkckArchitecture/commit/ddd94d3c7b296cdf250b9a2ee09eae815133e282"
+        },
+        "date": 1793549260480,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Success_Factory",
+            "value": 6.3045763320156505,
+            "unit": "ns",
+            "range": "± 0.117700888384303"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Failure_Factory",
+            "value": 9.62134812027216,
+            "unit": "ns",
+            "range": "± 0.1881888234394345"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Success",
+            "value": 1.6430448631445567,
+            "unit": "ns",
+            "range": "± 0.005341553850976284"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Failure",
+            "value": 0.681018488747733,
+            "unit": "ns",
+            "range": "± 0.004569744021100761"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Serialize_Reflection",
+            "value": 452.45259343660797,
+            "unit": "ns",
+            "range": "± 0.8663992326900072"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Deserialize_Reflection",
+            "value": 774.2517450968425,
+            "unit": "ns",
+            "range": "± 3.0761510642133816"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 0)",
+            "value": 10.555710251842227,
+            "unit": "ns",
+            "range": "± 0.044843611721171094"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 5)",
+            "value": 9.871136496109623,
+            "unit": "ns",
+            "range": "± 0.11543306244852633"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 0)",
+            "value": 9.811099483569462,
+            "unit": "ns",
+            "range": "± 0.08178693466115683"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 5)",
+            "value": 10.45982580880324,
+            "unit": "ns",
+            "range": "± 0.10090590026617685"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 0)",
+            "value": 10.345587463180225,
+            "unit": "ns",
+            "range": "± 0.13494120666702994"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 5)",
+            "value": 10.242241871356963,
+            "unit": "ns",
+            "range": "± 0.08917139119866418"
           }
         ]
       }
