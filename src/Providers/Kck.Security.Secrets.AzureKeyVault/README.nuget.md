@@ -33,10 +33,13 @@ public class DatabaseService(ISecretsManager secrets)
 
 | Property | Description | Default |
 |---|---|---|
-| `VaultUri` | Key Vault URI | required |
+| `VaultUri` | Key Vault URI | required unless a `SecretClient` is registered |
 | `SecretPrefix` | Prefix: key `k` reads secret `{SecretPrefix}-k` | `null` |
 
 Authentication uses `DefaultAzureCredential`. Key Vault secret names allow letters, digits and dashes.
+
+When the container has a `SecretClient` registered, the manager uses it instead of building one from `VaultUri`;
+register your own client for another credential or `SecretClientOptions`. `SecretPrefix` still applies.
 
 ## Resources
 

@@ -1,5 +1,6 @@
 using AwesomeAssertions;
 using Kck.Persistence.EntityFramework.Repositories;
+using Kck.Testing;
 using Microsoft.EntityFrameworkCore;
 using Testcontainers.PostgreSql;
 using Xunit;
@@ -52,7 +53,7 @@ public sealed class EfRepositoryIntegrationTests : IAsyncLifetime
         await _postgres.DisposeAsync();
     }
 
-    [Fact]
+    [DockerFact]
     public async Task AddAsync_PersistsToRealDatabase()
     {
         var entity = new TestEntity
@@ -73,7 +74,7 @@ public sealed class EfRepositoryIntegrationTests : IAsyncLifetime
         refetched.CreatedDate.Should().NotBe(default);
     }
 
-    [Fact]
+    [DockerFact]
     public async Task SoftDelete_FlagsEntity_WithoutPhysicalRemoval()
     {
         var entity = new TestEntity { Id = Guid.NewGuid(), Name = "ToDelete" };

@@ -8,17 +8,44 @@ using Microsoft.Extensions.Options;
 namespace Kck.Security.Secrets.AzureKeyVault;
 
 /// <summary>
-/// Retrieves and stores secrets in Azure Key Vault using <see cref="DefaultAzureCredential"/> for authentication.
-/// Supports optional key prefixing to isolate secrets across environments or tenants.
+/// Retrieves and stores secrets in Azure Key Vault, by default through a <see cref="SecretClient"/> on
+/// <see cref="DefaultAzureCredential"/>. Supports optional key prefixing to isolate secrets across environments or
+/// tenants.
 /// </summary>
-public sealed partial class AzureKeyVaultSecretsManager(
-    IOptionsMonitor<AzureKeyVaultOptions> options,
-    ILogger<AzureKeyVaultSecretsManager> logger) : ISecretsManager
+public sealed partial class AzureKeyVaultSecretsManager : ISecretsManager
 {
-    private readonly SecretClient _client = new(
-        new Uri(options.CurrentValue.VaultUri),
-        new DefaultAzureCredential());
-    private readonly string? _prefix = options.CurrentValue.SecretPrefix;
+    private readonly SecretClient _client;
+    private readonly ILogger<AzureKeyVaultSecretsManager> _logger;
+    private readonly string? _prefix;
+
+    /// <summary>
+    /// Initializes the manager with a <see cref="SecretClient"/> for <see cref="AzureKeyVaultOptions.VaultUri"/>
+    /// authenticated by <see cref="DefaultAzureCredential"/>.
+    /// </summary>
+    public AzureKeyVaultSecretsManager(
+        IOptionsMonitor<AzureKeyVaultOptions> options,
+        ILogger<AzureKeyVaultSecretsManager> logger)
+        : this(options, logger, new SecretClient(new Uri(options.CurrentValue.VaultUri), new DefaultAzureCredential()))
+    {
+    }
+
+    /// <summary>
+    /// Initializes the manager with an existing <see cref="SecretClient"/>, for example one registered in the
+    /// container with its own credential or client options; <see cref="AzureKeyVaultOptions.VaultUri"/> is then not
+    /// used, <see cref="AzureKeyVaultOptions.SecretPrefix"/> still applies.
+    /// </summary>
+    public AzureKeyVaultSecretsManager(
+        IOptionsMonitor<AzureKeyVaultOptions> options,
+        ILogger<AzureKeyVaultSecretsManager> logger,
+        SecretClient client)
+    {
+        ArgumentNullException.ThrowIfNull(options);
+        ArgumentNullException.ThrowIfNull(logger);
+        ArgumentNullException.ThrowIfNull(client);
+        _client = client;
+        _logger = logger;
+        _prefix = options.CurrentValue.SecretPrefix;
+    }
 
     /// <summary>
     /// Retrieves the raw string value of the secret identified by <paramref name="key"/>, or returns <see langword="null"/> if the secret does not exist.
@@ -59,7 +86,7 @@ public sealed partial class AzureKeyVaultSecretsManager(
     public async Task SetSecretAsync(string key, string value, CancellationToken ct = default)
     {
         await _client.SetSecretAsync(BuildKey(key), value, ct).ConfigureAwait(false);
-        LogSecretUpdated(logger, key);
+        LogSecretUpdated(_logger, key);
     }
 
     /// <summary>Returns <see langword="true"/> if a secret with the given <paramref name="key"/> exists in Azure Key Vault.</summary>

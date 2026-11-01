@@ -7,6 +7,7 @@ using Xunit;
 
 namespace Kck.BackgroundJobs.Hangfire.Tests;
 
+[Collection(HangfireStaticState.Name)]
 public sealed class HangfireJobSchedulerTests
 {
     [Fact]

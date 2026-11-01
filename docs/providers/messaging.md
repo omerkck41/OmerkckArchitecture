@@ -46,6 +46,12 @@ services.AddKckMessagingSendGrid(opt =>
 });
 ```
 
+When the container already has an `ISendGridClient` registered, the provider uses that client instead of building one
+from `ApiKey` (which may then stay empty); register your own client for custom `SendGridClientOptions` such as a proxy,
+another host or EU data residency (5.0). A response outside 2xx throws `InvalidOperationException` with the status
+code. Attachment streams are read from the start (a seekable stream is rewound first, 5.0) and sent base64-encoded with
+their file name and MIME type; MailKit does the same since 5.0.
+
 ## Amazon SES
 
 ```csharp

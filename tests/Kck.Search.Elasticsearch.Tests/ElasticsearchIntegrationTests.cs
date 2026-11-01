@@ -32,6 +32,11 @@ public sealed class ElasticsearchContainerFixture : IAsyncLifetime
 
     public async Task InitializeAsync()
     {
+        // xUnit v2 creates class fixtures even when every test of the class is skipped; every test here is a
+        // [DockerFact], so do not try to start a container the attribute already found unreachable.
+        if (DockerProbe.CurrentSkipReason() is not null)
+            return;
+
         await _container.StartAsync();
 
         var rawUri = new Uri(_container.GetConnectionString());
@@ -75,7 +80,7 @@ public sealed class ElasticsearchIntegrationTests : IClassFixture<ElasticsearchC
         ((IDisposable)_clientSettings).Dispose();
     }
 
-    [Fact]
+    [DockerFact]
     public async Task CreateIndexAsync_WhenIndexDoesNotExist_CreatesSuccessfully()
     {
         const string index = "kck-it-create-index";
@@ -85,7 +90,7 @@ public sealed class ElasticsearchIntegrationTests : IClassFixture<ElasticsearchC
         (await _sut.IndexExistsAsync(index)).Should().BeTrue();
     }
 
-    [Fact]
+    [DockerFact]
     public async Task IndexDocumentAsync_GetByIdAsync_RoundTrip()
     {
         const string index = "kck-it-round-trip";
@@ -100,7 +105,7 @@ public sealed class ElasticsearchIntegrationTests : IClassFixture<ElasticsearchC
         retrieved.Score.Should().Be(doc.Score);
     }
 
-    [Fact]
+    [DockerFact]
     public async Task DeleteDocumentAsync_AfterIndex_DocumentNoLongerExists()
     {
         const string index = "kck-it-delete-document";
@@ -114,7 +119,7 @@ public sealed class ElasticsearchIntegrationTests : IClassFixture<ElasticsearchC
         retrieved.Should().BeNull();
     }
 
-    [Fact]
+    [DockerFact]
     public async Task BulkIndexAsync_IndexesAllDocuments()
     {
         const string index = "kck-it-bulk-index";
@@ -133,7 +138,7 @@ public sealed class ElasticsearchIntegrationTests : IClassFixture<ElasticsearchC
         }
     }
 
-    [Fact]
+    [DockerFact]
     public async Task SearchAsync_AfterIndexAndRefresh_ReturnsMatchingDocuments()
     {
         const string index = "kck-it-search";
@@ -154,13 +159,13 @@ public sealed class ElasticsearchIntegrationTests : IClassFixture<ElasticsearchC
         result.TotalCount.Should().BeGreaterThan(0);
     }
 
-    [Fact]
+    [DockerFact]
     public async Task IndexExistsAsync_WhenIndexDoesNotExist_ReturnsFalse()
     {
         (await _sut.IndexExistsAsync("nonexistent-index-kck-test")).Should().BeFalse();
     }
 
-    [Fact]
+    [DockerFact]
     public async Task IndexDocumentAsync_WithInvalidIndexName_Throws()
     {
         var doc = new TestDoc { Id = "invalid-1", Name = "rejected", Score = 1 };
@@ -172,7 +177,7 @@ public sealed class ElasticsearchIntegrationTests : IClassFixture<ElasticsearchC
             .And.Contain("invalid_index_name_exception");
     }
 
-    [Fact]
+    [DockerFact]
     public async Task BulkIndexAsync_WithInvalidIndexName_Throws()
     {
         var docs = new[] { new TestDoc { Id = "invalid-bulk-1", Name = "rejected", Score = 1 } };
@@ -183,7 +188,7 @@ public sealed class ElasticsearchIntegrationTests : IClassFixture<ElasticsearchC
         ex.Which.Message.Should().Contain("bulk index").And.Contain("Invalid Name");
     }
 
-    [Fact]
+    [DockerFact]
     public async Task UpdateDocumentAsync_WhenDocumentMissing_Throws()
     {
         const string index = "kck-it-update-missing";
@@ -197,7 +202,7 @@ public sealed class ElasticsearchIntegrationTests : IClassFixture<ElasticsearchC
             .And.Contain("document_missing_exception");
     }
 
-    [Fact]
+    [DockerFact]
     public async Task DeleteDocumentAsync_WhenDocumentMissing_DoesNotThrow()
     {
         const string index = "kck-it-delete-missing-document";
@@ -208,7 +213,7 @@ public sealed class ElasticsearchIntegrationTests : IClassFixture<ElasticsearchC
         await act.Should().NotThrowAsync();
     }
 
-    [Fact]
+    [DockerFact]
     public async Task DeleteIndexAsync_WhenIndexMissing_DoesNotThrow()
     {
         var act = () => _sut.DeleteIndexAsync("kck-it-never-created");
@@ -216,7 +221,7 @@ public sealed class ElasticsearchIntegrationTests : IClassFixture<ElasticsearchC
         await act.Should().NotThrowAsync();
     }
 
-    [Fact]
+    [DockerFact]
     public async Task SearchAsync_WithSimpleQueryString_DoesNotThrowOnLuceneSyntaxError()
     {
         const string index = "kck-it-simple-syntax-error";
@@ -238,7 +243,7 @@ public sealed class ElasticsearchIntegrationTests : IClassFixture<ElasticsearchC
         result.Items.Should().NotBeEmpty("simple_query_string ignores the broken operator and still matches the term");
     }
 
-    [Fact]
+    [DockerFact]
     public async Task SearchAsync_WithSimpleQueryString_FindsDocumentByTerm()
     {
         const string index = "kck-it-simple-term";
@@ -260,7 +265,7 @@ public sealed class ElasticsearchIntegrationTests : IClassFixture<ElasticsearchC
         result.TotalCount.Should().Be(1);
     }
 
-    [Fact]
+    [DockerFact]
     public async Task BulkIndexAsync_WithNoDocuments_DoesNothing()
     {
         const string index = "kck-it-bulk-empty";
@@ -271,7 +276,7 @@ public sealed class ElasticsearchIntegrationTests : IClassFixture<ElasticsearchC
         (await _sut.IndexExistsAsync(index)).Should().BeFalse("nothing was sent, so no index was auto-created");
     }
 
-    [Fact]
+    [DockerFact]
     public async Task SearchAsync_WithUnknownIndex_Throws()
     {
         var act = () => _sut.SearchAsync(new Kck.Search.Abstractions.SearchRequest
@@ -286,7 +291,7 @@ public sealed class ElasticsearchIntegrationTests : IClassFixture<ElasticsearchC
             .And.Contain("404").And.Contain("index_not_found_exception");
     }
 
-    [Fact]
+    [DockerFact]
     public async Task SearchAsync_DefaultMode_WithLuceneSyntaxError_Throws()
     {
         const string index = "kck-it-search-syntax-error";
@@ -304,7 +309,7 @@ public sealed class ElasticsearchIntegrationTests : IClassFixture<ElasticsearchC
         ex.Which.Message.Should().Contain("search").And.Contain(index).And.Contain("400");
     }
 
-    [Fact]
+    [DockerFact]
     public async Task SearchAsync_WithSimpleQueryString_DoesNotPrefixMatch()
     {
         const string index = "kck-it-simple-prefix";

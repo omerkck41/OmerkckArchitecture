@@ -1,6 +1,7 @@
 using AwesomeAssertions;
 using Kck.EventBus.Abstractions;
 using Kck.EventBus.RabbitMq;
+using Kck.Testing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging.Abstractions;
 using Testcontainers.RabbitMq;
@@ -60,7 +61,7 @@ public sealed class RabbitMqEventBusIntegrationTests : IAsyncLifetime
         await _rabbit.DisposeAsync();
     }
 
-    [Fact]
+    [DockerFact]
     public void Subscribe_RegistersHandlerWithoutException()
     {
         var act = () => _bus.Subscribe<RabbitIntegrationTestEvent, RabbitIntegrationTestEventHandler>();
@@ -68,7 +69,7 @@ public sealed class RabbitMqEventBusIntegrationTests : IAsyncLifetime
         act.Should().NotThrow();
     }
 
-    [Fact]
+    [DockerFact]
     public async Task PublishAsync_WithSubscribedHandler_DoesNotThrow()
     {
         _bus.Subscribe<RabbitIntegrationTestEvent, RabbitIntegrationTestEventHandler>();

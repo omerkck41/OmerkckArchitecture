@@ -23,17 +23,48 @@ public sealed class AzureServiceBusEventBus : IEventBus, IAsyncDisposable
     private readonly ConcurrentDictionary<string, ConcurrentBag<Type>> _handlers = new();
     private readonly SemaphoreSlim _clientLock = new(1, 1);
     private readonly List<ServiceBusProcessor> _processors = [];
+    private readonly bool _ownsClient;
     private ServiceBusClient? _client;
     private ServiceBusSender? _sender;
 
+    /// <summary>
+    /// Creates the bus with its own <see cref="ServiceBusClient"/>, built from
+    /// <see cref="AzureServiceBusOptions.ConnectionString"/> on first use and disposed with the bus.
+    /// </summary>
     public AzureServiceBusEventBus(
         AzureServiceBusOptions options,
         IServiceProvider serviceProvider,
         ILogger<AzureServiceBusEventBus> logger)
+        : this(options, serviceProvider, logger, client: null, ownsClient: true)
+    {
+    }
+
+    /// <summary>
+    /// Creates the bus on an existing <see cref="ServiceBusClient"/>, for example one registered in the container with
+    /// a token credential (managed identity) or custom client options; <see cref="AzureServiceBusOptions.ConnectionString"/>
+    /// is then not used. The client is not owned: <see cref="DisposeAsync"/> leaves it open.
+    /// </summary>
+    public AzureServiceBusEventBus(
+        AzureServiceBusOptions options,
+        IServiceProvider serviceProvider,
+        ILogger<AzureServiceBusEventBus> logger,
+        ServiceBusClient client)
+        : this(options, serviceProvider, logger, client ?? throw new ArgumentNullException(nameof(client)), ownsClient: false)
+    {
+    }
+
+    internal AzureServiceBusEventBus(
+        AzureServiceBusOptions options,
+        IServiceProvider serviceProvider,
+        ILogger<AzureServiceBusEventBus> logger,
+        ServiceBusClient? client,
+        bool ownsClient)
     {
         _options = options;
         _logger = logger;
         _eventProcessor = new EventProcessor(serviceProvider, logger);
+        _client = client;
+        _ownsClient = ownsClient;
     }
 
     /// <inheritdoc />
@@ -122,32 +153,20 @@ public sealed class AzureServiceBusEventBus : IEventBus, IAsyncDisposable
         }
     }
 
+    // The sender is the readiness marker: it is created once, after the client exists (own or injected).
     private async Task EnsureClientAsync(CancellationToken ct)
     {
-        if (Volatile.Read(ref _client) is not null)
+        if (Volatile.Read(ref _sender) is not null)
             return;
 
         await _clientLock.WaitAsync(ct).ConfigureAwait(false);
         try
         {
-            if (Volatile.Read(ref _client) is not null)
+            if (Volatile.Read(ref _sender) is not null)
                 return;
 
-            if (string.IsNullOrWhiteSpace(_options.ConnectionString))
-                throw new InvalidOperationException("Azure Service Bus connection string is not configured.");
-
-            var client = new ServiceBusClient(
-                _options.ConnectionString,
-                new ServiceBusClientOptions
-                {
-                    RetryOptions = new ServiceBusRetryOptions
-                    {
-                        MaxRetries = _options.RetryCount
-                    }
-                });
-
-            _sender = client.CreateSender(_options.TopicName);
-            Volatile.Write(ref _client, client);
+            _client ??= CreateOwnClient();
+            Volatile.Write(ref _sender, _client.CreateSender(_options.TopicName));
 
             Log.Connected(_logger, _options.TopicName);
         }
@@ -157,6 +176,26 @@ public sealed class AzureServiceBusEventBus : IEventBus, IAsyncDisposable
         }
     }
 
+    private ServiceBusClient CreateOwnClient()
+    {
+        if (string.IsNullOrWhiteSpace(_options.ConnectionString))
+            throw new InvalidOperationException("Azure Service Bus connection string is not configured.");
+
+        return new ServiceBusClient(
+            _options.ConnectionString,
+            new ServiceBusClientOptions
+            {
+                RetryOptions = new ServiceBusRetryOptions
+                {
+                    MaxRetries = _options.RetryCount
+                }
+            });
+    }
+
+    /// <summary>
+    /// Stops and disposes the processors and the sender, and the client when the bus created it; an injected client
+    /// is left open for its owner.
+    /// </summary>
     public async ValueTask DisposeAsync()
     {
         foreach (var processor in _processors)
@@ -167,7 +206,7 @@ public sealed class AzureServiceBusEventBus : IEventBus, IAsyncDisposable
 
         if (_sender is not null)
             await _sender.DisposeAsync().ConfigureAwait(false);
-        if (_client is not null)
+        if (_ownsClient && _client is not null)
             await _client.DisposeAsync().ConfigureAwait(false);
         _clientLock.Dispose();
     }

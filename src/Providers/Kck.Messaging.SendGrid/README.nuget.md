@@ -37,9 +37,13 @@ public class InvoiceMailer(IEmailProvider email)
 
 | Property | Description | Default |
 |---|---|---|
-| `ApiKey` | SendGrid API key | required |
+| `ApiKey` | SendGrid API key | required unless an `ISendGridClient` is registered |
 
-The sender is set per message (`EmailMessage.From`, `FromName`).
+The sender is set per message (`EmailMessage.From`, `FromName`). A response outside 2xx throws
+`InvalidOperationException`. Attachment streams are read from the start (a seekable stream is rewound first).
+
+When the container has an `ISendGridClient` registered, the provider uses it instead of building a client from
+`ApiKey`; register your own client for custom `SendGridClientOptions` (proxy, host, EU data residency).
 
 ## Resources
 

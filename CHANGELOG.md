@@ -26,6 +26,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   longer requires `ConnectionString` or `Endpoint`; `AmazonSesOptionsValidator` likewise no longer requires `Region`
   when an `IAmazonSimpleEmailServiceV2` is registered (both validators gained a constructor taking
   `IServiceProviderIsService`, like the token blacklist's).
+- `Kck.Messaging.SendGrid` — constructor `SendGridEmailProvider(ISendGridClient)`. `AddKckMessagingSendGrid` uses an
+  `ISendGridClient` registered in the container when there is one (register your own client for custom
+  `SendGridClientOptions`: proxy, host, EU data residency), otherwise it builds one from `ApiKey`; with a registered
+  client `SendGridOptionsValidator` no longer requires `ApiKey` (new constructor taking `IServiceProviderIsService`).
+- `Kck.Security.Secrets.AzureKeyVault` — constructor `AzureKeyVaultSecretsManager(IOptionsMonitor<AzureKeyVaultOptions>,
+  ILogger<AzureKeyVaultSecretsManager>, SecretClient)`. `AddKckAzureKeyVault` uses a `SecretClient` registered in the
+  container when there is one (another credential, `SecretClientOptions`), otherwise it builds one for `VaultUri` with
+  `DefaultAzureCredential`; with a registered client `AzureKeyVaultOptionsValidator` skips `VaultUri` (new constructor
+  taking `IServiceProviderIsService`). `SecretPrefix` applies either way.
+- `Kck.EventBus.AzureServiceBus` — constructor `AzureServiceBusEventBus(AzureServiceBusOptions, IServiceProvider,
+  ILogger<AzureServiceBusEventBus>, ServiceBusClient)`. `UseAzureServiceBus` uses a `ServiceBusClient` registered in
+  the container before the call (token credential such as managed identity, custom client options); the
+  registration-time `ConnectionString` check and `AzureServiceBusOptionsValidator` (new constructor taking
+  `IServiceProviderIsService`) then accept an empty `ConnectionString`. A client the bus did not create is not
+  disposed by it; `RetryCount` applies only to the bus's own client.
 - `Kck.Messaging.MailKit` — `MailKitOptionsValidator` rejects `SecureSocketOptions = None` together with a `UserName`
   (the credentials would travel in plaintext).
 - `Kck.Documents.SkiaSharp` — an `IImageProcessor` on SkiaSharp (MIT), registered with `AddKckDocumentsSkiaSharp()`.
@@ -124,8 +139,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `Kck.Observability.Abstractions` — the `tags` parameter of `IMetricsService.CreateCounter(name, description, tags)`:
   it took tag keys without values, which OpenTelemetry cannot represent, and the provider ignored it. Pass tags on each
   `Increment` call; an own `IMetricsService` implementation drops the parameter.
+- `Kck.BackgroundJobs.Hangfire` — `HangfireJobScheduler.ExecuteJob<TJob>` (the method Hangfire was meant to invoke; it
+  never worked, see Fixed). Jobs now run through the new public `HangfireJobRunner<TJob>`. The scheduler's constructor
+  takes `IBackgroundJobClient` and `IRecurringJobManager` instead of `IServiceScopeFactory`; both are registered by
+  `AddKckBackgroundJobsHangfire`, so only code that constructed the scheduler itself changes.
 
 ### Fixed
+- `Kck.BackgroundJobs.Hangfire` — every `IJobScheduler` call (`EnqueueAsync`, `ScheduleAsync`,
+  `AddOrUpdateRecurringAsync`) threw `ArgumentNullException` ("Parameter 'method'") from Hangfire's
+  `Job.FromExpression`: the scheduler passed its own instance method to Hangfire's static API, which Hangfire cannot
+  serialize. Nothing was ever stored or run, and the WorkerService sample crashed at start-up. Jobs are now stored as
+  `HangfireJobRunner<TJob>.RunAsync`, written through the `JobStorage`/`IBackgroundJobClient`/`IRecurringJobManager`
+  Hangfire.NetCore registers in DI, and Hangfire activates the runner per execution,
+  resolving `TJob` from a DI scope. The job's `CancellationToken` is Hangfire's own (cancelled on server shutdown or job
+  deletion). Failed runs are still retried three times.
+- `Kck.Messaging.MailKit` — an attachment whose `Content` stream was not at position 0 (for example a `MemoryStream`
+  the caller had just written) was sent empty or truncated: MimeKit copies from the current position. A seekable stream
+  is now rewound before it is attached, as the Amazon SES provider already did. `Kck.Messaging.SendGrid` had the same
+  defect and is fixed the same way.
 - `Kck.Exceptions.AspNetCore` — `CustomException.AdditionalData` never reached the response although the exceptions
   document it as "included in the error response". It is now written flat into the problem body as RFC 9457 extension
   members (`UnifiedApiErrorResponse.Extensions`, `[JsonExtensionData]`): an object's top-level properties in camelCase,

@@ -3,7 +3,7 @@
 
 namespace ReadmeSnippets.DocsProvidersBackgroundJobs_6;
 
-#line 81 "docs/providers/background-jobs.md"
+#line 89 "docs/providers/background-jobs.md"
 public class CheckoutHandler(IJobScheduler scheduler)
 {
     public async Task HandleAsync(CancellationToken ct)

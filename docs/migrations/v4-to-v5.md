@@ -46,6 +46,7 @@ an OSI-approved licence, and asks for a licence key at Release build time (decis
 | `Kck.Security.Abstractions` | Removed API: `IEncryptionService` | Medium |
 | `Kck.Security.Jwt` | Removed API: `RsaKeySource.SecretsManager` | High |
 | `Kck.BackgroundJobs.Hangfire` | Removed API: `HangfireOptions.ConnectionString` | High |
+| `Kck.BackgroundJobs.Hangfire` | Scheduler fixed (section 11): constructor takes `IBackgroundJobClient` + `IRecurringJobManager`; `ExecuteJob<TJob>` removed | Low |
 | `Kck.Bundle.WebApi` | Removed API: never-read `Persistence`, `Caching`, `Observability`, `Hashing`, `Algorithm` settings | High |
 | `Kck.Bundle.MinimalApi` | Removed API: never-read `Security:Jwt:Algorithm` setting | High |
 | `Kck.Bundle.WorkerService` | Removed API: never-read `Observability` setting | High |
@@ -427,6 +428,27 @@ mostly `Options` and `Logging.Abstractions`, plus `Caching.Memory`, `Caching.Abs
   <PackageReference Include="Hangfire.SqlServer" Version="1.8.25" />
 </ItemGroup>
 ```
+
+### 11. Hangfire scheduler
+
+**What changed.** In 4.x every `IJobScheduler` call of `Kck.BackgroundJobs.Hangfire` (`EnqueueAsync`, `ScheduleAsync`,
+`AddOrUpdateRecurringAsync`) threw `ArgumentNullException` ("Parameter 'method'") from Hangfire: the scheduler handed
+its own instance method to Hangfire's static API, which Hangfire cannot serialize, so no job was ever stored. In 5.0
+the scheduler stores each job as a call to the new public `HangfireJobRunner<TJob>.RunAsync`, writes it through the
+`JobStorage`/`IBackgroundJobClient`/`IRecurringJobManager` Hangfire.NetCore registers in DI, and Hangfire activates
+the runner per execution, resolving `TJob` from a DI scope. The `CancellationToken` passed to the `IJobScheduler`
+methods is not forwarded to Hangfire.
+
+| 4.x | 5.0 |
+|---|---|
+| `new HangfireJobScheduler(IServiceScopeFactory)` | `new HangfireJobScheduler(IBackgroundJobClient, IRecurringJobManager)` |
+| `HangfireJobScheduler.ExecuteJob<TJob>(CancellationToken)` | Removed; Hangfire invokes `HangfireJobRunner<TJob>.RunAsync(CancellationToken)` |
+
+**Who is affected.** Nobody who resolves `IJobScheduler` from `AddKckBackgroundJobsHangfire`: the call sites stay the
+same and start working. Only code that constructed `HangfireJobScheduler` itself changes its constructor arguments;
+`ExecuteJob` was an implementation detail that consumers never called. Register every job type in DI
+(`services.AddKckJob<TJob>()`), because the runner resolves it there. The job's `CancellationToken` is Hangfire's own:
+it is cancelled when the server shuts down or the job is deleted.
 
 ### Other 5.0 changes
 

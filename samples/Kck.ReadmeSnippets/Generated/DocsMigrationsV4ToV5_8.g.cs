@@ -3,7 +3,7 @@
 
 namespace ReadmeSnippets.DocsMigrationsV4ToV5_8;
 
-#line 285 "docs/migrations/v4-to-v5.md"
+#line 286 "docs/migrations/v4-to-v5.md"
 public class CacheWarmUp(ICacheService cache) : BackgroundService
 {
     protected override Task ExecuteAsync(CancellationToken stoppingToken) =>

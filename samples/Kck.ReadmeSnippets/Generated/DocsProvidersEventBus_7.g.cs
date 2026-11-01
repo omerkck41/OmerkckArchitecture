@@ -4,7 +4,7 @@
 namespace ReadmeSnippets.DocsProvidersEventBus_7;
 using Kck.EventBus.Abstractions;
 
-#line 148 "docs/providers/event-bus.md"
+#line 155 "docs/providers/event-bus.md"
 public class OrderService(IEventBus bus)
 {
     public async Task CreateAsync(Order order, CancellationToken ct)

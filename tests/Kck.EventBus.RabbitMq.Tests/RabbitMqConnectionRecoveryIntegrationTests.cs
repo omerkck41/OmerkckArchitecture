@@ -1,6 +1,7 @@
 using AwesomeAssertions;
 using Kck.EventBus.Abstractions;
 using Kck.EventBus.RabbitMq;
+using Kck.Testing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging.Abstractions;
 using Xunit;
@@ -16,7 +17,7 @@ namespace Kck.EventBus.RabbitMq.Tests;
 public sealed class RabbitMqConnectionRecoveryIntegrationTests(RabbitMqContainerFixture rabbit)
     : IClassFixture<RabbitMqContainerFixture>
 {
-    [Fact]
+    [DockerFact]
     public async Task PublishAsync_DuringConnectionRecovery_WaitsForTheRecoveredConnection_AndOpensNoSecondConnection()
     {
         var counter = new Counter();

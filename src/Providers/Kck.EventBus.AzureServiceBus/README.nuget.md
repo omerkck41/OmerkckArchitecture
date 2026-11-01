@@ -42,12 +42,16 @@ public sealed class OrderPlacedHandler : IEventHandler<OrderPlacedEvent>
 
 | Property | Description | Default |
 |---|---|---|
-| `ConnectionString` | Service Bus namespace connection string | required |
+| `ConnectionString` | Service Bus namespace connection string | required unless a `ServiceBusClient` is registered |
 | `TopicName` | Topic the events are published to | `"kck-eventbus"` |
 | `SubscriptionName` | Subscription the consumer reads | `"default"` |
 | `MaxConcurrentCalls` | Messages processed in parallel | `10` |
 | `MaxAutoLockRenewalDuration` | Lock renewal limit for a message | 5 minutes |
 | `RetryCount` | Client retry count | `3` |
+
+For a token credential (managed identity) or custom client options, register your own `ServiceBusClient` in the
+container before `UseAzureServiceBus`; the bus then uses it instead of `ConnectionString` (and `RetryCount`), and
+leaves it open on dispose.
 
 ## Resources
 
