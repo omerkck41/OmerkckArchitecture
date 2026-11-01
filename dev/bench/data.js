@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1793565210879,
+  "lastUpdate": 1793570101309,
   "repoUrl": "https://github.com/omerkck41/OmerkckArchitecture",
   "entries": {
     "Benchmark": [
@@ -15598,6 +15598,102 @@ window.BENCHMARK_DATA = {
             "value": 10.922339056928953,
             "unit": "ns",
             "range": "± 0.30549095659323294"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "106805727+omerkck41@users.noreply.github.com",
+            "name": "Ömer KÜÇÜK",
+            "username": "omerkck41"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "9500246c46f9b2d31960cb918806574e0e3b30f5",
+          "message": "fix(jobs,tests)!: working Hangfire scheduler, Docker-aware tests, client seams (F4a) (#292)\n\n## Summary\n\nStep F4a (\"test depth\", Docker-free half) of the provider health plan\n(`docs/plans/2026-10-31-provider-saglik-ve-atil-kod-plani.md`,\nsection 4 row F4, acceptance Ö14/Ö15, decision D5). Every behaviour\nchange was written test-first; the failing runs are in the repo-local\nevidence folder `tasks/probes/2026-11-01-f4a/`.\n\n**Breaking (5.0):** `HangfireJobScheduler` now takes\n`IBackgroundJobClient` + `IRecurringJobManager` (both registered by\n`AddHangfire`) and its\npublic `ExecuteJob<TJob>` is removed; jobs run through the new public\n`HangfireJobRunner<TJob>`. Consumers never called either directly\n(`docs/migrations/v4-to-v5.md` section 11;\n`CompatibilitySuppressions.xml` CP0002 ×2).\n\n## Fixed\n- **Kck.BackgroundJobs.Hangfire** — `EnqueueAsync`, `ScheduleAsync` and\n`AddOrUpdateRecurringAsync` all threw `ArgumentNullException('method')`\nfrom `Job.FromExpression`: the expression called a generic instance\nmethod whose type argument Hangfire could not re-resolve from the\nruntime\ntype. The scheduler now uses the explicit-type overloads on\n`HangfireJobRunner<TJob>`. 11 tests on `Hangfire.InMemory` storage,\nincluding an\nend-to-end run with a real server; `samples/Kck.Sample.WorkerService`\nstarts again (it crashed at start-up before).\n- **Kck.Messaging.MailKit, Kck.Messaging.SendGrid** — a seekable\nattachment stream not at position 0 was sent partially; it is rewound\nfirst\n  (SES already did this).\n\n## Added\n- **Client seams (SES pattern):**\n`SendGridEmailProvider(ISendGridClient, …)`,\n`AzureKeyVaultSecretsManager(…, SecretClient)`,\n`AzureServiceBusEventBus(ServiceBusClient, …)`; the DI registrations use\na registered client when present (`IServiceProviderIsService`),\nthe validators relax the setting the client replaces. MailKit exposes an\ninternal `BuildMimeMessageAsync` so To/Cc/Bcc, From name, bodies\n  and attachments are asserted on the MIME message.\n- **`DockerFact` / `DockerTheory` + `DockerProbe`** (`tests/_Shared`,\nlinked into every test project): the 53 container tests skip when the\nDocker daemon is unreachable (`DOCKER_HOST` tcp/npipe/unix, Windows\nnamed pipe, Unix socket candidates incl. rootless and Docker Desktop\nfor macOS); never in CI — `CI=true` or `KCK_REQUIRE_DOCKER=1` makes a\nbroken Docker fail loudly. A malformed `DOCKER_HOST` never breaks\ndiscovery. RabbitMq/Elasticsearch fixtures return early when skipping\n(16 s → 2 s). Documented in `docs/test-strategy.md`.\n- **New test projects:** `Kck.Resilience.Polly.Tests` (7: named\npipeline, retry count, breaker, timeout, result predicate) with a README\n\"Scope\" note (thin layer over Microsoft.Extensions.Resilience / Polly\nv8, plan D5); `Kck.Bundle.MinimalApi.Tests` (5). The MinimalApi README\nnow says JWT needs `Audience` and the signing key (fail-fast at start-up\nis the correct behaviour) and drops three settings the bundle never\n  read.\n\n## Verification (local)\n\n| Check | Result |\n|---|---|\n| Tests written first | every behaviour change RED then GREEN\n(`red.txt`, two rounds) |\n| `dotnet build -c Release --no-incremental` | 0 errors (5 pre-existing\nCA1716 warnings) |\n| Full `dotnet test`, Docker reachable | 1552/1552 |\n| Full `dotnet test`, `DOCKER_HOST=tcp://127.0.0.1:1`, `CI` unset | 1499\npassed, 53 skipped, 0 failed |\n| `dotnet restore --locked-mode` | passes (two new lock files) |\n| `readme_snippets.py --check` / `docs_language.py` | 174 blocks up to\ndate / 107 files, 0 problems |\n| Fresh skeptical review | 2 rounds; no critical/high; medium (probe\nexception handling) and low findings fixed |\n\nAcceptance Ö14 in the plan says \"27 skipped\"; the real count is 53\ncontainer tests today.\n\nKnown limits, tracked in the local todo: `SendGrid`/`SES` providers have\ntwo one-parameter public constructors, so a consumer registering them\nwith a plain `AddSingleton<IEmailProvider, …>()` while both a client and\noptions are registered hits the container's ambiguous-constructor\nerror (`AddKckMessaging…` is the supported path; a test pins this); the\nService Bus hosted service stops processors only on `DisposeAsync`;\nthe Unix-socket probe path could not be exercised on the Windows dev\nmachine.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\n---------\n\nCo-authored-by: Claude Fable 5.1 <noreply@anthropic.com>",
+          "timestamp": "2026-11-01T21:47:51Z",
+          "tree_id": "1b69cc0096c53485c890e7a64b287d3975462471",
+          "url": "https://github.com/omerkck41/OmerkckArchitecture/commit/9500246c46f9b2d31960cb918806574e0e3b30f5"
+        },
+        "date": 1793570100607,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Success_Factory",
+            "value": 5.171669256922446,
+            "unit": "ns",
+            "range": "± 0.16461674345645327"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Failure_Factory",
+            "value": 7.000446114440759,
+            "unit": "ns",
+            "range": "± 0.1439195041198684"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Success",
+            "value": 0.787375203644236,
+            "unit": "ns",
+            "range": "± 0.10637433689589344"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Failure",
+            "value": 0.7839915826916695,
+            "unit": "ns",
+            "range": "± 0.00528280556122909"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Serialize_Reflection",
+            "value": 324.1035374573299,
+            "unit": "ns",
+            "range": "± 2.4409502531376646"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Deserialize_Reflection",
+            "value": 549.1596222605024,
+            "unit": "ns",
+            "range": "± 2.9830758495741154"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 0)",
+            "value": 8.023039708180088,
+            "unit": "ns",
+            "range": "± 0.13834745335295878"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 5)",
+            "value": 8.675748747587203,
+            "unit": "ns",
+            "range": "± 0.1743587888589825"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 0)",
+            "value": 7.907637304564317,
+            "unit": "ns",
+            "range": "± 0.1629954098484807"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 5)",
+            "value": 8.248669972022375,
+            "unit": "ns",
+            "range": "± 0.1375335459913054"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 0)",
+            "value": 8.526055350402991,
+            "unit": "ns",
+            "range": "± 0.05799122512574916"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 5)",
+            "value": 8.763767527540525,
+            "unit": "ns",
+            "range": "± 0.1657392354540688"
           }
         ]
       }
