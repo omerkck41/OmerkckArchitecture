@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- `Kck.Documents.SkiaSharp` — an `IImageProcessor` on SkiaSharp (MIT), registered with `AddKckDocumentsSkiaSharp()`.
+  It reads JPEG, PNG, WebP, GIF, BMP and ICO and writes `jpeg` (`jpg`), `png` and `webp`. On Linux the application
+  adds `SkiaSharp.NativeAssets.Linux.NoDependencies` (glibc and musl); Windows and macOS need nothing extra.
+  `SkiaSharpOptions.MaxPixels` (default 50,000,000, validated at start-up) rejects a larger image or resize target
+  from the header before any pixel is decoded. Like `Kck.Documents.ImageSharp`, a single `Width` or `Height` (the
+  other `null` or `0`) derives the other side from the source ratio. Differences from `Kck.Documents.ImageSharp`:
+  `gif` and `bmp` output throw `NotSupportedException` (an empty format with a GIF/BMP source gives JPEG), TIFF input
+  is not decodable (`InvalidDataException`, as is truncated or corrupt data), transparent areas become white when
+  converting to JPEG, `GetDimensionsAsync` reads only the header and returns the displayed size, EXIF orientation is
+  now applied, the output carries no metadata (EXIF including GPS and the ICC profile are not written; pixels are
+  converted to sRGB), and an out-of-range `Quality` is clamped to 1–100 instead of throwing.
+  `Kck.Documents.ImageSharp` is removed in 5.0; see `docs/migrations/v4-to-v5.md`.
+
 ### Fixed
 - `Kck.Caching.Redis`, `Kck.Caching.Hybrid` — with `RedisCacheOptions.InstanceName` set, `ExistsAsync` always returned
   false and `RemoveByPrefixAsync` deleted nothing: Redis stores keys as `InstanceName` + key, but both looked the key up

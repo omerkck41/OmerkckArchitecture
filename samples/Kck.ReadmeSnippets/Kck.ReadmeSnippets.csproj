@@ -29,6 +29,7 @@
     <ProjectReference Include="../../src/Providers/Kck.Caching.Redis/Kck.Caching.Redis.csproj" />
     <ProjectReference Include="../../src/Providers/Kck.Documents.ClosedXml/Kck.Documents.ClosedXml.csproj" />
     <ProjectReference Include="../../src/Providers/Kck.Documents.ImageSharp/Kck.Documents.ImageSharp.csproj" />
+    <ProjectReference Include="../../src/Providers/Kck.Documents.SkiaSharp/Kck.Documents.SkiaSharp.csproj" />
     <ProjectReference Include="../../src/Providers/Kck.EventBus.AzureServiceBus/Kck.EventBus.AzureServiceBus.csproj" />
     <ProjectReference Include="../../src/Providers/Kck.EventBus.InMemory/Kck.EventBus.InMemory.csproj" />
     <ProjectReference Include="../../src/Providers/Kck.EventBus.RabbitMq/Kck.EventBus.RabbitMq.csproj" />

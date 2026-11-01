@@ -7,8 +7,11 @@ internal static class Snippet
 {
     internal static async Task RunAsync(IServiceCollection services)
     {
-#line 55 "docs/providers/documents.md"
-services.AddKckDocumentsImageSharp();
+#line 56 "docs/providers/documents.md"
+services.AddKckDocumentsSkiaSharp();
+
+// or with a lower decoder-bomb limit (default 50,000,000 pixels)
+services.AddKckDocumentsSkiaSharp(options => options.MaxPixels = 20_000_000);
 #line default
         await Task.CompletedTask;
     }
