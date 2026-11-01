@@ -3,11 +3,9 @@ using Microsoft.Extensions.Logging;
 
 namespace Kck.Sample.WorkerService.Jobs;
 
-public sealed partial class SampleRecurringJob(ILogger<SampleRecurringJob> logger) : IRecurringJob
+// Scheduled in Program.cs with IJobScheduler.AddOrUpdateRecurringAsync<SampleRecurringJob>(jobId, cron).
+public sealed partial class SampleRecurringJob(ILogger<SampleRecurringJob> logger) : IBackgroundJob
 {
-    public string JobId => "sample-recurring";
-    public string CronExpression => CronExpressions.Every5Minutes;
-
     public Task ExecuteAsync(CancellationToken ct = default)
     {
         LogExecuted(logger, DateTimeOffset.UtcNow);

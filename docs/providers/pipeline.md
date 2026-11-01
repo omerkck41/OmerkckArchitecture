@@ -33,7 +33,7 @@ Behaviors run in the order of the `Use…Behavior()` calls.
 |---|---|---|
 | `ILoggableRequest` | Logging | none (marker) |
 | `ISecuredRequest` | Authorization | `string[] Roles`: any one is enough; throws `UnauthorizedException` if there is no user, `ForbiddenException` if no role matches |
-| `ICachableRequest` | Caching | `CacheKey`, `BypassCache`, `CacheGroupKey`, `SlidingExpiration` |
+| `ICachableRequest` | Caching | `CacheKey`, `BypassCache`, `SlidingExpiration` |
 | `ITransactionalRequest` | Transaction | none (marker) |
 
 The validation behavior runs all FluentValidation `IValidator<TRequest>` instances registered for the request. If there are
@@ -51,7 +51,6 @@ public sealed record GetProductQuery(int Id) : IQuery<Product>, ICachableRequest
 {
     public string CacheKey => $"product:{Id}";
     public bool BypassCache => false;
-    public string? CacheGroupKey => "products";
     public TimeSpan? SlidingExpiration => TimeSpan.FromMinutes(10);
 }
 

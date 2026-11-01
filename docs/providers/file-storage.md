@@ -6,7 +6,7 @@ Abstraction for file storage and transfer, with FTP, Azure Blob Storage and Amaz
 
 | Package | Target |
 |---|---|
-| `Kck.FileStorage.Abstractions` | `IFileStorageService`, `IFtpService`, `IFileConverter`, `IFileMetadataReader` |
+| `Kck.FileStorage.Abstractions` | `IFileStorageService`, `IFtpService`, `PathHelper` |
 | `Kck.FileStorage.FluentFtp` | FluentFTP (FTP/FTPS) |
 | `Kck.FileStorage.AzureBlob` | Azure Blob Storage (`AddKckFileStorageAzureBlob`) |
 | `Kck.FileStorage.AwsS3` | Amazon S3 and MinIO / Cloudflare R2 / Wasabi (`AddKckFileStorageAwsS3`; `ServiceUrl`, `ForcePathStyle`) |
@@ -74,8 +74,7 @@ use, not when the service is constructed; a failed attempt is retried on the nex
 ## Path Helpers
 
 `PathHelper.Combine("upload", "2026", "file.txt")` → `upload/2026/file.txt` (backslashes become forward slashes).
-`PathHelper.IsValidPath(path)` rejects `..` and `~` segments and invalid characters; `PathHelper.Sanitize(path)` removes
-them.
+`PathHelper.GetExtension(path)` returns the extension without the leading dot.
 
 `PathHelper.Validate(path)` throws `ArgumentException` for a null or white-space path, a path that contains `..`
 anywhere (also `report..v2.pdf`), an absolute path (leading `/` or `\`), a percent sign (URL-encoded traversal such as
@@ -92,6 +91,6 @@ container `alpha` returned `beta`'s blob).
   support SFTP.
 - Store credentials in Key Vault / Secrets Manager, not in appsettings.
 - Path traversal protection: never write user input directly into a storage path. Take the file name with
-  `Path.GetFileName()` and check paths with `PathHelper.IsValidPath()`. The providers themselves reject `..`, absolute,
+  `Path.GetFileName()` and check paths with `PathHelper.Validate()`. The providers themselves reject `..`, absolute,
   percent-encoded and control-character paths with `ArgumentException` (`PathHelper.Validate`), so a request with such
   a path fails before it reaches the service.

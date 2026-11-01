@@ -21,7 +21,6 @@ public sealed partial class CachingBehaviorSerializerTests
     {
         public string CacheKey => Key;
         public bool BypassCache => false;
-        public string? CacheGroupKey => null;
         public TimeSpan? SlidingExpiration => null;
     }
 

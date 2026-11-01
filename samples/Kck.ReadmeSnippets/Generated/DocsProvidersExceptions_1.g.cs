@@ -5,7 +5,7 @@ namespace ReadmeSnippets.DocsProvidersExceptions_1;
 using Kck.Exceptions;
 using Kck.Exceptions.Attributes;
 
-#line 39 "docs/providers/exceptions.md"
+#line 38 "docs/providers/exceptions.md"
 [HttpStatusCode(StatusCodes.Status422UnprocessableEntity)]
 public sealed class InsufficientBalanceException(Guid accountId)
     : CustomException($"Account {accountId} has insufficient balance");

@@ -31,6 +31,23 @@ an OSI-approved licence, and asks for a licence key at Release build time (decis
 | `Kck.Caching.Hybrid` | `ICacheService` resolvable only after the host started | High |
 | `Kck.Search.Elasticsearch` | Rejected requests throw instead of returning silently | Medium |
 | `Kck.Documents.ImageSharp` | **Removed** — replaced by `Kck.Documents.SkiaSharp` | High |
+| `Kck.Authorization.Abstractions` | Removed API: `IAuthorizationService`, `IPermissionChecker` | Medium |
+| `Kck.BackgroundJobs.Abstractions` | Removed API: `IRecurringJob` | Medium |
+| `Kck.Exceptions.Abstractions` | Removed API: `FilterSecurityException` | Medium |
+| `Kck.FeatureFlags.Abstractions` | Removed API: `IFeatureEvaluator`, `IFeatureChangeNotifier`, `FeatureChangeEvent` | Medium |
+| `Kck.FileStorage.Abstractions` | Removed API: `IFileConverter`, `IFileMetadataReader`, `PathHelper.IsValidPath` / `Sanitize` | Medium |
+| `Kck.Http.Abstractions` | Removed API: `ResilienceOptions.CircuitBreakerFailureThreshold` | High |
+| `Kck.Messaging.Abstractions` | Removed API: `IEmailService` | Medium |
+| `Kck.Observability.Abstractions` | Removed API: `IHealthCheckRegistrar`, `HealthCheckType` | Medium |
+| `Kck.Persistence.Abstractions` | Removed API: bool-flag `IQuery<T>.Query` overload, `FilterValidator` | Medium |
+| `Kck.Persistence.EntityFramework` | Removed API: bool-flag `EfRepository.Query` overload | Medium |
+| `Kck.Pipeline.Abstractions` | Removed API: `ICachableRequest.CacheGroupKey` | Medium |
+| `Kck.Security.Abstractions` | Removed API: `IEncryptionService` | Medium |
+| `Kck.Security.Jwt` | Removed API: `RsaKeySource.SecretsManager` | High |
+| `Kck.BackgroundJobs.Hangfire` | Removed API: `HangfireOptions.ConnectionString` | High |
+| `Kck.Bundle.WebApi` | Removed API: never-read `Persistence`, `Caching`, `Observability`, `Hashing`, `Algorithm` settings | High |
+| `Kck.Bundle.MinimalApi` | Removed API: never-read `Security:Jwt:Algorithm` setting | High |
+| `Kck.Bundle.WorkerService` | Removed API: never-read `Observability` setting | High |
 
 (Impact: Low = interface implementations only, Medium = call sites,
 High = configuration / DI level)
@@ -48,6 +65,10 @@ High = configuration / DI level)
 - Hybrid cache: resolving `ICacheService` before the host started throws
 - Elasticsearch write and search operations throw `InvalidOperationException` when Elasticsearch rejects the request
 - `Kck.Documents.ImageSharp` → `Kck.Documents.SkiaSharp`; `AddKckDocumentsImageSharp()` → `AddKckDocumentsSkiaSharp()`
+- The 4.x `[Obsolete]` members (KCK0002, KCK0101, KCK0300, KCK0600, KCK0700, KCK0900, KCK0901) and the contracts no
+  package implemented or called are removed (section 9). 4.x code that built without an obsolete warning is unaffected
+  by the first group, except an own `IQuery<T>`/`IRepository` implementation: it must now implement
+  `Query(QueryOptions, …)` (implementing the obsolete overload never warned)
 
 ## Detailed Changes
 
@@ -330,6 +351,36 @@ services.AddKckDocumentsSkiaSharp();
 | `Width` / `Height` `null` or 0 | derived from the source ratio | derived from the source ratio (no difference); negative throws `ArgumentOutOfRangeException` |
 | `Quality` outside 1–100 | throws | clamped to 1–100 |
 
+### 9. Removed API
+
+**Reason:** 4.x shipped members that did nothing (settings that were never read, an enum value that was never
+implemented) and contracts that no Kck package implemented or called. The first group was marked `[Obsolete]` in 4.3–4.8
+and is removed on schedule ([deprecation policy](../policies/deprecation.md#removed-in-50)); the second group is removed
+without an `[Obsolete]` release first, because nothing in Kck ever used it. A removal is a compile error, not a
+behaviour change: if your code compiles against 5.0, it behaves as before. One exception to "compile error": an
+implicitly implemented `CacheGroupKey` property on your request type still compiles and simply becomes dead code (only
+an explicit interface implementation fails), so search for it rather than waiting for an error.
+
+| Symbol | Package | Replacement |
+|---|---|---|
+| `IQuery<T>.Query(filter, orderBy, bool withDeleted, bool enableTracking)` and the same `EfRepository` overload (KCK0101) | `Kck.Persistence.Abstractions`, `Kck.Persistence.EntityFramework` | `Query(QueryOptions options, filter, orderBy)` with `QueryOptions.None` / `.Tracking` / `.WithDeleted`; an own `IQuery<T>` implementation must now implement this member (the default that forwarded to the bool overload is gone) |
+| `KckWebApiDefaults.Persistence`, `.Caching`, `.Observability` (+ `PersistenceDefaults`, `CachingDefaults`, `ObservabilityDefaults`), `SecurityDefaults.Hashing`, `JwtDefaults.Algorithm`; MinimalApi `JwtDefaults.Algorithm`; `KckWorkerServiceDefaults.Observability` (+ `ObservabilityDefaults`) (KCK0002) | `Kck.Bundle.WebApi`, `Kck.Bundle.MinimalApi`, `Kck.Bundle.WorkerService` | Configure those providers in code (`AddKckPersistence`, a caching provider, `AddKckObservability`). The bundles always hash with Argon2 and sign with RS256; leftover `Kck:` keys are ignored |
+| `RsaKeySource.SecretsManager` (KCK0300) | `Kck.Security.Jwt` | Read the key yourself (for example from `ISecretsManager`) and set `RsaKeyBase64` with `RsaKeySource.Configuration`. A configuration value `SecretsManager` now fails to bind |
+| `HangfireOptions.ConnectionString` (KCK0700) | `Kck.BackgroundJobs.Hangfire` | `HangfireOptions.ConfigureStorage`, for example `c => c.UseSqlServerStorage(connectionString)` |
+| `ResilienceOptions.CircuitBreakerFailureThreshold` (KCK0900) | `Kck.Http.Abstractions` | `CircuitBreakerFailureRatio` / `CircuitBreakerMinimumThroughput` |
+| `IEmailService` (KCK0600) | `Kck.Messaging.Abstractions` | `IEmailProvider` (same `SendAsync`) |
+| `IFeatureEvaluator` (KCK0901) | `Kck.FeatureFlags.Abstractions` | `IFeatureFlagService.IsEnabledAsync(name, context)` |
+| `IEncryptionService` | `Kck.Security.Abstractions` | none — it had no implementation; keep your own copy if you implemented it |
+| `IAuthorizationService`, `IPermissionChecker` | `Kck.Authorization.Abstractions` | none — they had no implementation; keep your own copy if you implemented them (`ICurrentUserProvider` stays) |
+| `IFeatureChangeNotifier`, `FeatureChangeEvent` | `Kck.FeatureFlags.Abstractions` | none — it had no implementation; keep your own copy if you implemented it |
+| `IFileConverter`, `IFileMetadataReader` | `Kck.FileStorage.Abstractions` | none — they had no implementation; keep your own copy if you implemented them |
+| `PathHelper.IsValidPath`, `PathHelper.Sanitize` | `Kck.FileStorage.Abstractions` | `PathHelper.Validate(path)` (throws `ArgumentException` instead of returning `false`; the providers already call it). The rules differ slightly: `Validate` does not reject `~`, and it also rejects `%`, control characters and a leading `/`. `Sanitize` silently rewrote a path; reject it instead |
+| `IHealthCheckRegistrar`, `HealthCheckType` | `Kck.Observability.Abstractions` | none — it had no implementation and the enum was only its `AddDependency` parameter; keep your own copy if you used them (`IHealthCheck` stays) |
+| `IRecurringJob` | `Kck.BackgroundJobs.Abstractions` | Implement `IBackgroundJob` and pass the job id and cron expression to `IJobScheduler.AddOrUpdateRecurringAsync<TJob>(jobId, cron)` |
+| `FilterSecurityException` | `Kck.Exceptions.Abstractions` | none — nothing threw it (a field outside the dynamic filter whitelist throws `ArgumentException`, as in 4.x); keep your own copy if you threw it |
+| `FilterValidator` | `Kck.Persistence.Abstractions` | none — nothing called it; `ToDynamic` throws `ArgumentException` for an unsupported operator or an invalid value |
+| `ICachableRequest.CacheGroupKey` | `Kck.Pipeline.Abstractions` | none — the caching behavior never read it; delete the property from your requests |
+
 ### Other 5.0 changes
 
 Other 5.0 changes are added to this guide as the 5.0 work lands.
@@ -354,6 +405,9 @@ search-and-replace covers.
 9. Search for `"gif"` and `"bmp"` output formats (`OutputFormat`, `ConvertFormatAsync`) and switch them to `png` or
    `webp`; if you accept TIFF uploads, convert them before they reach `IImageProcessor`.
 10. If you process images above 50 megapixels, raise `SkiaSharpOptions.MaxPixels`.
+11. Build against 5.0 and fix each error from section 9: switch to the replacement in the table, delete
+    `CacheGroupKey` (and other removed members) from your types, and copy a removed contract into your code if you
+    implemented it. Remove leftover `KCK0xxx` entries from `NoWarn` and `#pragma warning disable`.
 
 ## References
 

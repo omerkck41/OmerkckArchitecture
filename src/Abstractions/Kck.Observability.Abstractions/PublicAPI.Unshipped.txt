@@ -1,1 +1,12 @@
 #nullable enable
+*REMOVED*Kck.Observability.Abstractions.HealthCheckType
+*REMOVED*Kck.Observability.Abstractions.HealthCheckType.Cache = 1 -> Kck.Observability.Abstractions.HealthCheckType
+*REMOVED*Kck.Observability.Abstractions.HealthCheckType.Custom = 5 -> Kck.Observability.Abstractions.HealthCheckType
+*REMOVED*Kck.Observability.Abstractions.HealthCheckType.Database = 0 -> Kck.Observability.Abstractions.HealthCheckType
+*REMOVED*Kck.Observability.Abstractions.HealthCheckType.ExternalApi = 3 -> Kck.Observability.Abstractions.HealthCheckType
+*REMOVED*Kck.Observability.Abstractions.HealthCheckType.FileSystem = 4 -> Kck.Observability.Abstractions.HealthCheckType
+*REMOVED*Kck.Observability.Abstractions.HealthCheckType.MessageBroker = 2 -> Kck.Observability.Abstractions.HealthCheckType
+*REMOVED*Kck.Observability.Abstractions.IHealthCheckRegistrar
+*REMOVED*Kck.Observability.Abstractions.IHealthCheckRegistrar.AddCheck(string! name, Kck.Observability.Abstractions.IHealthCheck! check) -> Kck.Observability.Abstractions.IHealthCheckRegistrar!
+*REMOVED*Kck.Observability.Abstractions.IHealthCheckRegistrar.AddCheck(string! name, System.Func<System.Threading.CancellationToken, System.Threading.Tasks.Task<Kck.Observability.Abstractions.HealthCheckResult!>!>! check) -> Kck.Observability.Abstractions.IHealthCheckRegistrar!
+*REMOVED*Kck.Observability.Abstractions.IHealthCheckRegistrar.AddDependency(string! name, string! endpoint, Kck.Observability.Abstractions.HealthCheckType type) -> Kck.Observability.Abstractions.IHealthCheckRegistrar!

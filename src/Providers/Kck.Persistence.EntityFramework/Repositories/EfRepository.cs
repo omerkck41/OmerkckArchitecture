@@ -31,19 +31,6 @@ public class EfRepository<T, TId>(
     protected DbSet<T> DbSet => Context.Set<T>();
 
     /// <inheritdoc />
-    [Obsolete(
-        "Positional bool flags are replaced by QueryOptions: use Query(QueryOptions.None, filter, orderBy) " +
-        "(or QueryOptions.Tracking / QueryOptions.WithDeleted). Removed in v5.0.",
-        DiagnosticId = "KCK0101",
-        UrlFormat = "https://github.com/omerkck41/OmerkckArchitecture/blob/main/docs/policies/deprecation.md#{0}")]
-    public IQueryable<T> Query(
-        Expression<Func<T, bool>>? filter = null,
-        Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null,
-        bool withDeleted = false,
-        bool enableTracking = false)
-        => Query(new QueryOptions(withDeleted, enableTracking), filter, orderBy);
-
-    /// <inheritdoc />
     public IQueryable<T> Query(
         QueryOptions options,
         Expression<Func<T, bool>>? filter = null,

@@ -1,1 +1,2 @@
 #nullable enable
+*REMOVED*Kck.Pipeline.Abstractions.ICachableRequest.CacheGroupKey.get -> string?

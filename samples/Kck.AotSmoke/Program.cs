@@ -123,7 +123,6 @@ internal sealed record CountQuery(string Key) : IRequest<Count>, ICachableReques
 {
     public string CacheKey => Key;
     public bool BypassCache => false;
-    public string? CacheGroupKey => null;
     public TimeSpan? SlidingExpiration => null;
 }
 

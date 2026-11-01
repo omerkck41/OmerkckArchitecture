@@ -19,7 +19,6 @@ public sealed record GetProductQuery(int ProductId) : IQuery<Product?>, ICachabl
 {
     public string CacheKey => $"product:{ProductId}";
     public bool BypassCache => false;
-    public string? CacheGroupKey => "products";
     public TimeSpan? SlidingExpiration => TimeSpan.FromMinutes(10);
 }
 

@@ -17,29 +17,27 @@ internal static class Snippet
 }
 
 #line 17 "src/Abstractions/Kck.Exceptions.Abstractions/README.nuget.md"
-public class OrderService(IOrderStore orders, IPermissionChecker permissions)
+public class OrderService(IOrderStore orders)
 {
     public async Task<Order> GetOrderAsync(Guid id, CancellationToken ct) =>
         await orders.FindAsync(id, ct) ?? throw new NotFoundException($"Order {id} was not found.");
 
-    public async Task UpdateOrderAsync(Guid userId, Order order, CancellationToken ct)
+    public Task UpdateOrderAsync(Order order, IReadOnlyCollection<string> userRoles, CancellationToken ct)
     {
         if (order.Total <= 0)
             throw new BadRequestException("Order total must be greater than zero.");
 
-        if (!await permissions.HasPermissionAsync(userId, "orders.write", ct))
-            throw new ForbiddenException("You do not have permission to update orders.");
+        if (!userRoles.Contains("admin"))
+            throw new ForbiddenException("Only administrators can update orders.");
+
+        return orders.SaveAsync(order, ct);
     }
 }
 
 public interface IOrderStore
 {
     Task<Order?> FindAsync(Guid id, CancellationToken ct);
-}
-
-public interface IPermissionChecker
-{
-    Task<bool> HasPermissionAsync(Guid userId, string permission, CancellationToken ct);
+    Task SaveAsync(Order order, CancellationToken ct);
 }
 
 // The exception middleware (Kck.Exceptions.AspNetCore) catches these and returns the matching status code:

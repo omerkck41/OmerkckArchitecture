@@ -1,1 +1,23 @@
 #nullable enable
+*REMOVED*Kck.FeatureFlags.Abstractions.FeatureChangeEvent
+*REMOVED*Kck.FeatureFlags.Abstractions.FeatureChangeEvent.<Clone>$() -> Kck.FeatureFlags.Abstractions.FeatureChangeEvent!
+*REMOVED*Kck.FeatureFlags.Abstractions.FeatureChangeEvent.Deconstruct(out string! FeatureName, out bool OldValue, out bool NewValue, out System.DateTimeOffset Timestamp) -> void
+*REMOVED*Kck.FeatureFlags.Abstractions.FeatureChangeEvent.Equals(Kck.FeatureFlags.Abstractions.FeatureChangeEvent? other) -> bool
+*REMOVED*Kck.FeatureFlags.Abstractions.FeatureChangeEvent.FeatureChangeEvent(string! FeatureName, bool OldValue, bool NewValue, System.DateTimeOffset Timestamp) -> void
+*REMOVED*Kck.FeatureFlags.Abstractions.FeatureChangeEvent.FeatureName.get -> string!
+*REMOVED*Kck.FeatureFlags.Abstractions.FeatureChangeEvent.FeatureName.init -> void
+*REMOVED*Kck.FeatureFlags.Abstractions.FeatureChangeEvent.NewValue.get -> bool
+*REMOVED*Kck.FeatureFlags.Abstractions.FeatureChangeEvent.NewValue.init -> void
+*REMOVED*Kck.FeatureFlags.Abstractions.FeatureChangeEvent.OldValue.get -> bool
+*REMOVED*Kck.FeatureFlags.Abstractions.FeatureChangeEvent.OldValue.init -> void
+*REMOVED*Kck.FeatureFlags.Abstractions.FeatureChangeEvent.Timestamp.get -> System.DateTimeOffset
+*REMOVED*Kck.FeatureFlags.Abstractions.FeatureChangeEvent.Timestamp.init -> void
+*REMOVED*Kck.FeatureFlags.Abstractions.IFeatureChangeNotifier
+*REMOVED*Kck.FeatureFlags.Abstractions.IFeatureChangeNotifier.WatchAsync(System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Collections.Generic.IAsyncEnumerable<Kck.FeatureFlags.Abstractions.FeatureChangeEvent!>!
+*REMOVED*Kck.FeatureFlags.Abstractions.IFeatureEvaluator
+*REMOVED*Kck.FeatureFlags.Abstractions.IFeatureEvaluator.EvaluateAsync(Kck.FeatureFlags.Abstractions.FeatureDefinition! feature, Kck.FeatureFlags.Abstractions.IFeatureContext! context, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<bool>!
+*REMOVED*override Kck.FeatureFlags.Abstractions.FeatureChangeEvent.Equals(object? obj) -> bool
+*REMOVED*override Kck.FeatureFlags.Abstractions.FeatureChangeEvent.GetHashCode() -> int
+*REMOVED*override Kck.FeatureFlags.Abstractions.FeatureChangeEvent.ToString() -> string!
+*REMOVED*static Kck.FeatureFlags.Abstractions.FeatureChangeEvent.operator !=(Kck.FeatureFlags.Abstractions.FeatureChangeEvent? left, Kck.FeatureFlags.Abstractions.FeatureChangeEvent? right) -> bool
+*REMOVED*static Kck.FeatureFlags.Abstractions.FeatureChangeEvent.operator ==(Kck.FeatureFlags.Abstractions.FeatureChangeEvent? left, Kck.FeatureFlags.Abstractions.FeatureChangeEvent? right) -> bool

@@ -1,1 +1,9 @@
 #nullable enable
+*REMOVED*Kck.Authorization.Abstractions.IAuthorizationService
+*REMOVED*Kck.Authorization.Abstractions.IAuthorizationService.AuthorizeAsync(System.Collections.Generic.IReadOnlyDictionary<string!, string!>! requiredClaims, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task!
+*REMOVED*Kck.Authorization.Abstractions.IAuthorizationService.AuthorizeAsync(string![]! requiredRoles, System.Collections.Generic.IReadOnlyDictionary<string!, string!>! requiredClaims, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task!
+*REMOVED*Kck.Authorization.Abstractions.IAuthorizationService.AuthorizeAsync(string![]! requiredRoles, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task!
+*REMOVED*Kck.Authorization.Abstractions.IPermissionChecker
+*REMOVED*Kck.Authorization.Abstractions.IPermissionChecker.HasAllPermissionsAsync(System.Collections.Generic.IEnumerable<string!>! permissions, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<bool>!
+*REMOVED*Kck.Authorization.Abstractions.IPermissionChecker.HasAnyPermissionAsync(System.Collections.Generic.IEnumerable<string!>! permissions, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<bool>!
+*REMOVED*Kck.Authorization.Abstractions.IPermissionChecker.HasPermissionAsync(string! permission, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<bool>!

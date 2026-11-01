@@ -87,6 +87,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (`AddKckDocumentsSkiaSharp()`; see `docs/migrations/v4-to-v5.md`). With it the Six Labors licence wiring is gone:
   Release builds need no `SixLaborsLicenseKey`/`sixlabors.lic`, and `.github/license-policy.json` has no SixLabors
   exception.
+- Contracts that no package implemented or called, removed without an `[Obsolete]` release (no replacement; copy the
+  contract into your code if you implemented it): `IEncryptionService` (Security.Abstractions), `IAuthorizationService`
+  and `IPermissionChecker` (Authorization.Abstractions; `ICurrentUserProvider` stays), `IFeatureChangeNotifier` +
+  `FeatureChangeEvent` (FeatureFlags.Abstractions), `IFileConverter` and `IFileMetadataReader`
+  (FileStorage.Abstractions), `IHealthCheckRegistrar` and `HealthCheckType` (Observability.Abstractions), `FilterSecurityException`
+  (Exceptions.Abstractions), `FilterValidator` (Persistence.Abstractions) and `ICachableRequest.CacheGroupKey`
+  (Pipeline.Abstractions; never read). `IRecurringJob` (BackgroundJobs.Abstractions): implement `IBackgroundJob` and
+  pass the id and cron to `IJobScheduler.AddOrUpdateRecurringAsync`. `PathHelper.IsValidPath` / `Sanitize`
+  (FileStorage.Abstractions): use `PathHelper.Validate`.
+- `[Obsolete]` members, persistence (KCK0101): the bool-flag `IQuery<T>.Query` and `EfRepository.Query` overloads — use
+  `Query(QueryOptions options, filter, orderBy)`; an own `IQuery<T>` must now implement that member.
+- `[Obsolete]` members, bundles (KCK0002): the never-read `KckWebApiDefaults.Persistence`, `.Caching`, `.Observability`
+  (with their `*Defaults` classes), `SecurityDefaults.Hashing`, `JwtDefaults.Algorithm` (WebApi, MinimalApi) and
+  `KckWorkerServiceDefaults.Observability` — configure those providers in code; leftover keys are ignored.
+- `[Obsolete]` members, providers: `RsaKeySource.SecretsManager` (KCK0300, Security.Jwt) — set `RsaKeyBase64`;
+  `HangfireOptions.ConnectionString` (KCK0700) — use `ConfigureStorage`.
+- `[Obsolete]` members, abstractions: `ResilienceOptions.CircuitBreakerFailureThreshold` (KCK0900, Http.Abstractions) —
+  use `CircuitBreakerFailureRatio` / `CircuitBreakerMinimumThroughput`; `IEmailService` (KCK0600,
+  Messaging.Abstractions) — use `IEmailProvider`; `IFeatureEvaluator` (KCK0901, FeatureFlags.Abstractions) — use
+  `IFeatureFlagService.IsEnabledAsync(name, context)`. The KCK ids stay reserved (`docs/policies/deprecation.md`).
 
 ### Fixed
 - `Kck.Caching.Redis`, `Kck.Caching.Hybrid` — with `RedisCacheOptions.InstanceName` set, `ExistsAsync` always returned

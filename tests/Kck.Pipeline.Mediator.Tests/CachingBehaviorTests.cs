@@ -17,7 +17,6 @@ public sealed class CachingBehaviorTests
     {
         public string CacheKey => Key;
         public bool BypassCache => Bypass;
-        public string? CacheGroupKey => null;
         public TimeSpan? SlidingExpiration => null;
     }
 

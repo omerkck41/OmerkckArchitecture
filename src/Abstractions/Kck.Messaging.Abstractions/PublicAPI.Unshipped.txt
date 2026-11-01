@@ -1,1 +1,3 @@
 #nullable enable
+*REMOVED*Kck.Messaging.Abstractions.IEmailService
+*REMOVED*Kck.Messaging.Abstractions.IEmailService.SendAsync(Kck.Messaging.Abstractions.EmailMessage! message, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task!
