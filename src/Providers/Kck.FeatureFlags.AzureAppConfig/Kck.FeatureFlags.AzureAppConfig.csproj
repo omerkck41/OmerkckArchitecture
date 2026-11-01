@@ -6,6 +6,9 @@
     <PackageReadmeFile>README.nuget.md</PackageReadmeFile>
   </PropertyGroup>
   <ItemGroup>
+    <InternalsVisibleTo Include="Kck.FeatureFlags.AzureAppConfig.Tests" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="../../Abstractions/Kck.FeatureFlags.Abstractions/Kck.FeatureFlags.Abstractions.csproj" />
   </ItemGroup>
   <ItemGroup>

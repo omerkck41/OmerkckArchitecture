@@ -23,6 +23,35 @@ public class RabbitMqOptionsTests
         options.RetryDelay.Should().Be(TimeSpan.FromSeconds(2));
         options.MaxRetryDelay.Should().Be(TimeSpan.FromSeconds(30));
         options.MaxDeliveryCount.Should().Be(5);
+        options.PrefetchCount.Should().Be(10);
+        options.DeadLetterEnabled.Should().BeTrue();
+        options.DeadLetterExchangeName.Should().BeNull();
+        options.DeadLetterQueueName.Should().BeNull();
+    }
+
+    [Fact]
+    public void EffectiveDeadLetterNames_WhenNull_DeriveFromQueuePrefix()
+    {
+        var options = new RabbitMqOptions { ExchangeName = "x", QueuePrefix = "p" };
+
+        // Per service: services sharing ExchangeName must not share the fanout dead-letter exchange.
+        options.EffectiveDeadLetterExchangeName.Should().Be("p.dlx");
+        options.EffectiveDeadLetterQueueName.Should().Be("p.dlq");
+    }
+
+    [Fact]
+    public void EffectiveDeadLetterNames_WhenSet_AreUsed()
+    {
+        var options = new RabbitMqOptions
+        {
+            ExchangeName = "x",
+            QueuePrefix = "p",
+            DeadLetterExchangeName = "custom.dlx",
+            DeadLetterQueueName = "custom.dlq"
+        };
+
+        options.EffectiveDeadLetterExchangeName.Should().Be("custom.dlx");
+        options.EffectiveDeadLetterQueueName.Should().Be("custom.dlq");
     }
 
     [Fact]

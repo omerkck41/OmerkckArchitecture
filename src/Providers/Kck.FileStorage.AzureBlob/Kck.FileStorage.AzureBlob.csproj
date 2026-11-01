@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <Title>Kck File Storage (Azure Blob)</Title>
-    <Description>Azure Blob Storage-backed IFileStorageService. Supports ConnectionString and Managed Identity (AccountName) authentication with auto-container creation on startup. Registered via AddKckFileStorageAzureBlob().</Description>
+    <Description>Azure Blob Storage-backed IFileStorageService. Supports ConnectionString and Managed Identity (AccountName) authentication; the container is created on first use when CreateContainerIfNotExists is set. Registered via AddKckFileStorageAzureBlob().</Description>
     <PackageTags>dotnet;kck;file-storage;azure;blob-storage;managed-identity;cloud-storage</PackageTags>
     <PackageReadmeFile>README.nuget.md</PackageReadmeFile>
   </PropertyGroup>

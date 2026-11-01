@@ -17,6 +17,10 @@ public sealed partial class FluentFtpService(
     /// <paramref name="request"/>.  Validates both the destination path and file name before
     /// renting a connection from the pool.
     /// </summary>
+    /// <exception cref="IOException">
+    /// The server reported a failed upload, or <see cref="FileUploadRequest.Overwrite"/> is <see langword="false"/>
+    /// and the file already exists (the upload was skipped).
+    /// </exception>
     public async Task UploadAsync(FileUploadRequest request, CancellationToken ct = default)
     {
         PathHelper.Validate(request.DestinationPath);
@@ -32,6 +36,8 @@ public sealed partial class FluentFtpService(
 
             if (status == FtpStatus.Failed)
                 LogUploadFailed(logger, path);
+
+            EnsureUploaded(status, path, request.Overwrite);
         }
         finally
         {
@@ -39,7 +45,23 @@ public sealed partial class FluentFtpService(
         }
     }
 
-    [LoggerMessage(Level = LogLevel.Warning, Message = "Failed to upload file to {Path}")]
+    /// <summary>
+    /// Turns a FluentFTP upload status into an exception: <see cref="FtpStatus.Success"/> returns,
+    /// <see cref="FtpStatus.Skipped"/> (the file exists and <paramref name="overwrite"/> is <see langword="false"/>)
+    /// and <see cref="FtpStatus.Failed"/> or any other value throw <see cref="IOException"/>.
+    /// </summary>
+    internal static void EnsureUploaded(FtpStatus status, string path, bool overwrite)
+    {
+        if (status == FtpStatus.Success)
+            return;
+
+        if (status == FtpStatus.Skipped && !overwrite)
+            throw new IOException($"FTP upload of '{path}' was skipped: the file exists and Overwrite is false.");
+
+        throw new IOException($"FTP upload of '{path}' failed (status {status}).");
+    }
+
+    [LoggerMessage(Level = LogLevel.Warning, Message = "FTP upload of {Path} failed; throwing")]
     private static partial void LogUploadFailed(ILogger logger, string path);
 
     /// <summary>

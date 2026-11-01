@@ -7,7 +7,7 @@ internal static class Snippet
 {
     internal static async Task RunAsync(WebApplicationBuilder builder, IServiceCollection services)
     {
-#line 36 "docs/providers/messaging.md"
+#line 43 "docs/providers/messaging.md"
 services.AddKckMessagingSendGrid(opt =>
 {
     opt.ApiKey = builder.Configuration["SendGrid:ApiKey"]!;

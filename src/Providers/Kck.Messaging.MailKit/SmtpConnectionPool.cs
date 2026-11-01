@@ -12,7 +12,6 @@ public sealed class SmtpConnectionPool : IAsyncDisposable
 {
     private readonly MailKitOptions _options;
     private readonly Channel<SmtpClient> _pool;
-    private readonly SemaphoreSlim _createLock = new(1, 1);
     private int _totalCreated;
     private int _disposed;
 
@@ -73,7 +72,8 @@ public sealed class SmtpConnectionPool : IAsyncDisposable
         var client = new SmtpClient();
         try
         {
-            await client.ConnectAsync(_options.Host, _options.Port, _options.UseSsl, ct).ConfigureAwait(false);
+            await client.ConnectAsync(_options.Host, _options.Port, SmtpSecurityResolver.Resolve(_options), ct)
+                .ConfigureAwait(false);
 
             if (!string.IsNullOrEmpty(_options.UserName))
             {
@@ -106,7 +106,5 @@ public sealed class SmtpConnectionPool : IAsyncDisposable
                 await client.DisconnectAsync(true).ConfigureAwait(false);
             client.Dispose();
         }
-
-        _createLock.Dispose();
     }
 }

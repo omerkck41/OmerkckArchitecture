@@ -41,7 +41,7 @@ app.MapPost("/upload", async (IFormFile file, IFileStorageService storage, Cance
 | `ConnectionString` | Azure Storage account connection string | required (or `AccountName`) |
 | `AccountName` | Storage account name (Managed Identity) | `null` |
 | `ContainerName` | Blob container name | required |
-| `CreateContainerIfNotExists` | Auto-create container on startup | `true` |
+| `CreateContainerIfNotExists` | Create the container on first use | `true` |
 
 ## Resources
 

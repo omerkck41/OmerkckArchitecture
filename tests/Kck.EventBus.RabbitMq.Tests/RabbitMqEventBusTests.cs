@@ -70,6 +70,50 @@ public class RabbitMqEventBusTests
             .Which.ParamName.Should().Be("HostName");
     }
 
+    [Theory]
+    [InlineData(0)]
+    [InlineData(-1)]
+    public void UseRabbitMq_WithMaxDeliveryCountBelowOne_ShouldThrow(int maxDeliveryCount)
+    {
+        var services = new ServiceCollection();
+
+        var act = () => services.AddKckEventBus(bus =>
+        {
+            bus.UseRabbitMq(rabbit =>
+            {
+                rabbit.HostName = "test-host";
+                rabbit.MaxDeliveryCount = maxDeliveryCount;
+            });
+        });
+
+        act.Should().Throw<ArgumentOutOfRangeException>()
+            .Which.ParamName.Should().Be("MaxDeliveryCount");
+    }
+
+    [Fact]
+    public async Task PublishAsync_AfterDispose_ThrowsObjectDisposedExceptionNamingTheBus()
+    {
+        var bus = CreateBus();
+        await bus.DisposeAsync();
+
+        var act = () => bus.PublishAsync(new TestOrderCreatedEvent("o-1"));
+
+        (await act.Should().ThrowAsync<ObjectDisposedException>())
+            .Which.ObjectName.Should().Be(typeof(RabbitMqEventBus).FullName);
+    }
+
+    [Fact]
+    public async Task StartConsumingAsync_AfterDispose_ThrowsObjectDisposedExceptionNamingTheBus()
+    {
+        var bus = CreateBus();
+        await bus.DisposeAsync();
+
+        var act = () => bus.StartConsumingAsync();
+
+        (await act.Should().ThrowAsync<ObjectDisposedException>())
+            .Which.ObjectName.Should().Be(typeof(RabbitMqEventBus).FullName);
+    }
+
     private static RabbitMqEventBus CreateBus()
     {
         var options = new RabbitMqOptions { HostName = "invalid-host-for-test" };

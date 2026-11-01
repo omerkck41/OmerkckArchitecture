@@ -1,1 +1,3 @@
 #nullable enable
+Kck.FeatureFlags.AzureAppConfig.AzureAppConfigFeatureFlagService.AzureAppConfigFeatureFlagService(Microsoft.Extensions.Options.IOptionsMonitor<Kck.FeatureFlags.AzureAppConfig.AzureAppConfigOptions!>! options, Microsoft.Extensions.Logging.ILogger<Kck.FeatureFlags.AzureAppConfig.AzureAppConfigFeatureFlagService!>! logger, Azure.Data.AppConfiguration.ConfigurationClient! client) -> void
+Kck.FeatureFlags.AzureAppConfig.DependencyInjection.AzureAppConfigFeatureFlagOptionsValidator.AzureAppConfigFeatureFlagOptionsValidator(Microsoft.Extensions.DependencyInjection.IServiceProviderIsService? isService) -> void

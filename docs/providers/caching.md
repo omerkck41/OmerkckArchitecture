@@ -48,7 +48,11 @@ An in-process L1 cache in front of Redis (L2): reads are served from memory whil
 every instance shares the Redis copy. Redis is required: `ExistsAsync` and `RemoveByPrefixAsync` go to Redis, so
 there is no Redis-less mode. Without Redis, use `Kck.Caching.InMemory` (a hybrid without L2 would be the same
 cache). `RemoveAsync` and `RemoveByPrefixAsync` clear Redis and this instance's L1 only: other instances can serve
-their L1 copy until `DefaultLocalExpiration`, so keep it short for data that changes. Setup and options: the package [README](https://github.com/omerkck41/OmerkckArchitecture/tree/main/src/Providers/Kck.Caching.Hybrid).
+their L1 copy until `DefaultLocalExpiration`, so keep it short for data that changes. As with Redis, the connection is
+opened asynchronously when the host starts and a missing Redis configuration fails at registration; resolving
+`ICacheService` before the host's `StartAsync` completed throws. Do not register `AddKckCachingRedis` and
+`AddKckCachingHybrid` in the same application: their two hosted services open two Redis connections, and the first
+`IConnectionMultiplexer`/`ICacheService` registration wins. Setup and options: the package [README](https://github.com/omerkck41/OmerkckArchitecture/tree/main/src/Providers/Kck.Caching.Hybrid).
 
 ## Usage
 

@@ -48,7 +48,13 @@ public class BackupService(IFileStorageService storage)
 | `UseSsl` | FTPS (use it in production; plain FTP sends credentials in clear text) | `false` |
 | `PoolSize` | FTP connections kept in the pool | `5` |
 
-The options are validated at startup.
+The options are validated at startup. `IFtpService` and `IFileStorageService` are registered as singletons over the
+connection pool.
+
+## Upload
+
+`UploadAsync` throws `IOException` when the server reports a failed upload, or when `Overwrite` is `false` and the
+file already exists. Before 5.0 both returned silently (a failure only logged a warning).
 
 ## Resources
 

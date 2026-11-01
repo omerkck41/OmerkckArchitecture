@@ -8,7 +8,7 @@ internal static class Snippet
 {
     internal static async Task RunAsync(WebApplication app)
     {
-#line 60 "docs/providers/event-bus.md"
+#line 105 "docs/providers/event-bus.md"
 
 var bus = app.Services.GetRequiredService<IEventBus>();
 bus.Subscribe<OrderCreatedEvent, OrderCreatedHandler>();

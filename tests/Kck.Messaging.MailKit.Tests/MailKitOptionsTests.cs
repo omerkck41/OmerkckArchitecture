@@ -23,6 +23,16 @@ public class MailKitOptionsTests
     }
 
     [Fact]
+    public void DefaultSecureSocketOptions_ShouldBeNullSoTheModeIsDerived()
+    {
+        var opts = new MailKitOptions { Host = "smtp.example.com" };
+
+        opts.SecureSocketOptions.Should().BeNull();
+        opts.UseSsl.Should().BeTrue();
+        opts.Port.Should().Be(587);
+    }
+
+    [Fact]
     public void DefaultPoolSize_ShouldBeFive()
     {
         var opts = new MailKitOptions { Host = "smtp.example.com" };

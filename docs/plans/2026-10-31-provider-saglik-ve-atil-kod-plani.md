@@ -189,7 +189,7 @@ yayındaki 4.8.0'da kalır; kazancı: tek geçiş rehberi, tek kırıcı değiş
 | K2 düzeltmesi `CacheServiceBase` türetenleri kırar (public abstract) | Orta | yeni üye `virtual` + varsayılan uygulama; CP0002 yoksa minor |
 | K4 kuyruk argümanı değişimi mevcut kuyruklarda `PRECONDITION_FAILED` | Yüksek | varsayılan davranışı koru, DLX'i opsiyonla aç; geçiş notu; yeni kuyruklarda varsayılan |
 | F3 sonrası tüketici restore'da sürüm çakışması (Microsoft.Extensions.* 10.0.x) | Düşük | mevcut CPM sürümleri zaten 10.0.14; şablon dumanı testi |
-| MailKit varsayılan değişimi mevcut yapılandırmaları kırar | Orta | `UseSsl` okunmaya devam eder (true → SslOnConnect), yeni `SecureSocketOptions` null ise porta göre varsayılan (465 → SslOnConnect, 587 → StartTls) |
+| MailKit varsayılan değişimi mevcut yapılandırmaları kırar | Orta | `UseSsl` okunmaya devam eder (true → SslOnConnect), yeni `SecureSocketOptions` null ise porta göre varsayılan (465 → SslOnConnect, 587 → StartTls) (uygulama 2026-11-01: `UseSsl=true` 465 dışı her portta zorunlu StartTls — güvenlik incelemesi kararı, fırsatçı mod yalnız `UseSsl=false`) |
 | Tek sürüm: kanıtlı hatalar (K1–K3, K7) 5.0.0'a kadar yayında kalır; iş uzarsa pencere büyür | Orta | F0 ilk PR olarak hemen `main`'e girer (kaynakta düzeltme hazır); sürüm takvimi §7 bütçe; gerekirse kullanıcı kararıyla erken tag |
 | Tek sürümde kırıcı değişiklik dalgası büyük (ImageSharp kaldırma, ölü API, paketleme, Obsolete temizliği) | Orta | tek geçiş rehberi `docs/migrations/v4-to-v5.md`, `CompatibilitySuppressions.xml` ile her kırılma belgeli, sürüm notu bölümlenmiş |
 

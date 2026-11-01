@@ -17,8 +17,7 @@ using Kck.Messaging.Abstractions;
 builder.Services.AddKckMessagingMailKit(options =>
 {
     options.Host = "smtp.example.com";
-    options.Port = 587;
-    options.UseSsl = true;
+    options.Port = 587; // STARTTLS
     options.UserName = Environment.GetEnvironmentVariable("SMTP_USER");
     options.Password = Environment.GetEnvironmentVariable("SMTP_PASSWORD");
 });
@@ -45,7 +44,8 @@ public class PasswordResetMailer(IEmailProvider email)
 |---|---|---|
 | `Host` | SMTP server | required |
 | `Port` | SMTP port | `587` |
-| `UseSsl` | Require SSL/TLS | `true` |
+| `SecureSocketOptions` | Explicit TLS mode; `null` = derived: `UseSsl` false → `StartTlsWhenAvailable` (opportunistic); true → 465 `SslOnConnect`, every other port `StartTls` (TLS required, never plaintext). An explicit `None`, `Auto` or `StartTlsWhenAvailable` opts out of that guarantee; `None` with a `UserName` fails validation | `null` |
+| `UseSsl` | Legacy switch, used only when `SecureSocketOptions` is `null` | `true` |
 | `UserName` | SMTP user; `null` for an unauthenticated relay | `null` |
 | `Password` | SMTP password | `null` |
 | `PoolSize` | SMTP connections kept in the pool | `5` |

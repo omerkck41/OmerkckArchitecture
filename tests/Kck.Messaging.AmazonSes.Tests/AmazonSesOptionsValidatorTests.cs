@@ -1,5 +1,7 @@
+using Amazon.SimpleEmailV2;
 using AwesomeAssertions;
 using Kck.Messaging.AmazonSes.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
 namespace Kck.Messaging.AmazonSes.Tests;
@@ -49,5 +51,42 @@ public sealed class AmazonSesOptionsValidatorTests
         var result = _sut.Validate(null, opts);
         result.Succeeded.Should().BeFalse();
         result.FailureMessage.Should().Contain("AccessKey");
+    }
+
+    [Fact]
+    public void Validate_EmptyRegionWithRegisteredClient_ReturnsSuccess()
+    {
+        var sut = new AmazonSesOptionsValidator(new FakeIsService(sesClientRegistered: true));
+
+        sut.Validate(null, new AmazonSesOptions { Region = "" }).Succeeded.Should().BeTrue();
+    }
+
+    [Fact]
+    public void Validate_EmptyRegionWithoutRegisteredClient_ReturnsFail()
+    {
+        var sut = new AmazonSesOptionsValidator(new FakeIsService(sesClientRegistered: false));
+
+        var result = sut.Validate(null, new AmazonSesOptions { Region = "" });
+
+        result.Succeeded.Should().BeFalse();
+        result.FailureMessage.Should().Contain("Region").And.Contain("IAmazonSimpleEmailServiceV2");
+    }
+
+    [Fact]
+    public void Validate_OnlyAccessKeySetWithRegisteredClient_ReturnsFail()
+    {
+        var sut = new AmazonSesOptionsValidator(new FakeIsService(sesClientRegistered: true));
+
+        var result = sut.Validate(null, new AmazonSesOptions { Region = "", AccessKey = "AKIA" });
+
+        result.Succeeded.Should().BeFalse();
+        result.FailureMessage.Should().Contain("SecretKey");
+    }
+
+    /// <summary>Answers <see cref="IServiceProviderIsService"/> for the SES client type only.</summary>
+    private sealed class FakeIsService(bool sesClientRegistered) : IServiceProviderIsService
+    {
+        public bool IsService(Type serviceType) =>
+            serviceType == typeof(IAmazonSimpleEmailServiceV2) && sesClientRegistered;
     }
 }
