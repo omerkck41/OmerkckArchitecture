@@ -210,14 +210,19 @@ public sealed partial class ElasticsearchSearchService<T> : ISearchService<T>, I
 
         var status = response.ApiCallDetails?.HttpStatusCode;
         var serverError = response.ElasticsearchServerError?.Error;
+        response.TryGetOriginalException(out var innerException);
+
+        // Without a server error body (transport failure, no response) the message names only the exception type:
+        // DebugInformation may contain request bodies, node addresses and headers and stays in the Debug log.
         var detail = serverError is not null
             ? $"{serverError.Type}: {serverError.Reason}"
-            : response.DebugInformation;
+            : innerException is not null
+                ? $"transport error ({innerException.GetType().Name}); enable Debug logging for the request details"
+                : "no response body; enable Debug logging for the request details";
 
         LogRequestFailed(_logger, operation, indexName, documentId, status, serverError?.Type, serverError?.Reason);
         if (_logger.IsEnabled(LogLevel.Debug))
             LogRequestFailedDebug(_logger, operation, indexName, response.DebugInformation);
-        response.TryGetOriginalException(out var innerException);
         throw new InvalidOperationException(
             $"Elasticsearch {operation} failed for index '{indexName}'" +
             (documentId is null ? "" : $", document '{documentId}'") +
