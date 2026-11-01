@@ -130,7 +130,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   leave `ModifiedDate` / `ModifiedBy` untouched; `RevertSoftDeleteAsync` still counts as a modification.
 - `Kck.Documents.ClosedXml` — `ReadAsync` skipped empty cells, so `A, <empty>, C` read as `["A", "C"]` and the values
   after a gap moved to the wrong column. Every row now spans up to the sheet's last used column, with `null` for an
-  empty cell.
+  empty cell; a sheet whose used rows × width exceed `ClosedXmlExcelService.MaxReadCells` (10,000,000) is rejected
+  with `InvalidDataException` before anything is allocated.
 - `Kck.Observability.OpenTelemetry` — `CreateHistogram` ignored its `buckets`; they are now passed as
   `InstrumentAdvice<double>.HistogramBucketBoundaries`. `CreateCounter`, `CreateHistogram` and `CreateGauge` said
   "creates or retrieves" but registered a new instrument on every call; instruments are now cached by name (the first

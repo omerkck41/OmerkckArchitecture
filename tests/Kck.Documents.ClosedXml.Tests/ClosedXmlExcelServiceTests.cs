@@ -95,6 +95,38 @@ public sealed class ClosedXmlExcelServiceTests
         rows[1].Should().Equal(new object?[] { "Alice", "30", null });
     }
 
+    [Fact]
+    public async Task ReadAsync_RowsTimesWidthAboveLimit_ThrowsBeforeAllocating()
+    {
+        // 700 rows with one value each in the last Excel column: 700 × 16384 = 11,468,800 cells > MaxReadCells.
+        using var stream = Workbook(sheet =>
+        {
+            for (var row = 1; row <= 700; row++)
+                sheet.Cell(row, XLHelper.MaxColumnNumber).Value = row;
+        });
+
+        var act = () => _sut.ReadAsync(stream);
+
+        await act.Should().ThrowAsync<InvalidDataException>().WithMessage("*700 used rows*16384 columns*");
+    }
+
+    [Fact]
+    public async Task ReadAsync_RowsTimesWidthWithinLimit_Reads()
+    {
+        // 600 × 16384 = 9,830,400 cells < MaxReadCells: the far column is padded, nothing is rejected.
+        using var stream = Workbook(sheet =>
+        {
+            for (var row = 1; row <= 600; row++)
+                sheet.Cell(row, XLHelper.MaxColumnNumber).Value = row;
+        });
+
+        var rows = await _sut.ReadAsync(stream);
+
+        rows.Should().HaveCount(600);
+        rows[0].Should().HaveCount(XLHelper.MaxColumnNumber);
+        rows[0][XLHelper.MaxColumnNumber - 1].Should().Be("1");
+    }
+
     private static MemoryStream Workbook(Action<IXLWorksheet> fill)
     {
         using var workbook = new XLWorkbook();

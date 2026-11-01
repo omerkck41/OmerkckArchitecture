@@ -13,6 +13,13 @@ namespace Kck.Documents.ClosedXml;
 public sealed class ClosedXmlExcelService : IExcelService
 {
     /// <summary>
+    /// Upper bound for the cells <see cref="ReadAsync"/> materializes (used rows × sheet width). Every row is padded to
+    /// the sheet's last used column, so a single value in a far column (for example XFD, column 16384) would multiply the
+    /// memory of every row; a sheet above this bound is rejected before anything is allocated.
+    /// </summary>
+    public const int MaxReadCells = 10_000_000;
+
+    /// <summary>
     /// Creates an Excel workbook from a collection of <see cref="ExcelWorksheet"/> definitions
     /// and returns the result as an OOXML byte array.
     /// </summary>
@@ -75,6 +82,7 @@ public sealed class ClosedXmlExcelService : IExcelService
     /// Reads all used rows from the first worksheet of the Excel <paramref name="stream"/> and
     /// returns them as a list of cell-value lists.
     /// </summary>
+    /// <exception cref="InvalidDataException">The used rows times the sheet width exceed <see cref="MaxReadCells"/>.</exception>
     public Task<IReadOnlyList<IReadOnlyList<object?>>> ReadAsync(Stream stream, CancellationToken ct = default)
     {
         using var workbook = new XLWorkbook(stream);
@@ -82,9 +90,15 @@ public sealed class ClosedXmlExcelService : IExcelService
         var rows = new List<IReadOnlyList<object?>>();
 
         // Every row is as wide as the widest used column of the sheet, so a value keeps its column position: an empty
-        // cell (inside a row or after its last value) reads as null.
+        // cell (inside a row or after its last value) reads as null. The padding is bounded (see MaxReadCells).
         var width = sheet.LastColumnUsed()?.ColumnNumber() ?? 0;
-        foreach (var row in sheet.RowsUsed())
+        var usedRows = sheet.RowsUsed().ToList();
+        if ((long)usedRows.Count * width > MaxReadCells)
+            throw new InvalidDataException(
+                $"The worksheet has {usedRows.Count} used rows and {width} columns ({(long)usedRows.Count * width} cells), " +
+                $"which exceeds the ReadAsync limit of {MaxReadCells} cells.");
+
+        foreach (var row in usedRows)
         {
             var cells = new List<object?>(width);
             foreach (var cell in row.Cells(1, width))
