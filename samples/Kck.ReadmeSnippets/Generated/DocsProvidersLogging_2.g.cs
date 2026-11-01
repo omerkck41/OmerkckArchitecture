@@ -7,7 +7,7 @@ internal static class Snippet
 {
     internal static async Task RunAsync(WebApplicationBuilder builder)
     {
-#line 47 "docs/providers/logging.md"
+#line 56 "docs/providers/logging.md"
 builder.Services.AddKckSerilog(log => log
     .Configure(c => c.MinimumLevel.Debug()));
 #line default

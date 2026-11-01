@@ -9,12 +9,11 @@
     <InternalsVisibleTo Include="Kck.FileStorage.FluentFtp.Tests" />
   </ItemGroup>
   <ItemGroup>
-    <FrameworkReference Include="Microsoft.AspNetCore.App" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="../../Abstractions/Kck.FileStorage.Abstractions/Kck.FileStorage.Abstractions.csproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="FluentFTP" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.Options" />
   </ItemGroup>
 </Project>

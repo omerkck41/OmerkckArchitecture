@@ -1,19 +1,24 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <Title>Kck Background Jobs (Hangfire)</Title>
-    <Description>Hangfire-backed IJobScheduler implementation for the Kck framework. Supports fire-and-forget, recurring (cron), and delayed job scheduling with the Hangfire dashboard. Registered via AddKckJob&lt;TJob&gt;().</Description>
+    <Description>Hangfire-backed IJobScheduler implementation for the Kck framework. Supports fire-and-forget, recurring (cron), and delayed job scheduling on Hangfire.Core (storage and dashboard packages are added by the application). Registered via AddKckJob&lt;TJob&gt;().</Description>
     <PackageTags>dotnet;kck;hangfire;background-jobs;cron;job-scheduler</PackageTags>
     <PackageReadmeFile>README.nuget.md</PackageReadmeFile>
   </PropertyGroup>
   <ItemGroup>
-    <FrameworkReference Include="Microsoft.AspNetCore.App" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="../../Abstractions/Kck.BackgroundJobs.Abstractions/Kck.BackgroundJobs.Abstractions.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Hangfire" />
+    <!-- Hangfire.Core + Hangfire.NetCore, not the Hangfire meta package: it pulls Hangfire.AspNetCore and with it the
+         ASP.NET Core shared framework (ADR-0032 D4). -->
+    <PackageReference Include="Hangfire.Core" />
     <PackageReference Include="Hangfire.InMemory" />
+    <PackageReference Include="Hangfire.NetCore" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
+    <!-- Lift Hangfire.NetCore's 3.0.0 floor for these abstractions to the 10.0.14 line. -->
+    <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
     <!-- Overrides Hangfire's transitive Newtonsoft.Json 11.0.1 (GHSA-5crp-9r3c-p9vr). -->
     <PackageReference Include="Newtonsoft.Json" />
   </ItemGroup>

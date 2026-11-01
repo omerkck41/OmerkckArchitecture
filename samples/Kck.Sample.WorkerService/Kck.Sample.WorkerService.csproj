@@ -4,6 +4,11 @@
     <TargetFrameworks>net10.0</TargetFrameworks>
   </PropertyGroup>
   <ItemGroup>
+    <!-- Host.CreateApplicationBuilder: the Kck packages no longer bring the ASP.NET Core shared framework (ADR-0032),
+         so a worker references the generic host itself (the `dotnet new worker` template does the same). -->
+    <PackageReference Include="Microsoft.Extensions.Hosting" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="../../src/Providers/Kck.BackgroundJobs.Hangfire/Kck.BackgroundJobs.Hangfire.csproj" />
     <ProjectReference Include="../../src/Providers/Kck.Logging.Serilog/Kck.Logging.Serilog.csproj" />
   </ItemGroup>

@@ -54,11 +54,21 @@
     <PackageVersion Include="Azure.Messaging.ServiceBus" Version="7.21.0" />
   </ItemGroup>
   <ItemGroup Label="DI &amp; Hosting">
+    <!-- Providers reference these packages instead of the ASP.NET Core shared framework (ADR-0032):
+         decisions/2026-11-01-frameworkreference-to-extensions-packages.md -->
+    <PackageVersion Include="Microsoft.Extensions.Caching.Abstractions" Version="10.0.14" />
+    <PackageVersion Include="Microsoft.Extensions.Caching.Memory" Version="10.0.14" />
+    <PackageVersion Include="Microsoft.Extensions.Configuration.Abstractions" Version="10.0.14" />
+    <PackageVersion Include="Microsoft.Extensions.Configuration.Binder" Version="10.0.14" />
     <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.14" />
     <PackageVersion Include="Microsoft.Extensions.Options" Version="10.0.14" />
     <PackageVersion Include="Microsoft.Extensions.Hosting.Abstractions" Version="10.0.14" />
     <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.14" />
     <PackageVersion Include="Microsoft.Extensions.ServiceDiscovery" Version="10.11.0" />
+    <!-- Samples only (Kck.Sample.WorkerService, Kck.AotSmoke): without the shared framework they reference the host and
+         console logger themselves, as a worker/console consumer does. -->
+    <PackageVersion Include="Microsoft.Extensions.Hosting" Version="10.0.14" />
+    <PackageVersion Include="Microsoft.Extensions.Logging.Console" Version="10.0.14" />
   </ItemGroup>
   <ItemGroup Label="Testing">
     <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.11.0" />
@@ -87,8 +97,10 @@
     <PackageVersion Include="AWSSDK.SimpleEmailV2" Version="4.0.106.7" />
   </ItemGroup>
   <ItemGroup Label="Background Jobs">
-    <PackageVersion Include="Hangfire" Version="1.8.25" />
+    <!-- Core + NetCore instead of the Hangfire meta package (pulls Hangfire.AspNetCore), ADR-0032 D4. -->
+    <PackageVersion Include="Hangfire.Core" Version="1.8.25" />
     <PackageVersion Include="Hangfire.InMemory" Version="1.0.0" />
+    <PackageVersion Include="Hangfire.NetCore" Version="1.8.25" />
     <PackageVersion Include="Quartz" Version="4.6.2" />
     <!-- Override Hangfire's transitive Newtonsoft.Json 11.0.1 (GHSA-5crp-9r3c-p9vr High DoS).
          Removable when Hangfire 2.x lands or replaces Newtonsoft.Json. -->
@@ -130,8 +142,12 @@
     <PackageVersion Include="OpenTelemetry.Instrumentation.EntityFrameworkCore" Version="1.20.1-beta.1" />
   </ItemGroup>
   <ItemGroup Label="Logging">
-    <PackageVersion Include="Serilog.AspNetCore" Version="10.0.0" />
+    <!-- Serilog.Extensions.Hosting + sinks instead of Serilog.AspNetCore (shared-framework reference), ADR-0032 D5;
+         the versions Serilog.AspNetCore 10.0.0 pins. -->
+    <PackageVersion Include="Serilog.Extensions.Hosting" Version="10.0.0" />
     <PackageVersion Include="Serilog.Formatting.Compact" Version="3.0.0" />
+    <PackageVersion Include="Serilog.Sinks.Console" Version="6.1.1" />
+    <PackageVersion Include="Serilog.Sinks.File" Version="7.0.0" />
   </ItemGroup>
   <ItemGroup Label="Versioning">
     <PackageVersion Include="MinVer" Version="7.0.0" />

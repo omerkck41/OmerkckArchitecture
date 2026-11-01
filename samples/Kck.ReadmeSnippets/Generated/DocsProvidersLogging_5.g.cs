@@ -7,7 +7,7 @@ internal static class Snippet
 {
     internal static async Task RunAsync(WebApplicationBuilder builder, WebApplication app)
     {
-#line 87 "docs/providers/logging.md"
+#line 96 "docs/providers/logging.md"
 builder.Services.AddKckSerilog(log =>
 {
     log.WriteToFile("logs/app-.log");

@@ -3,7 +3,7 @@
 
 namespace ReadmeSnippets.DocsProvidersLogging_4;
 
-#line 66 "docs/providers/logging.md"
+#line 75 "docs/providers/logging.md"
 public sealed class CheckoutLogWrong(ILogger<CheckoutLogWrong> logger)
 {
     // WRONG — the message is formatted before logging: no UserId/OrderId properties, and a new template per call

@@ -9,12 +9,10 @@
     <InternalsVisibleTo Include="Kck.Messaging.AmazonSes.Tests" />
   </ItemGroup>
   <ItemGroup>
-    <FrameworkReference Include="Microsoft.AspNetCore.App" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="../../Abstractions/Kck.Messaging.Abstractions/Kck.Messaging.Abstractions.csproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="AWSSDK.SimpleEmailV2" />
+    <PackageReference Include="Microsoft.Extensions.Options" />
   </ItemGroup>
 </Project>

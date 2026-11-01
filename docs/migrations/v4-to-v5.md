@@ -49,6 +49,9 @@ an OSI-approved licence, and asks for a licence key at Release build time (decis
 | `Kck.Bundle.WebApi` | Removed API: never-read `Persistence`, `Caching`, `Observability`, `Hashing`, `Algorithm` settings | High |
 | `Kck.Bundle.MinimalApi` | Removed API: never-read `Security:Jwt:Algorithm` setting | High |
 | `Kck.Bundle.WorkerService` | Removed API: never-read `Observability` setting | High |
+| 26 provider and bundle packages (section 10) | No `Microsoft.AspNetCore.App` framework reference; explicit `Microsoft.Extensions.*` dependencies | Medium |
+| `Kck.BackgroundJobs.Hangfire` | `Hangfire.Core` + `Hangfire.NetCore` instead of the `Hangfire` meta package: no transitive `Hangfire.SqlServer` / `Hangfire.AspNetCore` | High |
+| `Kck.Logging.Serilog` | `Serilog.Extensions.Hosting` + sinks instead of `Serilog.AspNetCore`: no transitive `UseSerilogRequestLogging`, `Serilog.Settings.Configuration`, `Serilog.Sinks.Debug` | High |
 
 (Impact: Low = interface implementations only, Medium = call sites,
 High = configuration / DI level)
@@ -70,6 +73,9 @@ High = configuration / DI level)
   package implemented or called are removed (section 9). 4.x code that built without an obsolete warning is unaffected
   by the first group, except an own `IQuery<T>`/`IRepository` implementation: it must now implement
   `Query(QueryOptions, …)` (implementing the obsolete overload never warned)
+- 26 packages no longer pull in the ASP.NET Core shared framework (section 10): worker and console apps run on the plain
+  .NET runtime but reference what they used through it themselves (`Microsoft.Extensions.Hosting`,
+  `Hangfire.SqlServer`, `Serilog.AspNetCore`, ...)
 
 ## Detailed Changes
 
@@ -383,6 +389,45 @@ an explicit interface implementation fails), so search for it rather than waitin
 | `FilterValidator` | `Kck.Persistence.Abstractions` | none — nothing called it; `ToDynamic` throws `ArgumentException` for an unsupported operator or an invalid value |
 | `ICachableRequest.CacheGroupKey` | `Kck.Pipeline.Abstractions` | none — the caching behavior never read it; delete the property from your requests |
 
+### 10. Package dependencies: no ASP.NET Core shared framework unless needed
+
+**What changed.** In 4.x, 31 packages declared `<FrameworkReference Include="Microsoft.AspNetCore.App" />`, and the
+reference flowed into every consumer: a worker or console application that installed, for example,
+`Kck.Caching.InMemory` was bound to the ASP.NET Core shared framework and failed to start on a
+`mcr.microsoft.com/dotnet/runtime` image. In 5.0 only the five packages whose code uses ASP.NET Core types keep it:
+`Kck.AspNetCore`, `Kck.Exceptions.AspNetCore`, `Kck.Bundle.WebApi`, `Kck.Bundle.MinimalApi` and
+`Kck.Observability.OpenTelemetry`. The other 26 depend on the `Microsoft.Extensions.*` packages (10.0.14) they use —
+mostly `Options` and `Logging.Abstractions`, plus `Caching.Memory`, `Caching.Abstractions`,
+`Configuration.Abstractions`, `Configuration.Binder`, `DependencyInjection.Abstractions` and
+`Diagnostics.HealthChecks` where needed. No public API changed (ADR-0032).
+
+**Who is affected.**
+
+- Web applications (`Microsoft.NET.Sdk.Web`): nothing changes; the shared framework already contains these packages.
+- Worker and console applications: they no longer get the shared framework, and with it everything it carried. A
+  project that used `Host.CreateApplicationBuilder`, `new ServiceCollection()`, `AddConsole()` or similar without its
+  own package reference stops compiling; add the package it needs, typically `Microsoft.Extensions.Hosting` (the
+  `dotnet new worker` template already references it) or `Microsoft.Extensions.Logging.Console`.
+- `Kck.BackgroundJobs.Hangfire` references `Hangfire.Core` + `Hangfire.NetCore` instead of the `Hangfire` meta package,
+  which pulled in `Hangfire.AspNetCore` and with it the shared framework. Add the packages you used through it yourself:
+  `Hangfire.SqlServer` for `UseSqlServerStorage` in `HangfireOptions.ConfigureStorage`, `Hangfire.AspNetCore` for
+  `UseHangfireDashboard`.
+- `Kck.Logging.Serilog` references `Serilog.Extensions.Hosting`, `Serilog.Sinks.Console` and `Serilog.Sinks.File`
+  instead of `Serilog.AspNetCore`. Add `Serilog.AspNetCore` for `app.UseSerilogRequestLogging()`,
+  `Serilog.Settings.Configuration` for `ReadFrom.Configuration(...)` and `Serilog.Sinks.Debug` for `WriteTo.Debug()`
+  if you used them.
+- `Kck.Bundle.WorkerService` has no framework reference of its own, but it still reaches the shared framework through
+  `Kck.Observability.OpenTelemetry` (ASP.NET Core instrumentation and `MapKckHealthChecks`). Splitting that provider is
+  a separate decision (ADR-0032 D9); until then a worker that uses the bundle still needs the ASP.NET Core runtime.
+
+```xml
+<!-- Worker using Kck.BackgroundJobs.Hangfire with SQL Server storage and Kck.Logging.Serilog -->
+<ItemGroup>
+  <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.14" />
+  <PackageReference Include="Hangfire.SqlServer" Version="1.8.25" />
+</ItemGroup>
+```
+
 ### Other 5.0 changes
 
 Behaviour fixes that need no code change, but that a client or a caller may notice:
@@ -426,6 +471,10 @@ search-and-replace covers.
 11. Build against 5.0 and fix each error from section 9: switch to the replacement in the table, delete
     `CacheGroupKey` (and other removed members) from your types, and copy a removed contract into your code if you
     implemented it. Remove leftover `KCK0xxx` entries from `NoWarn` and `#pragma warning disable`.
+12. In worker and console applications, build against 5.0 and add the packages the shared framework used to supply
+    (section 10): `Microsoft.Extensions.Hosting` (or the specific `Microsoft.Extensions.*` package), `Hangfire.SqlServer`
+    / `Hangfire.AspNetCore` with the Hangfire provider, and `Serilog.AspNetCore` / `Serilog.Settings.Configuration` /
+    `Serilog.Sinks.Debug` with the Serilog provider where you used them.
 
 ## References
 
@@ -433,5 +482,6 @@ search-and-replace covers.
 - [Event bus guide](../providers/event-bus.md)
 - [Documents guide](../providers/documents.md)
 - `decisions/2026-10-31-image-library-replacement.md`
+- [ADR-0032](../adr/0032-package-dependency-surface.md) (package dependency surface)
 - `docs/policies/versioning.md`
 - [`docs/policies/deprecation.md`](../policies/deprecation.md)

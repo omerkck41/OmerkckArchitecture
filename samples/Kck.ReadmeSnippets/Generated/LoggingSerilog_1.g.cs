@@ -8,18 +8,13 @@ internal static class Snippet
 {
     internal static async Task RunAsync(WebApplicationBuilder builder)
     {
-#line 15 "src/Providers/Kck.Logging.Serilog/README.nuget.md"
+#line 16 "src/Providers/Kck.Logging.Serilog/README.nuget.md"
 
 // Program.cs
 builder.Services.AddKckSerilog(log => log
     .WithApplicationName("OrderService")
     .WriteToCompactJson()        // JSON to the console; WriteToConsole() for text (the default)
     .UsePiiMasking());           // masks password, token, email... properties
-
-var app = builder.Build();
-app.UseSerilogRequestLogging(options =>
-    options.EnrichDiagnosticContext = (ctx, http) =>
-        ctx.Set("UserId", http.User.Identity?.Name ?? "anonymous"));
 #line default
         await Task.CompletedTask;
     }

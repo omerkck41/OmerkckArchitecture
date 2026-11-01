@@ -81,6 +81,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   when Elasticsearch rejects the request, where 4.x returned silently (writes) or an empty result (`SearchAsync`, for
   example on a missing index or a query syntax error). Deletes of a missing document or index stay silent. See
   `docs/migrations/v4-to-v5.md`.
+- 26 packages (every provider and bundle except `Kck.AspNetCore`, `Kck.Exceptions.AspNetCore`, `Kck.Bundle.WebApi`,
+  `Kck.Bundle.MinimalApi` and `Kck.Observability.OpenTelemetry`) no longer declare a `Microsoft.AspNetCore.App`
+  framework reference; they depend on the `Microsoft.Extensions.*` packages (10.0.14) they use. Worker and console
+  consumers no longer need the ASP.NET Core shared framework (they run on the plain .NET runtime image) but reference
+  what they used through it themselves, for example `Microsoft.Extensions.Hosting`. Web applications see no change and
+  the public API is unchanged. `Kck.Bundle.WorkerService` still reaches the framework through
+  `Kck.Observability.OpenTelemetry` (ADR-0032).
+- `Kck.BackgroundJobs.Hangfire` — **breaking for consumers that used `Hangfire.SqlServer` or the dashboard through
+  this package.** Depends on `Hangfire.Core` + `Hangfire.NetCore` instead of the `Hangfire` meta package. `Hangfire.SqlServer` and `Hangfire.AspNetCore` (dashboard) no longer come transitively: add
+  `Hangfire.SqlServer` yourself for `UseSqlServerStorage`, and `Hangfire.AspNetCore` for the dashboard.
+- `Kck.Logging.Serilog` — **breaking for consumers that used `UseSerilogRequestLogging`, `ReadFrom.Configuration` or
+  the Debug sink through this package.** Depends on `Serilog.Extensions.Hosting` + `Serilog.Sinks.Console` +
+  `Serilog.Sinks.File` instead of `Serilog.AspNetCore`. Add `Serilog.AspNetCore` (`UseSerilogRequestLogging`),
+  `Serilog.Settings.Configuration` or `Serilog.Sinks.Debug` yourself if you used them.
 
 ### Removed
 - `Kck.Documents.ImageSharp` — removed; the package is not published from 5.0 on. Use `Kck.Documents.SkiaSharp`

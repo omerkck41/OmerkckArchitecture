@@ -7,7 +7,7 @@ internal static class Snippet
 {
     internal static async Task RunAsync(IServiceCollection services)
     {
-#line 44 "docs/providers/background-jobs.md"
+#line 47 "docs/providers/background-jobs.md"
 services.AddKckBackgroundJobsQuartz();                         // defaults: in-memory store
 services.AddKckBackgroundJobsQuartz(q => q.UseDefaultThreadPool(tp => tp.MaxConcurrency = 10)); // Quartz.NET 4 IQuartzBuilder
 #line default

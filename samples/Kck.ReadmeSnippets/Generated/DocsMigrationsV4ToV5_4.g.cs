@@ -7,7 +7,7 @@ internal static class Snippet
 {
     internal static async Task RunAsync(IServiceCollection services)
     {
-#line 189 "docs/migrations/v4-to-v5.md"
+#line 195 "docs/migrations/v4-to-v5.md"
 services.AddKckMessagingMailKit(opt =>
 {
     opt.Host = "smtp.example.com";

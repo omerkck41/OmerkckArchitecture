@@ -6,12 +6,11 @@
     <PackageReadmeFile>README.nuget.md</PackageReadmeFile>
   </PropertyGroup>
   <ItemGroup>
-    <FrameworkReference Include="Microsoft.AspNetCore.App" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="../../Abstractions/Kck.Search.Abstractions/Kck.Search.Abstractions.csproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Elastic.Clients.Elasticsearch" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.Options" />
   </ItemGroup>
 </Project>

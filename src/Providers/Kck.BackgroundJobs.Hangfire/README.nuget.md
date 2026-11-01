@@ -1,6 +1,8 @@
 # Kck.BackgroundJobs.Hangfire
 
-Hangfire-backed `IJobScheduler` implementation for reliable background job processing with persistent storage and a built-in dashboard.
+Hangfire-backed `IJobScheduler` implementation for reliable background job processing with pluggable persistent storage.
+It depends on `Hangfire.Core` and `Hangfire.NetCore` only (no ASP.NET Core shared framework): the storage package
+(for example `Hangfire.SqlServer`) and the dashboard (`Hangfire.AspNetCore`) are added by the application.
 
 ## Installation
 
@@ -18,7 +20,7 @@ using Kck.BackgroundJobs.Abstractions;
 builder.Services.AddKckBackgroundJobsHangfire(options =>
 {
     options.WorkerCount = 4;
-    // options.ConfigureStorage = config => config.UseSqlServerStorage(connectionString); // Hangfire.SqlServer (4.7.0+)
+    // options.ConfigureStorage = config => config.UseSqlServerStorage(connectionString); // add the Hangfire.SqlServer package
 });
 builder.Services.AddKckJob<WelcomeEmailJob>();
 
@@ -52,7 +54,8 @@ public sealed class JobSetup(IJobScheduler scheduler)
 | `ConfigureStorage` | Plugs in another Hangfire storage, e.g. `c => c.UseSqlServerStorage(...)` (4.7.0+) | `null` |
 | `WorkerCount` | Hangfire server worker count | `Environment.ProcessorCount` |
 
-The dashboard is in `Hangfire.AspNetCore`, which this package does not reference.
+Since 5.0 this package no longer brings the `Hangfire` meta package: reference `Hangfire.SqlServer` (or another
+storage) for `ConfigureStorage`, and `Hangfire.AspNetCore` for the dashboard.
 
 ## Resources
 

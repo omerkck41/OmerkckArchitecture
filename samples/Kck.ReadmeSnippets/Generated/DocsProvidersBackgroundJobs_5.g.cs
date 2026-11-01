@@ -7,7 +7,7 @@ internal static class Snippet
 {
     internal static async Task RunAsync(IServiceCollection services)
     {
-#line 72 "docs/providers/background-jobs.md"
+#line 75 "docs/providers/background-jobs.md"
 services.AddKckJob<EmailCleanupJob>();
 #line default
         await Task.CompletedTask;

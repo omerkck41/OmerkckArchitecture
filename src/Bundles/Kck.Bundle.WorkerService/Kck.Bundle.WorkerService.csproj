@@ -8,7 +8,7 @@
     <PackageReadmeFile>README.nuget.md</PackageReadmeFile>
   </PropertyGroup>
   <ItemGroup>
-    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Binder" />
   </ItemGroup>
   <ItemGroup Label="Core Abstractions">
     <ProjectReference Include="../../Abstractions/Kck.Core.Abstractions/Kck.Core.Abstractions.csproj" />
