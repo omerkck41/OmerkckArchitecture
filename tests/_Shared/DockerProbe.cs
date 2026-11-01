@@ -50,13 +50,26 @@ internal static class DockerProbe
         {
             return Probe(getDockerHost());
         }
-#pragma warning disable CA1031 // The probe runs inside a Lazy during test discovery: any failure means "unreachable".
-        catch (Exception)
-#pragma warning restore CA1031
+        catch (Exception ex) when (IsProbeFailure(ex))
         {
+            // The probe runs inside a Lazy during test discovery: a failure to reach the endpoint means "unreachable".
             return false;
         }
     }
+
+    // Every exception a malformed DOCKER_HOST, a missing pipe/socket or a refused connection can raise. Anything else is
+    // a real bug and propagates.
+    private static bool IsProbeFailure(Exception ex) =>
+        ex is System.Net.Sockets.SocketException
+            or IOException
+            or UnauthorizedAccessException
+            or System.Security.SecurityException
+            or ArgumentException
+            or FormatException
+            or InvalidOperationException
+            or NotSupportedException
+            or OperationCanceledException
+            or TimeoutException;
 
     private static bool Probe(string? dockerHost)
     {
@@ -91,11 +104,11 @@ internal static class DockerProbe
 
         var runtimeDirectory = Environment.GetEnvironmentVariable("XDG_RUNTIME_DIR");
         if (!string.IsNullOrWhiteSpace(runtimeDirectory))
-            yield return Path.Combine(runtimeDirectory, "docker.sock");
+            yield return Path.Join(runtimeDirectory, "docker.sock");
 
         var home = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
         if (!string.IsNullOrWhiteSpace(home))
-            yield return Path.Combine(home, ".docker", "run", "docker.sock");
+            yield return Path.Join(home, ".docker", "run", "docker.sock");
     }
 
     private static string PipeName(Uri uri)

@@ -54,7 +54,7 @@ public sealed class DockerFactAttributeTests
     [Fact]
     public void DockerProbe_NoUnixSocketCandidateExists_ReportsUnreachable()
     {
-        var missing = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N"), "docker.sock");
+        var missing = Path.Join(Path.GetTempPath(), Guid.NewGuid().ToString("N"), "docker.sock");
 
         DockerProbe.AnyUnixSocketReachable([missing, missing + ".2"]).Should().BeFalse();
     }
