@@ -24,7 +24,8 @@ public sealed class AzureBlobOptions
     public required string ContainerName { get; set; }
 
     /// <summary>
-    /// When <see langword="true"/>, creates the container if it does not exist.
+    /// When <see langword="true"/>, creates the container if it does not exist. The container is created on first
+    /// use (the first storage operation), not at construction; a failed attempt is retried on the next call.
     /// Default: <see langword="true"/>.
     /// </summary>
     public bool CreateContainerIfNotExists { get; set; } = true;

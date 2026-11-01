@@ -7,12 +7,11 @@ internal static class Snippet
 {
     internal static async Task RunAsync(IServiceCollection services)
     {
-#line 194 "docs/providers/security.md"
-services.AddKckAzureKeyVault(opt =>
-{
-    opt.VaultUri = "https://my-vault.vault.azure.net/";
-    opt.SecretPrefix = "prod";  // optional: GetSecretAsync("Stripe-ApiKey") reads "prod-Stripe-ApiKey"
-});
+#line 196 "docs/providers/security.md"
+services.AddKckUserSecrets();
+
+// .NET Secret Manager
+// dotnet user-secrets set "Stripe:ApiKey" "sk_test_..."
 #line default
         await Task.CompletedTask;
     }

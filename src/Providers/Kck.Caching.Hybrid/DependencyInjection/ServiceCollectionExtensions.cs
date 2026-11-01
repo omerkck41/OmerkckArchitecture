@@ -1,5 +1,6 @@
 using Kck.Caching.Abstractions;
 using Kck.Caching.Hybrid;
+using Kck.Caching.Hybrid.DependencyInjection;
 using Microsoft.Extensions.Caching.StackExchangeRedis;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using StackExchange.Redis;
@@ -12,9 +13,14 @@ public static class KckCachingHybridServiceCollectionExtensions
     /// Registers <see cref="HybridCacheService"/> as <see cref="ICacheService"/>.
     /// L2 is backed by Redis; L1 is in-process memory managed by HybridCache.
     /// </summary>
+    /// <remarks>
+    /// The Redis connection is opened asynchronously when the host starts (same as Kck.Caching.Redis); resolving
+    /// <see cref="ICacheService"/> before the host's <c>StartAsync</c> completed throws.
+    /// </remarks>
     /// <param name="services">The service collection.</param>
     /// <param name="configureRedis">Redis connection and cache settings (same options as AddKckCachingRedis).</param>
     /// <param name="configureHybrid">Optional hybrid-specific settings (expiration, key prefix).</param>
+    /// <exception cref="InvalidOperationException">No Redis connection is configured in <paramref name="configureRedis"/>.</exception>
     public static IServiceCollection AddKckCachingHybrid(
         this IServiceCollection services,
         Action<RedisCacheOptions> configureRedis,
@@ -29,18 +35,26 @@ public static class KckCachingHybridServiceCollectionExtensions
         // L1 + L2: Microsoft HybridCache (uses the registered IDistributedCache as L2)
         services.AddHybridCache();
 
-        // IConnectionMultiplexer for ExistsAsync and RemoveByPrefixAsync
-        services.TryAddSingleton<IConnectionMultiplexer>(_ =>
+        // IConnectionMultiplexer for ExistsAsync and RemoveByPrefixAsync: opened asynchronously by a hosted service at
+        // host start (same pattern as Kck.Caching.Redis), never inside DI resolution.
+        Func<CancellationToken, Task<IConnectionMultiplexer>> connector;
+        if (redisOptions.ConnectionMultiplexerFactory is not null)
         {
-            if (redisOptions.ConnectionMultiplexerFactory is not null)
-                return redisOptions.ConnectionMultiplexerFactory().GetAwaiter().GetResult();
-
-            if (!string.IsNullOrWhiteSpace(redisOptions.Configuration))
-                return ConnectionMultiplexer.Connect(redisOptions.Configuration);
-
-            if (redisOptions.ConfigurationOptions is not null)
-                return ConnectionMultiplexer.Connect(redisOptions.ConfigurationOptions);
-
+            var userFactory = redisOptions.ConnectionMultiplexerFactory;
+            connector = _ => userFactory();
+        }
+        else if (!string.IsNullOrWhiteSpace(redisOptions.Configuration))
+        {
+            var configuration = redisOptions.Configuration;
+            connector = async _ => await ConnectionMultiplexer.ConnectAsync(configuration).ConfigureAwait(false);
+        }
+        else if (redisOptions.ConfigurationOptions is not null)
+        {
+            var configurationOptions = redisOptions.ConfigurationOptions;
+            connector = async _ => await ConnectionMultiplexer.ConnectAsync(configurationOptions).ConfigureAwait(false);
+        }
+        else
+        {
             throw new InvalidOperationException(
                 """
                 Kck.Caching.Hybrid: Redis connection is not configured. Set ONE of:
@@ -48,7 +62,13 @@ public static class KckCachingHybridServiceCollectionExtensions
                   - opt.ConfigurationOptions = new ConfigurationOptions { ... }
                   - opt.ConnectionMultiplexerFactory = () => ConnectionMultiplexer.ConnectAsync(...)
                 """);
-        });
+        }
+
+        services.TryAddSingleton<HybridRedisConnectionHolder>();
+        services.TryAddSingleton(new HybridRedisConnectionFactory(connector));
+        services.AddHostedService<HybridRedisConnectionHostedService>();
+        services.TryAddSingleton<IConnectionMultiplexer>(sp =>
+            sp.GetRequiredService<HybridRedisConnectionHolder>().Multiplexer);
 
         if (configureHybrid is not null)
             services.Configure(configureHybrid);

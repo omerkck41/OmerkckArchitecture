@@ -3,7 +3,7 @@
 
 namespace ReadmeSnippets.DocsProvidersCaching_3;
 
-#line 56 "docs/providers/caching.md"
+#line 60 "docs/providers/caching.md"
 public class ProductService(ICacheService cache, IProductRepository products)
 {
     public Task<Product?> GetAsync(int id, CancellationToken ct) =>

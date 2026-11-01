@@ -8,7 +8,7 @@ internal static class Snippet
 {
     internal static async Task RunAsync(WebApplication app, CancellationToken ct)
     {
-#line 60 "docs/providers/feature-flags.md"
+#line 70 "docs/providers/feature-flags.md"
 
 app.MapGet("/checkout", async (IFeatureFlagService flags, CancellationToken ct) =>
     await flags.IsEnabledAsync("new-checkout-ui", ct)

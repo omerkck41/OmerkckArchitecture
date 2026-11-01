@@ -2,17 +2,15 @@
 #nullable enable
 
 namespace ReadmeSnippets.DocsProvidersSecurity_9;
+using Kck.Security.Abstractions.Token;
 
-internal static class Snippet
+#line 177 "docs/providers/security.md"
+public class LogoutService(ITokenBlacklistService blacklist)
 {
-    internal static async Task RunAsync(IServiceCollection services)
-    {
-#line 180 "docs/providers/security.md"
-services.AddKckUserSecrets();
+    // Keep the entry until the token would have expired anyway.
+    public Task RevokeAsync(string jti, DateTimeOffset expiresAt, CancellationToken ct) =>
+        blacklist.RevokeAsync(jti, expiresAt - DateTimeOffset.UtcNow, ct);
 
-// .NET Secret Manager
-// dotnet user-secrets set "Stripe:ApiKey" "sk_test_..."
-#line default
-        await Task.CompletedTask;
-    }
+    public Task<bool> IsRevokedAsync(string jti, CancellationToken ct) => blacklist.IsRevokedAsync(jti, ct);
 }
+#line default

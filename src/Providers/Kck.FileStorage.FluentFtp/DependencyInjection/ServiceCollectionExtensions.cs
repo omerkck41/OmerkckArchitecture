@@ -16,8 +16,9 @@ public static class KckFileStorageFluentFtpServiceCollectionExtensions
         services.TryAddSingleton<IValidateOptions<FluentFtpOptions>, FluentFtpOptionsValidator>();
         services.AddOptions<FluentFtpOptions>().ValidateOnStart();
         services.TryAddSingleton<FtpConnectionPool>();
-        services.AddTransient<IFtpService, FluentFtpService>();
-        services.AddTransient<IFileStorageService>(sp => sp.GetRequiredService<IFtpService>());
+        // Stateless over the singleton pool (ADR-0009 TryAdd*, ADR-0022 singletons).
+        services.TryAddSingleton<IFtpService, FluentFtpService>();
+        services.TryAddSingleton<IFileStorageService>(sp => sp.GetRequiredService<IFtpService>());
         return services;
     }
 }

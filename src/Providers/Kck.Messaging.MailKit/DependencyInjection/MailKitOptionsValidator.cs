@@ -1,3 +1,4 @@
+using MailKit.Security;
 using Microsoft.Extensions.Options;
 
 namespace Kck.Messaging.MailKit.DependencyInjection;
@@ -20,6 +21,15 @@ public sealed class MailKitOptionsValidator : IValidateOptions<MailKitOptions>
                 $"""
                   • Port: {options.Port} is invalid (must be between 1 and 65535)
                     → Fix: opt.Port = 587   (STARTTLS) or 465 (SSL)
+                """);
+
+        // An explicit None never negotiates TLS: authenticating would send the credentials in plaintext.
+        if (options.SecureSocketOptions == SecureSocketOptions.None && !string.IsNullOrWhiteSpace(options.UserName))
+            errors.Add(
+                """
+                  • UserName is set with SecureSocketOptions = None: credentials would be sent in plaintext
+                    → Fix: opt.SecureSocketOptions = SecureSocketOptions.StartTls (or SslOnConnect)
+                    → or clear UserName for an unauthenticated relay
                 """);
 
         if (errors.Count == 0)

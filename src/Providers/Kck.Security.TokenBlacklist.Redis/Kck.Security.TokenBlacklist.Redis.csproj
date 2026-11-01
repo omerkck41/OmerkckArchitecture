@@ -9,6 +9,9 @@
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
   <ItemGroup>
+    <InternalsVisibleTo Include="Kck.Security.TokenBlacklist.Redis.Tests" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="../../Abstractions/Kck.Security.Abstractions/Kck.Security.Abstractions.csproj" />
   </ItemGroup>
   <ItemGroup>

@@ -14,8 +14,7 @@ internal static class Snippet
 builder.Services.AddKckMessagingMailKit(options =>
 {
     options.Host = "smtp.example.com";
-    options.Port = 587;
-    options.UseSsl = true;
+    options.Port = 587; // STARTTLS
     options.UserName = Environment.GetEnvironmentVariable("SMTP_USER");
     options.Password = Environment.GetEnvironmentVariable("SMTP_PASSWORD");
 });
@@ -26,7 +25,7 @@ builder.Services.AddKckMessagingMailKit(options =>
     }
 }
 
-#line 27 "src/Providers/Kck.Messaging.MailKit/README.nuget.md"
+#line 26 "src/Providers/Kck.Messaging.MailKit/README.nuget.md"
 public class PasswordResetMailer(IEmailProvider email)
 {
     public Task SendAsync(string to, string subject, string html, CancellationToken ct) =>
