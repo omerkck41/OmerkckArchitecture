@@ -16,4 +16,10 @@
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)_Shared\StaticOptionsMonitor.cs" Link="_Shared\StaticOptionsMonitor.cs" />
   </ItemGroup>
+  <!-- Docker-gated xUnit attributes: only for xUnit test projects (the benchmark host has no xUnit reference).
+       IsTestProject comes from Microsoft.NET.Test.Sdk; items are evaluated after all properties. -->
+  <ItemGroup Condition="'$(IsTestProject)' == 'true'">
+    <Compile Include="$(MSBuildThisFileDirectory)_Shared\DockerProbe.cs" Link="_Shared\DockerProbe.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)_Shared\DockerFactAttribute.cs" Link="_Shared\DockerFactAttribute.cs" />
+  </ItemGroup>
 </Project>

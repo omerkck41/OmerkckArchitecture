@@ -1,5 +1,6 @@
 using AwesomeAssertions;
 using Kck.Caching.Abstractions;
+using Kck.Testing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Testcontainers.Redis;
@@ -43,7 +44,7 @@ public sealed class HybridCacheIntegrationTests : IAsyncLifetime
             await hostedService.StartAsync(CancellationToken.None);
     }
 
-    [Fact]
+    [DockerFact]
     public async Task SetAsync_ValueIsReadFromRedisByAnotherInstance()
     {
         await using (var writer = await CreateProviderAsync())
@@ -59,7 +60,7 @@ public sealed class HybridCacheIntegrationTests : IAsyncLifetime
         (await cache.ExistsAsync("order:42")).Should().BeTrue();
     }
 
-    [Fact]
+    [DockerFact]
     public async Task RemoveByPrefixAsync_DeletesMatchingKeysInRedis()
     {
         await using var provider = await CreateProviderAsync();
@@ -75,7 +76,7 @@ public sealed class HybridCacheIntegrationTests : IAsyncLifetime
         (await cache.ExistsAsync("tenant:b:1")).Should().BeTrue();
     }
 
-    [Fact]
+    [DockerFact]
     public async Task InstanceName_ExistsAndRemoveByPrefix_FindTheStoredKeys()
     {
         var services = new ServiceCollection();

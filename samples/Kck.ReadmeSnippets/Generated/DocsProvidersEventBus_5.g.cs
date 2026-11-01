@@ -4,6 +4,6 @@
 namespace ReadmeSnippets.DocsProvidersEventBus_5;
 using Kck.EventBus.Abstractions;
 
-#line 121 "docs/providers/event-bus.md"
+#line 128 "docs/providers/event-bus.md"
 public sealed record OrderCreatedEvent(Guid OrderId, decimal Amount) : IntegrationEvent;
 #line default

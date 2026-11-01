@@ -41,6 +41,14 @@ The Hangfire dashboard is in the `Hangfire.AspNetCore` package, which this packa
 even transitively); add it and call `app.UseHangfireDashboard("/jobs")` with an authorization filter. The provider
 itself needs no ASP.NET Core shared framework, so it runs in a plain worker (ADR-0032).
 
+**How jobs run (5.0).** Before 5.0 every `EnqueueAsync`, `ScheduleAsync` and `AddOrUpdateRecurringAsync` call of the
+Hangfire scheduler threw `ArgumentNullException` and nothing was stored; enqueue, delayed and recurring jobs now work.
+Each job is stored as a call to `HangfireJobRunner<TJob>.RunAsync`, written through the `IBackgroundJobClient` /
+`IRecurringJobManager` of the container, so it lands in the storage configured above. On execution Hangfire creates a
+DI scope, resolves the runner and with it `TJob` (register the job with `AddKckJob<TJob>()`), and retries a failed run
+up to three times. The `CancellationToken` your `ExecuteAsync` receives is Hangfire's own: it is cancelled when the
+server shuts down or the job is deleted. The token passed to `IJobScheduler` methods is not stored with the job.
+
 ## Quartz
 
 ```csharp

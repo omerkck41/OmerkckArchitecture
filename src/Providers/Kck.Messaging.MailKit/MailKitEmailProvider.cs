@@ -13,7 +13,37 @@ public sealed class MailKitEmailProvider(SmtpConnectionPool pool) : IEmailProvid
     /// </summary>
     public async Task SendAsync(EmailMessage message, CancellationToken ct = default)
     {
-        using var mime = new MimeMessage();
+        using var mime = await BuildMimeMessageAsync(message, ct).ConfigureAwait(false);
+
+        var client = await pool.RentAsync(ct).ConfigureAwait(false);
+        try
+        {
+            await client.SendAsync(mime, ct).ConfigureAwait(false);
+        }
+        finally
+        {
+            await pool.ReturnAsync(client).ConfigureAwait(false);
+        }
+    }
+
+    /// <summary>Maps <paramref name="message"/> to the MIME message that is sent; the caller disposes it.</summary>
+    internal static async Task<MimeMessage> BuildMimeMessageAsync(EmailMessage message, CancellationToken ct)
+    {
+        var mime = new MimeMessage();
+        try
+        {
+            await FillAsync(mime, message, ct).ConfigureAwait(false);
+            return mime;
+        }
+        catch
+        {
+            mime.Dispose();
+            throw;
+        }
+    }
+
+    private static async Task FillAsync(MimeMessage mime, EmailMessage message, CancellationToken ct)
+    {
         mime.From.Add(new MailboxAddress(message.FromName ?? message.From, message.From));
 
         foreach (var r in message.Recipients)
@@ -36,18 +66,14 @@ public sealed class MailKitEmailProvider(SmtpConnectionPool pool) : IEmailProvid
             builder.TextBody = message.Body;
 
         foreach (var att in message.Attachments)
+        {
+            // MimeKit copies from the current position: a stream the caller has just written is at its end.
+            if (att.Content.CanSeek)
+                att.Content.Position = 0;
+
             await builder.Attachments.AddAsync(att.FileName, att.Content, ContentType.Parse(att.ContentType), ct).ConfigureAwait(false);
+        }
 
         mime.Body = builder.ToMessageBody();
-
-        var client = await pool.RentAsync(ct).ConfigureAwait(false);
-        try
-        {
-            await client.SendAsync(mime, ct).ConfigureAwait(false);
-        }
-        finally
-        {
-            await pool.ReturnAsync(client).ConfigureAwait(false);
-        }
     }
 }

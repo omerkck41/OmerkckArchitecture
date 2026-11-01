@@ -55,7 +55,7 @@ public sealed class RedisCacheIntegrationTests : IAsyncLifetime
         await _redis.DisposeAsync();
     }
 
-    [Fact]
+    [DockerFact]
     public async Task SetAsync_GetAsync_RoundTrip()
     {
         var item = new TestCacheItem("integration", 7);
@@ -68,7 +68,7 @@ public sealed class RedisCacheIntegrationTests : IAsyncLifetime
         result.Value.Should().Be(7);
     }
 
-    [Fact]
+    [DockerFact]
     public async Task ExistsAsync_AfterSet_ReturnsTrue()
     {
         await _sut.SetAsync("exists-key", "payload");
@@ -76,7 +76,7 @@ public sealed class RedisCacheIntegrationTests : IAsyncLifetime
         (await _sut.ExistsAsync("exists-key")).Should().BeTrue();
     }
 
-    [Fact]
+    [DockerFact]
     public async Task RemoveAsync_AfterSet_KeyNoLongerExists()
     {
         await _sut.SetAsync("remove-key", "payload");
@@ -85,7 +85,7 @@ public sealed class RedisCacheIntegrationTests : IAsyncLifetime
         (await _sut.ExistsAsync("remove-key")).Should().BeFalse();
     }
 
-    [Fact]
+    [DockerFact]
     public async Task RemoveByPrefixAsync_DeletesMatchingKeysOnly()
     {
         await _sut.SetAsync("grp:a", "1");
@@ -99,7 +99,7 @@ public sealed class RedisCacheIntegrationTests : IAsyncLifetime
         (await _sut.ExistsAsync("other:c")).Should().BeTrue();
     }
 
-    [Fact]
+    [DockerFact]
     public async Task InstanceName_ExistsAndRemoveByPrefix_FindTheStoredKeys()
     {
         // Built by the container, as AddKckCachingRedis does, with an InstanceName set.
@@ -127,7 +127,7 @@ public sealed class RedisCacheIntegrationTests : IAsyncLifetime
         (await sut.ExistsAsync("other:b")).Should().BeTrue();
     }
 
-    [Fact]
+    [DockerFact]
     public async Task GetOrSetAsync_ValueTypes_MissRunsTheFactoryOnce_ThenHits()
     {
         // K2 (2026-10-31 health analysis, probe P1): int/bool/Guid misses returned 0/false/empty without the factory.

@@ -45,7 +45,7 @@ public sealed class RedisTokenBlacklistIntegrationTests : IAsyncLifetime
         await _redis.DisposeAsync();
     }
 
-    [Fact]
+    [DockerFact]
     public async Task RevokeAsync_IsRevokedAsync_RoundTrip()
     {
         var jti = Guid.NewGuid().ToString();
@@ -56,7 +56,7 @@ public sealed class RedisTokenBlacklistIntegrationTests : IAsyncLifetime
         isRevoked.Should().BeTrue();
     }
 
-    [Fact]
+    [DockerFact]
     public async Task IsRevokedAsync_ForUnknownToken_ReturnsFalse()
     {
         var result = await _sut.IsRevokedAsync(Guid.NewGuid().ToString());
@@ -64,7 +64,7 @@ public sealed class RedisTokenBlacklistIntegrationTests : IAsyncLifetime
         result.Should().BeFalse();
     }
 
-    [Fact]
+    [DockerFact]
     public async Task RevokeAsync_WithZeroExpiration_DoesNotStoreToken()
     {
         var jti = Guid.NewGuid().ToString();
@@ -75,7 +75,7 @@ public sealed class RedisTokenBlacklistIntegrationTests : IAsyncLifetime
         isRevoked.Should().BeFalse("zero expiration should be treated as a no-op");
     }
 
-    [Fact]
+    [DockerFact]
     public async Task RevokeAsync_WithSharedMultiplexer_RoundTrip()
     {
         await using var connection = await ConnectionMultiplexer.ConnectAsync(_redis.GetConnectionString());

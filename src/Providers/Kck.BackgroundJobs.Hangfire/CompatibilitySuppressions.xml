@@ -3,6 +3,20 @@
 <Suppressions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
   <Suppression>
     <DiagnosticId>CP0002</DiagnosticId>
+    <Target>M:Kck.BackgroundJobs.Hangfire.HangfireJobScheduler.#ctor(Microsoft.Extensions.DependencyInjection.IServiceScopeFactory)</Target>
+    <Left>lib/net10.0/Kck.BackgroundJobs.Hangfire.dll</Left>
+    <Right>lib/net10.0/Kck.BackgroundJobs.Hangfire.dll</Right>
+    <IsBaselineSuppression>true</IsBaselineSuppression>
+  </Suppression>
+  <Suppression>
+    <DiagnosticId>CP0002</DiagnosticId>
+    <Target>M:Kck.BackgroundJobs.Hangfire.HangfireJobScheduler.ExecuteJob``1(System.Threading.CancellationToken)</Target>
+    <Left>lib/net10.0/Kck.BackgroundJobs.Hangfire.dll</Left>
+    <Right>lib/net10.0/Kck.BackgroundJobs.Hangfire.dll</Right>
+    <IsBaselineSuppression>true</IsBaselineSuppression>
+  </Suppression>
+  <Suppression>
+    <DiagnosticId>CP0002</DiagnosticId>
     <Target>M:Kck.BackgroundJobs.Hangfire.HangfireOptions.get_ConnectionString</Target>
     <Left>lib/net10.0/Kck.BackgroundJobs.Hangfire.dll</Left>
     <Right>lib/net10.0/Kck.BackgroundJobs.Hangfire.dll</Right>

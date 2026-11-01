@@ -95,6 +95,13 @@ services.AddKckEventBus(b => b.UseAzureServiceBus(opt =>
 }).RegisterHandlersFromAssembly(typeof(OrderCreatedHandler).Assembly));
 ```
 
+To connect with a token credential (managed identity) or custom `ServiceBusClientOptions` instead of a connection
+string, register your own `ServiceBusClient` in the container **before** `UseAzureServiceBus` (5.0), for example
+`new ServiceBusClient("<namespace>.servicebus.windows.net", new DefaultAzureCredential())`. The bus then uses that
+client, `ConnectionString` may stay empty (both the registration-time check and the start-up validation accept it),
+and `RetryCount` is not applied: retries are the client's own options. The bus does not dispose a client it did not
+create; it disposes its processors and its sender.
+
 ### Subscribing (RabbitMQ, Azure Service Bus)
 
 The broker consumers start with the host and listen only for the events subscribed before that, so subscribe after

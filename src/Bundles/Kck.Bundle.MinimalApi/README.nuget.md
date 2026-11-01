@@ -39,11 +39,24 @@ app.Run();
 
 | Property | Description | Default |
 |---|---|---|
-| `Security:Jwt:Issuer` | JWT token issuer | — |
-| `Security:Jwt:Audience` | JWT token audience | — |
-| `Security:Jwt:ExpiryMinutes` | Access token lifetime (minutes) | `60` |
-| `Caching:Provider` | Cache backend (`InMemory`, `Redis`) | `InMemory` |
-| `Observability:Otlp:Endpoint` | OTLP exporter endpoint | `"http://localhost:4317"` |
+| `Kck:Security:Jwt:Issuer` | JWT token issuer; setting it registers the JWT token service | — |
+| `Kck:Security:Jwt:Audience` | JWT token audience; required once `Issuer` is set | — |
+
+These are the only settings the bundle reads. The cache is always the in-memory one and the health checks have no
+configuration; configure the providers in code for anything else.
+
+`Issuer` alone is not enough: the JWT options are validated at start-up, and without `Audience` and an RS256 signing
+key the application fails to start with `JwtOptions is invalid: • Audience: null or empty` and
+`• RsaKeyBase64: KeySource=Configuration but RsaKeyBase64 is empty`. The bundle does not bind the key; set it (and any
+other `JwtOptions` value, such as `AccessTokenExpiration`) on `JwtOptions` yourself:
+
+```csharp
+using Kck.Security.Jwt;
+
+builder.Services.AddKckMinimalApiDefaults(builder.Configuration);
+builder.Services.Configure<JwtOptions>(jwt =>
+    jwt.RsaKeyBase64 = Environment.GetEnvironmentVariable("JWT_RSA_KEY_B64"));
+```
 
 ## Resources
 

@@ -1,4 +1,5 @@
 using Kck.EventBus.RabbitMq;
+using Kck.Testing;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Exceptions;
 using Testcontainers.RabbitMq;
@@ -38,6 +39,11 @@ public sealed class RabbitMqContainerFixture : IAsyncLifetime
 
     public async Task InitializeAsync()
     {
+        // xUnit v2 creates class fixtures even when every test of the class is skipped; every user of this
+        // fixture is a [DockerFact], so do not spend ~10 s retrying a daemon the attribute already found missing.
+        if (DockerProbe.CurrentSkipReason() is not null)
+            return;
+
         await _container.StartAsync();
 
         var factory = new ConnectionFactory

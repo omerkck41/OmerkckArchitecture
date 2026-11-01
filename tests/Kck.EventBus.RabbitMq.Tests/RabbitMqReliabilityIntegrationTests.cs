@@ -2,6 +2,7 @@ using AwesomeAssertions;
 using Kck.EventBus.Abstractions;
 using Kck.EventBus.RabbitMq;
 using Kck.EventBus.RabbitMq.HealthChecks;
+using Kck.Testing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -19,7 +20,7 @@ namespace Kck.EventBus.RabbitMq.Tests;
 public sealed class RabbitMqReliabilityIntegrationTests(RabbitMqContainerFixture rabbit)
     : IClassFixture<RabbitMqContainerFixture>
 {
-    [Fact]
+    [DockerFact]
     public async Task PoisonMessage_WithDeadLetterEnabled_IsDeliveredMaxDeliveryCountTimes_ThenLandsInDeadLetterQueue()
     {
         var counter = new Counter();
@@ -40,7 +41,7 @@ public sealed class RabbitMqReliabilityIntegrationTests(RabbitMqContainerFixture
         (await rabbit.GetMessageCountAsync($"{options.QueuePrefix}.{nameof(PoisonEvent)}")).Should().Be(0u);
     }
 
-    [Fact]
+    [DockerFact]
     public async Task PoisonMessage_WithDeadLetterDisabled_IsRejectedAfterMaxDeliveryCount_AndQueueHasNoArguments()
     {
         var counter = new Counter();
@@ -66,7 +67,7 @@ public sealed class RabbitMqReliabilityIntegrationTests(RabbitMqContainerFixture
         await redeclareWithoutArguments.Should().NotThrowAsync();
     }
 
-    [Fact]
+    [DockerFact]
     public async Task PublishAsync_AfterBrokerClosedPublishChannel_OpensNewChannelAndDelivers()
     {
         var counter = new Counter();
@@ -88,7 +89,7 @@ public sealed class RabbitMqReliabilityIntegrationTests(RabbitMqContainerFixture
         (await WaitUntilAsync(() => Task.FromResult(counter.Value == 2), TimeSpan.FromSeconds(10))).Should().BeTrue();
     }
 
-    [Fact]
+    [DockerFact]
     public async Task PrefetchCount_One_LeavesOtherMessagesReadyInQueue()
     {
         var counter = new Counter();
@@ -121,7 +122,7 @@ public sealed class RabbitMqReliabilityIntegrationTests(RabbitMqContainerFixture
         (await WaitUntilAsync(() => Task.FromResult(counter.Value == 4), TimeSpan.FromSeconds(10))).Should().BeTrue();
     }
 
-    [Fact]
+    [DockerFact]
     public async Task StartConsumingAsync_WhenQueueAlreadyExistsWithoutDeadLetterArgument_ThrowsInvalidOperationExceptionWithRemediation()
     {
         var options = rabbit.CreateOptions("inequivalent");
@@ -139,7 +140,7 @@ public sealed class RabbitMqReliabilityIntegrationTests(RabbitMqContainerFixture
             .And.Contain("DeadLetterEnabled");
     }
 
-    [Fact]
+    [DockerFact]
     public async Task HealthCheck_BeforeStart_IsUnhealthy_AfterStart_IsHealthy()
     {
         var options = rabbit.CreateOptions("health");
@@ -161,7 +162,7 @@ public sealed class RabbitMqReliabilityIntegrationTests(RabbitMqContainerFixture
         after.Status.Should().Be(HealthStatus.Healthy);
     }
 
-    [Fact]
+    [DockerFact]
     public async Task HealthCheck_WhenConsumeChannelClosedByBroker_IsUnhealthy()
     {
         var options = rabbit.CreateOptions("health-channel");

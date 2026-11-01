@@ -2,6 +2,7 @@ using System.Text.Json;
 using AwesomeAssertions;
 using Kck.EventBus.Abstractions;
 using Kck.EventBus.RabbitMq;
+using Kck.Testing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -20,7 +21,7 @@ public sealed class RabbitMqDeliveryIntegrationTests(RabbitMqContainerFixture ra
 {
     private static readonly JsonSerializerOptions CamelCase = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
 
-    [Fact]
+    [DockerFact]
     public async Task PoisonMessage_WithPublisherSuppliedDeliveryCountHeader_IsStillBoundedByMaxDeliveryCount()
     {
         var counter = new Counter();
@@ -48,7 +49,7 @@ public sealed class RabbitMqDeliveryIntegrationTests(RabbitMqContainerFixture ra
         counter.Value.Should().Be(3);
     }
 
-    [Fact]
+    [DockerFact]
     public async Task Handler_ThrowingTaskCanceledException_IsTreatedAsFailure_AndDoesNotStallTheConsumer()
     {
         var counter = new Counter();
@@ -76,7 +77,7 @@ public sealed class RabbitMqDeliveryIntegrationTests(RabbitMqContainerFixture ra
         (await rabbit.GetMessageCountAsync($"{options.QueuePrefix}.{nameof(TimeoutEvent)}")).Should().Be(0u);
     }
 
-    [Fact]
+    [DockerFact]
     public async Task DeadLetterQueues_OfTwoServicesSharingTheExchange_DoNotReceiveEachOthersMessages()
     {
         var counterA = new Counter();
@@ -117,7 +118,7 @@ public sealed class RabbitMqDeliveryIntegrationTests(RabbitMqContainerFixture ra
         counterB.Value.Should().Be(0);
     }
 
-    [Fact]
+    [DockerFact]
     public async Task PoisonMessage_LogsDeadLetteredExactlyOnce()
     {
         var counter = new Counter();
@@ -144,7 +145,7 @@ public sealed class RabbitMqDeliveryIntegrationTests(RabbitMqContainerFixture ra
         entry.Message.Should().Contain(options.EffectiveDeadLetterExchangeName);
     }
 
-    [Fact]
+    [DockerFact]
     public async Task Message_WithoutMessageId_IsDeliveredAtMostTwice()
     {
         var counter = new Counter();

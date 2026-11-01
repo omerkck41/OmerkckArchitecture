@@ -7,6 +7,7 @@ using Kck.Persistence.Abstractions.UnitOfWork;
 using Kck.Sample.Orders.Data;
 using Kck.Sample.Orders.Domain;
 using Kck.Sample.Orders.Features.Orders;
+using Kck.Testing;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -43,7 +44,7 @@ public sealed class PostgresOrdersTests : IAsyncLifetime
         await _postgres.DisposeAsync();
     }
 
-    [Fact]
+    [DockerFact]
     public async Task PlaceOrder_ValidRequest_CommitsAndPublishesConfirmation()
     {
         var response = await _client.PlaceOrderAsync(("A-1", 2));
@@ -55,7 +56,7 @@ public sealed class PostgresOrdersTests : IAsyncLifetime
         (await _factory.StockAsync("A-1")).Should().Be(98);
     }
 
-    [Fact]
+    [DockerFact]
     public async Task PlaceOrder_InsufficientStock_RollsBackTheReservation()
     {
         var response = await _client.PlaceOrderAsync(("A-1", 2), ("B-2", 6));
@@ -66,7 +67,7 @@ public sealed class PostgresOrdersTests : IAsyncLifetime
         (await _factory.StockAsync("A-1")).Should().Be(100);
     }
 
-    [Fact]
+    [DockerFact]
     public async Task SearchOrders_ByStatusAndDateWithoutOffset_Returns200()
     {
         // A date without an offset must reach Npgsql as UTC (timestamptz accepts only DateTimeKind.Utc).
@@ -84,7 +85,7 @@ public sealed class PostgresOrdersTests : IAsyncLifetime
         page!.Items.Should().ContainSingle().Which.Id.Should().Be(paid.Id);
     }
 
-    [Fact]
+    [DockerFact]
     public async Task CancelOrder_SoftDeletesOrderAndLines()
     {
         var order = await _client.PlaceOrderAndReadAsync(("A-1", 1), ("B-2", 1));
@@ -97,7 +98,7 @@ public sealed class PostgresOrdersTests : IAsyncLifetime
         (await _factory.StockAsync("A-1")).Should().Be(100);
     }
 
-    [Fact]
+    [DockerFact]
     public async Task CancelOrder_ShippedSinceRead_Returns409AndKeepsTheStock()
     {
         var order = await _client.PlaceOrderAndReadAsync(("A-1", 1));

@@ -6,6 +6,9 @@
     <PackageReadmeFile>README.nuget.md</PackageReadmeFile>
   </PropertyGroup>
   <ItemGroup>
+    <InternalsVisibleTo Include="Kck.EventBus.AzureServiceBus.Tests" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="../../Abstractions/Kck.EventBus.Abstractions/Kck.EventBus.Abstractions.csproj" />
   </ItemGroup>
   <ItemGroup>

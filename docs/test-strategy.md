@@ -54,6 +54,14 @@ to use each test category.
 
 **Trait:** `[Trait("Category", "Integration")]` (at class or method level)
 
+**Attribute:** container tests use `[DockerFact]` / `[DockerTheory]` (namespace `Kck.Testing`, linked into every
+test project from `tests/_Shared`) instead of `[Fact]` / `[Theory]`. When no Docker daemon answers (`DOCKER_HOST`,
+otherwise the default named pipe or socket), the test is reported as skipped with "Docker daemon not reachable"
+instead of failing, so a plain `dotnet test` works on a machine without Docker. Skipping is switched off when
+`CI=true` or `KCK_REQUIRE_DOCKER=1`: a pipeline, or a developer who wants the guarantee, gets a loud failure instead
+of a silent skip. The daemon check runs once per test process and never throws; a class fixture that starts a
+container returns early when the tests will be skipped.
+
 **Filter:**
 - Unit test step: `--filter "Category!=Integration"`
 - Integration test step: `--filter "Category=Integration"` (ubuntu only)

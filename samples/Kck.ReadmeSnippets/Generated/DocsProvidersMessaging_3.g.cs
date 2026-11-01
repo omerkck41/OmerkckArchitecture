@@ -7,7 +7,7 @@ internal static class Snippet
 {
     internal static async Task RunAsync(WebApplicationBuilder builder, IServiceCollection services)
     {
-#line 52 "docs/providers/messaging.md"
+#line 58 "docs/providers/messaging.md"
 services.AddKckMessagingAmazonSes(opt =>
 {
     opt.Region = "eu-west-1";

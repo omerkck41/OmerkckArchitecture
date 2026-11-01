@@ -217,7 +217,10 @@ services.AddKckAzureKeyVault(opt =>
 Key Vault secret names allow only letters, digits and dashes, so use `-` instead of `:` in keys.
 
 It uses `DefaultAzureCredential`, which automatically resolves the Azure CLI, Managed Identity or the
-`AZURE_CLIENT_ID`/`AZURE_CLIENT_SECRET` environment variables.
+`AZURE_CLIENT_ID`/`AZURE_CLIENT_SECRET` environment variables. When the container already has a `SecretClient`
+registered, the manager uses that client instead (5.0): register your own client for another credential (for example
+a `ManagedIdentityCredential` with a specific client id) or for `SecretClientOptions` such as retries; `VaultUri` may
+then stay empty, `SecretPrefix` still applies.
 
 ## Compliance Notes
 

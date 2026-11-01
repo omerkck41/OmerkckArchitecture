@@ -1,5 +1,6 @@
 using AwesomeAssertions;
 using Kck.Persistence.EntityFramework.Interceptors;
+using Kck.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging.Abstractions;
 using Testcontainers.PostgreSql;
@@ -52,7 +53,7 @@ public sealed class DomainEventDispatchNpgsqlTests : IAsyncLifetime
         _ctx.TestEntities.Add(entity);
     }
 
-    [Fact]
+    [DockerFact]
     public async Task TransactionDisposedWithoutCommit_EventsAreNotDispatchedByTheNextSave()
     {
         await using (await _ctx.Database.BeginTransactionAsync())

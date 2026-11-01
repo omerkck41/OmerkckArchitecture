@@ -4,7 +4,7 @@
 namespace ReadmeSnippets.DocsProvidersBackgroundJobs_4;
 using Kck.BackgroundJobs.Abstractions;
 
-#line 62 "docs/providers/background-jobs.md"
+#line 70 "docs/providers/background-jobs.md"
 public class EmailCleanupJob : IBackgroundJob
 {
     public Task ExecuteAsync(CancellationToken ct = default)
