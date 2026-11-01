@@ -8,7 +8,7 @@ internal static class Snippet
 {
     internal static async Task RunAsync(IServiceCollection services)
     {
-#line 209 "docs/migrations/v4-to-v5.md"
+#line 212 "docs/migrations/v4-to-v5.md"
 
 services.AddKckMessagingMailKit(opt =>
 {

@@ -28,6 +28,7 @@ an OSI-approved licence, and asks for a licence key at Release build time (decis
 | `Kck.EventBus.RabbitMq` | `MaxDeliveryCount` below 1 is rejected at registration | Low |
 | `Kck.Messaging.MailKit` | TLS mode default | High |
 | `Kck.FileStorage.FluentFtp` | UploadAsync throws on failure/skip | Medium |
+| `Kck.FileStorage.AwsS3`, `Kck.FileStorage.AzureBlob` | UploadAsync with `Overwrite = false` on an existing file throws `IOException` | Medium |
 | `Kck.Caching.Hybrid` | `ICacheService` resolvable only after the host started | High |
 | `Kck.Search.Elasticsearch` | Rejected requests throw instead of returning silently | Medium |
 | `Kck.Documents.ImageSharp` | **Removed** — replaced by `Kck.Documents.SkiaSharp` | High |
@@ -67,6 +68,8 @@ High = configuration / DI level)
   needs `SecureSocketOptions = SslOnConnect`
 - FTP `UploadAsync` throws `IOException` when the server reports a failed upload or when `Overwrite = false` and the
   file exists; 4.x returned silently
+- S3 and Azure Blob `UploadAsync` with `Overwrite = false` on an existing file throw `IOException` (S3 replaced the
+  object in 4.x, Azure Blob threw `RequestFailedException`, now the inner exception)
 - Hybrid cache: resolving `ICacheService` before the host started throws
 - Elasticsearch write and search operations throw `InvalidOperationException` when Elasticsearch rejects the request
 - `Kck.Documents.ImageSharp` → `Kck.Documents.SkiaSharp`; `AddKckDocumentsImageSharp()` → `AddKckDocumentsSkiaSharp()`

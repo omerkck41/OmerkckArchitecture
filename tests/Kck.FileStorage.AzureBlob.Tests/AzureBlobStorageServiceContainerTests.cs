@@ -42,7 +42,7 @@ public sealed class AzureBlobStorageServiceContainerTests
         await act.Should().ThrowAsync<ArgumentException>();
     }
 
-    // The first-use container creation itself is exercised against Azurite in the F4 behaviour tests; a test against the
-    // unreachable development endpoint costs the SDK's full retry schedule (~37 s) and proves nothing the two tests
-    // above do not.
+    // The first-use container creation itself is exercised against Azurite in AzureBlobStorageServiceIntegrationTests;
+    // a test against the unreachable development endpoint costs the SDK's full retry schedule (~37 s) and proves nothing
+    // the two tests above do not.
 }

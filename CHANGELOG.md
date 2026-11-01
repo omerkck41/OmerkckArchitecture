@@ -286,6 +286,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `Kck.Search.Elasticsearch` — `GetByIdAsync` and `IndexExistsAsync` also throw on an invalid response other than
   404; the exception message and the error log carry the HTTP status, error type and reason from the server, while
   the full debug information (which may include request bodies and field value previews) is logged at Debug level only.
+- `Kck.FileStorage.AwsS3` — `UploadAsync` ignored `Overwrite = false` and replaced an existing object; it now sends a
+  conditional write (`If-None-Match: *`) and throws `IOException` when the object exists, as the FTP provider does
+  (the service must support S3 conditional writes, as Amazon S3 does; a service that ignores the header overwrites);
+  a concurrent conditional write to the same key (409 `ConditionalRequestConflict`) throws `IOException` too.
+  `ListAsync` threw `NullReferenceException` when nothing matched (AWS SDK v4 returns no object collection for an
+  empty page); it now returns an empty list.
+- `Kck.FileStorage.AwsS3` — with a `KeyPrefix`, `ListAsync` returned `FileMetadata.FullPath` as the raw key
+  (`tenantA/docs/a.txt`), so passing it back to `DownloadAsync`, `ExistsAsync` or `DeleteAsync` applied the prefix a
+  second time and missed the object. `FullPath` is now the path without the prefix (`docs/a.txt`).
+- `Kck.FileStorage.AzureBlob` — `UploadAsync` with `Overwrite = false` on an existing blob threw the SDK's
+  `RequestFailedException` (409 `BlobAlreadyExists`); it now throws `IOException` (the SDK exception is the inner
+  exception), the same type as the FTP and S3 providers. The blob was and is left unchanged.
+- `Kck.FileStorage.AzureBlob`, `Kck.FileStorage.AwsS3` — `ListAsync("")` returned nothing: the empty directory became
+  the prefix `/`, which no blob or key starts with. An empty directory now lists the container or bucket root (under
+  `KeyPrefix` for S3), as documented.
 
 ## [4.8.0] — 2026-10-31
 

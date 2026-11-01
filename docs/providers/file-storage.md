@@ -68,6 +68,19 @@ With the FTP provider, `UploadAsync` throws `IOException` when the server report
 `Overwrite` is `false` and the file already exists. Before 5.0 both returned silently (a failure only logged a
 warning).
 
+The Azure Blob and S3 providers also throw `IOException` when `Overwrite` is `false` and the blob or object already
+exists, and leave it unchanged. Before 5.0 the S3 provider replaced it, and the Azure Blob provider threw the SDK's
+`RequestFailedException` (409 `BlobAlreadyExists`, now the inner exception). S3 uses a conditional write
+(`If-None-Match: *`), which the service must support, as Amazon S3 does; with an S3-compatible service, check that it
+honours the header, otherwise the object is overwritten. A concurrent conditional write to the same key (409
+`ConditionalRequestConflict`) also throws `IOException`.
+
+`ListAsync("")` lists the container or bucket root (under `KeyPrefix` for S3); a directory without files gives an
+empty list. With Blob and S3 the listing is recursive: it includes the files of nested directories, with their full
+relative path. With S3 and a `KeyPrefix`, `FileMetadata.FullPath` does not contain the prefix: it is the path you pass
+back to `DownloadAsync`, `ExistsAsync` or `DeleteAsync` (before 5.0 it was the raw key, `tenantA/docs/a.txt`, and
+passing it back applied the prefix twice).
+
 With the Azure Blob provider and `CreateContainerIfNotExists = true` (the default), the container is created on first
 use, not when the service is constructed; a failed attempt is retried on the next call.
 

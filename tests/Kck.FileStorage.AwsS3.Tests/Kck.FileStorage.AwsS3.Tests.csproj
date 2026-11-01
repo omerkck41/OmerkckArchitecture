@@ -10,6 +10,8 @@
     <PackageReference Include="xunit.runner.visualstudio" />
     <PackageReference Include="AwesomeAssertions" />
     <PackageReference Include="NSubstitute" />
+    <!-- F4b: generic container for adobe/s3mock (no Testcontainers module) -->
+    <PackageReference Include="Testcontainers" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="../../src/Providers/Kck.FileStorage.AwsS3/Kck.FileStorage.AwsS3.csproj" />
