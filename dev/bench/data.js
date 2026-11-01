@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1793570101309,
+  "lastUpdate": 1793572344652,
   "repoUrl": "https://github.com/omerkck41/OmerkckArchitecture",
   "entries": {
     "Benchmark": [
@@ -15694,6 +15694,102 @@ window.BENCHMARK_DATA = {
             "value": 8.763767527540525,
             "unit": "ns",
             "range": "± 0.1657392354540688"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "106805727+omerkck41@users.noreply.github.com",
+            "name": "Ömer KÜÇÜK",
+            "username": "omerkck41"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "d29482a83a810143d2274985c1183df68bc56f97",
+          "message": "fix(filestorage): S3 and Blob defects found by real-service tests (F4b) (#293)\n\n## Summary\n\nStep F4b (\"test depth\", container half) of the provider health plan\n(`docs/plans/2026-10-31-provider-saglik-ve-atil-kod-plani.md`, section 4\nrow F4, acceptance Ö14/Ö15). Decision record:\n`decisions/2026-11-02-testcontainers-minio-azurite.md` —\n`Testcontainers` 4.16.0 (core, generic\ncontainer for **S3Mock 5.2.3**; the MinIO image is no longer pullable\nfrom Docker Hub) and `Testcontainers.Azurite` 4.16.0 (**Azurite\n3.35.0**,\nstarted with `--skipApiVersionCheck` because Azure.Storage.Blobs 12.30.1\nsends API version 2026-10-06).\n\n## Tests (26, all `[DockerFact]` + Integration trait)\n- **Kck.FileStorage.AwsS3.Tests** (14 integration + 5 unit for the\nconditional-write mapping): round trip, exists/delete, overwrite on/off\n(412 from the\nserver is asserted), prefix / root / recursive listing, missing file,\ndelete missing, `KeyPrefix` applied to keys and removed from listed\npaths\n(round-trips to `DownloadAsync`), traversal path rejected with nothing\nwritten.\n- **Kck.FileStorage.AzureBlob.Tests** (12 integration): the same core\nset, container created on first use (and not when\n`CreateContainerIfNotExists = false`), and the K7 path-escape proof\nagainst real Azurite: `../beta` is rejected by `ExistsAsync`,\n`DownloadAsync` and `UploadAsync`, `beta` is unchanged, and `alpha` is\nnever created (no request reached the server).\n\n## Fixed (found by these tests)\n- **Kck.FileStorage.AwsS3** — `ListAsync` threw `NullReferenceException`\non an empty page (AWS SDK v4 leaves `S3Objects` null); `ListAsync(\"\")`\nused the prefix `/` and never listed the root; `Overwrite = false`\nsilently overwrote — the upload now sends `If-None-Match: *` and maps\n412\n(and 409 `ConditionalRequestConflict`) to `IOException`, as the FTP\nprovider does; listed `FullPath` included the `KeyPrefix`, so it could\nnot\n  be passed back to `DownloadAsync`/`ExistsAsync`/`DeleteAsync`.\n- **Kck.FileStorage.AzureBlob** — `ListAsync(\"\")` had the same\nroot-prefix defect; `Overwrite = false` threw the SDK's 409\n`RequestFailedException`, now wrapped in the same `IOException` so\ncallers catch one type across providers (migration guide row).\n\n## Docs\n`docs/providers/file-storage.md` (overwrite semantics, root and\nrecursive listing, `KeyPrefix` round trip, \"the S3-compatible service\nmust honour\nconditional writes\"), `docs/test-strategy.md` (accurate container\ncoverage table — the old \"(mock) awaiting rollout\" rows were wrong),\nCHANGELOG `Fixed`, migration guide TL;DR + row.\n\n## Verification (local)\n\n| Check | Result |\n|---|---|\n| Behaviour tests RED first where a defect existed |\n`tasks/probes/2026-11-02-f4b/red.txt` R2–R4, R6–R8 (exact failures) |\n| `dotnet build -c Release --no-incremental` | 0 errors (5 pre-existing\nCA1716 warnings) |\n| AwsS3.Tests / AzureBlob.Tests with Docker | 62/62 / 34/34 |\n| Same with `DOCKER_HOST=tcp://127.0.0.1:1`, `CI` unset | 14 + 12\nskipped, 0 failed |\n| Unit run (`Category!=Integration`) | 1499/1499 |\n| `dotnet restore --locked-mode` | passes (9 lock files: two Direct\nentries, seven Transitive→CentralTransitive flips) |\n| Licence gate | 288 packages, 0 violations (both new packages MIT) |\n| `readme_snippets.py --check` / `docs_language.py` | 174 blocks up to\ndate / 107 files, 0 problems |\n| Fresh skeptical review | 2 rounds; the `KeyPrefix` listing defect came\nfrom the review and is fixed RED→GREEN |\n\nOpen contract questions, tracked in the local todo (not changed here):\ndownloading a missing file throws the provider SDK's exception (no\ncommon\n`FileNotFoundException` mapping); deleting a missing file is a silent\nno-op and undocumented.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-authored-by: Claude Fable 5.1 <noreply@anthropic.com>",
+          "timestamp": "2026-11-01T22:24:10Z",
+          "tree_id": "6bff5841767995693f10b95c20db11ef9485182b",
+          "url": "https://github.com/omerkck41/OmerkckArchitecture/commit/d29482a83a810143d2274985c1183df68bc56f97"
+        },
+        "date": 1793572343479,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Success_Factory",
+            "value": 6.683497020176479,
+            "unit": "ns",
+            "range": "± 0.07630947607503645"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Failure_Factory",
+            "value": 10.73065712592668,
+            "unit": "ns",
+            "range": "± 0.687086169466145"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Success",
+            "value": 1.6360707151202054,
+            "unit": "ns",
+            "range": "± 0.003788594514451032"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Failure",
+            "value": 0.5862399970109646,
+            "unit": "ns",
+            "range": "± 0.0077699856275923905"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Serialize_Reflection",
+            "value": 473.50936429841175,
+            "unit": "ns",
+            "range": "± 0.8561331838857229"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Deserialize_Reflection",
+            "value": 805.3287819226583,
+            "unit": "ns",
+            "range": "± 2.0974261916685197"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 0)",
+            "value": 11.524503247014113,
+            "unit": "ns",
+            "range": "± 0.1483168493016663"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 5)",
+            "value": 11.52106528977553,
+            "unit": "ns",
+            "range": "± 0.10621463912767432"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 0)",
+            "value": 15.250720423460006,
+            "unit": "ns",
+            "range": "± 0.12570383068182872"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 5)",
+            "value": 11.151019304990768,
+            "unit": "ns",
+            "range": "± 0.09100606813591904"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 0)",
+            "value": 11.433086581031482,
+            "unit": "ns",
+            "range": "± 0.09412213551295981"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 5)",
+            "value": 10.813220144382544,
+            "unit": "ns",
+            "range": "± 0.14502045480101186"
           }
         ]
       }
