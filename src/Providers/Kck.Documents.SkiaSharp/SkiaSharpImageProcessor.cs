@@ -130,31 +130,35 @@ public sealed class SkiaSharpImageProcessor : IImageProcessor
         ct.ThrowIfCancellationRequested();
 
         // At most two full bitmaps are alive at a time: each step disposes its input once its output exists.
-        var bitmap = Decode(codec);
-        try
-        {
-            bitmap = Replace(bitmap, Orient(bitmap, origin));
-            if (size is var (width, height))
-                bitmap = Replace(bitmap, Resize(bitmap, width, height));
-            if (target == SKEncodedImageFormat.Jpeg && bitmap.AlphaType != SKAlphaType.Opaque)
-                bitmap = Replace(bitmap, FlattenOnWhite(bitmap));
+        using var pipeline = new BitmapPipeline(Decode(codec));
+        pipeline.Replace(Orient(pipeline.Current, origin));
+        if (size is var (width, height))
+            pipeline.Replace(Resize(pipeline.Current, width, height));
+        if (target == SKEncodedImageFormat.Jpeg && pipeline.Current.AlphaType != SKAlphaType.Opaque)
+            pipeline.Replace(FlattenOnWhite(pipeline.Current));
 
-            ct.ThrowIfCancellationRequested();
-            return Encode(bitmap, target, Math.Clamp(quality, 1, 100));
-        }
-        finally
-        {
-            bitmap.Dispose();
-        }
+        ct.ThrowIfCancellationRequested();
+        return Encode(pipeline.Current, target, Math.Clamp(quality, 1, 100));
     }
 
-    private static SKBitmap Replace(SKBitmap current, SKBitmap? next)
+    // Owns the bitmap of the current processing step. Replace disposes it as soon as the next step's output exists
+    // (null: the step changed nothing); the using in Process disposes the last one.
+    private sealed class BitmapPipeline(SKBitmap first) : IDisposable
     {
-        if (next is null)
-            return current;
+        private SKBitmap _current = first;
 
-        current.Dispose();
-        return next;
+        public SKBitmap Current => _current;
+
+        public void Replace(SKBitmap? next)
+        {
+            if (next is null)
+                return;
+
+            _current.Dispose();
+            _current = next;
+        }
+
+        public void Dispose() => _current.Dispose();
     }
 
     private static SKCodec CreateCodec(SKStream stream) =>
@@ -174,14 +178,20 @@ public sealed class SkiaSharpImageProcessor : IImageProcessor
         var bitmapInfo = new SKImageInfo(info.Width, info.Height, colorType, alphaType);
 
         var bitmap = new SKBitmap(bitmapInfo);
-        var result = codec.GetPixels(bitmapInfo.WithColorSpace(Srgb), bitmap.GetPixels());
-        if (result != SKCodecResult.Success)
+        try
         {
-            bitmap.Dispose();
-            throw new InvalidDataException($"The image data is truncated or corrupt (codec result: {result}).");
-        }
+            var result = codec.GetPixels(bitmapInfo.WithColorSpace(Srgb), bitmap.GetPixels());
+            if (result != SKCodecResult.Success)
+                throw new InvalidDataException($"The image data is truncated or corrupt (codec result: {result}).");
 
-        return bitmap;
+            return bitmap;
+        }
+        catch
+        {
+            // Also covers an exception thrown by the native decoder itself, not only a non-Success result.
+            bitmap.Dispose();
+            throw;
+        }
     }
 
     // SKEncodedOrigin follows EXIF Orientation 1..8; LeftTop, RightTop, RightBottom and LeftBottom are rotated by 90°.
