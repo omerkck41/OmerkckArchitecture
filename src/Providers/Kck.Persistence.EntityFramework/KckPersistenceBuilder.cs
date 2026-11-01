@@ -1,5 +1,6 @@
 using System.Reflection;
 using Kck.Core.Abstractions.Entities;
+using Kck.Persistence.Abstractions.Auditing;
 using Kck.Persistence.Abstractions.UnitOfWork;
 using Kck.Persistence.EntityFramework.Interceptors;
 using Kck.Persistence.EntityFramework.Repositories;
@@ -80,17 +81,51 @@ public sealed class KckPersistenceBuilder(IServiceCollection services)
         Services.AddScoped<DbContext>(sp => sp.GetRequiredService<TContext>());
         Services.TryAddScoped<IEfRepositoryFactory, DefaultEfRepositoryFactory>();
         Services.AddScoped<IUnitOfWork, EfUnitOfWork>();
+        Services.TryAddSingleton(new PooledContextMarker());
+        ThrowIfPooledAuditUserNotSingleton();
         return this;
     }
 
     /// <summary>
     /// Registers the <see cref="AuditInterceptor"/> as a singleton.
     /// </summary>
+    /// <exception cref="InvalidOperationException">
+    /// A pooled context (<see cref="UseEntityFrameworkPool{TContext}"/>) is registered together with a scoped or
+    /// transient <see cref="IAuditUserProvider"/>. The same check runs in <see cref="UseEntityFrameworkPool{TContext}"/>,
+    /// so the second of the two calls throws; a provider registered after both is not detected.
+    /// </exception>
     public KckPersistenceBuilder AddAuditInterceptor()
     {
         Services.TryAddSingleton<AuditInterceptor>();
+        ThrowIfPooledAuditUserNotSingleton();
         return this;
     }
+
+    // A pooled context's options are built once from the root provider, so the AuditInterceptor resolves
+    // IAuditUserProvider from the root: a scoped one throws under scope validation, and without it the first resolved
+    // instance (the first request's user) is recorded for every later save. The marker is registered by
+    // UseEntityFrameworkPool only, so a pooled context the application registers itself (without the interceptor) does
+    // not trigger the check.
+    private void ThrowIfPooledAuditUserNotSingleton()
+    {
+        if (!Services.Any(d => d.ServiceType == typeof(AuditInterceptor))
+            || !Services.Any(d => d.ServiceType == typeof(PooledContextMarker)))
+            return;
+
+        var auditUser = Services.LastOrDefault(d => d.ServiceType == typeof(IAuditUserProvider) && !d.IsKeyedService);
+        if (auditUser is null || auditUser.Lifetime == ServiceLifetime.Singleton)
+            return;
+
+        throw new InvalidOperationException(
+            $"IAuditUserProvider is registered as {auditUser.Lifetime}, but the DbContext is pooled (UseEntityFrameworkPool): " +
+            "a pooled context resolves it from the root service provider, so a scoped provider fails and a transient one " +
+            "records the first user for every save. Register IAuditUserProvider as a singleton when pooling, for example " +
+            "one that reads the current user from IHttpContextAccessor, or use UseEntityFramework instead of " +
+            "UseEntityFrameworkPool. See https://github.com/omerkck41/OmerkckArchitecture/blob/main/docs/providers/persistence.md#audit-user-50");
+    }
+
+    // Registered by UseEntityFrameworkPool so later builder calls can tell that a Kck context is pooled.
+    private sealed class PooledContextMarker;
 
     /// <summary>
     /// Registers the <see cref="IDomainEventDispatcher"/> implementation

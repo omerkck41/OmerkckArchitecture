@@ -33,6 +33,8 @@ app.MapGet("/orders/{id:guid}", (Guid id) =>
 
 No options. Status codes come from the exception type (`[HttpStatusCode]`) or its `explicitStatusCode`; other exceptions become a 500 with a generic detail, so internal messages are not exposed.
 
+A `CustomException`'s `AdditionalData` is written flat into the body as extension members (an object's properties in camelCase, a dictionary's pairs as they are); keys that match a standard member such as `status` are skipped. `new BadRequestException("Invalid input", new { Field = "Email" })` adds `"field": "Email"`.
+
 ## Resources
 
 - [Documentation](https://github.com/omerkck41/OmerkckArchitecture/blob/main/docs/providers/exceptions.md)

@@ -220,7 +220,7 @@ public class EfRepository<T, TId>(
 
         if (entity is ISoftDeletable)
         {
-            SoftDeleteHelper.SoftDelete(Context, [entity], DateTime.UtcNow);
+            SoftDeleteHelper.SoftDelete(Context, [entity], DateTime.UtcNow, AuditUser.Resolve(Context));
         }
         else
         {
@@ -240,6 +240,7 @@ public class EfRepository<T, TId>(
             softDeletable.DeletedBy = null;
             softDeletable.DeletedDate = null;
             Context.Entry(entity).State = EntityState.Modified;
+            RepositorySoftDeletes.Unmark(Context, entity); // a revert is a modification, even before the delete was saved
         }
 
         return Task.FromResult(entity);
@@ -322,7 +323,7 @@ public class EfRepository<T, TId>(
             DbSet.Remove(entity);
         }
 
-        SoftDeleteHelper.SoftDelete(Context, entityList.OfType<ISoftDeletable>(), DateTime.UtcNow);
+        SoftDeleteHelper.SoftDelete(Context, entityList.OfType<ISoftDeletable>(), DateTime.UtcNow, AuditUser.Resolve(Context));
         return Task.CompletedTask;
     }
 

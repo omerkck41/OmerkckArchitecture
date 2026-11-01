@@ -20,8 +20,11 @@ internal static class SoftDeleteHelper
         Keep,
     }
 
-    /// <summary>Soft-deletes the given entities and the dependents EF cascades to.</summary>
-    public static void SoftDelete(DbContext context, IEnumerable<object> entities, DateTime now)
+    /// <summary>
+    /// Soft-deletes the given entities and the dependents EF cascades to. <c>user</c> is written to <c>DeletedBy</c>
+    /// together with the deletion date; <see langword="null"/> leaves <c>DeletedBy</c> as it is.
+    /// </summary>
+    public static void SoftDelete(DbContext context, IEnumerable<object> entities, DateTime now, string? user)
     {
         var owners = new HashSet<object>(entities, ReferenceEqualityComparer.Instance);
         var attached = new HashSet<object>(ReferenceEqualityComparer.Instance);
@@ -40,18 +43,22 @@ internal static class SoftDeleteHelper
             entry.State = entry.State == EntityState.Added ? EntityState.Detached : EntityState.Deleted;
         }
 
-        Apply(context, owners, now, attached);
+        RepositorySoftDeletes.Mark(context, Apply(context, owners, now, user, attached));
     }
 
-    /// <summary>Turns every tracked delete of a soft-deletable entity into a soft delete, except permanent ones.</summary>
+    /// <summary>
+    /// Turns every tracked delete of a soft-deletable entity into a soft delete, except permanent ones. <c>user</c> is
+    /// handled as in <see cref="SoftDelete"/>.
+    /// </summary>
     /// <returns>The entities that were soft-deleted.</returns>
-    public static IReadOnlySet<object> SoftDeleteTrackedDeletes(DbContext context, DateTime now) =>
-        Apply(context, owners: null, now, attached: null);
+    public static IReadOnlySet<object> SoftDeleteTrackedDeletes(DbContext context, DateTime now, string? user) =>
+        Apply(context, owners: null, now, user, attached: null);
 
     // owners null: every deleted entry that no deleted principal cascades to is a root of its own. Otherwise only the
     // owners are soft-deleted; other deletes stay hard deletes, and so do the rows they cascade to. attached: entities
     // the caller passed in detached; their IsDeleted / DeletedDate values are not trusted.
-    private static HashSet<object> Apply(DbContext context, HashSet<object>? owners, DateTime now, HashSet<object>? attached)
+    private static HashSet<object> Apply(
+        DbContext context, HashSet<object>? owners, DateTime now, string? user, HashSet<object>? attached)
     {
         var softDeleted = new HashSet<object>(ReferenceEqualityComparer.Instance);
         var entries = context.ChangeTracker.Entries().ToList();
@@ -80,6 +87,8 @@ internal static class SoftDeleteHelper
                     {
                         softDeletable.IsDeleted = true;
                         softDeletable.DeletedDate = now;
+                        if (user is not null)
+                            softDeletable.DeletedBy = user;
                     }
 
                     entry.State = EntityState.Modified;

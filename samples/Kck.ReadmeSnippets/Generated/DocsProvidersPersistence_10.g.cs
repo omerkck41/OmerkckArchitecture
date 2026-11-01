@@ -2,13 +2,26 @@
 #nullable enable
 
 namespace ReadmeSnippets.DocsProvidersPersistence_10;
-using Kck.Persistence.EntityFramework.Extensions;
-using Microsoft.EntityFrameworkCore;
+using Kck.Authorization.Abstractions;
+using Kck.Persistence.Abstractions.Auditing;
 
-#line 374 "docs/providers/persistence.md"
-public sealed class ShopDbContext(DbContextOptions<ShopDbContext> options) : DbContext(options)
+internal static class Snippet
 {
-    protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder) =>
-        configurationBuilder.UseUtcDateTimes();
+    internal static async Task RunAsync(WebApplicationBuilder builder)
+    {
+#line 385 "docs/providers/persistence.md"
+
+builder.Services.AddScoped<IAuditUserProvider>(sp =>
+    new CurrentUserAuditProvider(sp.GetRequiredService<ICurrentUserProvider>()));
+
+#line default
+        await Task.CompletedTask;
+    }
+}
+
+#line 389 "docs/providers/persistence.md"
+public sealed class CurrentUserAuditProvider(ICurrentUserProvider currentUser) : IAuditUserProvider
+{
+    public string? CurrentUser => currentUser.UserId;
 }
 #line default

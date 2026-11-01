@@ -124,5 +124,19 @@ public sealed class QueryOptionsRepositoryTests : IDisposable
         (await _sut.GetByIdAsync(deleted.Id, QueryOptions.WithDeleted)).Should().NotBeNull();
     }
 
+    [Theory]
+    [InlineData(typeof(IQuery<>))]
+    [InlineData(typeof(EfRepository<,>))]
+    public void Query_HasNoBoolFlagOverload(Type type)
+    {
+        // 5.0 (F2a) removed the KCK0101 Query(filter, orderBy, bool withDeleted, bool enableTracking) overload: the
+        // flags live in QueryOptions. A bool parameter coming back would reintroduce the obsolete shape.
+        var queryMethods = type.GetMethods().Where(m => m.Name == nameof(IQuery<TestEntity>.Query)).ToList();
+
+        queryMethods.Should().NotBeEmpty();
+        queryMethods.Should().AllSatisfy(m =>
+            m.GetParameters().Should().NotContain(p => p.ParameterType == typeof(bool), $"{type.Name}.{m.Name}({string.Join(", ", m.GetParameters().Select(p => p.Name))})"));
+    }
+
     public void Dispose() => _harness.Dispose();
 }

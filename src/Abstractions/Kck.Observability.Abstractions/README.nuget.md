@@ -23,6 +23,8 @@ builder.Services.AddKckObservability(obs => obs.UseOpenTelemetry(otel =>
 // Tracing and metrics in your code
 public class OrderService(ITracingService tracer, IMetricsService metrics)
 {
+    // Created on the first call for a name; later calls with the same name return this instance.
+    // Tags go on each Increment call; CreateHistogram(name, description, buckets) sets explicit bucket boundaries.
     private readonly ICounter _ordersCreated = metrics.CreateCounter("orders.created", "Number of orders placed");
 
     public async Task CreateOrderAsync(Guid customerId, CancellationToken ct)

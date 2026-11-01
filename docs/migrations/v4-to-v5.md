@@ -31,6 +31,7 @@ an OSI-approved licence, and asks for a licence key at Release build time (decis
 | `Kck.Caching.Hybrid` | `ICacheService` resolvable only after the host started | High |
 | `Kck.Search.Elasticsearch` | Rejected requests throw instead of returning silently | Medium |
 | `Kck.Documents.ImageSharp` | **Removed** — replaced by `Kck.Documents.SkiaSharp` | High |
+| `Kck.Exceptions.AspNetCore` | `CustomException.AdditionalData` is now sent to the client for every `CustomException`, including those mapped to a 5xx status: data meant only for logs must not be put there | High |
 | `Kck.Authorization.Abstractions` | Removed API: `IAuthorizationService`, `IPermissionChecker` | Medium |
 | `Kck.BackgroundJobs.Abstractions` | Removed API: `IRecurringJob` | Medium |
 | `Kck.Exceptions.Abstractions` | Removed API: `FilterSecurityException` | Medium |
@@ -38,7 +39,7 @@ an OSI-approved licence, and asks for a licence key at Release build time (decis
 | `Kck.FileStorage.Abstractions` | Removed API: `IFileConverter`, `IFileMetadataReader`, `PathHelper.IsValidPath` / `Sanitize` | Medium |
 | `Kck.Http.Abstractions` | Removed API: `ResilienceOptions.CircuitBreakerFailureThreshold` | High |
 | `Kck.Messaging.Abstractions` | Removed API: `IEmailService` | Medium |
-| `Kck.Observability.Abstractions` | Removed API: `IHealthCheckRegistrar`, `HealthCheckType` | Medium |
+| `Kck.Observability.Abstractions` | Removed API: `IHealthCheckRegistrar`, `HealthCheckType`, the `tags` parameter of `IMetricsService.CreateCounter` | Medium |
 | `Kck.Persistence.Abstractions` | Removed API: bool-flag `IQuery<T>.Query` overload, `FilterValidator` | Medium |
 | `Kck.Persistence.EntityFramework` | Removed API: bool-flag `EfRepository.Query` overload | Medium |
 | `Kck.Pipeline.Abstractions` | Removed API: `ICachableRequest.CacheGroupKey` | Medium |
@@ -365,7 +366,7 @@ an explicit interface implementation fails), so search for it rather than waitin
 |---|---|---|
 | `IQuery<T>.Query(filter, orderBy, bool withDeleted, bool enableTracking)` and the same `EfRepository` overload (KCK0101) | `Kck.Persistence.Abstractions`, `Kck.Persistence.EntityFramework` | `Query(QueryOptions options, filter, orderBy)` with `QueryOptions.None` / `.Tracking` / `.WithDeleted`; an own `IQuery<T>` implementation must now implement this member (the default that forwarded to the bool overload is gone) |
 | `KckWebApiDefaults.Persistence`, `.Caching`, `.Observability` (+ `PersistenceDefaults`, `CachingDefaults`, `ObservabilityDefaults`), `SecurityDefaults.Hashing`, `JwtDefaults.Algorithm`; MinimalApi `JwtDefaults.Algorithm`; `KckWorkerServiceDefaults.Observability` (+ `ObservabilityDefaults`) (KCK0002) | `Kck.Bundle.WebApi`, `Kck.Bundle.MinimalApi`, `Kck.Bundle.WorkerService` | Configure those providers in code (`AddKckPersistence`, a caching provider, `AddKckObservability`). The bundles always hash with Argon2 and sign with RS256; leftover `Kck:` keys are ignored |
-| `RsaKeySource.SecretsManager` (KCK0300) | `Kck.Security.Jwt` | Read the key yourself (for example from `ISecretsManager`) and set `RsaKeyBase64` with `RsaKeySource.Configuration`. A configuration value `SecretsManager` now fails to bind |
+| `RsaKeySource.SecretsManager` (KCK0300) | `Kck.Security.Jwt` | Read the key yourself (for example from `ISecretsManager`) and set `RsaKeyBase64` with `RsaKeySource.Configuration`. A configuration value `SecretsManager` now fails to bind, and a number that is not a defined value (for example `"KeySource": "2"`) fails options validation at start-up |
 | `HangfireOptions.ConnectionString` (KCK0700) | `Kck.BackgroundJobs.Hangfire` | `HangfireOptions.ConfigureStorage`, for example `c => c.UseSqlServerStorage(connectionString)` |
 | `ResilienceOptions.CircuitBreakerFailureThreshold` (KCK0900) | `Kck.Http.Abstractions` | `CircuitBreakerFailureRatio` / `CircuitBreakerMinimumThroughput` |
 | `IEmailService` (KCK0600) | `Kck.Messaging.Abstractions` | `IEmailProvider` (same `SendAsync`) |
@@ -376,12 +377,29 @@ an explicit interface implementation fails), so search for it rather than waitin
 | `IFileConverter`, `IFileMetadataReader` | `Kck.FileStorage.Abstractions` | none — they had no implementation; keep your own copy if you implemented them |
 | `PathHelper.IsValidPath`, `PathHelper.Sanitize` | `Kck.FileStorage.Abstractions` | `PathHelper.Validate(path)` (throws `ArgumentException` instead of returning `false`; the providers already call it). The rules differ slightly: `Validate` does not reject `~`, and it also rejects `%`, control characters and a leading `/`. `Sanitize` silently rewrote a path; reject it instead |
 | `IHealthCheckRegistrar`, `HealthCheckType` | `Kck.Observability.Abstractions` | none — it had no implementation and the enum was only its `AddDependency` parameter; keep your own copy if you used them (`IHealthCheck` stays) |
+| `tags` parameter of `IMetricsService.CreateCounter(name, description, tags)` | `Kck.Observability.Abstractions` | Pass tags on each `Increment` call (`counter.Increment(1, new KeyValuePair<string, object?>("tenant", id))`). The parameter took tag keys without values, which OpenTelemetry cannot represent, and the provider ignored it. A call with only `name` and `description` compiles unchanged; an own `IMetricsService` implementation drops the parameter |
 | `IRecurringJob` | `Kck.BackgroundJobs.Abstractions` | Implement `IBackgroundJob` and pass the job id and cron expression to `IJobScheduler.AddOrUpdateRecurringAsync<TJob>(jobId, cron)` |
 | `FilterSecurityException` | `Kck.Exceptions.Abstractions` | none — nothing threw it (a field outside the dynamic filter whitelist throws `ArgumentException`, as in 4.x); keep your own copy if you threw it |
 | `FilterValidator` | `Kck.Persistence.Abstractions` | none — nothing called it; `ToDynamic` throws `ArgumentException` for an unsupported operator or an invalid value |
 | `ICachableRequest.CacheGroupKey` | `Kck.Pipeline.Abstractions` | none — the caching behavior never read it; delete the property from your requests |
 
 ### Other 5.0 changes
+
+Behaviour fixes that need no code change, but that a client or a caller may notice:
+
+- `Kck.Exceptions.AspNetCore` — a `CustomException`'s `AdditionalData` is now written into the problem body as
+  extension members (for example `"paramName": "email"` for `CustomArgumentException`); 4.x dropped it. This applies
+  to every `CustomException`, including one mapped to a 5xx status, so search your code for `additionalData` arguments
+  and move anything meant only for logs (ids, SQL, stack details) out of them
+  ([exceptions](../providers/exceptions.md#additional-data)).
+- `Kck.Documents.ClosedXml` — `ReadAsync` returns rows of equal width with `null` for empty cells; 4.x skipped empty
+  cells, so values after a gap moved left. Code that compensated for the shift must drop that.
+- `Kck.Observability.OpenTelemetry` — `CreateHistogram` applies its `buckets`, and a second `Create*` call with the
+  same name returns the first instrument instead of registering another one. Because 4.x ignored `buckets`, unsorted,
+  duplicate or non-finite boundaries never failed; 5.0 throws `ArgumentException` for them. Pass strictly increasing,
+  finite values.
+- `Kck.Persistence.EntityFramework` — `CreatedBy` / `ModifiedBy` / `DeletedBy` are filled when you register the new
+  optional `IAuditUserProvider` ([persistence](../providers/persistence.md#audit-user-50)); without it nothing changes.
 
 Other 5.0 changes are added to this guide as the 5.0 work lands.
 

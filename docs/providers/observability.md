@@ -50,7 +50,8 @@ using Kck.Observability.Abstractions;
 public class OrderMetrics(IMetricsService metrics)
 {
     private readonly ICounter _created = metrics.CreateCounter("orders.created", "Orders created");
-    private readonly IHistogram _duration = metrics.CreateHistogram("orders.process.duration", "Processing time (ms)");
+    private readonly IHistogram _duration = metrics.CreateHistogram(
+        "orders.process.duration", "Processing time (ms)", buckets: [5, 10, 25, 50, 100, 250, 500, 1000]);
 
     public void Created(Order order, double elapsedMs)
     {
@@ -60,7 +61,18 @@ public class OrderMetrics(IMetricsService metrics)
 }
 ```
 
-Create instruments once (for example in a singleton) and reuse them.
+- `CreateCounter`, `CreateHistogram` and `CreateGauge` create an instrument on the first call for a name and return the
+  same instance for every later call with that name (case-insensitive); the description and buckets of the first call
+  win. Keeping the instrument in a field, as above, avoids the lookup.
+- `buckets` are the histogram's explicit bucket boundaries, published as OpenTelemetry instrument advice
+  (`InstrumentAdvice<double>.HistogramBucketBoundaries`); an exporter view configured for the instrument overrides them.
+  Without `buckets` the SDK's default boundaries apply. The boundaries must be strictly increasing (no unsorted or
+  duplicate values) and finite (no NaN or infinity); otherwise `CreateHistogram` throws `ArgumentException` for
+  `buckets`, nothing is cached, and a later call with valid buckets creates the instrument. Before 5.0 the argument was
+  ignored, so invalid buckets never failed.
+- Tags go on each measurement (`Increment(value, tags)`, `Record(value, tags)`, `Set(value, tags)`). The `tags`
+  parameter of `CreateCounter` (a list of tag keys without values, which OpenTelemetry cannot represent and the provider
+  ignored) was removed in 5.0.
 
 ## Custom Tracing
 

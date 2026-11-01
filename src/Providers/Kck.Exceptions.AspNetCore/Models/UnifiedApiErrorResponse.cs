@@ -44,6 +44,13 @@ public sealed record UnifiedApiErrorResponse
     /// </summary>
     public string TraceId { get; init; }
 
+    /// <summary>
+    /// Extension members (RFC 9457 §3.2), filled from <c>CustomException.AdditionalData</c>.
+    /// The pairs are written flat into the response body next to the standard members; <c>null</c> writes nothing.
+    /// </summary>
+    [JsonExtensionData]
+    public IDictionary<string, object?>? Extensions { get; init; }
+
     [JsonConstructor]
     public UnifiedApiErrorResponse(
         string? type,

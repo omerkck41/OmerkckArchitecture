@@ -49,6 +49,15 @@ public class ReportService(IExcelService excel)
 For a list of objects, `CreateFromDataAsync(items, "Sheet1")` writes one column per public property; `ICsvExporter`
 (also registered by `AddKckDocumentsClosedXml`) does the same as CSV.
 
+`ReadAsync` returns the used rows of the first worksheet, and every row has the same width: from column A to the last
+column used anywhere on the sheet. A value keeps its column position; an empty cell reads as `null`, so `A, <empty>, C`
+is `["A", null, "C"]` and a row shorter than the widest row ends with `null`s. Rows always start at column A, so a
+sheet whose data starts at column C yields two leading `null`s in every row. Non-empty cells are returned as strings
+(invariant culture). Because every row is padded to the sheet's width, a single value in a far column (for example
+XFD) multiplies the memory of every row: a sheet whose used rows × width exceed `ClosedXmlExcelService.MaxReadCells`
+(10,000,000) is rejected with `InvalidDataException` before anything is allocated. Before 5.0 empty cells were skipped,
+which shifted the values after them to the left.
+
 ## SkiaSharp
 
 ```csharp

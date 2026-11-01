@@ -1,4 +1,6 @@
 #nullable enable
+Kck.Observability.Abstractions.IMetricsService.CreateCounter(string! name, string? description = null) -> Kck.Observability.Abstractions.ICounter!
+*REMOVED*Kck.Observability.Abstractions.IMetricsService.CreateCounter(string! name, string? description = null, string![]? tags = null) -> Kck.Observability.Abstractions.ICounter!
 *REMOVED*Kck.Observability.Abstractions.HealthCheckType
 *REMOVED*Kck.Observability.Abstractions.HealthCheckType.Cache = 1 -> Kck.Observability.Abstractions.HealthCheckType
 *REMOVED*Kck.Observability.Abstractions.HealthCheckType.Custom = 5 -> Kck.Observability.Abstractions.HealthCheckType

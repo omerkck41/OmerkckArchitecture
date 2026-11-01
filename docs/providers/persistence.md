@@ -338,7 +338,8 @@ must not be called.
   In the same `SaveChanges`, a dependant that is not soft-deletable and removed explicitly is kept as well, and a foreign
   key set to NULL explicitly or a many-to-many link removed from a collection is restored — make those changes in a
   separate `SaveChanges`. Out of scope: `ChangeTracker.CascadeDeleteTiming = OnSaveChanges` (the cascade runs after the
-  interceptor, so soft-deletable dependants are not soft-deleted).
+  interceptor, so soft-deletable dependants are not soft-deleted). The user fields (`CreatedBy`, `ModifiedBy`,
+  `DeletedBy`) are set only with an `IAuditUserProvider` (below).
 - `DomainEventDispatchInterceptor` — registered by `AddDomainEventHandlers(...)` or `AddDomainEventDispatch<TDispatcher>()`;
   dispatches aggregates' domain events after `SaveChanges`. Behaviour since 4.2.0:
   - Events saved inside a transaction opened with EF's `BeginTransaction` belong to that transaction; they are dropped on
@@ -360,6 +361,44 @@ must not be called.
 - From 4.7.0 the package's analyzers report a direct commit in a project with domain events
   ([KCK1001](../reference/diagnostics/KCK1001.md)) and a synchronous `SaveChanges`
   ([KCK1002](../reference/diagnostics/KCK1002.md)).
+
+### Audit user (5.0+)
+
+Register an `IAuditUserProvider` (namespace `Kck.Persistence.Abstractions.Auditing`) to record who made a change. On
+every save the `AuditInterceptor` resolves it from the service provider that created the DbContext (the request scope
+with `UseEntityFramework`), so a scoped implementation sees the current request:
+
+| Change | Field set to `CurrentUser` |
+|---|---|
+| Added `IAuditable` | `CreatedBy` |
+| Modified `IAuditable` (not a soft delete) | `ModifiedBy` |
+| Soft-deleted `ISoftDeletable` (`DbContext.Remove`, or a repository delete) | `DeletedBy`, together with `DeletedDate` |
+
+When no provider is registered, or `CurrentUser` is `null` or empty (a background job), these fields are left as they
+are, exactly as before 5.0. A row that is already soft-deleted keeps its `DeletedBy`, like its `DeletedDate`.
+Kck.Persistence does not depend on Kck.Authorization; bridge the `ICurrentUserProvider` you already have in your
+application:
+
+```csharp
+using Kck.Authorization.Abstractions;
+using Kck.Persistence.Abstractions.Auditing;
+
+builder.Services.AddScoped<IAuditUserProvider>(sp =>
+    new CurrentUserAuditProvider(sp.GetRequiredService<ICurrentUserProvider>()));
+
+public sealed class CurrentUserAuditProvider(ICurrentUserProvider currentUser) : IAuditUserProvider
+{
+    public string? CurrentUser => currentUser.UserId;
+}
+```
+
+With `UseEntityFrameworkPool` the pooled options are built from the root service provider, so the provider is resolved
+from the root too: register a singleton implementation there (one that reads the user from `IHttpContextAccessor`, for
+example). A scoped registration would fail with scope validation on, and a scoped or transient one would otherwise
+record the first user for every save, so `UseEntityFrameworkPool` and `AddAuditInterceptor` throw
+`InvalidOperationException` when they find a scoped or transient `IAuditUserProvider` together with pooling (whichever
+of the two calls comes second). The check sees only registrations made before those calls: register the provider
+first. A scoped or transient provider registered after both calls is not detected.
 
 ## UTC dates
 
