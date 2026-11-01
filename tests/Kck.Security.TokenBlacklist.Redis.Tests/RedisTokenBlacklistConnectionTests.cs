@@ -32,10 +32,11 @@ public sealed class RedisTokenBlacklistConnectionTests
     public async Task RevokeAsync_WithSharedConnection_UsesItAndDoesNotDisposeIt()
     {
         var (connection, db) = CreateConnection();
-        var sut = new RedisTokenBlacklistService(Options(), connection);
 
-        await sut.RevokeAsync("jti", TimeSpan.FromMinutes(15));
-        sut.Dispose();
+        using (var sut = new RedisTokenBlacklistService(Options(), connection))
+        {
+            await sut.RevokeAsync("jti", TimeSpan.FromMinutes(15));
+        }
 
         await db.Received(1).StringSetAsync(new RedisKey("bl:jti"), new RedisValue("revoked"), TimeSpan.FromMinutes(15));
         connection.DidNotReceive().Dispose();
@@ -133,8 +134,8 @@ public sealed class RedisTokenBlacklistConnectionTests
 
         foreach (var check in checks)
         {
-            var act = () => check.WaitAsync(TimeSpan.FromSeconds(10));
-            await act.Should().ThrowAsync<InvalidOperationException>().WithMessage("redis down");
+            await FluentActions.Awaiting(() => check.WaitAsync(TimeSpan.FromSeconds(10)))
+                .Should().ThrowAsync<InvalidOperationException>().WithMessage("redis down");
         }
 
         Volatile.Read(ref calls).Should().Be(1, "every concurrent caller awaited the same failed attempt");
@@ -148,7 +149,8 @@ public sealed class RedisTokenBlacklistConnectionTests
     public async Task OwnConnection_AfterDispose_ThrowsObjectDisposedException()
     {
         var (connection, _) = CreateConnection();
-        var sut = new RedisTokenBlacklistService(Options("localhost:6379"), _ => Task.FromResult(connection));
+        // Disposed explicitly in the middle of the test; the using guarantees it on an exception path too.
+        using var sut = new RedisTokenBlacklistService(Options("localhost:6379"), _ => Task.FromResult(connection));
         await sut.IsRevokedAsync("jti");
 
         sut.Dispose();
@@ -170,7 +172,8 @@ public sealed class RedisTokenBlacklistConnectionTests
             return await gate.Task;
         }
 
-        var sut = new RedisTokenBlacklistService(Options("localhost:6379"), Connect);
+        // Disposed explicitly while the connect is in flight; the using guarantees it on an exception path too.
+        using var sut = new RedisTokenBlacklistService(Options("localhost:6379"), Connect);
         var check = Task.Run(() => sut.IsRevokedAsync("jti"));
         await connectStarted.Task.WaitAsync(TimeSpan.FromSeconds(10));
 

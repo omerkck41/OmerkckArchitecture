@@ -62,9 +62,10 @@ public sealed class ElasticsearchIntegrationTests : IClassFixture<ElasticsearchC
         _fixture = fixture;
         _sut = CreateService(useSimpleQueryString: false);
 
-        _clientSettings = new ElasticsearchClientSettings(new Uri(fixture.BaseUrl))
-            .Authentication(new Elastic.Transport.BasicAuthentication("elastic", fixture.ElasticCredential))
-            .ServerCertificateValidationCallback((_, _, _, _) => true);
+        // Assigned before the fluent configuration so the instance is visibly owned (and disposed) by this class.
+        _clientSettings = new ElasticsearchClientSettings(new Uri(fixture.BaseUrl));
+        _clientSettings.Authentication(new Elastic.Transport.BasicAuthentication("elastic", fixture.ElasticCredential));
+        _clientSettings.ServerCertificateValidationCallback((_, _, _, _) => true);
         _directClient = new ElasticsearchClient(_clientSettings);
     }
 

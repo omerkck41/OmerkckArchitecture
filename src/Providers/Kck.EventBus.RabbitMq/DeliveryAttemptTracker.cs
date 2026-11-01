@@ -76,11 +76,10 @@ internal sealed class DeliveryAttemptTracker
             if (_lastPruneTimestamp is { } last && _timeProvider.GetElapsedTime(last) < _pruneInterval)
                 return;
 
-            foreach (var pair in _entries)
-            {
-                if (_timeProvider.GetElapsedTime(pair.Value.LastSeenTimestamp) > _maxAge)
-                    _entries.TryRemove(pair); // removes only if not updated meanwhile
-            }
+            // TryRemove(pair) removes an entry only if it was not updated meanwhile; ConcurrentDictionary tolerates
+            // removal during enumeration.
+            foreach (var stale in _entries.Where(pair => _timeProvider.GetElapsedTime(pair.Value.LastSeenTimestamp) > _maxAge))
+                _entries.TryRemove(stale);
 
             var excess = _entries.Count - _maxTrackedMessages;
             if (excess > 0)

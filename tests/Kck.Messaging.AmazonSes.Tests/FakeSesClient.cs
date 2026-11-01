@@ -23,7 +23,7 @@ public class FakeSesClient : DispatchProxy
     public static (IAmazonSimpleEmailServiceV2 Client, FakeSesClient Fake) Create()
     {
         var client = Create<IAmazonSimpleEmailServiceV2, FakeSesClient>();
-        return (client, (FakeSesClient)(object)client);
+        return (client, (FakeSesClient)client);
     }
 
     /// <inheritdoc />
