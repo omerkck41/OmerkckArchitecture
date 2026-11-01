@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1793562834464,
+  "lastUpdate": 1793565210879,
   "repoUrl": "https://github.com/omerkck41/OmerkckArchitecture",
   "entries": {
     "Benchmark": [
@@ -15502,6 +15502,102 @@ window.BENCHMARK_DATA = {
             "value": 9.770923862854639,
             "unit": "ns",
             "range": "± 0.043580730758918926"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "106805727+omerkck41@users.noreply.github.com",
+            "name": "Ömer KÜÇÜK",
+            "username": "omerkck41"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "34625e10f2d2433cfe046cfab1bf70c1f178a6ad",
+          "message": "feat(packaging)!: drop the ASP.NET Core shared-framework reference from 26 packages (F3, ADR-0032) (#291)\n\n## Summary\n\nStep F3 of the provider health plan\n(`docs/plans/2026-10-31-provider-saglik-ve-atil-kod-plani.md`, K5 / F3,\ndecision D6) per\n**ADR-0032** (`docs/adr/0032-package-dependency-surface.md`) and\n`decisions/2026-11-01-frameworkreference-to-extensions-packages.md`.\n\n26 packable projects used only `Microsoft.Extensions.*` abstractions but\ndeclared `<FrameworkReference Include=\"Microsoft.AspNetCore.App\" />`,\nwhich flowed into their nuspec and forced worker and console consumers\nonto the ASP.NET Core shared framework. They now reference the\npackages they use (10.0.14, pinned in `Directory.Packages.props`). The\nfive packages that use `Microsoft.AspNetCore.*` types keep the\nframework reference: `Kck.AspNetCore`, `Kck.Exceptions.AspNetCore`,\n`Kck.Bundle.WebApi`, `Kck.Bundle.MinimalApi`,\n`Kck.Observability.OpenTelemetry` (so `Kck.Bundle.WorkerService` still\nreaches the framework through the last one — ADR D9, separate work).\n\n**Breaking (5.0):** consumer dependency graphs change; the public API\ndoes not (package validation against 4.8.0 passes with no new\nsuppressions).\n- `Kck.BackgroundJobs.Hangfire` depends on `Hangfire.Core` +\n`Hangfire.NetCore` instead of the `Hangfire` meta package: add\n`Hangfire.SqlServer`\n  yourself if you used it transitively.\n- `Kck.Logging.Serilog` depends on `Serilog.Extensions.Hosting` +\n`Serilog.Sinks.Console` + `Serilog.Sinks.File` instead of\n`Serilog.AspNetCore`:\nadd `Serilog.AspNetCore` (request logging),\n`Serilog.Settings.Configuration` or `Serilog.Sinks.Debug` yourself if\nyou used them.\n- Migration guide: `docs/migrations/v4-to-v5.md` section 10.\n\n## Details\n- `Microsoft.Extensions.Logging.Abstractions` is referenced directly\nwherever `[LoggerMessage]` is used (the source generator does not flow\ntransitively); the Hangfire provider also references\nConfiguration/Hosting/Logging.Abstractions directly so\nHangfire.NetCore's 3.0.0 floor\nresolves to the 10.0.14 line — no `Microsoft.Extensions.*` package below\n10.0 remains in any lock file.\n- Samples: `Kck.AotSmoke` drops its own framework reference (+\n`Microsoft.Extensions.Logging.Console`); `Kck.Sample.WorkerService`\ngains\n`Microsoft.Extensions.Hosting`, builds without the shared framework and\nits `runtimeconfig.json` lists only `Microsoft.NETCore.App`.\n- 44 lock files regenerated solution-wide (`restore --force-evaluate`,\nthen `--locked-mode`).\n- Docs: CHANGELOG `Changed`, migration section 10,\n`docs/providers/background-jobs.md`, `docs/providers/logging.md`,\nHangfire and Serilog\npackage READMEs (the Serilog README no longer promises\nappsettings-driven sinks that the code never wired), ADR index.\n\n## Verification (local)\n\n| Check | Result |\n|---|---|\n| 26 REPLACE packages packed | no `<frameworkReferences>` element;\nexplicit `Microsoft.Extensions.*` dependencies listed |\n| 5 KEEP packages packed | still carry `Microsoft.AspNetCore.App` |\n| Package validation (baseline 4.8.0) | 31/31, no new suppressions |\n| `Microsoft.Extensions.*` resolved below 10.0 in any lock file | 0 |\n| `dotnet restore --locked-mode` / `dotnet build -c Release\n--no-incremental` | pass / 0 errors (5 pre-existing CA1716 warnings) |\n| `dotnet test -c Release --filter \"Category!=Integration\"` | 1449/1449\n|\n| Licence gate | 287 packages, 0 violations (Hangfire.Core/NetCore\ncovered by the existing `Hangfire*` exception) |\n| `readme_snippets.py --check` / `docs_language.py` | 173 blocks up to\ndate / 107 files, 0 problems |\n| Fresh skeptical review | two rounds; 3.0.0 floor, Serilog README claim\nand breaking markers fixed |\n\nNot provable locally: the Native AOT link step (no C++ linker on the dev\nmachine) — the `Native AOT smoke` job on this PR is the proof.\n\nSide finding, pre-existing and not changed here (tracked for F4):\n`samples/Kck.Sample.WorkerService` fails at start-up in\n`HangfireJobScheduler.AddOrUpdateRecurringAsync` (`Job.FromExpression` →\n`ArgumentNullException('method')`); the scheduler file and the\nHangfire.Core version are unchanged by this PR.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-authored-by: Claude Fable 5.1 <noreply@anthropic.com>",
+          "timestamp": "2026-11-01T20:25:30Z",
+          "tree_id": "028caa5e2f536b4b8c98d29a10909763f16d868e",
+          "url": "https://github.com/omerkck41/OmerkckArchitecture/commit/34625e10f2d2433cfe046cfab1bf70c1f178a6ad"
+        },
+        "date": 1793565210007,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Success_Factory",
+            "value": 6.38446783405893,
+            "unit": "ns",
+            "range": "± 0.19191519843104246"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Failure_Factory",
+            "value": 9.281110681948208,
+            "unit": "ns",
+            "range": "± 0.29680577775483596"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Success",
+            "value": 1.641131760676702,
+            "unit": "ns",
+            "range": "± 0.0036779725431347905"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Failure",
+            "value": 0.590567450110729,
+            "unit": "ns",
+            "range": "± 0.009920411035327738"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Serialize_Reflection",
+            "value": 458.9280380249023,
+            "unit": "ns",
+            "range": "± 1.8792501081472759"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Deserialize_Reflection",
+            "value": 775.8026697976248,
+            "unit": "ns",
+            "range": "± 2.81471728586742"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 0)",
+            "value": 9.654842353292874,
+            "unit": "ns",
+            "range": "± 0.051759719732889266"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 5)",
+            "value": 9.82820186217626,
+            "unit": "ns",
+            "range": "± 0.1754073368089061"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 0)",
+            "value": 10.316120526029003,
+            "unit": "ns",
+            "range": "± 0.2883579150261811"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 5)",
+            "value": 10.034548189603921,
+            "unit": "ns",
+            "range": "± 0.40007897146426036"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 0)",
+            "value": 10.060129247881749,
+            "unit": "ns",
+            "range": "± 0.3727186664818698"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 5)",
+            "value": 10.922339056928953,
+            "unit": "ns",
+            "range": "± 0.30549095659323294"
           }
         ]
       }
