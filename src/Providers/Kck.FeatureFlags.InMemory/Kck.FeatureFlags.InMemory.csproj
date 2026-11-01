@@ -8,9 +8,9 @@
     <PackageReadmeFile>README.nuget.md</PackageReadmeFile>
   </PropertyGroup>
   <ItemGroup>
-    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    <ProjectReference Include="../../Abstractions/Kck.FeatureFlags.Abstractions/Kck.FeatureFlags.Abstractions.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="../../Abstractions/Kck.FeatureFlags.Abstractions/Kck.FeatureFlags.Abstractions.csproj" />
+    <PackageReference Include="Microsoft.Extensions.Options" />
   </ItemGroup>
 </Project>

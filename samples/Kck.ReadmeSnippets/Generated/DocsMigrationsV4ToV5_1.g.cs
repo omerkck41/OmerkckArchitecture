@@ -7,7 +7,7 @@ internal static class Snippet
 {
     internal static async Task RunAsync(WebApplicationBuilder builder, IServiceCollection services)
     {
-#line 94 "docs/migrations/v4-to-v5.md"
+#line 100 "docs/migrations/v4-to-v5.md"
 services.AddKckEventBus(b => b.UseRabbitMq(opt =>
 {
     opt.HostName = builder.Configuration["RabbitMq:Host"]!;

@@ -3,7 +3,7 @@
 
 namespace ReadmeSnippets.DocsProvidersLogging_3;
 
-#line 56 "docs/providers/logging.md"
+#line 65 "docs/providers/logging.md"
 public sealed class CheckoutLog(ILogger<CheckoutLog> logger)
 {
     public void OrderPlaced(Guid userId, Guid orderId, decimal amount) =>

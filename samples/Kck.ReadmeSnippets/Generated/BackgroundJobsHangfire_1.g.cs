@@ -9,13 +9,13 @@ internal static class Snippet
 {
     internal static async Task RunAsync(WebApplicationBuilder builder, WebApplication app, string connectionString, CancellationToken ct)
     {
-#line 16 "src/Providers/Kck.BackgroundJobs.Hangfire/README.nuget.md"
+#line 18 "src/Providers/Kck.BackgroundJobs.Hangfire/README.nuget.md"
 
 // Program.cs - in-memory storage by default; plug in a durable one with ConfigureStorage
 builder.Services.AddKckBackgroundJobsHangfire(options =>
 {
     options.WorkerCount = 4;
-    // options.ConfigureStorage = config => config.UseSqlServerStorage(connectionString); // Hangfire.SqlServer (4.7.0+)
+    // options.ConfigureStorage = config => config.UseSqlServerStorage(connectionString); // add the Hangfire.SqlServer package
 });
 builder.Services.AddKckJob<WelcomeEmailJob>();
 
@@ -24,7 +24,7 @@ builder.Services.AddKckJob<WelcomeEmailJob>();
     }
 }
 
-#line 25 "src/Providers/Kck.BackgroundJobs.Hangfire/README.nuget.md"
+#line 27 "src/Providers/Kck.BackgroundJobs.Hangfire/README.nuget.md"
 public sealed class WelcomeEmailJob(ILogger<WelcomeEmailJob> logger) : IBackgroundJob
 {
     public Task ExecuteAsync(CancellationToken ct = default)

@@ -33,6 +33,7 @@ historical records in their original language (Turkish); ADRs from 0029 on are w
 | [0029](0029-dx-first-adoption.md) | Adoption: developer experience first, Persistence as the hero module | Accepted | 2026-10-30 | `Kck.Templates`, `docs/`, `Kck.Persistence.EntityFramework` |
 | [0030](0030-domain-event-handlers.md) | Built-in domain event handlers (`IDomainEventHandler<T>`, `AddDomainEventHandlers`) | Accepted | 2026-10-30 | `Kck.Core.Abstractions`, `Kck.Persistence.EntityFramework` |
 | [0031](0031-persistence-analyzers.md) | Roslyn analyzers shipped with the persistence package (KCK1001, KCK1002) | Accepted | 2026-10-30 | `Kck.Persistence.EntityFramework` |
+| [0032](0032-package-dependency-surface.md) | Package dependency surface: no `Microsoft.AspNetCore.App` framework reference unless the code needs it | Accepted | 2026-11-01 | 26 providers and bundles, `Kck.BackgroundJobs.Hangfire`, `Kck.Logging.Serilog` |
 
 ## By category
 
@@ -59,6 +60,7 @@ historical records in their original language (Turkish); ADRs from 0029 on are w
 ### Build / target framework
 - [0011](0011-multi-target-net8-net10.md) — net8.0 LTS + net10.0 STS (superseded)
 - [0019](0019-drop-net8-target.md) — net8.0 dropped, net10.0 the only target
+- [0032](0032-package-dependency-surface.md) — package dependency surface (no shared-framework reference unless needed)
 
 ### Test / quality
 - [0014](0014-test-strategy.md) — BenchmarkDotNet + Testcontainers + coverage policy

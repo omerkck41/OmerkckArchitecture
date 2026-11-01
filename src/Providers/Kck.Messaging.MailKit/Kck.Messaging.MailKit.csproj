@@ -9,13 +9,11 @@
     <InternalsVisibleTo Include="Kck.Messaging.MailKit.Tests" />
   </ItemGroup>
   <ItemGroup>
-    <FrameworkReference Include="Microsoft.AspNetCore.App" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="../../Abstractions/Kck.Messaging.Abstractions/Kck.Messaging.Abstractions.csproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="MailKit" />
+    <PackageReference Include="Microsoft.Extensions.Options" />
     <!-- Security floor for MimeKit's transitive dependency; flows to consumers via the package nuspec. -->
     <PackageReference Include="System.Security.Cryptography.Pkcs" />
   </ItemGroup>

@@ -2,18 +2,20 @@
 
   <PropertyGroup>
     <Title>Kck Logging (Serilog)</Title>
-    <Description>Serilog structured logging integration for Kck applications. Configures compact JSON console output, PII masking enricher, and ASP.NET Core request logging. Registered via AddKckSerilog() / UseSerilog().</Description>
+    <Description>Serilog structured logging integration for Kck applications. Configures compact JSON console output, PII masking enricher, and optional rolling file output. Registered via AddKckSerilog() / UseSerilog().</Description>
     <PackageTags>dotnet;kck;logging;serilog;structured-logging;pii-masking</PackageTags>
     <PackageReadmeFile>README.nuget.md</PackageReadmeFile>
   </PropertyGroup>
 
   <ItemGroup>
-    <FrameworkReference Include="Microsoft.AspNetCore.App" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="Serilog.AspNetCore" />
+    <!-- Serilog.Extensions.Hosting + sinks, not Serilog.AspNetCore: that package carries the ASP.NET Core shared
+         framework reference (ADR-0032 D5). -->
+    <!-- The public API takes IServiceCollection; the direct reference also lifts Serilog's 10.0.0 floor to 10.0.14. -->
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
+    <PackageReference Include="Serilog.Extensions.Hosting" />
     <PackageReference Include="Serilog.Formatting.Compact" />
+    <PackageReference Include="Serilog.Sinks.Console" />
+    <PackageReference Include="Serilog.Sinks.File" />
   </ItemGroup>
 
 </Project>

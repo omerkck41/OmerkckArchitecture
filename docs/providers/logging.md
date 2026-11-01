@@ -9,6 +9,15 @@ and rolling files.
 |---|---|
 | `Kck.Logging.Serilog` | `AddKckSerilog()` + `KckSerilogBuilder` |
 
+Since 5.0 the package depends on `Serilog.Extensions.Hosting`, `Serilog.Formatting.Compact`, `Serilog.Sinks.Console`
+and `Serilog.Sinks.File` instead of `Serilog.AspNetCore`, so it needs no ASP.NET Core shared framework and works in
+worker and console hosts (ADR-0032). A web application that wants HTTP request logging adds `Serilog.AspNetCore` and
+calls `app.UseSerilogRequestLogging()`; `WriteTo.Debug()` needs `Serilog.Sinks.Debug`.
+
+`AddKckSerilog` configures Serilog in code and does not read `appsettings.json`. For configuration-driven sinks and
+levels, add `Serilog.Settings.Configuration` and call it through the builder's `Configure` hook:
+`log.Configure(c => c.ReadFrom.Configuration(builder.Configuration))`.
+
 ## Setup
 
 ```csharp

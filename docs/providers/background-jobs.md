@@ -8,7 +8,7 @@ interface is implemented with the following technologies.
 | Package | Purpose |
 |---|---|
 | `Kck.BackgroundJobs.Abstractions` | `IJobScheduler`, `IBackgroundJob`, `CronExpressions` |
-| `Kck.BackgroundJobs.Hangfire` | Hangfire with in-memory storage |
+| `Kck.BackgroundJobs.Hangfire` | Hangfire (`Hangfire.Core` + `Hangfire.NetCore`) with in-memory storage |
 | `Kck.BackgroundJobs.Quartz` | Quartz.NET (in-process scheduler) |
 
 ## Hangfire
@@ -22,7 +22,9 @@ services.AddKckBackgroundJobsHangfire(options =>
 
 `AddKckBackgroundJobsHangfire` adds the Hangfire server and `IJobScheduler`. Without further configuration the storage
 is in memory: jobs do not survive a restart and are not shared between instances. For durable jobs, add a Hangfire
-storage package and plug it in with `ConfigureStorage` (4.7.0):
+storage package and plug it in with `ConfigureStorage` (4.7.0). Since 5.0 the provider depends on `Hangfire.Core` and
+`Hangfire.NetCore` instead of the `Hangfire` meta package, so `Hangfire.SqlServer` no longer comes with it: reference
+it (or another storage package) in the application:
 
 ```csharp
 using Hangfire;
@@ -35,8 +37,9 @@ When `ConfigureStorage` is set, `StorageType` is ignored; otherwise only `InMemo
 `ConnectionString` (obsolete since 4.7.0, KCK0700: it was never read). ADR-0002 removed `Hangfire.MySqlStorage`
 (abandoned package).
 
-The Hangfire dashboard is in the `Hangfire.AspNetCore` package, which this package does not reference; add it and call
-`app.UseHangfireDashboard("/jobs")` with an authorization filter.
+The Hangfire dashboard is in the `Hangfire.AspNetCore` package, which this package does not reference (since 5.0 not
+even transitively); add it and call `app.UseHangfireDashboard("/jobs")` with an authorization filter. The provider
+itself needs no ASP.NET Core shared framework, so it runs in a plain worker (ADR-0032).
 
 ## Quartz
 

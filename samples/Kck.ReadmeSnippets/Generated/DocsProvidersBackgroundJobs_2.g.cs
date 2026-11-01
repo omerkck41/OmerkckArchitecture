@@ -8,7 +8,7 @@ internal static class Snippet
 {
     internal static async Task RunAsync(IServiceCollection services, string connectionString)
     {
-#line 29 "docs/providers/background-jobs.md"
+#line 31 "docs/providers/background-jobs.md"
 
 services.AddKckBackgroundJobsHangfire(options =>
     options.ConfigureStorage = config => config.UseInMemoryStorage()); // e.g. config.UseSqlServerStorage(connectionString)

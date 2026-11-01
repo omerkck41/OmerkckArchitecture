@@ -16,7 +16,9 @@
     <RuntimeIdentifier Condition="!$([MSBuild]::IsOSPlatform('Windows'))">linux-x64</RuntimeIdentifier>
   </PropertyGroup>
   <ItemGroup>
-    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    <!-- No ASP.NET Core shared framework (ADR-0032 D7): the providers bring their Microsoft.Extensions.* packages; the
+         app adds only the console logger it uses. -->
+    <PackageReference Include="Microsoft.Extensions.Logging.Console" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="../../src/Providers/Kck.Pipeline.Mediator/Kck.Pipeline.Mediator.csproj" />

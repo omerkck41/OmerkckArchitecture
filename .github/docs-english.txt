@@ -106,4 +106,5 @@ docs/reference/diagnostics/README.md
 docs/reference/diagnostics/KCK1001.md
 docs/reference/diagnostics/KCK1002.md
 docs/adr/0031-persistence-analyzers.md
+docs/adr/0032-package-dependency-surface.md
 SECURITY.md
