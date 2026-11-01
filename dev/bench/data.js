@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1793483211494,
+  "lastUpdate": 1793548338256,
   "repoUrl": "https://github.com/omerkck41/OmerkckArchitecture",
   "entries": {
     "Benchmark": [
@@ -15022,6 +15022,102 @@ window.BENCHMARK_DATA = {
             "value": 10.791563820838928,
             "unit": "ns",
             "range": "± 0.26131255158264505"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "106805727+omerkck41@users.noreply.github.com",
+            "name": "Ömer KÜÇÜK",
+            "username": "omerkck41"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "e36564a57a9a8376583fc0011d46b057f737f795",
+          "message": "fix: F1 provider reliability (RabbitMQ, Redis, MailKit, SES, FTP, Blob, Elasticsearch, App Configuration) (#286)\n\n## F1 — provider reliability (plan\n`docs/plans/2026-10-31-provider-saglik-ve-atil-kod-plani.md` §4,\nacceptance examples Ö5–Ö9)\n\nSecond phase of the 5.0 work. No release: everything accumulates under\n`[Unreleased]` until the single 5.0.0 tag.\n\n### What changes\n\n| Provider | Defect (4.x) | Now |\n|---|---|---|\n| `Kck.EventBus.RabbitMq` | a failing message was redelivered forever\n(`x-death` never set on a requeued nack; probe: 12,281 deliveries in 8\ns); queue had no DLX; broker-closed publish channel never reopened;\nhealth check opened a connection per probe; no prefetch | deliveries\ncounted per `MessageId`, rejected to a per-service dead-letter queue\nafter `MaxDeliveryCount`; 406 on a 4.x queue fails fast with remedies;\npublish channel reopened; no second connection during recovery; health =\nconnection + consumer channel; `PrefetchCount` (10); handler\n`OperationCanceledException` counts as a failure |\n| `Kck.Security.TokenBlacklist.Redis` | `Lazy<T>` cached the first\nfailed connect for the process lifetime; synchronous connect; one more\nRedis connection | async connect on first use, failures retried; shares\na registered `IConnectionMultiplexer` when `ConnectionString` is empty |\n| `Kck.Caching.Hybrid` | synchronous `Connect` /\n`GetAwaiter().GetResult()` inside DI | hosted-service connection (same\npattern as `Kck.Caching.Redis`); missing Redis config fails at\nregistration |\n| `Kck.Messaging.MailKit` | defaults (587 + `UseSsl`) attempted implicit\nTLS on the STARTTLS port | TLS mode derived from the port (465 implicit,\notherwise mandatory STARTTLS; `UseSsl = false` opportunistic);\n`SecureSocketOptions` option |\n| `Kck.Messaging.AmazonSes` | attachments, `FromName` and recipient\nnames silently dropped | SESv2 `Simple.Attachments`, friendly addresses\n(RFC 2047 for non-ASCII names); `IAmazonSimpleEmailServiceV2` ctor /\nregistered client |\n| `Kck.FileStorage.FluentFtp` | `FtpStatus.Failed` returned normally\n(warning only); `Overwrite = false` + existing file skipped silently;\ntransient DI | both throw `IOException`; singletons |\n| `Kck.FileStorage.AzureBlob` | constructor called `CreateIfNotExists`\nsynchronously (network call in DI) | container created asynchronously on\nfirst use, retried on failure |\n| `Kck.Search.Elasticsearch` | rejected writes logged a warning or were\nignored | writes throw `InvalidOperationException` with the server\nresponse; deletes of missing items idempotent; `UseSimpleQueryString`\nfor end-user input |\n| `Kck.FeatureFlags.AzureAppConfig` | a failed refresh propagated to\nevery caller for the outage | last loaded flags kept, warning logged,\nretry at next interval; `ConfigurationClient` ctor / registered client |\n\nBreaking changes are listed in `docs/migrations/v4-to-v5.md` (RabbitMQ\nqueue arguments, prefetch, MailKit TLS mode, FTP upload exceptions).\n\n### Evidence\n\n- Every behavioural change was written test-first (RED output saved per\nround in `tasks/probes/2026-11-01-f1-*/`, local).\n- RabbitMQ acceptance demo (same scenario as probe P5): 5 deliveries\ninstead of 12,281, main queue empty, 1 message in the dead-letter queue,\nconsumer alive, health Unhealthy→Healthy.\n- Reviews: fresh code review + adversarial review per round; 5 HIGH\nfindings on the RabbitMQ round closed with attack tests; one MEDIUM\nbackground security finding (MailKit opportunistic TLS with `UseSsl =\ntrue`) fixed.\n- Local run before the push (Release): `dotnet restore --locked-mode`\nclean; build 0 warnings / 0 errors; unit tests 41 projects, 1385 passed,\n0 failed (1314 before this branch); Docker suites RabbitMQ 15/15,\nTokenBlacklist.Redis 4/4, Caching.Hybrid 3/3, Caching.Redis 6/6,\nElasticsearch 17/17; README/docs snippet check 169 up to date.\n- Two commits: `9334689` RabbitMQ (reviewed and accepted first), then\nthis wave.\n\n### Not in this PR (tracked)\n\nRetry back-off / TTL retry queue for RabbitMQ, consumer-channel\nresubscription, publisher confirms, Testcontainers image pinning (3.x\nEOL), F4 behaviour tests against Azurite / FTP / fake SMTP, handler\nisolation in `EventProcessor`.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\n---------\n\nCo-authored-by: Claude Fable 5.1 <noreply@anthropic.com>",
+          "timestamp": "2026-11-01T18:46:10+03:00",
+          "tree_id": "d8dd9aeb809893a4893a636f73456a438ec51916",
+          "url": "https://github.com/omerkck41/OmerkckArchitecture/commit/e36564a57a9a8376583fc0011d46b057f737f795"
+        },
+        "date": 1793548336944,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Success_Factory",
+            "value": 4.917377590068749,
+            "unit": "ns",
+            "range": "± 0.1034576344774804"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Failure_Factory",
+            "value": 6.824091808994611,
+            "unit": "ns",
+            "range": "± 0.1705899351811688"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Success",
+            "value": 0.9244511941713947,
+            "unit": "ns",
+            "range": "± 0.12911608567515462"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Failure",
+            "value": 0.5131796767505316,
+            "unit": "ns",
+            "range": "± 0.0014199948074444747"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Serialize_Reflection",
+            "value": 314.4975547109331,
+            "unit": "ns",
+            "range": "± 1.4936290130214382"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Deserialize_Reflection",
+            "value": 558.1732414881388,
+            "unit": "ns",
+            "range": "± 3.4877345269107454"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 0)",
+            "value": 8.150897893309594,
+            "unit": "ns",
+            "range": "± 0.16509261135817488"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 5)",
+            "value": 7.979056151707967,
+            "unit": "ns",
+            "range": "± 0.07678116526642097"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 0)",
+            "value": 8.09347546150287,
+            "unit": "ns",
+            "range": "± 0.08557142999408238"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 5)",
+            "value": 8.214064134657383,
+            "unit": "ns",
+            "range": "± 0.11804001856441611"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 0)",
+            "value": 8.81238247773477,
+            "unit": "ns",
+            "range": "± 0.10736773109708582"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 5)",
+            "value": 8.085558830545498,
+            "unit": "ns",
+            "range": "± 0.03916219033231118"
           }
         ]
       }
