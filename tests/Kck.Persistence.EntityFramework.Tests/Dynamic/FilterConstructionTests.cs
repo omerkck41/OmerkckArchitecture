@@ -26,29 +26,4 @@ public sealed class FilterConstructionTests
         sort.Dir.Should().Be("desc");
         sort.Priority.Should().Be(1);
     }
-
-    [Theory]
-    [InlineData("isnull")]
-    [InlineData("IsNull")]
-    [InlineData("ISNOTNULL")]
-    public void Validate_NullOperatorInAnyCase_AcceptsANullValue(string @operator)
-    {
-        FilterValidator.Validate(new Filter("Name", @operator, null)).Should().BeTrue();
-    }
-
-    [Theory]
-    [InlineData("IsNull")]
-    [InlineData("isNotNull")]
-    public void Validate_NullOperatorInAnyCase_RejectsAValue(string @operator)
-    {
-        FilterValidator.Validate(new Filter("Name", @operator, "x")).Should().BeFalse();
-    }
-
-    [Theory]
-    [InlineData("eq", "x", true)]
-    [InlineData("EQ", null, false)]
-    public void Validate_ValueOperator_RequiresAValue(string @operator, string? value, bool expected)
-    {
-        FilterValidator.Validate(new Filter("Name", @operator, value)).Should().Be(expected);
-    }
 }

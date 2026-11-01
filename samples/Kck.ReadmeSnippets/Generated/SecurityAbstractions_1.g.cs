@@ -38,6 +38,6 @@ public class AuthService(IHashingService hasher, ITokenService tokens)
         tokens.CreateAccessTokenAsync(new TokenRequest { UserId = userId, Email = email }, ct);
 }
 
-// IEncryptionService, ISecretsManager and ITokenBlacklistService are implemented by
-// Kck.Security.Secrets.* and Kck.Security.TokenBlacklist.Redis; IEncryptionService has no built-in implementation.
+// ISecretsManager and ITokenBlacklistService are implemented by
+// Kck.Security.Secrets.* and Kck.Security.TokenBlacklist.Redis.
 #line default

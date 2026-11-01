@@ -59,7 +59,7 @@ public class UpstreamService(IApiClient client)
 
 The sampling window is 2 x `Timeout`, at least 30 s (the standard handler requires at least twice the attempt timeout).
 Invalid values (for example a failure ratio above 1) fail the standard handler's options validation at startup.
-`CircuitBreakerFailureThreshold` is obsolete (KCK0900): it was never applied. Before 4.7.0, `CircuitBreakerDuration`
+5.0 removed `CircuitBreakerFailureThreshold` (obsolete since 4.7.0, KCK0900: it was never applied). Before 4.7.0, `CircuitBreakerDuration`
 set the sampling window (2 x the value) and the break duration was the handler's default (5 s).
 
 ## ApiResponse\<T>

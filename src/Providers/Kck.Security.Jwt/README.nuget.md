@@ -46,7 +46,7 @@ public class AuthService(ITokenService tokens)
 | `Issuer` | JWT `iss` claim value | required |
 | `Audience` | JWT `aud` claim value | required |
 | `AccessTokenExpiration` | Token lifetime | `TimeSpan.FromMinutes(15)` |
-| `KeySource` | `Configuration` or `File` (`SecretsManager` is obsolete, KCK0300: it is rejected at startup) | `Configuration` |
+| `KeySource` | `Configuration` or `File` | `Configuration` |
 | `RsaKeyBase64` | Base64 of the RSA private key in PKCS#1 DER form (not PEM text) | required if `Configuration` |
 | `RsaKeyPath` | Path to RSA private key PEM file | required if `File` |
 

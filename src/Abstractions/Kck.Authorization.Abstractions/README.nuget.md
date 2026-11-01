@@ -1,6 +1,6 @@
 # Kck.Authorization.Abstractions
 
-Permission-based authorization abstractions for the Kck framework — define IAuthorizationService, IPermissionChecker, and ICurrentUserProvider contracts without coupling to any auth provider.
+Authorization abstractions for the Kck framework — define the ICurrentUserProvider contract without coupling to any auth provider.
 
 ## Installation
 
@@ -11,39 +11,36 @@ dotnet add package Kck.Authorization.Abstractions
 ## Quick Start
 
 ```csharp
+using System.Security.Claims;
 using Kck.Authorization.Abstractions;
 using Kck.Exceptions;
 
-// Kck consumes these contracts (the Mediator AuthorizationBehavior reads ICurrentUserProvider) but does not
-// implement them: register your own, typically over IHttpContextAccessor and your permission store.
-builder.Services.AddScoped<IPermissionChecker, MyPermissionChecker>();
+// Kck consumes ICurrentUserProvider (the Mediator AuthorizationBehavior reads it) but does not implement it:
+// register your own, typically over IHttpContextAccessor.
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<ICurrentUserProvider, HttpCurrentUserProvider>();
 
-public class MyPermissionChecker(ICurrentUserProvider currentUser) : IPermissionChecker
+public sealed class HttpCurrentUserProvider(IHttpContextAccessor accessor) : ICurrentUserProvider
 {
-    public Task<bool> HasPermissionAsync(string permission, CancellationToken ct = default) =>
-        Task.FromResult(currentUser.IsInRole("admin") || currentUser.Claims.ContainsKey($"perm:{permission}"));
+    private ClaimsPrincipal? User => accessor.HttpContext?.User;
 
-    public async Task<bool> HasAllPermissionsAsync(IEnumerable<string> permissions, CancellationToken ct = default)
-    {
-        foreach (var permission in permissions)
-            if (!await HasPermissionAsync(permission, ct)) return false;
-        return true;
-    }
-
-    public async Task<bool> HasAnyPermissionAsync(IEnumerable<string> permissions, CancellationToken ct = default)
-    {
-        foreach (var permission in permissions)
-            if (await HasPermissionAsync(permission, ct)) return true;
-        return false;
-    }
+    public string? UserId => User?.FindFirstValue(ClaimTypes.NameIdentifier);
+    public string? Email => User?.FindFirstValue(ClaimTypes.Email);
+    public string? Name => User?.Identity?.Name;
+    public bool IsAuthenticated => User?.Identity?.IsAuthenticated ?? false;
+    public IReadOnlyList<string> Roles =>
+        User?.FindAll(ClaimTypes.Role).Select(c => c.Value).ToList() ?? [];
+    public IReadOnlyDictionary<string, string> Claims =>
+        User?.Claims.DistinctBy(c => c.Type).ToDictionary(c => c.Type, c => c.Value) ?? [];
+    public bool IsInRole(string role) => User?.IsInRole(role) ?? false;
 }
 
-// Use in a handler
-public class ReadOrdersHandler(IPermissionChecker permissions)
+// Use in a handler: check the current user's roles or permission claims
+public class ReadOrdersHandler(ICurrentUserProvider currentUser)
 {
-    public async Task HandleAsync(CancellationToken ct)
+    public void EnsureCanRead()
     {
-        if (!await permissions.HasPermissionAsync("orders.read", ct))
+        if (!currentUser.IsInRole("admin") && !currentUser.Claims.ContainsKey("perm:orders.read"))
             throw new ForbiddenException("Insufficient permissions.");
     }
 }

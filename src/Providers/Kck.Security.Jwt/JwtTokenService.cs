@@ -166,7 +166,7 @@ public sealed partial class JwtTokenService : ITokenService, IDisposable
                     rsa.ImportFromPem(pem);
                     break;
 
-                default: // includes the obsolete RsaKeySource.SecretsManager, which options validation rejects
+                default:
                     throw new InvalidOperationException(
                         $"Unsupported RsaKeySource: {_options.KeySource}. Use Configuration (RsaKeyBase64) or File (RsaKeyPath).");
             }

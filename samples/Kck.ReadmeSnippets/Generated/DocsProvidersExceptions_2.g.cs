@@ -8,7 +8,7 @@ internal static class Snippet
 {
     internal static async Task RunAsync(WebApplicationBuilder builder, WebApplication app)
     {
-#line 48 "docs/providers/exceptions.md"
+#line 47 "docs/providers/exceptions.md"
 
 builder.Services.AddKckExceptionHandling();
 // ...

@@ -1,1 +1,4 @@
 #nullable enable
+*REMOVED*Kck.BackgroundJobs.Abstractions.IRecurringJob
+*REMOVED*Kck.BackgroundJobs.Abstractions.IRecurringJob.CronExpression.get -> string!
+*REMOVED*Kck.BackgroundJobs.Abstractions.IRecurringJob.JobId.get -> string!

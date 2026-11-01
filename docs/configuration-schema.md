@@ -59,9 +59,6 @@ The bundles read a `"Kck"` section. For IDE autocomplete, add the schema to your
 The JWT token service still needs its RSA signing key, which the bundles do not read from configuration. Configure it
 in code with `services.Configure<JwtOptions>(...)` or call `AddKckJwt(...)` yourself (see [Security](providers/security.md#jwt)).
 
-The bundles' default classes also declare `Persistence`, `Caching`, `Observability` and `Security:Jwt:Algorithm` /
-`Security:Hashing`, but never read them; since 4.7.0 they are obsolete (KCK0002). Configure those providers in code.
-If your project binds a defaults class itself (`GetSection("Kck").Get<KckWebApiDefaults>()`) with
-`EnableConfigurationBindingGenerator`, the generated binding code sets these properties and reports KCK0002 (the
-generator suppresses only the standard obsolete warnings). Bind the keys you read to your own options class, or add
-`KCK0002` to `NoWarn` in that project until v5.0 removes the properties.
+The bundles never read `Kck:Persistence`, `Kck:Caching`, `Kck:Observability`, `Kck:Security:Jwt:Algorithm` or
+`Kck:Security:Hashing`. 5.0 removed the matching properties of the defaults classes (obsolete since 4.7.0, KCK0002);
+leftover keys are ignored. Configure those providers in code.

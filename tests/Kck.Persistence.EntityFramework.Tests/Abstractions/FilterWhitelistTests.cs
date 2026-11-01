@@ -7,7 +7,7 @@ using Xunit;
 
 namespace Kck.Persistence.EntityFramework.Tests.Abstractions;
 
-public sealed class FilterValidatorAndWhitelistTests
+public sealed class FilterWhitelistTests
 {
     private sealed class Product
     {
@@ -33,50 +33,6 @@ public sealed class FilterValidatorAndWhitelistTests
     {
         public BadWhitelist() => Allow(_ => 1);
     }
-
-    // --- FilterValidator ---
-
-    [Theory]
-    [InlineData("eq")]
-    [InlineData("NEQ")]
-    [InlineData("lt")]
-    [InlineData("Lte")]
-    [InlineData("gt")]
-    [InlineData("gte")]
-    [InlineData("contains")]
-    [InlineData("StartsWith")]
-    [InlineData("endswith")]
-    public void Validate_SupportedOperatorWithValue_ReturnsTrue(string op) =>
-        FilterValidator.Validate(FilterFactory.F("F", op, "v")).Should().BeTrue();
-
-    [Theory]
-    [InlineData("isnull")]
-    [InlineData("isnotnull")]
-    public void Validate_NullOperatorWithoutValue_ReturnsTrue(string op) =>
-        FilterValidator.Validate(FilterFactory.F("F", op, null)).Should().BeTrue();
-
-    [Theory]
-    [InlineData("isnull")]
-    [InlineData("isnotnull")]
-    public void Validate_NullOperatorWithValue_ReturnsFalse(string op) =>
-        FilterValidator.Validate(FilterFactory.F("F", op, "x")).Should().BeFalse();
-
-    [Fact]
-    public void Validate_ValueOperatorWithoutValue_ReturnsFalse() =>
-        FilterValidator.Validate(FilterFactory.F("F", "eq", null)).Should().BeFalse();
-
-    [Theory]
-    [InlineData("")]
-    [InlineData("  ")]
-    public void Validate_BlankField_ReturnsFalse(string field) =>
-        FilterValidator.Validate(FilterFactory.F(field, "eq", 1)).Should().BeFalse();
-
-    [Theory]
-    [InlineData("")]
-    [InlineData(" ")]
-    [InlineData("like")]
-    public void Validate_BlankOrUnsupportedOperator_ReturnsFalse(string op) =>
-        FilterValidator.Validate(FilterFactory.F("F", op, 1)).Should().BeFalse();
 
     // --- FilterPropertyWhitelist ---
 

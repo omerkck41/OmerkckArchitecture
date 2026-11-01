@@ -1,4 +1,3 @@
-using System.Reflection;
 using AwesomeAssertions;
 using Kck.BackgroundJobs.Abstractions;
 using Kck.BackgroundJobs.Quartz;
@@ -26,14 +25,13 @@ public sealed class WorkerServiceDefaultsTests
     }
 
     [Fact]
-    public void ObservabilitySection_IsNotRead_AndMarkedObsolete()
+    public void ObservabilitySection_IsIgnored_AndThePropertyIsRemoved()
     {
-        // The bundle never applied Kck:Observability; the property warns (KCK0002) instead of looking configurable.
+        // The bundle never applied Kck:Observability; the KCK0002 property was removed in 5.0. A leftover section is ignored.
         using var provider = Register(("Kck:Observability:Tracing", "false"), ("Kck:Observability:OtlpEndpoint", "http://x:4317"))
             .BuildServiceProvider();
 
-        typeof(KckWorkerServiceDefaults).GetProperty("Observability")!
-            .GetCustomAttribute<ObsoleteAttribute>()!.DiagnosticId.Should().Be("KCK0002");
+        typeof(KckWorkerServiceDefaults).GetProperty("Observability").Should().BeNull();
         provider.GetService<IJobScheduler>().Should().NotBeNull();
     }
 

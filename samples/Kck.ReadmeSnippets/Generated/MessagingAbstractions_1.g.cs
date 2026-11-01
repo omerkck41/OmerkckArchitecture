@@ -41,6 +41,4 @@ public class OrderConfirmationHandler(IEmailProvider email)
             ]
         }, ct);
 }
-
-// IEmailService is obsolete (KCK0600) and has no implementation; use IEmailProvider.
 #line default

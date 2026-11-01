@@ -12,9 +12,6 @@ public interface ICachableRequest
     /// <summary>When <see langword="true"/>, bypasses the cache and refreshes the stored value.</summary>
     bool BypassCache { get; }
 
-    /// <summary>Optional group key for bulk cache invalidation.</summary>
-    string? CacheGroupKey { get; }
-
     /// <summary>Optional sliding expiration for the cached entry. Uses provider default when <see langword="null"/>.</summary>
     TimeSpan? SlidingExpiration { get; }
 }

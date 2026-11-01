@@ -7,7 +7,7 @@ interface is implemented with the following technologies.
 
 | Package | Purpose |
 |---|---|
-| `Kck.BackgroundJobs.Abstractions` | `IJobScheduler`, `IBackgroundJob`, `IRecurringJob`, `CronExpressions` |
+| `Kck.BackgroundJobs.Abstractions` | `IJobScheduler`, `IBackgroundJob`, `CronExpressions` |
 | `Kck.BackgroundJobs.Hangfire` | Hangfire with in-memory storage |
 | `Kck.BackgroundJobs.Quartz` | Quartz.NET (in-process scheduler) |
 
@@ -31,8 +31,9 @@ services.AddKckBackgroundJobsHangfire(options =>
     options.ConfigureStorage = config => config.UseInMemoryStorage()); // e.g. config.UseSqlServerStorage(connectionString)
 ```
 
-When `ConfigureStorage` is set, `StorageType` is ignored; otherwise only `InMemory` is accepted. `ConnectionString` is
-obsolete (KCK0700): it was never read. ADR-0002 removed `Hangfire.MySqlStorage` (abandoned package).
+When `ConfigureStorage` is set, `StorageType` is ignored; otherwise only `InMemory` is accepted. 5.0 removed
+`ConnectionString` (obsolete since 4.7.0, KCK0700: it was never read). ADR-0002 removed `Hangfire.MySqlStorage`
+(abandoned package).
 
 The Hangfire dashboard is in the `Hangfire.AspNetCore` package, which this package does not reference; add it and call
 `app.UseHangfireDashboard("/jobs")` with an authorization filter.
@@ -85,6 +86,9 @@ public class CheckoutHandler(IJobScheduler scheduler)
     }
 }
 ```
+
+A recurring job is an ordinary `IBackgroundJob`: the job id and the cron expression are arguments of
+`AddOrUpdateRecurringAsync`. (5.0 removed `IRecurringJob`, which declared them as properties but was never read.)
 
 ## Cron Constants
 

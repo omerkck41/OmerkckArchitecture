@@ -1,2 +1,10 @@
 #nullable enable
 static Kck.FileStorage.Abstractions.PathHelper.Validate(string! path) -> void
+*REMOVED*Kck.FileStorage.Abstractions.IFileConverter
+*REMOVED*Kck.FileStorage.Abstractions.IFileConverter.FromBase64Async(string! base64, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<System.IO.Stream!>!
+*REMOVED*Kck.FileStorage.Abstractions.IFileConverter.ToBase64Async(System.IO.Stream! input, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<string!>!
+*REMOVED*Kck.FileStorage.Abstractions.IFileConverter.ToBytesAsync(System.IO.Stream! input, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<byte[]!>!
+*REMOVED*Kck.FileStorage.Abstractions.IFileMetadataReader
+*REMOVED*Kck.FileStorage.Abstractions.IFileMetadataReader.GetMetadata(string! filePath) -> Kck.FileStorage.Abstractions.FileMetadata!
+*REMOVED*static Kck.FileStorage.Abstractions.PathHelper.IsValidPath(string! path) -> bool
+*REMOVED*static Kck.FileStorage.Abstractions.PathHelper.Sanitize(string! path) -> string!

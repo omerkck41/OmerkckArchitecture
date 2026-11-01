@@ -21,7 +21,6 @@ They are split so that the abstraction does not leak into the provider layer
 | `UnauthorizedException` | 401 | Not authenticated |
 | `SecurityTokenException` | 401 | Invalid auth token |
 | `ForbiddenException` | 403 | Not authorized |
-| `FilterSecurityException` | 403 | Query filter violation |
 | `NotFoundException` | 404 | Record not found |
 | `RequestTimeoutException` | 408 | Timeout |
 | `ConflictException` | 409 | Duplicate / conflict |

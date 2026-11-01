@@ -1,1 +1,4 @@
 #nullable enable
+*REMOVED*Kck.Security.Abstractions.Encryption.IEncryptionService
+*REMOVED*Kck.Security.Abstractions.Encryption.IEncryptionService.DecryptAsync(string! cipherText, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<string!>!
+*REMOVED*Kck.Security.Abstractions.Encryption.IEncryptionService.EncryptAsync(string! plainText, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<string!>!

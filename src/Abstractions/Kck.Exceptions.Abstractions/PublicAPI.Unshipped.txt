@@ -1,1 +1,4 @@
 #nullable enable
+*REMOVED*Kck.Exceptions.FilterSecurityException
+*REMOVED*Kck.Exceptions.FilterSecurityException.FilterSecurityException(string! propertyName) -> void
+*REMOVED*Kck.Exceptions.FilterSecurityException.FilterSecurityException(string! propertyName, string! operatorName) -> void

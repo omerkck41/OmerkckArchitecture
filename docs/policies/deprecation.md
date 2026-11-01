@@ -57,14 +57,30 @@ v1.0.0 — API can be removed (major bump)
 | KCK0001      | `ITokenService.GetClaimsFromToken(string)` + `JwtTokenService.GetClaimsFromToken(string)` — does not verify the signature | 0.x | **removed: v4.0** |
 | KCK0100      | `IReadRepository<T>`: `GetAsync`, `GetListAsync`, `GetListByDynamicAsync`, `AnyAsync`, `GetByIdAsync`, `CountAsync` (old signatures with bool flags) | 2.x | **removed: v4.0** (the `QueryOptions` methods became members of `IReadRepository`) |
 | KCK0200      | `Kck.Pipeline.MediatR` package (`KckPipelineBuilder`, `AddKckPipeline`) — ADR-0021; MediatR 13+ commercial license | 2.x (2026-05-07) | **removed: v4.0** (the package is no longer published; 3.x is deprecated on nuget.org) |
-| KCK0101      | `IQuery<T>.Query(filter, orderBy, bool withDeleted, bool enableTracking)` + `EfRepository.Query(...)` same signature — replaced by `Query(QueryOptions options, filter, orderBy)` | 4.3.0 (2026-10-29) | v5.0 (earliest; 4.4.x first) |
-| KCK0002      | Bundle settings that were never read: `KckWebApiDefaults.Persistence`, `.Caching`, `.Observability`, `SecurityDefaults.Hashing`, `JwtDefaults.Algorithm` (WebApi, MinimalApi), `KckWorkerServiceDefaults.Observability` — configure those providers in code | 4.7.0 | v5.0 (earliest) |
-| KCK0300      | `RsaKeySource.SecretsManager` (`Kck.Security.Jwt`) — never implemented; options validation rejects it. Set `RsaKeyBase64` | 4.7.0 | v5.0 (earliest) |
-| KCK0700      | `HangfireOptions.ConnectionString` — never read; use `HangfireOptions.ConfigureStorage` | 4.7.0 | v5.0 (earliest) |
-| KCK0900      | `ResilienceOptions.CircuitBreakerFailureThreshold` (`Kck.Http.Abstractions`) — never applied; use `CircuitBreakerFailureRatio` / `CircuitBreakerMinimumThroughput` | 4.7.0 | v5.0 (earliest) |
-| KCK0600      | `IEmailService` (`Kck.Messaging.Abstractions`) — never implemented; every provider registers `IEmailProvider` | 4.8.0 | v5.0 (earliest) |
-| KCK0901      | `IFeatureEvaluator` (`Kck.FeatureFlags.Abstractions`) — never called; use `IFeatureFlagService.IsEnabledAsync(name, context)` | 4.8.0 | v5.0 (earliest) |
 | (none)       | `Kck.EventBus.InMemory` old registration methods (`AddKckEventBusInMemory` x2) — marked without a DiagnosticId | 2.x | **removed: v4.0** |
+
+No `[Obsolete]` member is pending removal right now.
+
+## Removed in 5.0
+
+These members were marked `[Obsolete]` in 4.x and removed in 5.0. Their DiagnosticIds stay reserved: a removed id is
+never reused for another API, so an old warning suppression cannot silence a new deprecation.
+
+| DiagnosticId | API | Marked | Removed in | Replacement |
+| ------------ | --- | ------ | ---------- | ----------- |
+| KCK0101      | `IQuery<T>.Query(filter, orderBy, bool withDeleted, bool enableTracking)` + `EfRepository.Query(...)` same signature | 4.3.0 (2026-10-29) | v5.0 | `Query(QueryOptions options, filter, orderBy)` (`QueryOptions.None` / `.Tracking` / `.WithDeleted`) |
+| KCK0002      | Bundle settings that were never read: `KckWebApiDefaults.Persistence`, `.Caching`, `.Observability`, `SecurityDefaults.Hashing`, `JwtDefaults.Algorithm` (WebApi, MinimalApi), `KckWorkerServiceDefaults.Observability` | 4.7.0 | v5.0 | Configure those providers in code (`AddKckPersistence`, a caching provider, `AddKckObservability`); the bundles always hash with Argon2 and sign with RS256 |
+| KCK0300      | `RsaKeySource.SecretsManager` (`Kck.Security.Jwt`) — never implemented | 4.7.0 | v5.0 | Read the key yourself and set `RsaKeyBase64` with `RsaKeySource.Configuration` |
+| KCK0700      | `HangfireOptions.ConnectionString` — never read | 4.7.0 | v5.0 | `HangfireOptions.ConfigureStorage` |
+| KCK0900      | `ResilienceOptions.CircuitBreakerFailureThreshold` (`Kck.Http.Abstractions`) — never applied | 4.7.0 | v5.0 | `CircuitBreakerFailureRatio` / `CircuitBreakerMinimumThroughput` |
+| KCK0600      | `IEmailService` (`Kck.Messaging.Abstractions`) — never implemented | 4.8.0 | v5.0 | `IEmailProvider` (every provider registers it) |
+| KCK0901      | `IFeatureEvaluator` (`Kck.FeatureFlags.Abstractions`) — never called | 4.8.0 | v5.0 | `IFeatureFlagService.IsEnabledAsync(name, context)` |
+
+5.0 also removed, without an `[Obsolete]` minor release first, contracts that no package implemented or called (plan
+decision D2, 2026-10-31): `IEncryptionService`, `IAuthorizationService`, `IPermissionChecker`, `IFeatureChangeNotifier`
+(+ `FeatureChangeEvent`), `IFileConverter`, `IFileMetadataReader`, `IHealthCheckRegistrar` (+ `HealthCheckType`), `IRecurringJob`,
+`FilterSecurityException`, `ICachableRequest.CacheGroupKey`, `PathHelper.IsValidPath` / `PathHelper.Sanitize` and
+`FilterValidator`. The list and replacements are in [v4-to-v5.md](../migrations/v4-to-v5.md#9-removed-api).
 
 > Note (2026-11-01): `Kck.Documents.ImageSharp` is removed in 5.0 without an `[Obsolete]` minor release first. This is
 > a deliberate exception to the two-minor rule: ImageSharp's licence (Six Labors Split License, Release builds need a
