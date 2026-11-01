@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1793551093062,
+  "lastUpdate": 1793553803474,
   "repoUrl": "https://github.com/omerkck41/OmerkckArchitecture",
   "entries": {
     "Benchmark": [
@@ -15310,6 +15310,102 @@ window.BENCHMARK_DATA = {
             "value": 8.456987358132999,
             "unit": "ns",
             "range": "± 0.14230673180925874"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "106805727+omerkck41@users.noreply.github.com",
+            "name": "Ömer KÜÇÜK",
+            "username": "omerkck41"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "cc31085110c18e922cfb7c644aeb095d0055d064",
+          "message": "feat(abstractions)!: remove dead contracts and the 5.0 obsolete members (F2a) (#289)\n\n## Summary\n\nStep F2a of the provider health plan\n(`docs/plans/2026-10-31-provider-saglik-ve-atil-kod-plani.md`, section 4\n\"F2 — contract\nhygiene\", decision D2): the 5.0 removal wave. Nothing changes at runtime\nfor code that still compiles; every removed symbol and\nits replacement is in `docs/migrations/v4-to-v5.md` section 9.\n\n**Breaking (5.0).**\n\n## Removed\n\nDead contracts (no implementation or reader in any Kck package; removed\nwithout an `[Obsolete]` release, per plan decision D2):\n`IEncryptionService`, `IAuthorizationService`, `IPermissionChecker`,\n`IFeatureChangeNotifier` + `FeatureChangeEvent`, `IFileConverter`,\n`IFileMetadataReader`, `IHealthCheckRegistrar` + `HealthCheckType`,\n`IRecurringJob`, `FilterSecurityException`, `FilterValidator`,\n`ICachableRequest.CacheGroupKey`, `PathHelper.IsValidPath` / `Sanitize`.\n\n`[Obsolete]` members scheduled for 5.0 (`docs/policies/deprecation.md`):\nthe bool-flag `IQuery<T>.Query` / `EfRepository.Query`\noverloads (KCK0101 — `Query(QueryOptions, …)` is now abstract, an own\n`IQuery<T>` implements it), the never-read bundle Defaults\nmembers and the classes only they reached (KCK0002),\n`RsaKeySource.SecretsManager` (KCK0300),\n`HangfireOptions.ConnectionString`\n(KCK0700), `ResilienceOptions.CircuitBreakerFailureThreshold` (KCK0900),\n`IEmailService` (KCK0600), `IFeatureEvaluator` (KCK0901).\n\n## Records\n\n- `PublicAPI.Unshipped.txt`: 66 `*REMOVED*` lines in 11 abstractions\npackages (Shipped untouched, as in v4).\n- `CompatibilitySuppressions.xml` in 17 projects, generated against the\n4.8.0 baseline; 42 entries, only CP0001/CP0002.\n- `docs/policies/deprecation.md`: \"Removed in 5.0\" table, KCK ids stay\nreserved.\n- `docs/migrations/v4-to-v5.md` section 9 (symbol → package →\nreplacement), TL;DR bullet, manual step 11.\n- CHANGELOG `[Unreleased]` → `Removed`.\n- Provider docs and package READMEs no longer show the removed API; the\nsample WorkerService job implements `IBackgroundJob` only.\n\n## Verification\n\n| Check | Result |\n|---|---|\n| RED: build right after the deletions, before fixing consumers |\n90-line error list (53 RS0017, 8 compile, 2 snippet),\n`tasks/probes/2026-11-01-f2a/red-build.txt` |\n| `dotnet build -c Release --no-incremental` | 0 errors (5 pre-existing\nCA1716 warnings) |\n| `dotnet test -c Release --filter \"Category!=Integration\"` | 1404/1404\n|\n| `dotnet pack` of the 17 projects with suppressions | all pack against\nthe 4.8.0 baseline |\n| `readme_snippets.py --check` / `docs_language.py` | 171 blocks up to\ndate / 106 files, 0 problems |\n| Fresh skeptical review | no behaviour change, no leftover reference,\nthe four record lists agree; 1 medium doc finding fixed, low ones\ntracked |\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-authored-by: Claude Fable 5.1 <noreply@anthropic.com>",
+          "timestamp": "2026-11-01T17:17:14Z",
+          "tree_id": "d5dd2c89185932c91d197c5058f32bed9a8708fd",
+          "url": "https://github.com/omerkck41/OmerkckArchitecture/commit/cc31085110c18e922cfb7c644aeb095d0055d064"
+        },
+        "date": 1793553802515,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Success_Factory",
+            "value": 3.598827182673491,
+            "unit": "ns",
+            "range": "± 0.07123890526764184"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Failure_Factory",
+            "value": 4.613840777178606,
+            "unit": "ns",
+            "range": "± 0.11462687811260089"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Success",
+            "value": 0.5566494028483119,
+            "unit": "ns",
+            "range": "± 0.040514406896020115"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Failure",
+            "value": 0.23631081650299685,
+            "unit": "ns",
+            "range": "± 0.018545437779673022"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Serialize_Reflection",
+            "value": 226.86618297440666,
+            "unit": "ns",
+            "range": "± 3.346557562201849"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Deserialize_Reflection",
+            "value": 412.2861439554315,
+            "unit": "ns",
+            "range": "± 8.846493682122587"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 0)",
+            "value": 5.380246705810229,
+            "unit": "ns",
+            "range": "± 0.09365150517191159"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 5)",
+            "value": 5.539942868053913,
+            "unit": "ns",
+            "range": "± 0.13437484531340996"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 0)",
+            "value": 5.563100537428489,
+            "unit": "ns",
+            "range": "± 0.0733156111793202"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 5)",
+            "value": 5.558709876736005,
+            "unit": "ns",
+            "range": "± 0.08270988283835566"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 0)",
+            "value": 5.428773498535156,
+            "unit": "ns",
+            "range": "± 0.09980764533692173"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 5)",
+            "value": 5.466495589486191,
+            "unit": "ns",
+            "range": "± 0.05561413000525351"
           }
         ]
       }
