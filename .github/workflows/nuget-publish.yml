@@ -35,9 +35,6 @@ jobs:
       contents: read
     outputs:
       version: ${{ steps.version.outputs.version }}
-    env:
-      # ImageSharp 4 validates a Six Labors license at Release build time; see decisions/2026-10-14-sdk-10.0.402-imagesharp-4.md
-      SixLaborsLicenseKey: ${{ secrets.SIXLABORS_LICENSE_KEY }}
 
     steps:
       # Validate the tag before anything else; the raw input reaches the shell only through an env var

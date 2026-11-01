@@ -82,6 +82,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   example on a missing index or a query syntax error). Deletes of a missing document or index stay silent. See
   `docs/migrations/v4-to-v5.md`.
 
+### Removed
+- `Kck.Documents.ImageSharp` — removed; the package is not published from 5.0 on. Use `Kck.Documents.SkiaSharp`
+  (`AddKckDocumentsSkiaSharp()`; see `docs/migrations/v4-to-v5.md`). With it the Six Labors licence wiring is gone:
+  Release builds need no `SixLaborsLicenseKey`/`sixlabors.lic`, and `.github/license-policy.json` has no SixLabors
+  exception.
+
 ### Fixed
 - `Kck.Caching.Redis`, `Kck.Caching.Hybrid` — with `RedisCacheOptions.InstanceName` set, `ExistsAsync` always returned
   false and `RemoveByPrefixAsync` deleted nothing: Redis stores keys as `InstanceName` + key, but both looked the key up

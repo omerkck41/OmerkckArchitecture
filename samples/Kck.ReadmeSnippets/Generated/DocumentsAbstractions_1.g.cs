@@ -12,7 +12,7 @@ internal static class Snippet
 
 // Program.cs — register concrete providers
 builder.Services.AddKckDocumentsClosedXml();   // IExcelService + ICsvExporter
-builder.Services.AddKckDocumentsImageSharp();  // IImageProcessor
+builder.Services.AddKckDocumentsSkiaSharp();  // IImageProcessor
 
 #line default
         await Task.CompletedTask;

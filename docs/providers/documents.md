@@ -10,7 +10,6 @@ CSV export, and image processing.
 | `Kck.Documents.Abstractions` | `IExcelService`, `ICsvExporter`, `IImageProcessor` |
 | `Kck.Documents.ClosedXml` | ClosedXML (OpenXML-based `.xlsx`) |
 | `Kck.Documents.SkiaSharp` | SkiaSharp (MIT) image processing |
-| `Kck.Documents.ImageSharp` | SixLabors.ImageSharp image processing — removed in 5.0, use `Kck.Documents.SkiaSharp` |
 
 ## ClosedXml (Excel)
 
@@ -104,51 +103,9 @@ and macOS the `SkiaSharp` package carries the native library. Without it the fir
 - EXIF orientation is applied (baked into the pixels). The output carries no metadata: EXIF (including GPS) and the ICC
   profile are not copied; pixels are converted to sRGB.
 
-## ImageSharp (removed in 5.0)
-
-`Kck.Documents.ImageSharp` is removed in 5.0 in favour of [SkiaSharp](#skiasharp) (ImageSharp's licence constraint);
-see [the migration guide](../migrations/v4-to-v5.md). Until then it works as below.
-
-```csharp
-services.AddKckDocumentsImageSharp();
-```
-
-Usage:
-
-```csharp
-using Kck.Documents.Abstractions;
-
-public class AvatarService(IImageProcessor images)
-{
-    public Task<byte[]> MakeThumbnailAsync(Stream input, CancellationToken ct) =>
-        images.ResizeAsync(input, new ImageProcessingOptions
-        {
-            Width = 128,
-            Height = 128,
-            MaintainAspectRatio = true,
-            OutputFormat = "webp",
-            Quality = 85
-        }, ct);
-}
-```
-
-### ImageSharp format support
-
-`IImageProcessor.ConvertFormatAsync(stream, targetFormat)` with `Kck.Documents.ImageSharp`:
-
-| Format | Encoder |
-|---|---|
-| `png` | PngEncoder |
-| `jpeg` / `jpg` | JpegEncoder (Quality) |
-| `webp` | WebpEncoder (Quality) |
-| `gif` | GifEncoder |
-| `bmp` | BmpEncoder |
-| empty / `null` | the source image's format; JPEG if the source is not in this list (e.g. TIFF) |
-| any other name (e.g. `avif`) | `NotSupportedException` (before 4.0 it silently produced JPEG) |
-
 ## Notes
 
 - SkiaSharp uses a native library: on Linux the application must reference
-  `SkiaSharp.NativeAssets.Linux.NoDependencies`; Windows and macOS need nothing extra. ImageSharp is fully managed.
+  `SkiaSharp.NativeAssets.Linux.NoDependencies`; Windows and macOS need nothing extra.
 - ClosedXml supports only `.xlsx`. For `.xls`, consider NPOI (not used in this project).
 - Streaming read/write for large Excel files is a future plan.

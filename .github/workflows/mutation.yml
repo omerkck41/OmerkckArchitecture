@@ -15,8 +15,6 @@ on:
 permissions:
   contents: read
 
-# ImageSharp 4 validates a Six Labors license at Release build time (decisions/2026-10-14-sdk-10.0.402-imagesharp-4.md);
-# SixLaborsLicenseKey is set only on the steps that build (Build, Stryker), not on every step and action.
 env:
   DOTNET_NOLOGO: true
   DOTNET_CLI_TELEMETRY_OPTOUT: true
@@ -54,8 +52,6 @@ jobs:
             config: stryker-backgroundjobs.json
           - module: documents-closedxml
             config: stryker-documents-closedxml.json
-          - module: documents-imagesharp
-            config: stryker-documents-imagesharp.json
           - module: documents-skiasharp
             config: stryker-documents-skiasharp.json
           - module: filestorage-awss3
@@ -80,16 +76,12 @@ jobs:
         run: dotnet restore --locked-mode
 
       - name: Build (Release)
-        env:
-          SixLaborsLicenseKey: ${{ secrets.SIXLABORS_LICENSE_KEY }}
         run: dotnet build --configuration Release --no-restore
 
       - name: Install Stryker.NET
         run: dotnet tool restore
 
       - name: Run mutation tests — ${{ matrix.module }}
-        env:
-          SixLaborsLicenseKey: ${{ secrets.SIXLABORS_LICENSE_KEY }}
         run: dotnet stryker --config-file ${{ matrix.config }} --output mutation-report/${{ matrix.module }}
 
       - name: Upload mutation report

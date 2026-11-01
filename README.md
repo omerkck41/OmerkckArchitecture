@@ -168,7 +168,7 @@ For persistence specifically (soft delete, audit fields, domain events), see
 |---|---|
 | Background Jobs | `Kck.BackgroundJobs.Hangfire`, `Kck.BackgroundJobs.Quartz` |
 | Caching | `Kck.Caching.InMemory`, `Kck.Caching.Redis`, `Kck.Caching.Hybrid` |
-| Documents | `Kck.Documents.ClosedXml`, `Kck.Documents.SkiaSharp`, `Kck.Documents.ImageSharp` (removed in 5.0) |
+| Documents | `Kck.Documents.ClosedXml`, `Kck.Documents.SkiaSharp` |
 | Event Bus | `Kck.EventBus.InMemory`, `Kck.EventBus.RabbitMq`, `Kck.EventBus.AzureServiceBus` |
 | Exceptions | `Kck.Exceptions.AspNetCore` |
 | Feature Flags | `Kck.FeatureFlags.InMemory` |
