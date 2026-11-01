@@ -56,6 +56,8 @@ jobs:
             config: stryker-documents-closedxml.json
           - module: documents-imagesharp
             config: stryker-documents-imagesharp.json
+          - module: documents-skiasharp
+            config: stryker-documents-skiasharp.json
           - module: filestorage-awss3
             config: stryker-filestorage-awss3.json
           - module: filestorage-azureblob

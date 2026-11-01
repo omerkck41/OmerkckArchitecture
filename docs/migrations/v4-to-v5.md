@@ -2,7 +2,8 @@
 
 **Release date:** not released yet (this guide grows while the 5.0 work lands)
 **Impact:** Breaking
-**Estimated effort:** S (a configuration or broker change per RabbitMQ consumer)
+**Estimated effort:** S (a configuration or broker change per RabbitMQ consumer; a package and registration rename for
+image processing)
 
 ## Why This Major?
 
@@ -11,6 +12,11 @@ the RabbitMQ event bus: in 4.x a failing message was redelivered without limit, 
 from a header that RabbitMQ never sets on a requeued message, and the queues had no dead-letter exchange, so the
 "dead-lettered" message would have been dropped. Fixing it means declaring the consumer queues with a dead-letter
 argument, and RabbitMQ refuses to re-declare an existing queue with other arguments.
+
+5.0 also makes the default packages depend only on permissively licensed libraries. Image processing moves from
+SixLabors.ImageSharp to SkiaSharp (MIT): ImageSharp 4 is published under the Six Labors Split License 1.0, which is not
+an OSI-approved licence, and asks for a licence key at Release build time (decision
+`decisions/2026-10-31-image-library-replacement.md`).
 
 ## Affected Packages
 
@@ -24,6 +30,7 @@ argument, and RabbitMQ refuses to re-declare an existing queue with other argume
 | `Kck.FileStorage.FluentFtp` | UploadAsync throws on failure/skip | Medium |
 | `Kck.Caching.Hybrid` | `ICacheService` resolvable only after the host started | High |
 | `Kck.Search.Elasticsearch` | Rejected requests throw instead of returning silently | Medium |
+| `Kck.Documents.ImageSharp` | **Removed** — replaced by `Kck.Documents.SkiaSharp` | High |
 
 (Impact: Low = interface implementations only, Medium = call sites,
 High = configuration / DI level)
@@ -40,6 +47,7 @@ High = configuration / DI level)
   file exists; 4.x returned silently
 - Hybrid cache: resolving `ICacheService` before the host started throws
 - Elasticsearch write and search operations throw `InvalidOperationException` when Elasticsearch rejects the request
+- `Kck.Documents.ImageSharp` → `Kck.Documents.SkiaSharp`; `AddKckDocumentsImageSharp()` → `AddKckDocumentsSkiaSharp()`
 
 ## Detailed Changes
 
@@ -280,13 +288,56 @@ and reason. Deletes of a missing document or index stay silent, `GetByIdAsync` s
 document and `IndexExistsAsync` still returns `false` for a missing index. Wrap the calls that relied on the silent
 failure, for example a search over an index that may not exist yet, in a `try`/`catch (InvalidOperationException)`.
 
+### 8. Image processing: ImageSharp → SkiaSharp
+
+**Reason:** licence constraint of ImageSharp 4 (see above). `Kck.Documents.ImageSharp` is removed in 5.0 without an
+intermediate `[Obsolete]` release; `Kck.Documents.SkiaSharp` is available before 5.0, so you can switch early.
+
+**Package:**
+
+```xml
+<!-- Before (4.x) -->
+<PackageReference Include="Kck.Documents.ImageSharp" />
+
+<!-- After -->
+<PackageReference Include="Kck.Documents.SkiaSharp" />
+<!-- Linux hosts (glibc and musl/Alpine) also need the native library: -->
+<PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" />
+```
+
+**Registration:**
+
+```csharp
+// Before (4.x): services.AddKckDocumentsImageSharp();
+services.AddKckDocumentsSkiaSharp();
+```
+
+`IImageProcessor` and `ImageProcessingOptions` are unchanged; code that injects `IImageProcessor` needs no change.
+
+**Behaviour differences:**
+
+| | ImageSharp (4.x) | SkiaSharp (5.0) |
+|---|---|---|
+| Output formats | jpeg/jpg, png, webp, gif, bmp | jpeg/jpg, png, webp — `gif` and `bmp` throw `NotSupportedException` |
+| Input formats | JPEG, PNG, WebP, GIF, BMP, TIFF, ... | JPEG, PNG, WebP, GIF, BMP, ICO — TIFF throws `InvalidDataException` |
+| Empty output format with a GIF/BMP source | GIF/BMP | JPEG |
+| Transparent image → JPEG | encoder default | transparent areas become white |
+| Image size limit | none | `SkiaSharpOptions.MaxPixels` (default 50,000,000) for the source and the resize target, checked from the header before decoding |
+| `GetDimensionsAsync` | decodes the image; returns the stored size (EXIF orientation not applied) | reads the header only; returns the displayed size (orientation applied) |
+| Native library | none (fully managed) | Windows/macOS included; Linux needs `SkiaSharp.NativeAssets.Linux.NoDependencies` |
+| EXIF orientation | not applied | applied (baked into the pixels) |
+| Metadata (EXIF incl. GPS, ICC profile) | preserved in the output | not written; pixels converted to sRGB |
+| `Width` / `Height` `null` or 0 | derived from the source ratio | derived from the source ratio (no difference); negative throws `ArgumentOutOfRangeException` |
+| `Quality` outside 1–100 | throws | clamped to 1–100 |
+
 ### Other 5.0 changes
 
 Other 5.0 changes are added to this guide as the 5.0 work lands.
 
 ## Automated Migration
 
-None: the changes are broker topology and configuration, not API renames.
+None: the changes are broker topology and configuration, plus one package and registration rename (section 8) that a
+search-and-replace covers.
 
 ## Manual Steps
 
@@ -297,9 +348,18 @@ None: the changes are broker topology and configuration, not API renames.
 5. Where an FTP upload may fail or hit an existing file with `Overwrite = false`, catch `IOException`.
 6. With the hybrid cache, move `ICacheService` out of hosted-service constructors (section 6).
 7. Where an Elasticsearch call relied on a silent failure, catch `InvalidOperationException` (section 7).
+8. Replace the `Kck.Documents.ImageSharp` package reference with `Kck.Documents.SkiaSharp` and
+   `AddKckDocumentsImageSharp()` with `AddKckDocumentsSkiaSharp()`; on Linux add
+   `SkiaSharp.NativeAssets.Linux.NoDependencies` to the application.
+9. Search for `"gif"` and `"bmp"` output formats (`OutputFormat`, `ConvertFormatAsync`) and switch them to `png` or
+   `webp`; if you accept TIFF uploads, convert them before they reach `IImageProcessor`.
+10. If you process images above 50 megapixels, raise `SkiaSharpOptions.MaxPixels`.
 
 ## References
 
 - CHANGELOG.md `[Unreleased]`
 - [Event bus guide](../providers/event-bus.md)
+- [Documents guide](../providers/documents.md)
+- `decisions/2026-10-31-image-library-replacement.md`
 - `docs/policies/versioning.md`
+- [`docs/policies/deprecation.md`](../policies/deprecation.md)

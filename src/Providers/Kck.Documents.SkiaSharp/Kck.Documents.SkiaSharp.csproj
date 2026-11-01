@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <Title>Kck Image Processing (SkiaSharp)</Title>
+    <Description>SkiaSharp-backed IImageProcessor for server-side image operations. Supports resize (with aspect-ratio preservation), format conversion (JPEG, PNG, WebP output; JPEG, PNG, WebP, GIF, BMP, ICO input), header-only dimension reading and a decoder-bomb pixel limit. Registered via AddKckDocumentsSkiaSharp(). On Linux add SkiaSharp.NativeAssets.Linux.NoDependencies to the application.</Description>
+    <PackageTags>dotnet;kck;image-processing;skiasharp;resize;image-conversion;webp</PackageTags>
+    <PackageReadmeFile>README.nuget.md</PackageReadmeFile>
+    <!-- no published baseline yet; remove after the first release (5.0.0) -->
+    <DisablePackageBaselineValidation>true</DisablePackageBaselineValidation>
+  </PropertyGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="Kck.Documents.SkiaSharp.Tests" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.Options" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="../../Abstractions/Kck.Documents.Abstractions/Kck.Documents.Abstractions.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="SkiaSharp" />
+  </ItemGroup>
+</Project>

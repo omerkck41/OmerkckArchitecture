@@ -25,7 +25,7 @@ To start a new guide, copy [`_template.md`](_template.md).
 
 ## Available Guides
 
-- [v4-to-v5.md](v4-to-v5.md) — 4.x to 5.0 (in progress: RabbitMQ dead-lettering and prefetch)
+- [v4-to-v5.md](v4-to-v5.md) — 4.x to 5.0 (in progress: provider reliability fixes, ImageSharp → SkiaSharp)
 - [v3-to-v4.md](v3-to-v4.md) — 3.x to 4.0 (ADR-0028)
 - [mediatR-to-mediator.md](mediatR-to-mediator.md) — `Kck.Pipeline.MediatR` → `Kck.Pipeline.Mediator`
 - [entity-hierarchy-v3.md](entity-hierarchy-v3.md) — `Entity<TId>` → `FullEntity<TId>` (3.0)

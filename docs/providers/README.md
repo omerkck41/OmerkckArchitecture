@@ -9,7 +9,7 @@ provider. The guides are grouped by category.
 |---|---|---|
 | Background Jobs | [background-jobs.md](background-jobs.md) | Hangfire, Quartz |
 | Caching | [caching.md](caching.md) | InMemory, Redis |
-| Documents | [documents.md](documents.md) | ClosedXml, ImageSharp |
+| Documents | [documents.md](documents.md) | ClosedXml, SkiaSharp, ImageSharp (removed in 5.0) |
 | Event Bus | [event-bus.md](event-bus.md) | InMemory, RabbitMq, AzureServiceBus |
 | Exceptions | [exceptions.md](exceptions.md) | AspNetCore |
 | Feature Flags | [feature-flags.md](feature-flags.md) | InMemory |

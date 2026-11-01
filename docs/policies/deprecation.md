@@ -66,6 +66,12 @@ v1.0.0 — API can be removed (major bump)
 | KCK0901      | `IFeatureEvaluator` (`Kck.FeatureFlags.Abstractions`) — never called; use `IFeatureFlagService.IsEnabledAsync(name, context)` | 4.8.0 | v5.0 (earliest) |
 | (none)       | `Kck.EventBus.InMemory` old registration methods (`AddKckEventBusInMemory` x2) — marked without a DiagnosticId | 2.x | **removed: v4.0** |
 
+> Note (2026-11-01): `Kck.Documents.ImageSharp` is removed in 5.0 without an `[Obsolete]` minor release first. This is
+> a deliberate exception to the two-minor rule: ImageSharp's licence (Six Labors Split License, Release builds need a
+> licence key) is a constraint the maintainer will not carry into 5.0, and the replacement `Kck.Documents.SkiaSharp`
+> implements the same `IImageProcessor` contract (decision `decisions/2026-10-31-image-library-replacement.md`,
+> migration: [v4-to-v5.md](../migrations/v4-to-v5.md)).
+
 > Note (2026-10-26): By number range KCK0200 falls in the Caching category, but it was used for Pipeline. Changing the
 > identity would break consumers' warning suppressions, so the number is kept. The Core.Abstractions pipeline forwarding types
 > (ADR-0026) were removed in v3.2 (a minor release), contrary to this policy. From now on, removal is done only in a major release.
