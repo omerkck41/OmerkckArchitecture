@@ -39,6 +39,51 @@ services.AddKckEventBus(b => b.UseRabbitMq(opt =>
 }).RegisterHandlersFromAssembly(typeof(OrderCreatedHandler).Assembly));
 ```
 
+Each subscribed event gets a durable queue `{QueuePrefix}.{EventName}` bound to the exchange.
+
+| Option | Description | Default |
+|---|---|---|
+| `MaxDeliveryCount` | Deliveries of a failing message, the first one included, before it is rejected to the dead-letter queue; at least `1` | `5` |
+| `PrefetchCount` | Unacknowledged messages the consumer takes from the broker at a time (`basic.qos`); `0` = unlimited | `10` |
+| `DeadLetterEnabled` | Declare the dead-letter exchange and queue, and give consumer queues an `x-dead-letter-exchange` argument | `true` |
+| `DeadLetterExchangeName` | Dead-letter exchange (fanout), one per service; `null` = `{QueuePrefix}.dlx` | `null` |
+| `DeadLetterQueueName` | Dead-letter queue bound to it; `null` = `{QueuePrefix}.dlq` | `null` |
+
+**Redelivery and dead-lettering.** A message whose handler throws is negatively acknowledged and requeued until it has
+been delivered `MaxDeliveryCount` times; then it is rejected without requeue and the broker moves it to the
+dead-letter queue. The dead-letter exchange is per service (`{QueuePrefix}.dlx`): services that share `ExchangeName`
+do not receive each other's rejected messages. A handler's `OperationCanceledException`, for example an `HttpClient`
+timeout, counts as a failure too; only host shutdown leaves the message unacknowledged for the broker to redeliver.
+With `DeadLetterEnabled = false` the queues are declared without arguments and a rejected message is dropped unless a
+broker policy sets a dead-letter exchange.
+
+**Delivery counting.** The deliveries are counted in the consuming process, keyed by `MessageId`, because a requeued
+message carries no delivery count on a classic queue. `MessageId` must therefore be unique per message; Kck sets it to
+`IntegrationEvent.Id`. A message published by other code without a `MessageId` is delivered at most twice: the
+broker's Redelivered flag counts as a previous delivery. The in-process count restarts when the consumer restarts or
+another instance receives the message, so a scaled-out or restarting consumer can deliver a message more often.
+
+**Redelivery is immediate.** There is no back-off between deliveries: the `MaxDeliveryCount` attempts happen within
+milliseconds, so a transient outage of a dependency (a database failover, a downstream API restart) can dead-letter
+every message delivered during it. Monitor the dead-letter queue. To redrive, inspect its messages (management UI),
+fix the cause, then move them back to the consumer queue with a RabbitMQ shovel (the `rabbitmq_shovel` plugin; define
+it in the management UI or with `rabbitmqctl set_parameter shovel`) or by republishing them.
+
+**Queues declared by 4.x.** RabbitMQ refuses to re-declare a queue with other arguments. A consumer queue created by
+4.x has none, so 5.0 stops at start-up with an `InvalidOperationException` (406 `PRECONDITION_FAILED`) that names the
+queue. Use a new `QueuePrefix`, or set `DeadLetterEnabled = false` and apply the dead-letter exchange through a
+policy, or delete the queue so it is re-declared (drain it first; its messages are lost). See
+[the 4.x to 5.0 guide](../migrations/v4-to-v5.md).
+
+**Channels, connection recovery and health.** A publish channel closed by the broker (a channel-level error) is
+replaced on the next `PublishAsync`. After a connection loss the client's automatic recovery restores the connection,
+the channels and the consumers; a `PublishAsync` during the recovery waits for it on the `RetryCount` / `RetryDelay`
+schedule and does not open a second connection. A consumer channel closed by a channel-level error (for example a
+`consumer_timeout` or a 406) is not reopened by the client: the bus logs a warning and its consumers stay stopped. The
+`rabbitmq-eventbus` health check (tag `ready`) reports whether the bus is ready to consume and opens no connection of
+its own. It is Unhealthy until the host has started the consumers, while the connection recovers, and after the
+consumer channel was closed; restart the host in that last case.
+
 ## Azure Service Bus
 
 ```csharp
@@ -64,8 +109,9 @@ bus.Subscribe<OrderCreatedEvent, OrderCreatedHandler>();
 
 The handler must be registered in DI, through `RegisterHandlersFromAssembly` or as its own class
 (`services.AddTransient<OrderCreatedHandler>()`); before 4.7 only the class registration was found. A handler that is
-not registered is skipped with a log entry. A message whose handler throws is negatively acknowledged and redelivered up to
-`MaxDeliveryCount` (RabbitMQ) before it goes to the dead-letter queue.
+not registered is skipped with a log entry. A message whose handler throws is negatively acknowledged and redelivered;
+after `MaxDeliveryCount` deliveries in total, the first one included, it goes to the dead-letter queue (RabbitMQ: see
+[Redelivery and dead-lettering](#rabbitmq)).
 
 ## Defining an Event
 

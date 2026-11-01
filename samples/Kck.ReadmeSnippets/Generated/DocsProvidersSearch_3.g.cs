@@ -3,7 +3,7 @@
 
 namespace ReadmeSnippets.DocsProvidersSearch_3;
 
-#line 66 "docs/providers/search.md"
+#line 88 "docs/providers/search.md"
 public sealed class SearchResult<T> where T : class
 {
     public required IReadOnlyList<T> Items { get; init; }

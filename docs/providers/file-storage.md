@@ -33,7 +33,7 @@ FTP connections are pooled (bounded channel, same pattern as `SmtpConnectionPool
 A disposed client is discarded automatically, and a disconnected client is reopened.
 
 The options are validated at startup (`ValidateOnStart`). The registration adds `IFtpService` and, for code that
-only needs storage operations, `IFileStorageService`.
+only needs storage operations, `IFileStorageService`, both as singletons (the same instance) over the pool.
 
 ## Usage
 
@@ -63,6 +63,13 @@ public class ReportUploader(IFileStorageService storage)
 ```
 
 `IFtpService` adds `CreateDirectoryAsync`, `DeleteDirectoryAsync` and `MoveAsync`.
+
+With the FTP provider, `UploadAsync` throws `IOException` when the server reports a failed upload, or when
+`Overwrite` is `false` and the file already exists. Before 5.0 both returned silently (a failure only logged a
+warning).
+
+With the Azure Blob provider and `CreateContainerIfNotExists = true` (the default), the container is created on first
+use, not when the service is constructed; a failed attempt is retried on the next call.
 
 ## Path Helpers
 

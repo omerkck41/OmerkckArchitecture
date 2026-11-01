@@ -73,12 +73,25 @@ jobs:
           SixLaborsLicenseKey: ${{ secrets.SIXLABORS_LICENSE_KEY }}
         run: dotnet build --configuration Release --no-restore
 
-      - name: Test with coverage (unit only)
+      - name: Test with coverage (unit)
         run: |
           dotnet test \
             --configuration Release \
             --no-build \
             --filter "Category!=Integration" \
+            --collect:"XPlat Code Coverage;Format=opencover" \
+            --results-directory ./TestResults
+        shell: bash
+
+      # The broker-backed providers (RabbitMQ, Redis, Elasticsearch, Postgres) are exercised only by the Testcontainers
+      # suites; without them the new-code coverage of a provider change is not measured (PR #286: 51.9 %). Docker is
+      # available on ubuntu-latest, and build-test.yml already runs the same suites there.
+      - name: Test with coverage (integration, Docker)
+        run: |
+          dotnet test \
+            --configuration Release \
+            --no-build \
+            --filter "Category=Integration" \
             --collect:"XPlat Code Coverage;Format=opencover" \
             --results-directory ./TestResults
         shell: bash

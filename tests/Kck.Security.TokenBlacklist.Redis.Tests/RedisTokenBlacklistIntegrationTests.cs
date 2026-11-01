@@ -1,6 +1,7 @@
 using AwesomeAssertions;
 using Kck.Security.TokenBlacklist.Redis;
 using Kck.Testing;
+using StackExchange.Redis;
 using Testcontainers.Redis;
 using Xunit;
 
@@ -72,5 +73,23 @@ public sealed class RedisTokenBlacklistIntegrationTests : IAsyncLifetime
         var isRevoked = await _sut.IsRevokedAsync(jti);
 
         isRevoked.Should().BeFalse("zero expiration should be treated as a no-op");
+    }
+
+    [Fact]
+    public async Task RevokeAsync_WithSharedMultiplexer_RoundTrip()
+    {
+        await using var connection = await ConnectionMultiplexer.ConnectAsync(_redis.GetConnectionString());
+        var options = new StaticOptionsMonitor<RedisTokenBlacklistOptions>(
+            new RedisTokenBlacklistOptions { KeyPrefix = "shared:", Database = 0 });
+        var jti = Guid.NewGuid().ToString();
+
+        using (var sut = new RedisTokenBlacklistService(options, connection))
+        {
+            await sut.RevokeAsync(jti, TimeSpan.FromMinutes(15));
+            (await sut.IsRevokedAsync(jti)).Should().BeTrue();
+        }
+
+        // The service does not own the shared connection, so disposing it leaves the connection usable.
+        (await connection.GetDatabase(0).KeyExistsAsync($"shared:{jti}")).Should().BeTrue();
     }
 }

@@ -19,12 +19,19 @@ services.AddKckMessagingMailKit(opt =>
 {
     opt.Host = "smtp.gmail.com";
     opt.Port = 587;
-    opt.UseSsl = true;
     opt.UserName = builder.Configuration["Mail:User"]!;
     opt.Password = builder.Configuration["Mail:Password"]!;
     opt.PoolSize = 5;
 });
 ```
+
+The TLS mode follows the port: implicit TLS on 465 and mandatory STARTTLS on every other port (587, the default,
+included), so the connection never falls back to plaintext. An explicit `SecureSocketOptions` of `None`, `Auto` or
+`StartTlsWhenAvailable` opts out of that guarantee; with `None`, a `UserName` fails validation, because the
+credentials would be sent in plaintext. Set `SecureSocketOptions` (namespace `MailKit.Security`)
+to choose it explicitly, for example `SecureSocketOptions.SslOnConnect` for implicit TLS on a custom port; `UseSsl` is
+consulted only while `SecureSocketOptions` is `null`, and `UseSsl = false` means opportunistic STARTTLS (used only when
+the server offers it).
 
 It uses an SMTP connection pool, because the `SmtpClient` implementation is not
 thread-safe and is shared. `PoolSize` is typically equal to the number of
@@ -52,7 +59,16 @@ services.AddKckMessagingAmazonSes(opt =>
 ```
 
 If `AWS_PROFILE` or an IAM role is set in the environment, `AccessKey` and
-`SecretKey` can be left empty.
+`SecretKey` can be left empty. When the container already has an `IAmazonSimpleEmailServiceV2` registered, the
+provider uses that client instead of building one from the options (`Region` may then stay empty); register your
+own client to control the credentials or the endpoint.
+
+Attachments are sent through SESv2 `Simple.Attachments` (file name, MIME type and content, disposition attachment);
+SES limits the whole message, attachments included, to 40 MB. Attachment streams are read from the start (a seekable
+stream is rewound first). Each `SendAsync` sends one message, so there is no bulk send and no partial success to
+handle. `FromName` and recipient names are sent as friendly
+addresses (`"Name" <user@example.com>`); a name with non-ASCII characters is sent RFC 2047 encoded
+(`=?utf-8?B?...?= <user@example.com>`), as SES requires.
 
 ## Sending
 

@@ -153,6 +153,22 @@ services.AddKckTokenBlacklistRedis(opt =>
 });
 ```
 
+The connection is opened asynchronously on first use, and a failed connect is retried on the next call. Leave
+`ConnectionString` empty to share the `IConnectionMultiplexer` registered by Kck.Caching.Redis (available after the
+host started). Sharing is possible but not recommended by default:
+
+> **Warning — eviction makes revocation fail open.** A Redis instance shared with the cache must run with
+> `maxmemory-policy noeviction`. Under `allkeys-lru` or `volatile-lru` (Azure Cache for Redis defaults to
+> `volatile-lru`) the revocation keys, which carry a TTL, can be evicted under memory pressure, and a revoked token
+> becomes valid again. A separate `Database` index does not prevent this: eviction works on the whole instance. Cache
+> maintenance (`FLUSHDB`, prefix deletes such as `RemoveByPrefixAsync`) must never touch the blacklist's `KeyPrefix`.
+> Prefer a separate Redis instance with `noeviction` for the blacklist.
+
+```csharp
+services.AddKckCachingRedis(redis => redis.Configuration = builder.Configuration["Redis:ConnectionString"]);
+services.AddKckTokenBlacklistRedis(opt => opt.KeyPrefix = "revoked:"); // shares the Redis connection
+```
+
 Usage:
 
 ```csharp

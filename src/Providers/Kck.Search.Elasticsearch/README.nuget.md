@@ -1,6 +1,6 @@
 # Kck.Search.Elasticsearch
 
-Elasticsearch 8 provider for `ISearchService<T>` — indexing, full-text search, and aggregation with strongly-typed document mapping.
+Elasticsearch 9.x provider for `ISearchService<T>` — indexing, full-text search, and aggregation with strongly-typed document mapping.
 
 ## Installation
 
@@ -46,8 +46,23 @@ public class ProductSearchService(ISearchService<ProductDocument> search)
 | `NumberOfShards` | Shards of an index created by `CreateIndexAsync` | `1` |
 | `NumberOfReplicas` | Replicas of an index created by `CreateIndexAsync` | `1` |
 | `DisableSslVerification` | Skip certificate validation (local clusters only, never production) | `false` |
+| `UseSimpleQueryString` | Run `SearchRequest.Query` as `simple_query_string`, which never throws on syntax errors; recommended for end-user input | `false` (`query_string`) |
 
 The options are validated at startup.
+
+## Errors
+
+`CreateIndexAsync`, `IndexDocumentAsync`, `BulkIndexAsync`, `UpdateDocumentAsync`, `DeleteDocumentAsync`,
+`DeleteIndexAsync` and `SearchAsync` throw `InvalidOperationException` when Elasticsearch rejects the request (a bulk
+request also when only some items fail; a search on a missing index or with a query-string syntax error too). The
+message carries the HTTP status and the server's error type and reason. Deleting a missing document or index does
+not throw, `GetByIdAsync` returns `null` for a missing document and `IndexExistsAsync` returns `false` for a missing
+index. Before 5.0, `IndexDocumentAsync` and `BulkIndexAsync` only logged a warning, the other writes ignored the
+response and `SearchAsync` returned an empty result.
+
+`BulkIndexAsync` with no documents sends no request. A bulk request is not atomic: the items accepted before a failure
+stay indexed, and re-running the batch overwrites documents with the same id. `UseSimpleQueryString` enables only the
+AND, OR, NOT, phrase, grouping, whitespace and escape operators (no `*` prefix, `~N` fuzzy or slop).
 
 ## Resources
 

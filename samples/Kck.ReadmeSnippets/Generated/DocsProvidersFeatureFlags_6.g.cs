@@ -4,7 +4,7 @@
 namespace ReadmeSnippets.DocsProvidersFeatureFlags_6;
 using Kck.FeatureFlags.Abstractions;
 
-#line 97 "docs/providers/feature-flags.md"
+#line 107 "docs/providers/feature-flags.md"
 public sealed class FlagReport(IFeatureFlagService flags, ILogger<FlagReport> logger)
 {
     public async Task LogAllAsync(CancellationToken ct)

@@ -53,6 +53,16 @@ builder.Services.AddKckFeatureFlagsAzureAppConfig(opt =>
 Flags are read from keys under `.appconfig.featureflag/` (`KeyPrefix`) and cached for `RefreshInterval`.
 `GetValueAsync<T>` deserializes a flag's `parameters` object, or returns the default value.
 
+When a refresh fails for any reason the store or the credential can raise (an HTTP error, the `AggregateException`
+Azure.Core throws once its retries are exhausted while the store is unreachable, a timeout, a token failure), the
+service keeps the last loaded flags, logs a warning and tries again after the next `RefreshInterval`. A cancellation
+requested by the caller still propagates. A failure on the first load throws to the caller, since there are no flags
+to fall back on; a store that holds zero flags counts as loaded.
+
+A `ConfigurationClient` registered in the container is used instead of one built from `ConnectionString` or
+`Endpoint`; register your own client for custom credentials or a custom endpoint. `ConnectionString` and `Endpoint`
+may then stay empty: the options validator accepts that when a client is registered.
+
 ## Usage
 
 ```csharp

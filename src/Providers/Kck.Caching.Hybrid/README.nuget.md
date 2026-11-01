@@ -34,7 +34,10 @@ public class ProductService(ICacheService cache, IProductRepository products)
 
 ## Configuration
 
-First callback: `RedisCacheOptions` for the L2 Redis cache (`Configuration`). Second callback:
+First callback: `RedisCacheOptions` for the L2 Redis cache (`Configuration`, `ConfigurationOptions` or
+`ConnectionMultiplexerFactory`; registration throws when none is set). The Redis connection is opened asynchronously
+when the host starts, as in Kck.Caching.Redis; resolving `ICacheService` before the host's `StartAsync` completed
+throws. Second callback:
 
 | Property | Description | Default |
 |---|---|---|

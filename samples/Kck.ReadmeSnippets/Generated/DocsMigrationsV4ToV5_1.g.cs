@@ -5,11 +5,16 @@ namespace ReadmeSnippets.DocsMigrationsV4ToV5_1;
 
 internal static class Snippet
 {
-    internal static async Task RunAsync(IServiceCollection services)
+    internal static async Task RunAsync(WebApplicationBuilder builder, IServiceCollection services)
     {
-#line 47 "docs/migrations/v4-to-v5.md"
-// Before (4.x): services.AddKckDocumentsImageSharp();
-services.AddKckDocumentsSkiaSharp();
+#line 72 "docs/migrations/v4-to-v5.md"
+services.AddKckEventBus(b => b.UseRabbitMq(opt =>
+{
+    opt.HostName = builder.Configuration["RabbitMq:Host"]!;
+    opt.UserName = builder.Configuration["RabbitMq:User"]!;
+    opt.Password = builder.Configuration["RabbitMq:Password"]!;
+    opt.MaxDeliveryCount = 5;
+}));
 #line default
         await Task.CompletedTask;
     }

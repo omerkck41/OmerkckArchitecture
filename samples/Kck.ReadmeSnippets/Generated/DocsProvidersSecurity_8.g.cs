@@ -2,15 +2,15 @@
 #nullable enable
 
 namespace ReadmeSnippets.DocsProvidersSecurity_8;
-using Kck.Security.Abstractions.Token;
 
-#line 161 "docs/providers/security.md"
-public class LogoutService(ITokenBlacklistService blacklist)
+internal static class Snippet
 {
-    // Keep the entry until the token would have expired anyway.
-    public Task RevokeAsync(string jti, DateTimeOffset expiresAt, CancellationToken ct) =>
-        blacklist.RevokeAsync(jti, expiresAt - DateTimeOffset.UtcNow, ct);
-
-    public Task<bool> IsRevokedAsync(string jti, CancellationToken ct) => blacklist.IsRevokedAsync(jti, ct);
-}
+    internal static async Task RunAsync(WebApplicationBuilder builder, IServiceCollection services)
+    {
+#line 168 "docs/providers/security.md"
+services.AddKckCachingRedis(redis => redis.Configuration = builder.Configuration["Redis:ConnectionString"]);
+services.AddKckTokenBlacklistRedis(opt => opt.KeyPrefix = "revoked:"); // shares the Redis connection
 #line default
+        await Task.CompletedTask;
+    }
+}

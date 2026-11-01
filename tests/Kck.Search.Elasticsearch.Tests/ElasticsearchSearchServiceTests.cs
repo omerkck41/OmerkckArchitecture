@@ -56,6 +56,18 @@ public sealed class ElasticsearchSearchServiceTests
         request.SortField.Should().BeNull();
     }
 
+    [Fact]
+    public void ElasticsearchOptions_Defaults_AreCorrect()
+    {
+        var options = new ElasticsearchOptions { ConnectionString = "http://localhost:9200" };
+
+        options.DefaultIndex.Should().BeNull();
+        options.NumberOfShards.Should().Be(1);
+        options.NumberOfReplicas.Should().Be(1);
+        options.DisableSslVerification.Should().BeFalse();
+        options.UseSimpleQueryString.Should().BeFalse();
+    }
+
     private sealed class TestDocument
     {
         public string Id { get; set; } = "";

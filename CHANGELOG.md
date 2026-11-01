@@ -8,6 +8,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- `Kck.EventBus.RabbitMq` — `RabbitMqOptions.PrefetchCount` (default `10`, `0` = unlimited), `DeadLetterEnabled`
+  (default `true`), `DeadLetterExchangeName` (default `{QueuePrefix}.dlx`, one per service) and `DeadLetterQueueName`
+  (default `{QueuePrefix}.dlq`).
+- `Kck.Messaging.MailKit` — `MailKitOptions.SecureSocketOptions` (default `null`) sets the TLS mode explicitly, for
+  example `SslOnConnect` for implicit TLS on a custom port; `null` derives it from `Port` and `UseSsl`.
+- `Kck.Messaging.AmazonSes` — constructor `AmazonSesEmailProvider(IAmazonSimpleEmailServiceV2)`.
+  `AddKckMessagingAmazonSes` uses an `IAmazonSimpleEmailServiceV2` registered in the container when there is one
+  (register your own client to control the credentials or the endpoint), otherwise it builds one from the options.
+- `Kck.Search.Elasticsearch` — `ElasticsearchOptions.UseSimpleQueryString` (default `false`) runs `SearchRequest.Query`
+  as `simple_query_string`, which never throws on syntax errors and ignores unsupported operators; recommended when
+  the query text comes from end users. The default keeps `query_string` with the full Lucene syntax.
+- `Kck.FeatureFlags.AzureAppConfig` — constructor `AzureAppConfigFeatureFlagService(IOptionsMonitor<AzureAppConfigOptions>,
+  ILogger<AzureAppConfigFeatureFlagService>, ConfigurationClient)`. `AddKckFeatureFlagsAzureAppConfig` uses a
+  `ConfigurationClient` registered in the container when there is one (register your own client for custom credentials
+  or a custom endpoint), otherwise it builds one from the options. With a registered client the options validator no
+  longer requires `ConnectionString` or `Endpoint`; `AmazonSesOptionsValidator` likewise no longer requires `Region`
+  when an `IAmazonSimpleEmailServiceV2` is registered (both validators gained a constructor taking
+  `IServiceProviderIsService`, like the token blacklist's).
+- `Kck.Messaging.MailKit` — `MailKitOptionsValidator` rejects `SecureSocketOptions = None` together with a `UserName`
+  (the credentials would travel in plaintext).
 - `Kck.Documents.SkiaSharp` — an `IImageProcessor` on SkiaSharp (MIT), registered with `AddKckDocumentsSkiaSharp()`.
   It reads JPEG, PNG, WebP, GIF, BMP and ICO and writes `jpeg` (`jpg`), `png` and `webp`. On Linux the application
   adds `SkiaSharp.NativeAssets.Linux.NoDependencies` (glibc and musl); Windows and macOS need nothing extra.
@@ -20,6 +40,47 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   now applied, the output carries no metadata (EXIF including GPS and the ICC profile are not written; pixels are
   converted to sRGB), and an out-of-range `Quality` is clamped to 1–100 instead of throwing.
   `Kck.Documents.ImageSharp` is removed in 5.0; see `docs/migrations/v4-to-v5.md`.
+
+### Changed
+- `Kck.EventBus.RabbitMq` — **breaking for existing queues.** The consumer declares a per-service fanout dead-letter
+  exchange (`{QueuePrefix}.dlx`, so services sharing `ExchangeName` do not receive each other's rejected messages) and
+  a durable dead-letter queue, and declares each consumer queue with `x-dead-letter-exchange`. RabbitMQ refuses to
+  re-declare a queue with other arguments, so a queue created by 4.x makes start-up fail with an
+  `InvalidOperationException` (406 `PRECONDITION_FAILED`) that names the queue and the remedies: use a new
+  `QueuePrefix`, or set `DeadLetterEnabled = false` and apply the dead-letter exchange through a broker policy, or
+  delete the queue (drain it first). See `docs/migrations/v4-to-v5.md`.
+- `Kck.EventBus.RabbitMq` — the consumer channel takes at most `PrefetchCount` (10) unacknowledged messages; before,
+  the broker pushed the whole queue into the process. Set `PrefetchCount = 0` for the old behaviour.
+- `Kck.EventBus.RabbitMq` — the `rabbitmq-eventbus` health check reports whether the bus is ready to consume instead of
+  opening a new connection on every probe: it is Unhealthy until the host has started the consumers, while the
+  connection recovers, and when a channel-level error (for example a `consumer_timeout` or a 406) closed the consumer
+  channel, which the client does not reopen (restart the host).
+- `Kck.EventBus.RabbitMq` — a handler's `OperationCanceledException` (for example an `HttpClient` timeout) is a failed
+  delivery: the message is negatively acknowledged and counted against `MaxDeliveryCount`. Before, it stayed
+  unacknowledged; only host shutdown does that now.
+- `Kck.EventBus.RabbitMq` — `UseRabbitMq` throws `ArgumentOutOfRangeException` when `MaxDeliveryCount` is below 1.
+- `Kck.Security.TokenBlacklist.Redis` — with `ConnectionString` left empty, the blacklist shares the registered
+  `IConnectionMultiplexer` (for example Kck.Caching.Redis's, available after the host started) instead of opening one
+  more connection; the options validator accepts an empty `ConnectionString` only when one is registered. New
+  constructor overload `RedisTokenBlacklistService(IOptionsMonitor<RedisTokenBlacklistOptions>, IConnectionMultiplexer)`;
+  the shared connection is not disposed by the service. Sharing the cache's Redis is possible but not recommended by
+  default: read the eviction warning in `docs/providers/security.md` ("Token Blacklist") first.
+- `Kck.Caching.Hybrid` — a missing Redis configuration (none of `Configuration`, `ConfigurationOptions`,
+  `ConnectionMultiplexerFactory`) now throws `InvalidOperationException` in `AddKckCachingHybrid`, not at the first
+  resolve. Resolving `ICacheService` or `IConnectionMultiplexer` before the host's `StartAsync` completed throws
+  `InvalidOperationException`; a container built without a host must start the registered `IHostedService`s first.
+- `Kck.Messaging.MailKit` — `UseSsl = true` on a port other than 465 no longer means implicit TLS: it is mandatory
+  STARTTLS (the connection still never falls back to plaintext; opportunistic STARTTLS is only what `UseSsl = false`
+  gives). Set `SecureSocketOptions = SecureSocketOptions.SslOnConnect` for implicit TLS on a custom port. See
+  `docs/migrations/v4-to-v5.md`.
+- `Kck.FileStorage.FluentFtp` — `IFtpService`/`IFileStorageService` are registered as singletons (`TryAddSingleton`)
+  instead of transients; the service is stateless over the singleton connection pool. `TryAddSingleton` means the
+  first registration wins: with another storage provider registered first, `IFileStorageService` no longer resolves to
+  FTP (in 4.x the last registration won).
+- `Kck.Search.Elasticsearch` — **behaviour change:** write and search operations throw `InvalidOperationException`
+  when Elasticsearch rejects the request, where 4.x returned silently (writes) or an empty result (`SearchAsync`, for
+  example on a missing index or a query syntax error). Deletes of a missing document or index stay silent. See
+  `docs/migrations/v4-to-v5.md`.
 
 ### Fixed
 - `Kck.Caching.Redis`, `Kck.Caching.Hybrid` — with `RedisCacheOptions.InstanceName` set, `ExistsAsync` always returned
@@ -65,6 +126,65 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   reachable only through the SDK) and a `DestinationPath` with a leading `/` (it used to be trimmed); an empty
   `DestinationPath` or `directoryPath` still means the root. The FTP provider's
   internal `PathSanitizer` had the same rule and is replaced by `PathHelper.Validate` (no behaviour change there).
+- `Kck.EventBus.RabbitMq` — **a failing message was redelivered forever.** `MaxDeliveryCount` was checked against the
+  `x-death` header, which a requeued `basic.nack` never adds, so the count was always 0: one message whose handler
+  always threw was redelivered 12,281 times in 8 seconds with `MaxDeliveryCount = 5`. When the limit was reached the
+  log said "dead-lettered", but the queue had no dead-letter exchange, so the message would have been dropped.
+  Deliveries are now counted per `MessageId` in the consuming process (`MessageId` must be unique per message; Kck sets
+  it to `IntegrationEvent.Id`; a message without one is delivered at most twice); after `MaxDeliveryCount` deliveries
+  in total, the first one included, the message is rejected without requeue and lands in the dead-letter queue, and a
+  warning names the message, the attempts and the dead-letter exchange. Redelivery is immediate (no back-off), so a
+  transient dependency outage can dead-letter the messages delivered during it; the guide describes the redrive.
+- `Kck.EventBus.RabbitMq` — after the broker closed the publish channel (any channel-level error, for example a 404 or
+  406 on that channel), every `PublishAsync` threw `AlreadyClosedException` until the process restarted: the client does
+  not reopen a channel closed by a channel-level error, and the bus only checked the connection. `PublishAsync` now
+  opens a new channel when the old one is closed and logs the close reason.
+- `Kck.EventBus.RabbitMq` — a `PublishAsync` during the client's automatic connection recovery opened a second
+  connection, leaving two once the first one recovered. It now waits for the recovered connection (on the `RetryCount`
+  / `RetryDelay` schedule) and throws `InvalidOperationException` if it is still down after the last attempt.
+  `DisposeAsync` now disposes the channels and the connection even when they are already closed, and the bus throws
+  `ObjectDisposedException` after it.
+- `Kck.Security.TokenBlacklist.Redis` — a Redis outage at the first revocation check broke revocation until the process
+  restarted: the connection was a `Lazy<T>` that cached the first failed `Connect` for the process lifetime, and that
+  connect ran synchronously on the first request. The connection is now opened asynchronously on first use, once under
+  concurrent callers, and a failed connect is retried on the next call.
+- `Kck.Caching.Hybrid` — `IConnectionMultiplexer` was created inside DI resolution with a synchronous
+  `ConnectionMultiplexer.Connect` or `ConnectionMultiplexerFactory().GetAwaiter().GetResult()`, blocking the resolving
+  thread. It now follows the Kck.Caching.Redis pattern (ADR-0006): a hosted service opens the connection asynchronously
+  when the host starts.
+- `Kck.Messaging.MailKit` — with the defaults (`Port` 587, `UseSsl` true) the client attempted implicit TLS on the
+  STARTTLS port and the handshake failed on standard SMTP servers. The TLS mode is now derived from the port (465
+  implicit TLS, every other port mandatory STARTTLS; `UseSsl = false` keeps the opportunistic STARTTLS) unless
+  `SecureSocketOptions` is set. The pool's unused creation lock is removed.
+- `Kck.Messaging.AmazonSes` — `EmailMessage.Attachments`, `FromName` and recipient names were silently dropped. They
+  are now sent: attachments through SESv2 `Simple.Attachments` (file name, MIME type, content; SES limits the message
+  to 40 MB) and names as friendly addresses (`"Name" <user@example.com>`, with `"`, `\` and line breaks removed from
+  the name); a name with non-ASCII characters is sent RFC 2047 encoded (`=?utf-8?B?...?= <user@example.com>`), as SES
+  requires.
+- `Kck.FileStorage.FluentFtp` — `UploadAsync` returned normally when the server reported `FtpStatus.Failed` (a warning
+  was logged) or when `Overwrite = false` and the file existed (skipped silently); both now throw `IOException`. See
+  `docs/migrations/v4-to-v5.md`.
+- `Kck.FileStorage.AzureBlob` — the constructor called `CreateIfNotExists` synchronously (a blocking network call
+  during DI resolution that threw when the account was unreachable); the container is now created asynchronously on
+  first use, and a failed attempt is retried on the next call.
+- `Kck.Search.Elasticsearch` — `IndexDocumentAsync` and `BulkIndexAsync` only logged a warning when Elasticsearch
+  rejected the request, and `UpdateDocumentAsync`, `DeleteDocumentAsync`, `DeleteIndexAsync` ignored the response: a
+  rejected write (for example an invalid index name, or an update of a missing document) looked successful. They now
+  throw `InvalidOperationException` with the server's response (`BulkIndexAsync` also when only some items fail, with
+  the number of failed items and the first reason); deleting a missing document or index stays silent.
+- `Kck.FeatureFlags.AzureAppConfig` — a failed refresh propagated to every `IsEnabledAsync`, `GetValueAsync` and
+  `GetAllAsync` caller for the length of the outage, and every call tried the store again. The service now keeps the
+  last loaded flags, logs a warning and retries at the next `RefreshInterval`, for every failure the store or the
+  credential can raise (`RequestFailedException`, the `AggregateException` Azure.Core throws when its retries are
+  exhausted, timeouts, `AuthenticationFailedException`); a cancellation requested by the caller still propagates, and a
+  failure on the first load still throws (a store that holds zero flags counts as loaded).
+- `Kck.Security.TokenBlacklist.Redis`, `Kck.FileStorage.AzureBlob` — the first-use connect (blacklist) and container
+  creation (blob) are single-flight: concurrent callers await the same attempt and fail together instead of each
+  running its own connect/retry schedule after the previous one failed (the latency grew linearly with the queue
+  position during an outage). `RedisTokenBlacklistService` throws `ObjectDisposedException` after `Dispose`.
+- `Kck.Search.Elasticsearch` — `GetByIdAsync` and `IndexExistsAsync` also throw on an invalid response other than
+  404; the exception message and the error log carry the HTTP status, error type and reason from the server, while
+  the full debug information (which may include request bodies and field value previews) is logged at Debug level only.
 
 ## [4.8.0] — 2026-10-31
 

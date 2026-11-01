@@ -12,7 +12,6 @@ services.AddKckMessagingMailKit(opt =>
 {
     opt.Host = "smtp.gmail.com";
     opt.Port = 587;
-    opt.UseSsl = true;
     opt.UserName = builder.Configuration["Mail:User"]!;
     opt.Password = builder.Configuration["Mail:Password"]!;
     opt.PoolSize = 5;

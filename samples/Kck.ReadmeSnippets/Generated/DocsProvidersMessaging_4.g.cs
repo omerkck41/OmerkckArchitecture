@@ -4,7 +4,7 @@
 namespace ReadmeSnippets.DocsProvidersMessaging_4;
 using Kck.Messaging.Abstractions;
 
-#line 62 "docs/providers/messaging.md"
+#line 78 "docs/providers/messaging.md"
 public class OrderConfirmationService(IEmailProvider email)
 {
     public Task SendAsync(Order order, Stream receiptPdf, CancellationToken ct) =>
