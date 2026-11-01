@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1793553803474,
+  "lastUpdate": 1793562834464,
   "repoUrl": "https://github.com/omerkck41/OmerkckArchitecture",
   "entries": {
     "Benchmark": [
@@ -15406,6 +15406,102 @@ window.BENCHMARK_DATA = {
             "value": 5.466495589486191,
             "unit": "ns",
             "range": "± 0.05561413000525351"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "106805727+omerkck41@users.noreply.github.com",
+            "name": "Ömer KÜÇÜK",
+            "username": "omerkck41"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "af4b6a1376059863bf06ade40bbac10095ec0ca1",
+          "message": "feat(contracts)!: make the remaining contracts do what they promise (F2b) (#290)\n\n## Summary\n\nStep F2b of the provider health plan\n(`docs/plans/2026-10-31-provider-saglik-ve-atil-kod-plani.md`, section 4\n\"F2 — contract hygiene\",\nacceptance examples Ö10–Ö12): the contracts that promised something and\ndid nothing now do it. Every item was written test-first; the\nfailing runs are in `tasks/probes/2026-11-01-f2b/red.txt` (repo-local\nevidence folder).\n\n**Breaking (5.0):** `IMetricsService.CreateCounter` loses its `string[]?\ntags` parameter — a list of tag *keys* has no OpenTelemetry\nrepresentation; pass tags on each `Increment`. Recorded as `*REMOVED*`\nin `PublicAPI.Unshipped.txt`, CP0002/CP0006 in the\nObservability.Abstractions `CompatibilitySuppressions.xml`, migration\nguide section 9 and CHANGELOG `Removed`.\n\n## Fixed\n\n- **Kck.Exceptions.AspNetCore** — `CustomException.AdditionalData` (and\n`CustomArgumentException.ParamName`) is written into the problem\nbody as flat camelCase extension members\n(`UnifiedApiErrorResponse.Extensions`, `[JsonExtensionData]`); names\ncolliding with the standard\nmembers are skipped. A value that cannot be serialized (object cycle,\nunsupported type, null key) is left out with a Warning instead of\nbreaking the error response. Note: this applies to every\n`CustomException`, including those mapped to 5xx — data meant only for\nlogs\n  must not go into `AdditionalData` (migration guide row).\n- **Kck.Persistence** — new optional `IAuditUserProvider`\n(`Kck.Persistence.Abstractions.Auditing`): `AuditInterceptor` stamps\n`CreatedBy` / `ModifiedBy` / `DeletedBy`, resolving the provider once\nper `SaveChanges` from the context's application service provider,\nso a scoped (per-request) provider works. Pooled contexts need a\nsingleton provider; `UseEntityFrameworkPool` / `AddAuditInterceptor`\nthrow when a Scoped/Transient one is registered. Repository soft deletes\nno longer receive the Modified stamp (`ModifiedDate`,\n`ModifiedBy`), matching the `DbContext.Remove` path; an already\nsoft-deleted row keeps its `DeletedBy`.\n- **Kck.Documents.ClosedXml** — `ReadAsync` keeps cell positions: an\nempty cell reads as `null` and every row has the sheet's width\n  (4.x skipped empty cells and shifted the following values left).\n- **Kck.Observability.OpenTelemetry** — `CreateHistogram` applies the\nbucket boundaries (`InstrumentAdvice`); buckets must be finite and\nstrictly increasing (`ArgumentException` before anything is cached);\n`CreateCounter` / `CreateHistogram` / `CreateGauge` return the same\ninstrument for the same name (\"creates or retrieves\"; the first call's\ndescription and buckets win).\n- **Kck.Security.Jwt** — an undefined `RsaKeySource` value (for example\n`\"KeySource\": \"2\"`) fails option validation at start-up instead of\n  at the first token.\n- Regression test guarding the removed bool-flag `Query` overload\n(KCK0101).\n\n## Verification\n\n| Check | Result |\n|---|---|\n| Tests written first | every item RED then GREEN (`red.txt`: real\nfailure messages; two rounds) |\n| `dotnet build -c Release --no-incremental` | 0 errors (5 pre-existing\nCA1716 warnings) |\n| `dotnet test -c Release --filter \"Category!=Integration\"` | 1447/1447\n(+43 new) |\n| `dotnet pack` Observability.Abstractions, Persistence.Abstractions,\nPersistence.EntityFramework, Exceptions.AspNetCore | pack against the\n4.8.0 baseline |\n| `readme_snippets.py --check` / `docs_language.py` | 173 blocks up to\ndate / 106 files, 0 problems |\n| Fresh skeptical review | 1 high + 3 medium findings fixed in a second\nround (serialization fallback, soft-delete stamp, bucket validation,\npooled-context guard); low ones tracked |\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\n---------\n\nCo-authored-by: Claude Fable 5.1 <noreply@anthropic.com>",
+          "timestamp": "2026-11-01T19:46:17Z",
+          "tree_id": "50bc6550794111cb5fefebaa3257e04b73d1837f",
+          "url": "https://github.com/omerkck41/OmerkckArchitecture/commit/af4b6a1376059863bf06ade40bbac10095ec0ca1"
+        },
+        "date": 1793562833706,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Success_Factory",
+            "value": 6.229845662601292,
+            "unit": "ns",
+            "range": "± 0.17933677434688006"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Failure_Factory",
+            "value": 13.092114814619224,
+            "unit": "ns",
+            "range": "± 0.7294866692340609"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Success",
+            "value": 1.6354526627276624,
+            "unit": "ns",
+            "range": "± 0.0018141389582516628"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Failure",
+            "value": 0.585229299389399,
+            "unit": "ns",
+            "range": "± 0.0032576684466977743"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Serialize_Reflection",
+            "value": 488.08195931570873,
+            "unit": "ns",
+            "range": "± 3.559674208024211"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Deserialize_Reflection",
+            "value": 823.8926292146955,
+            "unit": "ns",
+            "range": "± 1.3728523485746535"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 0)",
+            "value": 10.363323198574962,
+            "unit": "ns",
+            "range": "± 0.4336121803719212"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 5)",
+            "value": 10.069404755036036,
+            "unit": "ns",
+            "range": "± 0.1784505282486452"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 0)",
+            "value": 10.237586875047002,
+            "unit": "ns",
+            "range": "± 0.23208891011162056"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 5)",
+            "value": 10.888142564579061,
+            "unit": "ns",
+            "range": "± 0.3146832844372472"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 0)",
+            "value": 10.023830109408923,
+            "unit": "ns",
+            "range": "± 0.1631021640251009"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 5)",
+            "value": 9.770923862854639,
+            "unit": "ns",
+            "range": "± 0.043580730758918926"
           }
         ]
       }
