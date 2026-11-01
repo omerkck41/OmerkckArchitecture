@@ -64,6 +64,52 @@ type name and `detail` its message:
 }
 ```
 
+### Additional data
+
+`CustomException.AdditionalData` (the `additionalData` constructor argument of `BadRequestException`,
+`NotFoundException` or your own subclass) is written into the body as RFC 9457 extension members, flat next to the
+standard members:
+
+```csharp
+using Kck.Exceptions;
+
+public sealed class UserRegistration
+{
+    public void EnsureEmailIsFree(bool taken)
+    {
+        if (taken)
+            throw new BadRequestException("Email is already registered.", new { Field = "Email", Code = "duplicate" });
+    }
+}
+```
+
+```json
+{
+  "type": "https://httpstatuses.com/400",
+  "title": "BadRequestException",
+  "status": 400,
+  "detail": "Email is already registered.",
+  "instance": "/users",
+  "traceId": "0HN...",
+  "field": "Email",
+  "code": "duplicate"
+}
+```
+
+- An object (anonymous type, record, class) is serialized and its top-level properties become members with camelCase
+  names; `null` properties are left out. `CustomArgumentException("...", "email")` writes `"paramName": "email"`.
+- An `IDictionary<string, object?>` or `IReadOnlyDictionary<string, object?>` is copied with its keys as they are.
+- Any other value (a string, a number, an array) is written under `additionalData`.
+- A key that matches a standard member (`type`, `title`, `status`, `detail`, `instance`, `errors`, `traceId`, in any
+  casing) is skipped, so additional data cannot overwrite them.
+- Data that cannot be serialized (an object cycle, a `Type` or delegate value, nesting deeper than 16 levels) is left
+  out as a whole: the response is the standard problem body, and a `Warning` naming the error type (not the data) is
+  logged with the TraceId. A pair with a `null` key is skipped.
+- Without additional data the body is exactly the standard members. Do not put internal details into
+  `AdditionalData`: it is sent to the client as is, also for a `CustomException` mapped to a 5xx status.
+
+Before 5.0 the additional data was dropped from the response.
+
 Any other exception becomes a 500 with the fixed detail `An unexpected error occurred.`, so internal messages do not
 leak. An `OperationCanceledException` is rethrown only when the request itself was aborted; another one (an
 `HttpClient` timeout) becomes a 500. Another error in an aborted request is logged, but no response is written: the

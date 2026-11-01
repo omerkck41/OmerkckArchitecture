@@ -29,7 +29,7 @@ app.MapGet("/orders/export", async (IExcelService excel, CancellationToken ct) =
 
 ## Configuration
 
-No options. `AddKckDocumentsClosedXml()` registers `IExcelService` and `ICsvExporter` (`.xlsx` only; `ReadAsync` reads the first worksheet).
+No options. `AddKckDocumentsClosedXml()` registers `IExcelService` and `ICsvExporter` (`.xlsx` only; `ReadAsync` reads the first worksheet; every row is as wide as the sheet's last used column and an empty cell is `null`).
 
 ## Resources
 

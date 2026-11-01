@@ -1,4 +1,5 @@
 using AwesomeAssertions;
+using ClosedXML.Excel;
 using Kck.Documents.Abstractions;
 using Kck.Documents.ClosedXml;
 using Xunit;
@@ -58,5 +59,49 @@ public sealed class ClosedXmlExcelServiceTests
         var rows = await _sut.ReadAsync(stream);
 
         rows.Should().HaveCount(2); // header + data row
+    }
+
+    [Fact]
+    public async Task ReadAsync_EmptyCellInsideRow_ReadsNullAtItsPosition()
+    {
+        using var stream = Workbook(sheet =>
+        {
+            sheet.Cell(1, 1).Value = "A";
+            sheet.Cell(1, 3).Value = "C";
+        });
+
+        var rows = await _sut.ReadAsync(stream);
+
+        rows.Should().ContainSingle();
+        rows[0].Should().Equal(new object?[] { "A", null, "C" });
+    }
+
+    [Fact]
+    public async Task ReadAsync_RowShorterThanWidestRow_IsPaddedWithNulls()
+    {
+        using var stream = Workbook(sheet =>
+        {
+            sheet.Cell(1, 1).Value = "Name";
+            sheet.Cell(1, 2).Value = "Age";
+            sheet.Cell(1, 3).Value = "City";
+            sheet.Cell(2, 1).Value = "Alice";
+            sheet.Cell(2, 2).Value = 30;
+        });
+
+        var rows = await _sut.ReadAsync(stream);
+
+        rows.Should().HaveCount(2);
+        rows[0].Should().Equal("Name", "Age", "City");
+        rows[1].Should().Equal(new object?[] { "Alice", "30", null });
+    }
+
+    private static MemoryStream Workbook(Action<IXLWorksheet> fill)
+    {
+        using var workbook = new XLWorkbook();
+        fill(workbook.AddWorksheet("Sheet1"));
+        var stream = new MemoryStream();
+        workbook.SaveAs(stream);
+        stream.Position = 0;
+        return stream;
     }
 }

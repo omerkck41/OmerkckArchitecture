@@ -107,8 +107,37 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   use `CircuitBreakerFailureRatio` / `CircuitBreakerMinimumThroughput`; `IEmailService` (KCK0600,
   Messaging.Abstractions) — use `IEmailProvider`; `IFeatureEvaluator` (KCK0901, FeatureFlags.Abstractions) — use
   `IFeatureFlagService.IsEnabledAsync(name, context)`. The KCK ids stay reserved (`docs/policies/deprecation.md`).
+- `Kck.Observability.Abstractions` — the `tags` parameter of `IMetricsService.CreateCounter(name, description, tags)`:
+  it took tag keys without values, which OpenTelemetry cannot represent, and the provider ignored it. Pass tags on each
+  `Increment` call; an own `IMetricsService` implementation drops the parameter.
 
 ### Fixed
+- `Kck.Exceptions.AspNetCore` — `CustomException.AdditionalData` never reached the response although the exceptions
+  document it as "included in the error response". It is now written flat into the problem body as RFC 9457 extension
+  members (`UnifiedApiErrorResponse.Extensions`, `[JsonExtensionData]`): an object's top-level properties in camelCase,
+  a dictionary's pairs as they are, any other value under `additionalData`; keys matching a standard member (`type`,
+  `title`, `status`, `detail`, `instance`, `errors`, `traceId`) are skipped. `CustomArgumentException("...", "email")`
+  now writes `"paramName": "email"`. Without additional data the body is unchanged.
+- `Kck.Persistence.EntityFramework` — `CreatedBy`, `ModifiedBy` and `DeletedBy` were never filled: the
+  `AuditInterceptor` had no source for the user. Register the new optional `IAuditUserProvider`
+  (`Kck.Persistence.Abstractions.Auditing`); it is resolved on every save from the service provider that created the
+  context, so a scoped implementation works, and soft deletes through the repository stamp `DeletedBy` too. Without a
+  provider, or with a `null`/empty user, the fields stay untouched as before. A pooled context resolves it from the
+  root provider, so `UseEntityFrameworkPool` together with `AddAuditInterceptor` throws `InvalidOperationException`
+  when a scoped or transient `IAuditUserProvider` is already registered (register a singleton when pooling).
+- `Kck.Persistence.EntityFramework` — a soft delete through the repository (`DeleteAsync`, `DeleteRangeAsync`) also set
+  `ModifiedDate` (the row reached the `AuditInterceptor` as modified), while `DbContext.Remove` did not. Both paths now
+  leave `ModifiedDate` / `ModifiedBy` untouched; `RevertSoftDeleteAsync` still counts as a modification.
+- `Kck.Documents.ClosedXml` — `ReadAsync` skipped empty cells, so `A, <empty>, C` read as `["A", "C"]` and the values
+  after a gap moved to the wrong column. Every row now spans up to the sheet's last used column, with `null` for an
+  empty cell.
+- `Kck.Observability.OpenTelemetry` — `CreateHistogram` ignored its `buckets`; they are now passed as
+  `InstrumentAdvice<double>.HistogramBucketBoundaries`. `CreateCounter`, `CreateHistogram` and `CreateGauge` said
+  "creates or retrieves" but registered a new instrument on every call; instruments are now cached by name (the first
+  call's description and buckets win).
+- `Kck.Security.Jwt` — an undefined `RsaKeySource` value (for example `"KeySource": "2"`, the removed SecretsManager
+  slot) passed `JwtOptionsValidator` and failed only at the first token; it now fails validation at start-up and the
+  message names the allowed values.
 - `Kck.Caching.Redis`, `Kck.Caching.Hybrid` — with `RedisCacheOptions.InstanceName` set, `ExistsAsync` always returned
   false and `RemoveByPrefixAsync` deleted nothing: Redis stores keys as `InstanceName` + key, but both looked the key up
   without it. They now add the instance name (Hybrid strips it again for its in-process L1). A new constructor overload

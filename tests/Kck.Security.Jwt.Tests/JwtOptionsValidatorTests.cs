@@ -88,6 +88,19 @@ public sealed class JwtOptionsValidatorTests
         _sut.Validate(null, opts).Succeeded.Should().BeTrue();
     }
 
+    [Theory]
+    [InlineData(2)]  // "KeySource": "2" — the removed SecretsManager slot
+    [InlineData(-1)]
+    public void Validate_UndefinedKeySource_ReturnsFailNamingTheAllowedValues(int keySource)
+    {
+        var opts = Valid(KeySource: (RsaKeySource)keySource);
+
+        var result = _sut.Validate(null, opts);
+
+        result.Succeeded.Should().BeFalse();
+        result.FailureMessage.Should().Contain("KeySource").And.Contain("Configuration").And.Contain("File");
+    }
+
     private static JwtOptions Valid(
         RsaKeySource KeySource = RsaKeySource.Configuration,
         string? RsaKeyBase64 = "dGVzdA==",

@@ -1,4 +1,6 @@
 #nullable enable
+Kck.Persistence.Abstractions.Auditing.IAuditUserProvider
+Kck.Persistence.Abstractions.Auditing.IAuditUserProvider.CurrentUser.get -> string?
 Kck.Persistence.Abstractions.Repositories.IQuery<T>.Query(Kck.Persistence.Abstractions.Repositories.QueryOptions options, System.Linq.Expressions.Expression<System.Func<T, bool>!>? filter = null, System.Func<System.Linq.IQueryable<T>!, System.Linq.IOrderedQueryable<T>!>? orderBy = null) -> System.Linq.IQueryable<T>!
 *REMOVED*Kck.Persistence.Abstractions.Dynamic.FilterValidator
 *REMOVED*Kck.Persistence.Abstractions.Repositories.IQuery<T>.Query(System.Linq.Expressions.Expression<System.Func<T, bool>!>? filter = null, System.Func<System.Linq.IQueryable<T>!, System.Linq.IOrderedQueryable<T>!>? orderBy = null, bool withDeleted = false, bool enableTracking = false) -> System.Linq.IQueryable<T>!

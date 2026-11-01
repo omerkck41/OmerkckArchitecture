@@ -8,7 +8,8 @@ using Kck.Observability.Abstractions;
 public class OrderMetrics(IMetricsService metrics)
 {
     private readonly ICounter _created = metrics.CreateCounter("orders.created", "Orders created");
-    private readonly IHistogram _duration = metrics.CreateHistogram("orders.process.duration", "Processing time (ms)");
+    private readonly IHistogram _duration = metrics.CreateHistogram(
+        "orders.process.duration", "Processing time (ms)", buckets: [5, 10, 25, 50, 100, 250, 500, 1000]);
 
     public void Created(Order order, double elapsedMs)
     {

@@ -81,11 +81,14 @@ public sealed class ClosedXmlExcelService : IExcelService
         var sheet = workbook.Worksheet(1);
         var rows = new List<IReadOnlyList<object?>>();
 
+        // Every row is as wide as the widest used column of the sheet, so a value keeps its column position: an empty
+        // cell (inside a row or after its last value) reads as null.
+        var width = sheet.LastColumnUsed()?.ColumnNumber() ?? 0;
         foreach (var row in sheet.RowsUsed())
         {
-            var cells = new List<object?>();
-            foreach (var cell in row.CellsUsed())
-                cells.Add(cell.Value.ToString(CultureInfo.InvariantCulture));
+            var cells = new List<object?>(width);
+            foreach (var cell in row.Cells(1, width))
+                cells.Add(cell.Value.IsBlank ? null : cell.Value.ToString(CultureInfo.InvariantCulture));
             rows.Add(cells);
         }
 

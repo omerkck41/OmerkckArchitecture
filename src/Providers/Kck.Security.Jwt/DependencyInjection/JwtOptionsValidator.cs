@@ -36,6 +36,15 @@ public sealed class JwtOptionsValidator : IValidateOptions<JwtOptions>
                     → Fix: opt.RefreshTokenTtlDays = 7
                 """);
 
+        // A number bound from configuration (for example "2", the removed SecretsManager slot) is not a defined value
+        // and would otherwise fail only at the first token.
+        if (!Enum.IsDefined(options.KeySource))
+            errors.Add(
+                $"""
+                  • KeySource: {options.KeySource} is not a supported value (allowed: {string.Join(", ", Enum.GetNames<RsaKeySource>())})
+                    → Fix: opt.KeySource = RsaKeySource.Configuration (or "KeySource": "Configuration" in appsettings)
+                """);
+
         // The matching field is required for the selected RSA key source
         switch (options.KeySource)
         {
