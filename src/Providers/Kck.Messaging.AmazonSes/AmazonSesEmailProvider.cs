@@ -81,7 +81,10 @@ public sealed class AmazonSesEmailProvider : IEmailProvider
             if (simple.Attachments is not null)
             {
                 foreach (var attachment in simple.Attachments)
-                    attachment.RawContent?.Dispose();
+                {
+                    if (attachment.RawContent is not null)
+                        await attachment.RawContent.DisposeAsync().ConfigureAwait(false);
+                }
             }
         }
     }

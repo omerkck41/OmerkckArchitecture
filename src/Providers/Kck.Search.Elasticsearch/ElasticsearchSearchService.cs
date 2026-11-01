@@ -214,11 +214,13 @@ public sealed partial class ElasticsearchSearchService<T> : ISearchService<T>, I
 
         // Without a server error body (transport failure, no response) the message names only the exception type:
         // DebugInformation may contain request bodies, node addresses and headers and stays in the Debug log.
-        var detail = serverError is not null
-            ? $"{serverError.Type}: {serverError.Reason}"
-            : innerException is not null
-                ? $"transport error ({innerException.GetType().Name}); enable Debug logging for the request details"
-                : "no response body; enable Debug logging for the request details";
+        string detail;
+        if (serverError is not null)
+            detail = $"{serverError.Type}: {serverError.Reason}";
+        else if (innerException is not null)
+            detail = $"transport error ({innerException.GetType().Name}); enable Debug logging for the request details";
+        else
+            detail = "no response body; enable Debug logging for the request details";
 
         LogRequestFailed(_logger, operation, indexName, documentId, status, serverError?.Type, serverError?.Reason);
         if (_logger.IsEnabled(LogLevel.Debug))

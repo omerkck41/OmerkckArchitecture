@@ -194,7 +194,10 @@ public sealed class RabbitMqEventBus : IEventBus, IAsyncDisposable
             // MaxDeliveryCount counts every delivery including the first: Max = 3 means 3 handler invocations.
             var attempt = ResolveDeliveryAttempt(messageId, ea.Redelivered, _options.MaxDeliveryCount, _attempts);
             var requeue = attempt < _options.MaxDeliveryCount;
-            await channel.BasicNackAsync(ea.DeliveryTag, multiple: false, requeue: requeue).ConfigureAwait(false);
+            // Deliberately not cancellable: the broker must learn the outcome of this delivery even while the host
+            // is stopping, otherwise the message stays unacknowledged until the channel closes.
+            await channel.BasicNackAsync(ea.DeliveryTag, multiple: false, requeue: requeue, cancellationToken: CancellationToken.None)
+                .ConfigureAwait(false);
 
             if (!requeue)
             {
@@ -210,8 +213,9 @@ public sealed class RabbitMqEventBus : IEventBus, IAsyncDisposable
             return;
         }
 
-        // Outside the try: a failed ack (for example on a closed channel) is not a handler failure.
-        await channel.BasicAckAsync(ea.DeliveryTag, multiple: false).ConfigureAwait(false);
+        // Outside the try: a failed ack (for example on a closed channel) is not a handler failure. Not cancellable for
+        // the same reason as the nack above: a handled message must be acknowledged even during shutdown.
+        await channel.BasicAckAsync(ea.DeliveryTag, multiple: false, cancellationToken: CancellationToken.None).ConfigureAwait(false);
 
         if (!string.IsNullOrEmpty(messageId))
             _attempts.Forget(messageId);
