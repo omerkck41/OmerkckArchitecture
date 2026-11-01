@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1793549261192,
+  "lastUpdate": 1793551093062,
   "repoUrl": "https://github.com/omerkck41/OmerkckArchitecture",
   "entries": {
     "Benchmark": [
@@ -15214,6 +15214,102 @@ window.BENCHMARK_DATA = {
             "value": 10.242241871356963,
             "unit": "ns",
             "range": "± 0.08917139119866418"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "106805727+omerkck41@users.noreply.github.com",
+            "name": "Ömer KÜÇÜK",
+            "username": "omerkck41"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "1dfe2ad9cc200d693000299c218e24b28ffd190f",
+          "message": "feat(documents)!: remove Kck.Documents.ImageSharp and the Six Labors licence wiring (S4) (#288)\n\n## Summary\n\nStep S4 of the SixLabors removal plan\n(`docs/plans/2026-10-31-sixlabors-kaldirma-plani.md`, decision\n`decisions/2026-10-31-image-library-replacement.md`):\n`Kck.Documents.ImageSharp` and every piece of Six Labors licence\nwiring leave the repository. `Kck.Documents.SkiaSharp` (#287) is the\nimage provider from 5.0.\n\n**Breaking (5.0):** `Kck.Documents.ImageSharp` is not published any\nmore. Migration: `docs/migrations/v4-to-v5.md` section 8\n(`AddKckDocumentsImageSharp()` → `AddKckDocumentsSkiaSharp()`; Linux\napps add `SkiaSharp.NativeAssets.Linux.NoDependencies`).\n\n## Removed\n- `src/Providers/Kck.Documents.ImageSharp`,\n`tests/Kck.Documents.ImageSharp.Tests` (the 12 cases live on in the\nSkiaSharp suite), both solution entries\n- `stryker-documents-imagesharp.json` and its `mutation.yml` matrix\nentry\n- `SixLabors.ImageSharp` in `Directory.Packages.props`; the\n`SixLaborsLicenseFile` block in `Directory.Build.props`\n- `SixLaborsLicenseKey: ${{ secrets.SIXLABORS_LICENSE_KEY }}` on nine\nworkflows (empty `env:` keys removed too), the related comments\n- the `SixLabors.ImageSharp` exception in `.github/license-policy.json`\n- the ReadmeSnippets project reference and the generated ImageSharp\nsnippet\n\n## Changed\n- Docs name SkiaSharp instead of ImageSharp:\n`docs/providers/documents.md`, `docs/providers/README.md`, root\n`README.md`,\n`docs/licensing.md`, `CONTRIBUTING.md`, `Kck.Documents.Abstractions`\ndescription + README\n- `docs/memory/known-issues.md` K1 closed; closing note on\n`decisions/2026-10-14-sdk-10.0.402-imagesharp-4.md`; CHANGELOG `Removed`\n- `samples/Kck.ReadmeSnippets/packages.lock.json` (SixLabors entries\ngone); other lock files untouched\n\n## Kept on purpose (S5, maintainer, after this merges)\n- `.gitignore` entry for the local `sixlabors.lic` (until the file is\ndeleted)\n- the `SIXLABORS_LICENSE_KEY` secret (Actions + Dependabot) — no\nworkflow reads it any more, delete it\n- the 4.x `Kck.Documents.ImageSharp` packages on nuget.org — mark\ndeprecated with `Kck.Documents.SkiaSharp` as the alternative\n\n## Verification (local, with no licence key or file)\n\n| Check | Result |\n|---|---|\n| `dotnet build -c Release` (solution) | 0 errors (5 pre-existing CA1716\nwarnings) |\n| `dotnet restore --locked-mode` | passes |\n| `Kck.Documents.SkiaSharp.Tests` | 83/83 |\n| licence gate (`license_gate.py`) | 260 packages, 0 violations;\nexceptions only Hangfire + sonarscanner |\n| gate unit tests | 82 OK |\n| `readme_snippets.py --check` | 171 blocks up to date |\n| `docs_language.py` | 106 files, 0 problems |\n| workflow YAML parse | 9/9 |\n\nCI on this PR is the first run of every workflow without the Six Labors\nkey.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\n---------\n\nCo-authored-by: Claude Fable 5.1 <noreply@anthropic.com>",
+          "timestamp": "2026-11-01T16:30:54Z",
+          "tree_id": "7e50a58cc140ab4377967cdb6f370b6ed457316d",
+          "url": "https://github.com/omerkck41/OmerkckArchitecture/commit/1dfe2ad9cc200d693000299c218e24b28ffd190f"
+        },
+        "date": 1793551092088,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Success_Factory",
+            "value": 5.241421624736966,
+            "unit": "ns",
+            "range": "± 0.18855610385122107"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Failure_Factory",
+            "value": 7.125597032633695,
+            "unit": "ns",
+            "range": "± 0.23028818541359355"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Success",
+            "value": 0.8423716157961351,
+            "unit": "ns",
+            "range": "± 0.006462681957044646"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Failure",
+            "value": 0.5164331048727036,
+            "unit": "ns",
+            "range": "± 0.0011387442195022696"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Serialize_Reflection",
+            "value": 312.2904986968407,
+            "unit": "ns",
+            "range": "± 0.7061272180490737"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Deserialize_Reflection",
+            "value": 579.4261785234723,
+            "unit": "ns",
+            "range": "± 1.5084751702539914"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 0)",
+            "value": 8.705489775538444,
+            "unit": "ns",
+            "range": "± 0.18158239442332735"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 5)",
+            "value": 8.244866339223725,
+            "unit": "ns",
+            "range": "± 0.07956706043812625"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 0)",
+            "value": 8.854352806011835,
+            "unit": "ns",
+            "range": "± 0.205510974233825"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 5)",
+            "value": 8.226616337895393,
+            "unit": "ns",
+            "range": "± 0.06364632153525772"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 0)",
+            "value": 8.46117600585733,
+            "unit": "ns",
+            "range": "± 0.14072365264362488"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 5)",
+            "value": 8.456987358132999,
+            "unit": "ns",
+            "range": "± 0.14230673180925874"
           }
         ]
       }
