@@ -11,6 +11,7 @@ namespace Kck.Persistence.EntityFramework.Interceptors;
 /// </summary>
 internal static class AuditUser
 {
+    /// <summary>Resolves the user to stamp on audited entities of <paramref name="context"/>'s current save.</summary>
     /// <returns>The current user, or <see langword="null"/> when no provider is registered or it has no user.</returns>
     public static string? Resolve(DbContext context)
     {

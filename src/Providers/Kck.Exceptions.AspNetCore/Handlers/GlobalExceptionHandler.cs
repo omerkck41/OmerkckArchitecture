@@ -117,22 +117,16 @@ public sealed partial class GlobalExceptionHandler : IKckExceptionHandler
 
             if (additionalData is IEnumerable<KeyValuePair<string, object?>> pairs)
             {
-                foreach (var (key, value) in pairs)
-                {
-                    if (IsWritable(key) && !extensions.ContainsKey(key))
-                        extensions[key] = value is null ? null : JsonSerializer.SerializeToElement(value, AdditionalDataJsonOptions);
-                }
+                foreach (var (key, value) in pairs.Where(pair => IsWritable(pair.Key) && !extensions.ContainsKey(pair.Key)))
+                    extensions[key] = value is null ? null : JsonSerializer.SerializeToElement(value, AdditionalDataJsonOptions);
             }
             else
             {
                 var element = JsonSerializer.SerializeToElement(additionalData, AdditionalDataJsonOptions);
                 if (element.ValueKind == JsonValueKind.Object)
                 {
-                    foreach (var property in element.EnumerateObject())
-                    {
-                        if (IsWritable(property.Name))
-                            extensions.TryAdd(property.Name, property.Value);
-                    }
+                    foreach (var property in element.EnumerateObject().Where(property => IsWritable(property.Name)))
+                        extensions.TryAdd(property.Name, property.Value);
                 }
                 else
                 {
