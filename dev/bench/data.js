@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1793622802817,
+  "lastUpdate": 1793623516528,
   "repoUrl": "https://github.com/omerkck41/OmerkckArchitecture",
   "entries": {
     "Benchmark": [
@@ -15886,6 +15886,102 @@ window.BENCHMARK_DATA = {
             "value": 12.037218747230677,
             "unit": "ns",
             "range": "± 0.1103074677033235"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "106805727+omerkck41@users.noreply.github.com",
+            "name": "Ömer KÜÇÜK",
+            "username": "omerkck41"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "9234745f404e8021ec3ee5a37b6b72b26f47b83a",
+          "message": "docs(changelog): 5.0.0 release notes (#300)\n\n## Summary\n\nRelease preparation for **5.0.0**, after F1–F5 (#286–#293, #299) landed\non main.\n\n- CHANGELOG: `## [5.0.0] — 2026-11-02` cut from `[Unreleased]` (Added /\nChanged — BREAKING / Changed / Removed — BREAKING / Fixed), with a\npointer to the migration guide and the GitHub Release.\n- `docs/migrations/v4-to-v5.md`: release date and a realistic effort\nestimate (M) covering sections 1–11.\n- `docs/policies/versioning.md`: current major is 5.x.\n- Carries the Sonar follow-up that missed #299's merge: seven\n`CsvExporter` tests (new-code coverage) and `logging.exception` in the\nship script.\n\nChecks: ClosedXml tests 14/14, script tests OK, README snippets 175 up\nto date, docs language 0 problems.\n\nAfter merge: the maintainer tags `v5.0.0` on the resulting main commit\nand approves the `nuget` environment; then the baseline-5.0.0 PR removes\nthe 17 `CompatibilitySuppressions.xml` files and bumps\n`PackageValidationBaselineVersion`.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\n---------\n\nCo-authored-by: Claude Fable 5.1 <noreply@anthropic.com>",
+          "timestamp": "2026-11-02T12:38:52Z",
+          "tree_id": "9437eb035158a766dcf35f470843348e06c631cf",
+          "url": "https://github.com/omerkck41/OmerkckArchitecture/commit/9234745f404e8021ec3ee5a37b6b72b26f47b83a"
+        },
+        "date": 1793623515796,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Success_Factory",
+            "value": 7.1881306797266005,
+            "unit": "ns",
+            "range": "± 0.07487249937698484"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Failure_Factory",
+            "value": 10.766391143202782,
+            "unit": "ns",
+            "range": "± 0.294031386968601"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Success",
+            "value": 1.6470905714310133,
+            "unit": "ns",
+            "range": "± 0.009506512791854577"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Failure",
+            "value": 0.5866472841455386,
+            "unit": "ns",
+            "range": "± 0.005465163850472805"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Serialize_Reflection",
+            "value": 495.6181847708566,
+            "unit": "ns",
+            "range": "± 1.6080178384059427"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Deserialize_Reflection",
+            "value": 825.7744026184082,
+            "unit": "ns",
+            "range": "± 2.636193603105946"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 0)",
+            "value": 11.580909279982249,
+            "unit": "ns",
+            "range": "± 0.18422284443535056"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 5)",
+            "value": 11.393065558870633,
+            "unit": "ns",
+            "range": "± 0.1461359533334931"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 0)",
+            "value": 11.82521233856678,
+            "unit": "ns",
+            "range": "± 0.34756404401554025"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 5)",
+            "value": 12.081193363666534,
+            "unit": "ns",
+            "range": "± 0.18536013417452993"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 0)",
+            "value": 11.39515746384859,
+            "unit": "ns",
+            "range": "± 0.08253169354410166"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 5)",
+            "value": 11.847901487350464,
+            "unit": "ns",
+            "range": "± 0.18139980744858572"
           }
         ]
       }
