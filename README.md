@@ -149,7 +149,7 @@ For persistence specifically (soft delete, audit fields, domain events), see
 | `Kck.Authorization.Abstractions` | Permission / policy contracts |
 | `Kck.BackgroundJobs.Abstractions` | Job scheduling contracts |
 | `Kck.Caching.Abstractions` | Distributed cache contracts |
-| `Kck.Documents.Abstractions` | PDF / Excel / image processing contracts |
+| `Kck.Documents.Abstractions` | Excel, CSV and image processing contracts |
 | `Kck.EventBus.Abstractions` | Pub/sub event bus contracts |
 | `Kck.Exceptions.Abstractions` | Domain exception types |
 | `Kck.FeatureFlags.Abstractions` | Feature flag contracts |
@@ -171,8 +171,8 @@ For persistence specifically (soft delete, audit fields, domain events), see
 | Documents | `Kck.Documents.ClosedXml`, `Kck.Documents.SkiaSharp` |
 | Event Bus | `Kck.EventBus.InMemory`, `Kck.EventBus.RabbitMq`, `Kck.EventBus.AzureServiceBus` |
 | Exceptions | `Kck.Exceptions.AspNetCore` |
-| Feature Flags | `Kck.FeatureFlags.InMemory` |
-| File Storage | `Kck.FileStorage.FluentFtp` |
+| Feature Flags | `Kck.FeatureFlags.InMemory`, `Kck.FeatureFlags.AzureAppConfig` |
+| File Storage | `Kck.FileStorage.FluentFtp`, `Kck.FileStorage.AwsS3`, `Kck.FileStorage.AzureBlob` |
 | HTTP | `Kck.Http.Resilience` |
 | Hosting | `Kck.Hosting.Aspire` |
 | Resilience | `Kck.Resilience.Polly` |

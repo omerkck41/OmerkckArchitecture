@@ -63,8 +63,26 @@ In each abstraction project:
 Adding a new public API causes a build error (RS0016). Adding a line to
 `PublicAPI.Unshipped.txt` in the PR is required.
 
-During a release, the contents of `PublicAPI.Unshipped.txt` are moved to the
-`PublicAPI.Shipped.txt` file, and `Unshipped` is left empty.
+### Shipping the public API (release step)
+
+Before a release is tagged, the pending entries of every abstraction project are moved from `PublicAPI.Unshipped.txt`
+to `PublicAPI.Shipped.txt` with `.github/scripts/publicapi_ship.py` (standard library only):
+
+1. On the release branch, run `python -I .github/scripts/publicapi_ship.py --root .`. For each
+   `src/Abstractions/**/PublicAPI.Unshipped.txt` it:
+   - deletes the exact signature of every `*REMOVED*<signature>` line from the sibling `PublicAPI.Shipped.txt`
+     (an error if `Shipped` does not contain it);
+   - appends every other entry to `PublicAPI.Shipped.txt` in `Unshipped` order (an error if `Shipped` already contains
+     it); `Shipped` is not re-sorted and keeps `#nullable enable` as its first line;
+   - rewrites `PublicAPI.Unshipped.txt` to the single line `#nullable enable`.
+
+   The script prints the removed and added counts per project and writes UTF-8 without BOM with LF line endings. No
+   file is written when a project's REMOVED or duplicate lines cannot be resolved; an I/O error during the write loop
+   can leave earlier projects written — re-run after fixing.
+2. Build the solution in Release: no RS0016, RS0017 or RS0026 errors.
+3. Check that nothing is left: `python -I .github/scripts/publicapi_ship.py --root . --check` exits 1 while any
+   `PublicAPI.Unshipped.txt` still has entries.
+4. Commit the `PublicAPI.*.txt` changes with the release preparation, before the `v*.*.*` tag.
 
 ## CHANGELOG Discipline
 

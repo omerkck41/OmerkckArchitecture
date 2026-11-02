@@ -3,7 +3,7 @@
 - **Tarih:** 2026-10-26
 - **Durum:** Uygulandı (bakımcı kabulü bekliyor)
 - **Kısıt:** projede ücretli lisans kullanılmaz (bakımcı, 2026-10-26).
-- **Plan:** `docs/plans/2026-10-26-dis-inceleme-yol-haritasi.md` (F0 / H1-H2)
+- **Plan:** `docs/archive/2026-10-26-dis-inceleme-yol-haritasi.md` (F0 / H1-H2)
 
 ## Sorun
 `license-audit.yml` lisans alanında yalnız GPL/LGPL/SSPL/BUSL dizgesi arıyordu. NuGet'te `<license type="file">` ile

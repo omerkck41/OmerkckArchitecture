@@ -8,7 +8,6 @@ Kck.Caching.Abstractions.CacheOptions.KeyPrefix.set -> void
 Kck.Caching.Abstractions.CacheServiceBase
 Kck.Caching.Abstractions.CacheServiceBase.BuildKey(string! key) -> string!
 Kck.Caching.Abstractions.CacheServiceBase.CacheServiceBase() -> void
-Kck.Caching.Abstractions.CacheServiceBase.GetOrSetAsync<T>(string! key, System.Func<System.Threading.Tasks.Task<T>!>! factory, System.TimeSpan? expiration = null, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<T?>!
 Kck.Caching.Abstractions.ICacheService
 Kck.Caching.Abstractions.ICacheService.GetOrSetAsync<T>(string! key, System.Func<System.Threading.Tasks.Task<T>!>! factory, System.TimeSpan? expiration = null, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<T?>!
 Kck.Caching.Abstractions.ICacheService.RemoveAsync(string! key, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task!
@@ -22,3 +21,5 @@ Kck.Caching.Abstractions.ICacheService.ExistsAsync(string! key, System.Threading
 Kck.Caching.Abstractions.ICacheService.GetAsync<T>(string! key, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.ValueTask<T?>
 abstract Kck.Caching.Abstractions.CacheServiceBase.ExistsAsync(string! key, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.ValueTask<bool>
 abstract Kck.Caching.Abstractions.CacheServiceBase.GetAsync<T>(string! key, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.ValueTask<T?>
+virtual Kck.Caching.Abstractions.CacheServiceBase.GetOrSetAsync<T>(string! key, System.Func<System.Threading.Tasks.Task<T>!>! factory, System.TimeSpan? expiration = null, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<T?>!
+virtual Kck.Caching.Abstractions.CacheServiceBase.TryGetAsync<T>(string! key, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.ValueTask<(bool Found, T? Value)>

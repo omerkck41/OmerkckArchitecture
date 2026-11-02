@@ -7,9 +7,6 @@ Kck.BackgroundJobs.Abstractions.IJobScheduler.AddOrUpdateRecurringAsync<TJob>(st
 Kck.BackgroundJobs.Abstractions.IJobScheduler.EnqueueAsync<TJob>(System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task!
 Kck.BackgroundJobs.Abstractions.IJobScheduler.RemoveRecurringAsync(string! jobId, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task!
 Kck.BackgroundJobs.Abstractions.IJobScheduler.ScheduleAsync<TJob>(System.TimeSpan delay, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task!
-Kck.BackgroundJobs.Abstractions.IRecurringJob
-Kck.BackgroundJobs.Abstractions.IRecurringJob.CronExpression.get -> string!
-Kck.BackgroundJobs.Abstractions.IRecurringJob.JobId.get -> string!
 Microsoft.Extensions.DependencyInjection.BackgroundJobRegistrationExtensions
 const Kck.BackgroundJobs.Abstractions.CronExpressions.Every15Minutes = "*/15 * * * *" -> string!
 const Kck.BackgroundJobs.Abstractions.CronExpressions.Every5Minutes = "*/5 * * * *" -> string!

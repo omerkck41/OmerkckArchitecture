@@ -1,7 +1,7 @@
 # Karar: kck-webapi şablonunda etkileşimli API arayüzü — Scalar.AspNetCore
 
 - Tarih: 2026-10-30
-- Bağlam: DX planı G1.2 (`docs/plans/2026-10-30-dx-hero-module-plan.md`), ADR-0029 D3. Şablon .NET 10'un
+- Bağlam: DX planı G1.2 (`docs/archive/2026-10-30-dx-hero-module-plan.md`), ADR-0029 D3. Şablon .NET 10'un
   `Microsoft.AspNetCore.OpenApi` belgesini üretiyor; Development'ta tarayıcıdan denenebilir bir arayüz "ilk 60 saniye"
   deneyiminin parçası. Negatif gereksinim (plan §13): şablon varsayılan olarak dışarıya istek/telemetri göndermez.
 - Pre-commitment (araştırmadan önce): ölçütler — izin verici lisans, son 2 sürümde lisans değişmemiş · son 12 ayda

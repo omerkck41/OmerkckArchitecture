@@ -4,7 +4,7 @@
   yönü kararı) · Profil: Kurumsal (TIER 3)
 - Üst karar: benimsenme stratejisi seçenek B (DX) + A (kahraman modül) birleşimi; kullanıcı onayı 2026-10-30; yol
   haritası D5 (DX odağı) ile uyumlu ([2026-10-26-dis-inceleme-yol-haritasi.md](2026-10-26-dis-inceleme-yol-haritasi.md))
-- Durum: **onaylandı 2026-10-30** (kullanıcı: "Approve, start F0") · F0 yürütülüyor
+- Status: **completed** 2026-10-31 · shipped in 4.7.0 · archived 2026-11-02 (approved 2026-10-30: "Approve, start F0")
 
 ## 1. Hedef
 Kck'yi ilk kez deneyen bir .NET geliştiricisi tek komutla, kurulum gerektirmeyen, testleri ve belgeleriyle çalışan bir

@@ -38,7 +38,7 @@ Native AOT smoke), Trusted Publishing to nuget.org. Adoption is low and is not l
 | D5 | Documentation follows the **Diátaxis** structure (tutorials, how-to guides, reference, explanation). Published docs are guarded in CI: no Turkish text outside historical ADRs, every C# block compiles (explicit, counted exemptions only), docfx fails on broken links. |
 | D6 | Success is measured (plan §9): time from `dotnet new` to a healthy endpoint (target ≤ 60 s, warm cache), generated solution builds with 0 warnings for every database choice, the docs guards, zero analyzer false positives in the repository, and adoption metrics recorded at baseline, +30 and +60 days. |
 
-Implementation plan, acceptance examples, premortem and rollback: `docs/plans/2026-10-30-dx-hero-module-plan.md`.
+Implementation plan, acceptance examples, premortem and rollback: `docs/archive/2026-10-30-dx-hero-module-plan.md`.
 
 ---
 
@@ -71,5 +71,5 @@ Implementation plan, acceptance examples, premortem and rollback: `docs/plans/20
 ## Related
 
 - ADR-0030 (domain event handlers), ADR-0031 (analyzer packaging) — to be written in their phases
-- `docs/plans/2026-10-30-dx-hero-module-plan.md`
-- `docs/plans/2026-10-26-dis-inceleme-yol-haritasi.md` (decision D5: DX focus)
+- `docs/archive/2026-10-30-dx-hero-module-plan.md`
+- `docs/archive/2026-10-26-dis-inceleme-yol-haritasi.md` (decision D5: DX focus)

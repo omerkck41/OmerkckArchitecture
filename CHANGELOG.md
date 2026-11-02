@@ -56,7 +56,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   converted to sRGB), and an out-of-range `Quality` is clamped to 1–100 instead of throwing.
   `Kck.Documents.ImageSharp` is removed in 5.0; see `docs/migrations/v4-to-v5.md`.
 
-### Changed
+### Changed — BREAKING
 - `Kck.EventBus.RabbitMq` — **breaking for existing queues.** The consumer declares a per-service fanout dead-letter
   exchange (`{QueuePrefix}.dlx`, so services sharing `ExchangeName` do not receive each other's rejected messages) and
   a durable dead-letter queue, and declares each consumer queue with `x-dead-letter-exchange`. RabbitMQ refuses to
@@ -64,8 +64,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `InvalidOperationException` (406 `PRECONDITION_FAILED`) that names the queue and the remedies: use a new
   `QueuePrefix`, or set `DeadLetterEnabled = false` and apply the dead-letter exchange through a broker policy, or
   delete the queue (drain it first). See `docs/migrations/v4-to-v5.md`.
-- `Kck.EventBus.RabbitMq` — the consumer channel takes at most `PrefetchCount` (10) unacknowledged messages; before,
-  the broker pushed the whole queue into the process. Set `PrefetchCount = 0` for the old behaviour.
 - `Kck.EventBus.RabbitMq` — the `rabbitmq-eventbus` health check reports whether the bus is ready to consume instead of
   opening a new connection on every probe: it is Unhealthy until the host has started the consumers, while the
   connection recovers, and when a channel-level error (for example a `consumer_timeout` or a 406) closed the consumer
@@ -74,16 +72,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   delivery: the message is negatively acknowledged and counted against `MaxDeliveryCount`. Before, it stayed
   unacknowledged; only host shutdown does that now.
 - `Kck.EventBus.RabbitMq` — `UseRabbitMq` throws `ArgumentOutOfRangeException` when `MaxDeliveryCount` is below 1.
-- `Kck.Security.TokenBlacklist.Redis` — with `ConnectionString` left empty, the blacklist shares the registered
-  `IConnectionMultiplexer` (for example Kck.Caching.Redis's, available after the host started) instead of opening one
-  more connection; the options validator accepts an empty `ConnectionString` only when one is registered. New
-  constructor overload `RedisTokenBlacklistService(IOptionsMonitor<RedisTokenBlacklistOptions>, IConnectionMultiplexer)`;
-  the shared connection is not disposed by the service. Sharing the cache's Redis is possible but not recommended by
-  default: read the eviction warning in `docs/providers/security.md` ("Token Blacklist") first.
-- `Kck.Caching.Hybrid` — a missing Redis configuration (none of `Configuration`, `ConfigurationOptions`,
-  `ConnectionMultiplexerFactory`) now throws `InvalidOperationException` in `AddKckCachingHybrid`, not at the first
-  resolve. Resolving `ICacheService` or `IConnectionMultiplexer` before the host's `StartAsync` completed throws
-  `InvalidOperationException`; a container built without a host must start the registered `IHostedService`s first.
 - `Kck.Messaging.MailKit` — `UseSsl = true` on a port other than 465 no longer means implicit TLS: it is mandatory
   STARTTLS (the connection still never falls back to plaintext; opportunistic STARTTLS is only what `UseSsl = false`
   gives). Set `SecureSocketOptions = SecureSocketOptions.SslOnConnect` for implicit TLS on a custom port. See
@@ -110,8 +98,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   the Debug sink through this package.** Depends on `Serilog.Extensions.Hosting` + `Serilog.Sinks.Console` +
   `Serilog.Sinks.File` instead of `Serilog.AspNetCore`. Add `Serilog.AspNetCore` (`UseSerilogRequestLogging`),
   `Serilog.Settings.Configuration` or `Serilog.Sinks.Debug` yourself if you used them.
+- `Kck.Documents.ClosedXml` — **breaking:** `ClosedXmlCsvExporter` is renamed `CsvExporter` (it never used ClosedXML).
+  Only the type name changes: `ICsvExporter` and `AddKckDocumentsClosedXml()` are unchanged, so code that resolves
+  `ICsvExporter` needs no change. See `docs/migrations/v4-to-v5.md`.
+- `Kck.Caching.Hybrid` — a missing Redis configuration (none of `Configuration`, `ConfigurationOptions`,
+  `ConnectionMultiplexerFactory`) now throws `InvalidOperationException` in `AddKckCachingHybrid`, not at the first
+  resolve. Resolving `ICacheService` or `IConnectionMultiplexer` before the host's `StartAsync` completed throws
+  `InvalidOperationException`; a container built without a host must start the registered `IHostedService`s first
+  (`docs/migrations/v4-to-v5.md`, section 6).
 
-### Removed
+### Changed
+- `Kck.EventBus.RabbitMq` — the consumer channel takes at most `PrefetchCount` (10) unacknowledged messages; before,
+  the broker pushed the whole queue into the process. Set `PrefetchCount = 0` for the old behaviour.
+- `Kck.Security.TokenBlacklist.Redis` — with `ConnectionString` left empty, the blacklist shares the registered
+  `IConnectionMultiplexer` (for example Kck.Caching.Redis's, available after the host started) instead of opening one
+  more connection; the options validator accepts an empty `ConnectionString` only when one is registered. New
+  constructor overload `RedisTokenBlacklistService(IOptionsMonitor<RedisTokenBlacklistOptions>, IConnectionMultiplexer)`;
+  the shared connection is not disposed by the service. Sharing the cache's Redis is possible but not recommended by
+  default: read the eviction warning in `docs/providers/security.md` ("Token Blacklist") first.
+
+### Removed — BREAKING
 - `Kck.Documents.ImageSharp` — removed; the package is not published from 5.0 on. Use `Kck.Documents.SkiaSharp`
   (`AddKckDocumentsSkiaSharp()`; see `docs/migrations/v4-to-v5.md`). With it the Six Labors licence wiring is gone:
   Release builds need no `SixLaborsLicenseKey`/`sixlabors.lic`, and `.github/license-policy.json` has no SixLabors
