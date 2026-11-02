@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1793625869271,
+  "lastUpdate": 1793626570947,
   "repoUrl": "https://github.com/omerkck41/OmerkckArchitecture",
   "entries": {
     "Benchmark": [
@@ -16078,6 +16078,102 @@ window.BENCHMARK_DATA = {
             "value": 5.7137207782014885,
             "unit": "ns",
             "range": "± 0.30160138508397694"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "106805727+omerkck41@users.noreply.github.com",
+            "name": "Ömer KÜÇÜK",
+            "username": "omerkck41"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "e760480dea07cc86a43f3f0aca687a54c74e1675",
+          "message": "chore: drop the sixlabors.lic ignore rule (S5 complete) (#302)\n\nLast step of the SixLabors removal plan (S5,\n`docs/plans/2026-10-31-sixlabors-kaldirma-plani.md`). Verified before\nthis change: `SIXLABORS_LICENSE_KEY` is gone from Actions and Dependabot\nsecrets, the local `sixlabors.lic` is deleted, and\n`Kck.Documents.ImageSharp` 4.8.0 is marked deprecated (Legacy,\nalternative `Kck.Documents.SkiaSharp`) on nuget.org. The ignore rule has\nnothing left to guard.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-authored-by: Claude Fable 5.1 <noreply@anthropic.com>",
+          "timestamp": "2026-11-02T13:28:58Z",
+          "tree_id": "10450e5160a876fe9b970ec039f5320ce54d5957",
+          "url": "https://github.com/omerkck41/OmerkckArchitecture/commit/e760480dea07cc86a43f3f0aca687a54c74e1675"
+        },
+        "date": 1793626570236,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Success_Factory",
+            "value": 4.851279754723821,
+            "unit": "ns",
+            "range": "± 0.1178465440691821"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Failure_Factory",
+            "value": 6.917518292553723,
+            "unit": "ns",
+            "range": "± 0.18265600373872282"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Success",
+            "value": 0.8544476262673184,
+            "unit": "ns",
+            "range": "± 0.03714413357601901"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Failure",
+            "value": 0.5067545470471183,
+            "unit": "ns",
+            "range": "± 0.003990448799676693"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Serialize_Reflection",
+            "value": 309.87769767216275,
+            "unit": "ns",
+            "range": "± 2.053303088690092"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Deserialize_Reflection",
+            "value": 591.1738008090427,
+            "unit": "ns",
+            "range": "± 3.0287609821655397"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 0)",
+            "value": 8.720380679837294,
+            "unit": "ns",
+            "range": "± 0.05159600267069318"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 5)",
+            "value": 8.396415798791818,
+            "unit": "ns",
+            "range": "± 0.14700054961673323"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 0)",
+            "value": 9.196644119173289,
+            "unit": "ns",
+            "range": "± 0.27744780713295"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 5)",
+            "value": 8.276819954697903,
+            "unit": "ns",
+            "range": "± 0.07493966687490876"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 0)",
+            "value": 8.402611942163535,
+            "unit": "ns",
+            "range": "± 0.13739336843831418"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 5)",
+            "value": 9.907590754330158,
+            "unit": "ns",
+            "range": "± 0.19217060463580823"
           }
         ]
       }
