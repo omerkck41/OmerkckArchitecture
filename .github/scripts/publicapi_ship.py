@@ -154,8 +154,8 @@ def main(argv: list[str] | None = None) -> int:
 
     try:
         results = ship(root)
-    except ShipError as error:
-        log.error("%s (nothing was written)", error)
+    except ShipError:
+        log.exception("public API ship aborted (nothing was written)")
         return 1
     for result in results:
         log.info("%s: removed %d, added %d", result.project, result.removed, result.added)
