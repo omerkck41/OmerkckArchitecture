@@ -1,9 +1,10 @@
 # Migration v4.x → v5.0
 
-**Release date:** not released yet (this guide grows while the 5.0 work lands)
+**Release date:** 2026-11-02 (5.0.0)
 **Impact:** Breaking
-**Estimated effort:** S (a configuration or broker change per RabbitMQ consumer; a package and registration rename for
-image processing)
+**Estimated effort:** M (a configuration or broker change per RabbitMQ consumer; a package and registration rename for
+image processing; explicit `Hangfire.SqlServer` / Serilog packages where they were transitive; removed `[Obsolete]` and dead
+API; `MailKit`, `FluentFtp`, `Elasticsearch`, hybrid cache and `IQuery` behaviour changes — sections 1–11)
 
 ## Why This Major?
 

@@ -40,7 +40,7 @@ Any of the following changes counts as **breaking**:
 
 ## Policy
 
-### Since 1.0 (current major: 4.x)
+### Since 1.0 (current major: 5.x)
 
 - **MINOR can only be additive** to the public API. A minor may change behaviour to fix a defect; such changes are
   listed under `### Changed — behaviour` in `CHANGELOG.md`.
