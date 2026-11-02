@@ -1,7 +1,6 @@
 #nullable enable
 Kck.Pipeline.Abstractions.ICachableRequest
 Kck.Pipeline.Abstractions.ICachableRequest.BypassCache.get -> bool
-Kck.Pipeline.Abstractions.ICachableRequest.CacheGroupKey.get -> string?
 Kck.Pipeline.Abstractions.ICachableRequest.CacheKey.get -> string!
 Kck.Pipeline.Abstractions.ICachableRequest.SlidingExpiration.get -> System.TimeSpan?
 Kck.Pipeline.Abstractions.ILoggableRequest

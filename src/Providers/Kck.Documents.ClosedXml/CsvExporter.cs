@@ -7,9 +7,10 @@ namespace Kck.Documents.ClosedXml;
 
 /// <summary>
 /// Implementation of <see cref="ICsvExporter"/> that uses reflection to enumerate public
-/// properties of the exported type and writes RFC-4180-compliant CSV content.
+/// properties of the exported type and writes RFC-4180-compliant CSV content. It does not use
+/// ClosedXML; resolve it as <see cref="ICsvExporter"/> rather than by this type name.
 /// </summary>
-public sealed class ClosedXmlCsvExporter : ICsvExporter
+public sealed class CsvExporter : ICsvExporter
 {
     /// <summary>
     /// Exports <paramref name="data"/> to a UTF-8 CSV <see cref="DocumentResult"/> whose

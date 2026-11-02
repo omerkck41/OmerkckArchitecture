@@ -1,7 +1,7 @@
 # OmerkckArchitecture v2 Dogrulama Duzeltmeleri — Plan
 
-- Tarih: 2026-10-14 · Kademe: K3 (guvenlik kapisi, izin modeli, 2 repo) · Onay: kullanici 2026-10-14 ·
-  Durum: **TAMAMLANDI (2026-10-15)** — PR #139–#148; arsiv: tasks/archive/2026-10-15-omerkck-v2-fixes.md
+- Status: **completed** 2026-10-15 · shipped in v3.5.0 · archived 2026-11-02 (PR #139–#148; checkpoint: [2026-10-15-omerkck-v2-fixes.md](2026-10-15-omerkck-v2-fixes.md))
+- Tarih: 2026-10-14 · Kademe: K3 (guvenlik kapisi, izin modeli, 2 repo) · Onay: kullanici 2026-10-14
 - Profil: `.claude` reposu → Standart (hook) · OmerkckArchitecture → Kurumsal (TIER 3, G0 onayina bagli)
 - Girdi: v2 dogrulama raporu (bu oturum) + kullanici duzeltmesi: proje ekip olcekli (Claude cok-ajanli ekip,
   kullanici denetleyici/karar verici), hedef herkese fayda saglayan surdurulebilir kutuphane.

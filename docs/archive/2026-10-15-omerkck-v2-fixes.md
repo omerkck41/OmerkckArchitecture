@@ -1,6 +1,6 @@
 # Checkpoint — OmerkckArchitecture v2 dogrulama duzeltmeleri
 
-- Baslangic: 2026-10-14 · Kademe: K3 · Plan: docs/plans/2026-10-14-omerkck-v2-fixes.md
+- Baslangic: 2026-10-14 · Kademe: K3 · Plan: [2026-10-14-omerkck-v2-fixes.md](2026-10-14-omerkck-v2-fixes.md)
 - Onay: kullanici "bu sureci en iyi sekilde muhendislik yaparak tamamla" (2026-10-14) — kararlar Claude'da;
   commit/push/PR ve GitHub ayarlari yalniz son kabulden sonra
 - Temel: hook 171/171 · ekosistem 197/197

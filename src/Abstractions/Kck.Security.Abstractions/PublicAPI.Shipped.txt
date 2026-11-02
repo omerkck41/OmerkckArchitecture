@@ -1,7 +1,4 @@
 #nullable enable
-Kck.Security.Abstractions.Encryption.IEncryptionService
-Kck.Security.Abstractions.Encryption.IEncryptionService.DecryptAsync(string! cipherText, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<string!>!
-Kck.Security.Abstractions.Encryption.IEncryptionService.EncryptAsync(string! plainText, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<string!>!
 Kck.Security.Abstractions.Entities.RefreshToken<TId, TUserId>
 Kck.Security.Abstractions.Entities.RefreshToken<TId, TUserId>.CreatedByIp.get -> string!
 Kck.Security.Abstractions.Entities.RefreshToken<TId, TUserId>.CreatedByIp.set -> void

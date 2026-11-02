@@ -9,7 +9,6 @@ insert_final_newline = true
 trim_trailing_whitespace = true
 
 [*.{cs,csx,cake}]
-charset = utf-8-bom
 dotnet_sort_system_directives_first = true
 dotnet_separate_import_directive_groups = false
 dotnet_style_qualification_for_field = false:suggestion

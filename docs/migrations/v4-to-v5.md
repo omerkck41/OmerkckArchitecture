@@ -365,7 +365,8 @@ services.AddKckDocumentsSkiaSharp();
 ### 9. Removed API
 
 **Reason:** 4.x shipped members that did nothing (settings that were never read, an enum value that was never
-implemented) and contracts that no Kck package implemented or called. The first group was marked `[Obsolete]` in 4.3–4.8
+implemented) and contracts that no Kck package implemented or called (one entry is a rename, `ClosedXmlCsvExporter` →
+`CsvExporter`). The first group was marked `[Obsolete]` in 4.3–4.8
 and is removed on schedule ([deprecation policy](../policies/deprecation.md#removed-in-50)); the second group is removed
 without an `[Obsolete]` release first, because nothing in Kck ever used it. A removal is a compile error, not a
 behaviour change: if your code compiles against 5.0, it behaves as before. One exception to "compile error": an
@@ -392,6 +393,7 @@ an explicit interface implementation fails), so search for it rather than waitin
 | `FilterSecurityException` | `Kck.Exceptions.Abstractions` | none — nothing threw it (a field outside the dynamic filter whitelist throws `ArgumentException`, as in 4.x); keep your own copy if you threw it |
 | `FilterValidator` | `Kck.Persistence.Abstractions` | none — nothing called it; `ToDynamic` throws `ArgumentException` for an unsupported operator or an invalid value |
 | `ICachableRequest.CacheGroupKey` | `Kck.Pipeline.Abstractions` | none — the caching behavior never read it; delete the property from your requests |
+| `ClosedXmlCsvExporter` (renamed; it never used ClosedXML) | `Kck.Documents.ClosedXml` | `ClosedXmlCsvExporter` → `CsvExporter`; resolve `ICsvExporter`, do not name the type. `AddKckDocumentsClosedXml()` registers it as before |
 
 ### 10. Package dependencies: no ASP.NET Core shared framework unless needed
 

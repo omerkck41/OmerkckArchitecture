@@ -18,7 +18,7 @@ uses of EF Core directly bypass or weaken that guarantee, and both compile and r
 - Synchronous `DbContext.SaveChanges()`: event dispatch is asynchronous, so it runs on a thread-pool thread while the
   caller blocks (a warning is logged at run time).
 
-Plan F4 (`docs/plans/2026-10-30-dx-hero-module-plan.md`, G4.1–G4.4) turns these into compile-time diagnostics.
+Plan F4 (`docs/archive/2026-10-30-dx-hero-module-plan.md`, G4.1–G4.4) turns these into compile-time diagnostics.
 
 ---
 

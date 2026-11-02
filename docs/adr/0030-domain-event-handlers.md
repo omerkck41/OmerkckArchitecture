@@ -68,5 +68,5 @@ redesign (plan F1) needs a handler model that works with one line of setup.
 
 ## Related
 
-- ADR-0029 (adoption plan), `docs/plans/2026-10-30-dx-hero-module-plan.md` G1.0
+- ADR-0029 (adoption plan), `docs/archive/2026-10-30-dx-hero-module-plan.md` G1.0
 - `docs/providers/persistence.md` (domain event semantics)

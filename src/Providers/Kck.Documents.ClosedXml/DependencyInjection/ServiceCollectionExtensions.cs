@@ -9,7 +9,7 @@ public static class KckDocumentsClosedXmlServiceCollectionExtensions
     public static IServiceCollection AddKckDocumentsClosedXml(this IServiceCollection services)
     {
         services.TryAddSingleton<IExcelService, ClosedXmlExcelService>();
-        services.TryAddSingleton<ICsvExporter, ClosedXmlCsvExporter>();
+        services.TryAddSingleton<ICsvExporter, CsvExporter>();
         return services;
     }
 }

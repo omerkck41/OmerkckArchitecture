@@ -21,12 +21,6 @@ Kck.FileStorage.Abstractions.FileUploadRequest.FileName.init -> void
 Kck.FileStorage.Abstractions.FileUploadRequest.FileUploadRequest() -> void
 Kck.FileStorage.Abstractions.FileUploadRequest.Overwrite.get -> bool
 Kck.FileStorage.Abstractions.FileUploadRequest.Overwrite.init -> void
-Kck.FileStorage.Abstractions.IFileConverter
-Kck.FileStorage.Abstractions.IFileConverter.FromBase64Async(string! base64, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<System.IO.Stream!>!
-Kck.FileStorage.Abstractions.IFileConverter.ToBase64Async(System.IO.Stream! input, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<string!>!
-Kck.FileStorage.Abstractions.IFileConverter.ToBytesAsync(System.IO.Stream! input, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<byte[]!>!
-Kck.FileStorage.Abstractions.IFileMetadataReader
-Kck.FileStorage.Abstractions.IFileMetadataReader.GetMetadata(string! filePath) -> Kck.FileStorage.Abstractions.FileMetadata!
 Kck.FileStorage.Abstractions.IFileStorageService
 Kck.FileStorage.Abstractions.IFileStorageService.DeleteAsync(string! path, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task!
 Kck.FileStorage.Abstractions.IFileStorageService.DownloadAsync(string! path, System.Threading.CancellationToken ct = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<System.IO.Stream!>!
@@ -40,5 +34,4 @@ Kck.FileStorage.Abstractions.IFtpService.MoveAsync(string! sourcePath, string! d
 Kck.FileStorage.Abstractions.PathHelper
 static Kck.FileStorage.Abstractions.PathHelper.Combine(params string![]! segments) -> string!
 static Kck.FileStorage.Abstractions.PathHelper.GetExtension(string! path) -> string!
-static Kck.FileStorage.Abstractions.PathHelper.IsValidPath(string! path) -> bool
-static Kck.FileStorage.Abstractions.PathHelper.Sanitize(string! path) -> string!
+static Kck.FileStorage.Abstractions.PathHelper.Validate(string! path) -> void

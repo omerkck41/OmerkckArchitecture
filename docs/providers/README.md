@@ -8,12 +8,12 @@ provider. The guides are grouped by category.
 | Category | Guide | Packages |
 |---|---|---|
 | Background Jobs | [background-jobs.md](background-jobs.md) | Hangfire, Quartz |
-| Caching | [caching.md](caching.md) | InMemory, Redis |
+| Caching | [caching.md](caching.md) | InMemory, Redis, Hybrid |
 | Documents | [documents.md](documents.md) | ClosedXml, SkiaSharp |
 | Event Bus | [event-bus.md](event-bus.md) | InMemory, RabbitMq, AzureServiceBus |
 | Exceptions | [exceptions.md](exceptions.md) | AspNetCore |
-| Feature Flags | [feature-flags.md](feature-flags.md) | InMemory |
-| File Storage | [file-storage.md](file-storage.md) | FluentFtp |
+| Feature Flags | [feature-flags.md](feature-flags.md) | InMemory, AzureAppConfig |
+| File Storage | [file-storage.md](file-storage.md) | FluentFtp, AwsS3, AzureBlob |
 | HTTP | [http.md](http.md) | Resilience |
 | Localization | [localization.md](localization.md) | Core, Json, Yaml |
 | Logging | [logging.md](logging.md) | Serilog |

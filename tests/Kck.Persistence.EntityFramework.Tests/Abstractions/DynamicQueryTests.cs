@@ -1,4 +1,4 @@
-﻿using AwesomeAssertions;
+using AwesomeAssertions;
 using Kck.Persistence.Abstractions.Dynamic;
 using Xunit;
 

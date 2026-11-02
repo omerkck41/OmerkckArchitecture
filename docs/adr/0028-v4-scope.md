@@ -29,7 +29,7 @@
 
 ## Decision
 
-v4.0.0 şunları yapar (uygulama sırası: `docs/plans/2026-10-27-v4-plan.md` §6):
+v4.0.0 şunları yapar (uygulama sırası: `docs/archive/2026-10-27-v4-plan.md` §6):
 
 | # | Karar |
 |---|---|
@@ -72,11 +72,11 @@ v4.0.0 şunları yapar (uygulama sırası: `docs/plans/2026-10-27-v4-plan.md` §
 - (−) WorkerService'i Hangfire ile kullananlar `Kck.BackgroundJobs.Hangfire`'ı doğrudan eklemeli.
 - (−) Quartz 4'ün davranış değişiklikleri (varsayılan saat dilimi, misfire, iş kimliği) tüketici işlerini etkileyebilir;
   rehberde ayrı bölüm.
-- Risk ve önlemler: `docs/plans/2026-10-27-v4-plan.md` §8 (premortem).
+- Risk ve önlemler: `docs/archive/2026-10-27-v4-plan.md` §8 (premortem).
 
 ---
 
 ## İlgili
 
 - ADR-0010 (deprecation politikası), ADR-0016 (QueryOptions API), ADR-0021 (MediatR deprecasyonu), ADR-0027 (yayın onay kapısı)
-- `docs/plans/2026-10-26-dis-inceleme-yol-haritasi.md` (D0, D2–D4), `docs/plans/2026-10-27-v4-plan.md` (D7–D10)
+- `docs/archive/2026-10-26-dis-inceleme-yol-haritasi.md` (D0, D2–D4), `docs/archive/2026-10-27-v4-plan.md` (D7–D10)

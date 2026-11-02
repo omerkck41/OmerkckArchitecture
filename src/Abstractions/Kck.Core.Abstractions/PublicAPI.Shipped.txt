@@ -151,3 +151,5 @@ virtual Kck.Core.Abstractions.Entities.FullEntity<TId>.IsDeleted.get -> bool
 virtual Kck.Core.Abstractions.Entities.FullEntity<TId>.IsDeleted.set -> void
 virtual Kck.Core.Abstractions.Entities.FullEntity<TId>.RowVersion.get -> byte[]?
 virtual Kck.Core.Abstractions.Entities.FullEntity<TId>.RowVersion.set -> void
+Kck.Core.Abstractions.Entities.IDomainEventHandler<TEvent>
+Kck.Core.Abstractions.Entities.IDomainEventHandler<TEvent>.HandleAsync(TEvent domainEvent, System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task!

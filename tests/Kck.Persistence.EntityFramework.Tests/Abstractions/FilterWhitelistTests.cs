@@ -1,4 +1,4 @@
-﻿using System.Linq.Expressions;
+using System.Linq.Expressions;
 using AwesomeAssertions;
 using Kck.Persistence.Abstractions.Dynamic;
 using Kck.Persistence.Abstractions.Security;

@@ -1,6 +1,7 @@
 # Dış İnceleme Karşılaştırması ve Geliştirme Yol Haritası — Plan
 
-- Tarih: 2026-10-26 · Kademe: K3 (yol haritası; her faz kendi kademesinde yürür) · Profil: Kurumsal (TIER 3) · Onay: bekliyor
+- Status: F0–F2 completed 2026-10-27 (v4.0.0); F3 completed across 4.x and superseded by the DX plan (docs/archive/2026-10-30-dx-hero-module-plan.md) · archived 2026-11-02
+- Tarih: 2026-10-26 · Kademe: K3 (yol haritası; her faz kendi kademesinde yürür) · Profil: Kurumsal (TIER 3)
 - Hedef: Ücretli lisans gerektiren bağımlılığı sıfırlamak ve bunu CI'da kalıcı (fail-closed) kılmak; ardından vadesi
   geçmiş temizliği v4.0.0'da yapıp kalite ve benimsenme işlerine geçmek.
 - Kısıt (kullanıcı, 2026-10-26): projede ücretli lisans kullanılmaz.

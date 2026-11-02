@@ -35,7 +35,6 @@ Kck.Persistence.Abstractions.Dynamic.FilterOperator.Lt = 2 -> Kck.Persistence.Ab
 Kck.Persistence.Abstractions.Dynamic.FilterOperator.Lte = 3 -> Kck.Persistence.Abstractions.Dynamic.FilterOperator
 Kck.Persistence.Abstractions.Dynamic.FilterOperator.Neq = 1 -> Kck.Persistence.Abstractions.Dynamic.FilterOperator
 Kck.Persistence.Abstractions.Dynamic.FilterOperator.StartsWith = 7 -> Kck.Persistence.Abstractions.Dynamic.FilterOperator
-Kck.Persistence.Abstractions.Dynamic.FilterValidator
 Kck.Persistence.Abstractions.Dynamic.Sort
 Kck.Persistence.Abstractions.Dynamic.Sort.Dir.get -> string!
 Kck.Persistence.Abstractions.Dynamic.Sort.Dir.set -> void
@@ -46,7 +45,6 @@ Kck.Persistence.Abstractions.Dynamic.Sort.Priority.set -> void
 Kck.Persistence.Abstractions.Dynamic.Sort.Sort() -> void
 Kck.Persistence.Abstractions.Dynamic.Sort.Sort(string! field, string! dir, int priority = 0) -> void
 Kck.Persistence.Abstractions.Repositories.IQuery<T>
-Kck.Persistence.Abstractions.Repositories.IQuery<T>.Query(System.Linq.Expressions.Expression<System.Func<T, bool>!>? filter = null, System.Func<System.Linq.IQueryable<T>!, System.Linq.IOrderedQueryable<T>!>? orderBy = null, bool withDeleted = false, bool enableTracking = false) -> System.Linq.IQueryable<T>!
 Kck.Persistence.Abstractions.Repositories.IReadRepository<T, TId>
 Kck.Persistence.Abstractions.Repositories.IReadRepository<T, TId>.AnyAsync(Kck.Persistence.Abstractions.Repositories.QueryOptions? options = null, System.Linq.Expressions.Expression<System.Func<T!, bool>!>? predicate = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<bool>!
 Kck.Persistence.Abstractions.Repositories.IReadRepository<T, TId>.CountAsync(Kck.Persistence.Abstractions.Repositories.QueryOptions? options = null, System.Linq.Expressions.Expression<System.Func<T!, bool>!>? predicate = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<int>!
@@ -127,7 +125,6 @@ Kck.Persistence.Abstractions.UnitOfWork.IUnitOfWork.SaveChangesAsync(bool autoCo
 override Kck.Persistence.Abstractions.Repositories.QueryOptions.GetHashCode() -> int
 static Kck.Persistence.Abstractions.Dynamic.DynamicFilterExtensions.ToDynamic<T>(this System.Linq.IQueryable<T>! query, Kck.Persistence.Abstractions.Dynamic.DynamicQuery! dynamic) -> System.Linq.IQueryable<T>!
 static Kck.Persistence.Abstractions.Dynamic.Filter.TryParseOperator(string? operator) -> Kck.Persistence.Abstractions.Dynamic.FilterOperator?
-static Kck.Persistence.Abstractions.Dynamic.FilterValidator.Validate(Kck.Persistence.Abstractions.Dynamic.Filter! filter) -> bool
 static Kck.Persistence.Abstractions.Repositories.QueryOptions.None.get -> Kck.Persistence.Abstractions.Repositories.QueryOptions
 static Kck.Persistence.Abstractions.Repositories.QueryOptions.Tracking.get -> Kck.Persistence.Abstractions.Repositories.QueryOptions
 static Kck.Persistence.Abstractions.Repositories.QueryOptions.WithDeleted.get -> Kck.Persistence.Abstractions.Repositories.QueryOptions
@@ -135,3 +132,6 @@ static Kck.Persistence.Abstractions.Repositories.QueryOptions.operator !=(Kck.Pe
 static Kck.Persistence.Abstractions.Repositories.QueryOptions.operator ==(Kck.Persistence.Abstractions.Repositories.QueryOptions left, Kck.Persistence.Abstractions.Repositories.QueryOptions right) -> bool
 ~override Kck.Persistence.Abstractions.Repositories.QueryOptions.Equals(object obj) -> bool
 ~override Kck.Persistence.Abstractions.Repositories.QueryOptions.ToString() -> string
+Kck.Persistence.Abstractions.Auditing.IAuditUserProvider
+Kck.Persistence.Abstractions.Auditing.IAuditUserProvider.CurrentUser.get -> string?
+Kck.Persistence.Abstractions.Repositories.IQuery<T>.Query(Kck.Persistence.Abstractions.Repositories.QueryOptions options, System.Linq.Expressions.Expression<System.Func<T, bool>!>? filter = null, System.Func<System.Linq.IQueryable<T>!, System.Linq.IOrderedQueryable<T>!>? orderBy = null) -> System.Linq.IQueryable<T>!

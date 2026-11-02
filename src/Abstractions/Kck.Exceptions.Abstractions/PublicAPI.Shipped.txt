@@ -22,9 +22,6 @@ Kck.Exceptions.CustomException.ExplicitStatusCode.get -> int?
 Kck.Exceptions.CustomInvalidOperationException
 Kck.Exceptions.CustomInvalidOperationException.CustomInvalidOperationException(string! message) -> void
 Kck.Exceptions.CustomInvalidOperationException.CustomInvalidOperationException(string! message, System.Exception! innerException) -> void
-Kck.Exceptions.FilterSecurityException
-Kck.Exceptions.FilterSecurityException.FilterSecurityException(string! propertyName) -> void
-Kck.Exceptions.FilterSecurityException.FilterSecurityException(string! propertyName, string! operatorName) -> void
 Kck.Exceptions.ForbiddenException
 Kck.Exceptions.ForbiddenException.ForbiddenException(string! message = "Insufficient permissions") -> void
 Kck.Exceptions.ForbiddenException.ForbiddenException(string! message, System.Exception! innerException) -> void
