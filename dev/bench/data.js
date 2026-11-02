@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1793572344652,
+  "lastUpdate": 1793622802817,
   "repoUrl": "https://github.com/omerkck41/OmerkckArchitecture",
   "entries": {
     "Benchmark": [
@@ -15790,6 +15790,102 @@ window.BENCHMARK_DATA = {
             "value": 10.813220144382544,
             "unit": "ns",
             "range": "± 0.14502045480101186"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "106805727+omerkck41@users.noreply.github.com",
+            "name": "Ömer KÜÇÜK",
+            "username": "omerkck41"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "8d40870026e9399b47792ca3f14020deb425a92e",
+          "message": "chore(release)!: 5.0 cleanup — ship the public API, archive plans, tidy docs (F5) (#299)\n\n## Summary\n\nStep F5 (\"cleanup\"), the last pre-release phase of the provider health\nplan\n(`docs/plans/2026-10-31-provider-saglik-ve-atil-kod-plani.md`, section 4\nrow F5, acceptance Ö16, decision D4).\n\n**Breaking (5.0):** `Kck.Documents.ClosedXml`'s `ClosedXmlCsvExporter`\nis renamed `CsvExporter` (it never used ClosedXML). `ICsvExporter`\nand `AddKckDocumentsClosedXml()` are unchanged, so only code that named\nthe type is affected (`docs/migrations/v4-to-v5.md` section 9;\n`CompatibilitySuppressions.xml` CP0001).\n\n## Public API records\n- New `.github/scripts/publicapi_ship.py` (stdlib only; `--root`,\n`--check`; unit-tested) moves every `PublicAPI.Unshipped.txt` line of\nthe 17\nabstractions packages into `PublicAPI.Shipped.txt` and applies the\n`*REMOVED*` lines: **68 removals, 15 additions** across 13 Shipped\nfiles;\nevery Unshipped file is now only `#nullable enable` and\n`publicapi_ship.py --check` passes. The build shows no RS0016/RS0017.\n`docs/policies/versioning.md` documents the release step (it was skipped\nin 4.3–4.8).\n- The six `PublicAPI.*.txt` files under three providers that no analyzer\never read are deleted.\n\n## Repository hygiene\n- `.editorconfig` no longer requires a UTF-8 BOM for C# files; the three\nfiles that had one are rewritten without it (0 of 714 tracked `.cs`\n  files carry a BOM).\n- Unreferenced `Microsoft.Extensions.Configuration.UserSecrets` version\nremoved from `Directory.Packages.props` (`restore --locked-mode`\npasses).\n- Four finished plans moved to `docs/archive/` (`git mv`, status line\neach): v2 fixes (v3.5.0), external review roadmap and v4 plan (v4.0.0),\nDX hero-module plan (4.7.0). Every link to them (workflows, props, ADR\n0028–0031, two decision records) is updated; `docfx.json` already\n  excludes `docs/archive/**`.\n\n## Docs\n- Root `README.md` and `docs/providers/README.md` now list\n`Kck.FileStorage.AwsS3`, `Kck.FileStorage.AzureBlob`,\n`Kck.FeatureFlags.AzureAppConfig`\nand `Kck.Caching.Hybrid`; the Documents abstractions description no\nlonger mentions PDF.\n- `Kck.Bundle.WebApi` README configuration table matches what the bundle\nreads (`Kck:`-prefixed keys, rate-limit window, security headers,\n`CorsOrigins`; dead rows removed) and carries the JWT note (Audience and\nthe signing key are required; `Configure<JwtOptions>` example).\n- CHANGELOG `[Unreleased]` separates `### Changed — BREAKING` (12) from\n`### Changed` (2), as `docs/policies/versioning.md` prescribes.\n\n## Verification (local)\n\n| Check | Result |\n|---|---|\n| `dotnet build -c Release --no-incremental` | 0 errors (5 pre-existing\nCA1716 warnings), no RS0016/RS0017 |\n| `dotnet test -c Release --filter \"Category!=Integration\"` | 1504/1504\n|\n| `dotnet restore --locked-mode` | passes |\n| `python -m unittest discover -s .github/scripts` | 92 OK (licence gate\n+ snippets + publicapi_ship) |\n| `publicapi_ship.py --check` | all Unshipped files empty |\n| BOM count over tracked `.cs` | 0 |\n| `readme_snippets.py --check` / `docs_language.py` | 175 blocks up to\ndate / 107 files, 0 problems |\n| Fresh skeptical review | 1 round; CHANGELOG classification and archive\nstatus findings fixed |\n\nAfter this merges, the release itself is a separate, maintainer-driven\nstep: CHANGELOG `[5.0.0] — date`, migration guide date, the `v5.0.0` tag\nand the nuget environment approval; then the baseline-5.0.0 PR (and the\n17 `CompatibilitySuppressions.xml` files become obsolete).\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-authored-by: Claude Fable 5.1 <noreply@anthropic.com>",
+          "timestamp": "2026-11-02T12:26:27Z",
+          "tree_id": "3996db2605288d50beec7b84115c8790c32911a0",
+          "url": "https://github.com/omerkck41/OmerkckArchitecture/commit/8d40870026e9399b47792ca3f14020deb425a92e"
+        },
+        "date": 1793622801738,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Success_Factory",
+            "value": 7.990964565674464,
+            "unit": "ns",
+            "range": "± 0.06133541346080936"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Failure_Factory",
+            "value": 9.354086378445992,
+            "unit": "ns",
+            "range": "± 0.03387670994374486"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Success",
+            "value": 1.6808674921592077,
+            "unit": "ns",
+            "range": "± 0.07348551927634968"
+          },
+          {
+            "name": "Kck.Benchmarks.ResultBenchmarks.Match_Failure",
+            "value": 0.5291936293244361,
+            "unit": "ns",
+            "range": "± 0.0072317932800182476"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Serialize_Reflection",
+            "value": 389.7237906822792,
+            "unit": "ns",
+            "range": "± 0.3701039774413486"
+          },
+          {
+            "name": "Kck.Benchmarks.JsonSerializationBenchmarks.Deserialize_Reflection",
+            "value": 718.4212135168223,
+            "unit": "ns",
+            "range": "± 2.062736763900174"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 0)",
+            "value": 12.755879602829616,
+            "unit": "ns",
+            "range": "± 0.12169463400565222"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 10, Index: 5)",
+            "value": 12.832267746329308,
+            "unit": "ns",
+            "range": "± 0.060042341984026776"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 0)",
+            "value": 12.090546646288463,
+            "unit": "ns",
+            "range": "± 0.08296624277647988"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 100, Index: 5)",
+            "value": 12.786917128165562,
+            "unit": "ns",
+            "range": "± 0.10570422425841222"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 0)",
+            "value": 12.718958063258064,
+            "unit": "ns",
+            "range": "± 0.5713910348659519"
+          },
+          {
+            "name": "Kck.Benchmarks.PaginateCreateBenchmarks.Create(Size: 1000, Index: 5)",
+            "value": 12.037218747230677,
+            "unit": "ns",
+            "range": "± 0.1103074677033235"
           }
         ]
       }
