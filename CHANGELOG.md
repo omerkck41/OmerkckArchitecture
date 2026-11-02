@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [5.0.0] — 2026-11-02
+
+Migration guide: `docs/migrations/v4-to-v5.md`. Release notes: GitHub Release "Kck 5.0.0".
+
 ### Added
 - `Kck.EventBus.RabbitMq` — `RabbitMqOptions.PrefetchCount` (default `10`, `0` = unlimited), `DeadLetterEnabled`
   (default `true`), `DeadLetterExchangeName` (default `{QueuePrefix}.dlx`, one per service) and `DeadLetterQueueName`
