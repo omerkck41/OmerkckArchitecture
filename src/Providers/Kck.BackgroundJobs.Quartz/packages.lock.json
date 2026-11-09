@@ -21,9 +21,9 @@
       },
       "Quartz": {
         "type": "Direct",
-        "requested": "[4.6.2, )",
-        "resolved": "4.6.2",
-        "contentHash": "0CfUXKAA7Hs4hIa81AJNxg33gLJIrxD6mqjgAlPYQ4GLl4ErFtqJSE3T30xpEuh+4gYJqpv5boSMJQWR7UvJGA==",
+        "requested": "[4.7.2, )",
+        "resolved": "4.7.2",
+        "contentHash": "5LgZrEMqzTf19eflFusXiJLjhQxRUYrIlasTSWaxmiAkpQrPfrZcxf+t1mV0QbE7g9qtXdh9lV6yItjoZFUCKw==",
         "dependencies": {
           "Microsoft.Extensions.Configuration.Binder": "10.0.0",
           "Microsoft.Extensions.DependencyInjection": "10.0.0",
