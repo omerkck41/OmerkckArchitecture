@@ -104,7 +104,7 @@
     <PackageVersion Include="Hangfire.Core" Version="1.8.25" />
     <PackageVersion Include="Hangfire.InMemory" Version="1.0.0" />
     <PackageVersion Include="Hangfire.NetCore" Version="1.8.25" />
-    <PackageVersion Include="Quartz" Version="4.6.2" />
+    <PackageVersion Include="Quartz" Version="4.7.2" />
     <!-- Override Hangfire's transitive Newtonsoft.Json 11.0.1 (GHSA-5crp-9r3c-p9vr High DoS).
          Removable when Hangfire 2.x lands or replaces Newtonsoft.Json. -->
     <PackageVersion Include="Newtonsoft.Json" Version="13.0.4" />
